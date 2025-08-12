@@ -1,0 +1,61 @@
+@import './variables.css';
+
+.navbar {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+    height: 70px;
+  }
+  
+.contenido{
+    padding-top: 0px;
+    margin-top: 0px;
+}
+.nav-item-bar {
+    border-radius: 10rem;
+    border: 2px solid;
+    padding-left: 0.8rem;
+    padding-right: 0.8rem;
+    padding-top: 0.04rem;
+    padding-bottom: 0.04rem;
+    margin-left: 1rem;
+    border-color: var(--primary-color);
+    background-color: white;
+}
+
+.nav-item-bar a {
+    font-family: var(--fuente-principal);
+    color: var(--primary-color);
+}
+
+.nav-item-bar:hover {
+    background-color: var(--primary-color-hover);
+    border-color: var(--primary-color-hover);
+    cursor: pointer; 
+    transform: scale(1.05);
+    color: white;
+}
+
+.nav-item-bar a:hover {
+    color: white;
+}
+
+.logo-navbar {
+  height: 50px;
+  transition: height 0.3s;
+}
+
+@media (max-width: 992px) {
+  .logo-navbar {
+    height: 40px;
+  }
+}
+
+@media (max-width: 576px) {
+  .logo-navbar {
+    height: 30px;
+  }
+}
+
+.col-izq {
+  height: calc(100vh - 70px); /* Ajusta 70px si tu navbar tiene otra altura */
+  overflow-y: auto;
+}

@@ -1,0 +1,99 @@
+<!-- Font Awesome (para íconos) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<!-- Modal -->
+<div class="modal fade" id="menuDiaModal" tabindex="-1" aria-labelledby="menuDiaModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+      <form method="POST">
+        {% csrf_token %}
+        <div class="modal-header d-flex align-items-start">
+          <div>
+            <h5 class="modal-title" id="menuDiaModalLabel">
+              <i class="fas fa-utensils me-2"></i>Menú del Día
+            </h5>
+            <small class="text-secondary">Configura tu menú</small>
+          </div>
+          <button type="button" class="btn-close btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body">
+
+          
+
+          <!-- SOPAS -->
+          <div class="card card-sopas-conf mb-3">
+            <div class="card-header card-header-sopas bg-light fw-bold">
+              <i class="fas fa-mug-hot me-2"></i>Sopas
+            </div>
+            <div class="card-body">
+              {% for form in sopa_forms %}
+                <div class="mb-3 form-group">
+                  <label for="{{ form.sopa.id_for_label }}" class="form-label">Sopa:</label>
+                  {{ form.sopa }}
+                  {{ form.cantidad }}
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- SEGUNDOS -->
+          <div class="card card-segundos-conf mb-3">
+            <div class="card-header card-header-segundos bg-light fw-bold">
+              <i class="fas fa-drumstick-bite me-2"></i>Segundos
+            </div>
+            <div class="card-body">
+              {% for form in segundo_forms %}
+                <div class="mb-3 form-group segundo-form {% if forloop.counter == 3 %}d-none{% endif %}" {% if forloop.counter == 3 %}id="form-tercer-segundo"{% endif %}>
+                  <label for="{{ form.segundo.id_for_label }}" class="form-label">Segundo:</label>
+                  {{ form.segundo }}
+                  {{ form.cantidad }}
+                </div>
+              {% endfor %}
+
+              <button type="button" class="btn btn-outline-success btn-sm" onclick="mostrarTercerSegundo()">
+                <i class="fas fa-plus-circle me-1"></i> Agregar tercer segundo
+              </button>
+            </div>
+          </div>
+
+                        <!-- POSTRE + JUGOS -->
+              <div class="card card-jugos-conf mb-3">
+                <div class="card-header card-header-jugos bg-light fw-bold">
+                  <i class="fas fa-ice-cream me-2"></i>Postre y Jugos
+                </div>
+                <div class="card-body">
+
+                  <!-- POSTRE -->
+                  <div class="mb-3 row align-items-center">
+                    <label for="{{ form_postre.postre.id_for_label }}" class="col-auto col-form-label">Postre:</label>
+                    <div class="col">
+                      {{ form_postre.postre }}
+                    </div>
+                  </div>
+
+                  <!-- JUGOS -->
+                  {% for form in jugo_forms %}
+                    <div class="mb-3 row align-items-center">
+                      <label for="{{ form.jugo.id_for_label }}" class="col-auto col-form-label">Jugo:</label>
+                      <div class="col">
+                        {{ form.jugo }}
+                      </div>
+                    </div>
+                  {% endfor %}
+
+                </div>
+              </div>
+
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success">
+            <i class="fas fa-save me-1"></i> Guardar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

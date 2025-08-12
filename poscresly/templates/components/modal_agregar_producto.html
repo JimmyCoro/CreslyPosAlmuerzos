@@ -1,0 +1,32 @@
+<!-- Modal para agregar producto -->
+<div class="modal fade" id="agregarProductoModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalAgregarProductoTitulo">Agregar producto</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+
+      <div class="modal-body">
+        <form id="formAgregarProducto">
+          <input type="hidden" name="tipo" id="tipo-producto"> <!-- ⬅️ AGREGADO -->
+          <div id="contenedorFormularioProducto">
+            <!-- Aquí se insertan dinámicamente los formularios según el tipo -->
+          </div>
+          <!-- Input para observaciones -->
+          <div class="mb-3">
+            <label for="observacion-producto" class="form-label">Observación (opcional)</label>
+            <input type="text" class="form-control" id="observacion-producto" name="observacion" placeholder="Ej: sin arroz, presa pechuga, etc.">
+          </div>
+        </form>
+
+      </div>
+
+      <div class="modal-footer">
+        <button id="btnAgregarProducto" type="button" class="btn btn-primary">Agregar al pedido</button>
+      </div>
+
+    </div>
+  </div>
+</div>

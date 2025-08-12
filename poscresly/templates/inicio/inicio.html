@@ -1,0 +1,1206 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load math_filters %}
+
+{% block content %}
+<div class="container-fluid contenedor-principal mt-5 pt-5">
+  <div class="row">
+    <div class="col-izq col-12 col-md-3 d-none d-md-block">
+      <button class="btn btn-tomar-pedido w-100 mb-3" data-bs-toggle="modal" data-bs-target="#tomarPedidoModal">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#fff" viewBox="0 0 16 16" class="me-2">
+          <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zm.104-14.804A1.5 1.5 0 0 0 5.5 2c0 .628.134 1.197.356 1.684C4.14 4.36 3 5.828 3 7.5V11l-.447.894A.5.5 0 0 0 3 13h10a.5.5 0 0 0 .447-.724L13 11V7.5c0-1.672-1.14-3.14-2.856-3.816A3.5 3.5 0 0 0 8.104 1.196z"/>
+        </svg>
+        ¡Haz tu pedido!
+      </button>
+
+      <button class="btn btn-configurar-menu btn-outline-secondary w-100 mb-4" data-bs-toggle="modal" data-bs-target="#menuDiaModal">
+        <i class="fas fa-cogs me-2"></i>Configurar Menú
+      </button>
+
+      <div class="card card-sopas mb-3">
+        <div class="card-header card-header-sopas">  
+          <i class="fas fa-mug-hot me-2"></i>Sopas
+        </div>
+        <ul class="list-group list-group-flush">
+          {% for item in sopas_dia %}
+            <li class="list-group-item">
+            <span class="nombre-sopa">{{ item.sopa }}</span> 
+            <span class="cantidad-sopa">
+              <span class="punto-cantidad"></span>
+              {{ item.cantidad }}
+            </span>
+            </li>{% empty %}
+            <li class="list-group-item text-muted">No configurado</li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="card card-segundos mb-3">
+        <div class="card-header card-header-segundos">
+            <i class="fas fa-drumstick-bite me-2"></i>Segundos
+        </div>
+        <ul class="list-group list-group-flush">
+        {% for item in segundos_dia %}
+        <li class="list-group-item">
+        <span class="nombre-segundo">{{ item.segundo }}</span> 
+        <span class="cantidad-segundo">
+          <span class="punto-cantidad{% if item.cantidad == 0 %} sin-productos{% endif %}"></span>
+          {{ item.cantidad }}
+        </span>
+        </li>{% empty %}
+        <li class="list-group-item text-muted">No configurado</li>{% endfor %}</ul></div>
+
+      <div class="card card-jugos mb-3">
+        <div class="card-header card-header-jugos">
+            <i class="fas fa-glass-whiskey me-2"></i></i>Jugos
+        </div>
+        <ul class="list-group list-group-flush">
+        {% for item in jugos_dia %}
+        <li class="list-group-item">{{ item.jugo }}</li>{% empty %}
+        <li class="list-group-item text-muted">No configurado</li>{% endfor %}</ul></div>
+
+    </div>
+
+    <div class="d-block d-md-none mb-3">
+      <button class="btn btn-outline-secondary w-100 mb-4" type="button" data-bs-toggle="collapse" data-bs-target="#menuDiaCollapse">
+        Ver menú del día
+      </button>
+
+
+      <div class="collapse mt-2" id="menuDiaCollapse">
+
+        <button class="btn btn-configurar-menu btn-outline-secondary w-100 mb-4" data-bs-toggle="modal" data-bs-target="#menuDiaModal">
+          <i class="fas fa-cogs me-2"></i>Configurar Menú
+        </button>``
+        <div class="card mb-2">
+          <div class="card-header card-header-sopas">Sopas</div>
+          <ul class="list-group list-group-flush">
+            {% for item in sopas_dia %}
+              <li class="list-group-item">
+                <span class="nombre-sopa">{{ item.sopa }}</span> 
+                <span class="cantidad-sopa">
+                  <span class="punto-cantidad"></span>
+                  {{ item.cantidad }}
+                </span>
+              </li>{% empty %}
+            <li class="list-group-item text-muted">No configurado</li>{% endfor %}
+          </ul>
+        </div>
+
+        <div class="card mb-2">
+          <div class="card-header card-header-segundos">Segundos</div>
+          <ul class="list-group list-group-flush">
+            {% for item in segundos_dia %}
+              <li class="list-group-item">
+                <span class="nombre-segundo">{{ item.segundo }}</span> 
+                <span class="cantidad-segundo">
+                  <span class="punto-cantidad{% if item.cantidad == 0 %} sin-productos{% endif %}"></span>
+                  {{ item.cantidad }}
+                </span>
+              </li>{% empty %}
+            <li class="list-group-item text-muted">No configurado</li>{% endfor %}
+          </ul>
+        </div>
+
+        <div class="card mb-2">
+          <div class="card-header card-header-jugos">Jugos</div>
+          <ul class="list-group list-group-flush">
+            {% for item in jugos_dia %}<li class="list-group-item">{{ item.jugo }}</li>{% empty %}
+            <li class="list-group-item text-muted">No configurado</li>{% endfor %}
+          </ul>
+        </div>
+      </div>
+
+      <button class="btn btn-tomar-pedido mb-3" data-bs-toggle="modal" data-bs-target="#tomarPedidoModal">
+        <i class="fas fa-concierge-bell me-2"></i>¡Haz tu pedido!
+      </button>
+
+    </div>
+
+
+    <div class="col-9 col-der d-flex flex-column" style="height: 100%;">
+      <div class="tipo-pedido d-flex justify-content-evenly mb-3 flex-shrink-0">
+        <a class="nav-link" href="#">Servirse</a>
+        <a class="nav-link" href="#">Reservados</a>
+        <a class="nav-link" href="#">Llevar</a>
+      </div>
+      <div class="pedidos-scroll flex-grow-1" style="overflow-y: auto; min-height: 0;">
+        <div class="row g-3" id="contenedor-cards-pedidos">
+          <!-- Aquí van las cards de los pedidos generadas dinámicamente por JavaScript -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% include 'components/modal_menu_config.html' %}
+{% include 'components/modal_tomar_pedido.html' %}
+{% include 'components/modal_agregar_producto.html' %}
+
+<!-- Templates de formularios -->
+<template id="formulario-almuerzo">
+  <div>
+    <label><strong>Sopa:</strong></label>
+    <div class="d-flex flex-wrap gap-2 mb-3">
+      {% for s in sopas_dia %}
+        <button type="button" class="btn btn-outline-primary btn-sopa" data-id="{{ s.sopa.id }}">{{ s.sopa.nombre_plato }}</button>
+      {% endfor %}
+    </div>
+    <input type="hidden" name="sopa" id="sopa-seleccionada">
+
+    <label><strong>Segundo:</strong></label>
+    <div class="d-flex flex-wrap gap-2 mb-3">
+      {% for s in segundos_dia %}
+        <button type="button" class="btn btn-outline-success btn-segundo" data-id="{{ s.segundo.id }}">{{ s.segundo.nombre_plato }}</button>
+      {% endfor %}
+    </div>
+    <input type="hidden" name="segundo" id="segundo-seleccionado">
+
+    <label><strong>Jugo:</strong></label>
+    <div class="d-flex flex-wrap gap-2 mb-3">
+      {% for j in jugos_dia %}
+        <button type="button" class="btn btn-outline-warning btn-jugo" data-id="{{ j.jugo.id }}">{{ j.jugo.nombre_plato }}</button>
+      {% endfor %}
+    </div>
+    <input type="hidden" name="jugo" id="jugo-seleccionado">
+  </div>
+</template>
+
+<template id="formulario-sopa">
+  <div>
+    <label><strong>Sopa:</strong></label>
+    <div class="d-flex flex-wrap gap-2 mb-3">
+      {% for s in sopas_dia %}
+        <button type="button" class="btn btn-outline-primary btn-sopa" data-id="{{ s.sopa.id }}">{{ s.sopa.nombre_plato }}</button>
+      {% endfor %}
+    </div>
+    <input type="hidden" name="sopa" id="sopa-seleccionada">
+
+    <label><strong>Jugo:</strong></label>
+    <div class="d-flex flex-wrap gap-2 mb-3">
+      {% for j in jugos_dia %}
+        <button type="button" class="btn btn-outline-warning btn-jugo" data-id="{{ j.jugo.id }}">{{ j.jugo.nombre_plato }}</button>
+      {% endfor %}
+    </div>
+    <input type="hidden" name="jugo" id="jugo-seleccionado">
+  </div>
+</template>
+
+<template id="formulario-segundo">
+  <div>
+    <label><strong>Segundo:</strong></label>
+    <div class="d-flex flex-wrap gap-2 mb-3">
+      {% for s in segundos_dia %}
+        <button type="button" class="btn btn-outline-success btn-segundo" data-id="{{ s.segundo.id }}">{{ s.segundo.nombre_plato }}</button>
+      {% endfor %}
+    </div>
+    <input type="hidden" name="segundo" id="segundo-seleccionado">
+
+    <label><strong>Jugo:</strong></label>
+    <div class="d-flex flex-wrap gap-2 mb-3">
+      {% for j in jugos_dia %}
+        <button type="button" class="btn btn-outline-warning btn-jugo" data-id="{{ j.jugo.id }}">{{ j.jugo.nombre_plato }}</button>
+      {% endfor %}
+    </div>
+    <input type="hidden" name="jugo" id="jugo-seleccionado">
+  </div>
+</template>
+
+<script>
+const PRECIOS = {{ precios|safe }};
+</script>
+
+<script>
+
+  function mostrarTercerSegundo() {
+    const formTercerSegundo = document.getElementById('form-tercer-segundo');
+    if (formTercerSegundo) {
+      formTercerSegundo.classList.remove('d-none');
+    }
+
+    const boton = event.target;
+    if (boton) {
+      boton.classList.add('d-none');
+    }
+  }
+
+document.addEventListener('DOMContentLoaded', function() {
+  const formaPagoInput = document.getElementById('forma_pago');
+  const tipoPedidoInput = document.getElementById('tipo_pedido');
+  let totalPedido = 0;
+
+  // --- Inicializar Select2 solo al abrir el modal de Configurar Menú ---
+if (menuDiaModal) {
+  menuDiaModal.addEventListener('shown.bs.modal', function () {
+    if (typeof $ !== 'undefined' && $.fn.select2) {
+      setTimeout(function () {
+        $('#menuDiaModal .form-select').each(function () {
+          if (!$(this).hasClass("select2-hidden-accessible")) {
+            $(this).select2({
+              dropdownParent: $('#menuDiaModal .modal-content'),  // 👈 Esto es clave
+              width: '100%'
+            });
+          }
+        });
+      }, 100);
+    }
+  });
+}
+
+
+  // --- Forma de pago ---
+  document.querySelectorAll('.btn-forma-pago').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      formaPagoInput.value = this.textContent.trim();
+      document.querySelectorAll('.btn-forma-pago').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+
+  // --- Tipo de pedido (tabs) ---
+  document.querySelectorAll('#tipoPedidoTabs button').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      tipoPedidoInput.value = this.textContent.trim().toLowerCase();
+    });
+  });
+  const activeTab = document.querySelector('#tipoPedidoTabs button.active');
+  if (activeTab) tipoPedidoInput.value = activeTab.textContent.trim().toLowerCase();
+
+  // --- Activar selección de productos ---
+  function activarBotonesSeleccion() {
+    document.querySelectorAll('.btn-sopa').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.btn-sopa').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('sopa-seleccionada').value = btn.dataset.id;
+      });
+    });
+
+    document.querySelectorAll('.btn-segundo').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.btn-segundo').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('segundo-seleccionado').value = btn.dataset.id;
+      });
+    });
+
+    document.querySelectorAll('.btn-jugo').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.btn-jugo').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('jugo-seleccionado').value = btn.dataset.id;
+      });
+    });
+  }
+
+  activarBotonesSeleccion();
+
+  // --- Abrir modal para agregar producto ---
+  window.abrirModalProducto = function(tipo) {
+    const contenedor = document.getElementById('contenedorFormularioProducto');
+    contenedor.innerHTML = '';
+    const template = document.getElementById(`formulario-${tipo}`);
+    if (template) {
+      contenedor.appendChild(template.content.cloneNode(true));
+      activarBotonesSeleccion();
+      document.getElementById('tipo-producto').value = tipo;
+
+      // Cambiar el título del modal dinámicamente
+      const titulo = document.getElementById('modalAgregarProductoTitulo');
+      if (titulo) {
+        const tipoCapitalizado = tipo.charAt(0).toUpperCase() + tipo.slice(1);
+        titulo.textContent = 'Agregar ' + tipoCapitalizado;
+      }
+
+      const modal = new bootstrap.Modal(document.getElementById('agregarProductoModal'));
+      modal.show();
+    }
+  };
+
+  // --- Agregar producto al carrito ---
+  const btnAgregarProducto = document.querySelector('#agregarProductoModal .btn.btn-primary');
+  if (btnAgregarProducto) {
+    btnAgregarProducto.addEventListener('click', async () => {
+      const tipo = document.getElementById('tipo-producto').value;
+      const sopa = document.getElementById('sopa-seleccionada')?.value || null;
+      const segundo = document.getElementById('segundo-seleccionado')?.value || null;
+      const jugo = document.getElementById('jugo-seleccionado')?.value || null;
+      const observacion = document.getElementById('observacion-producto')?.value.trim();
+
+      console.log('=== DEBUG AGREGAR PRODUCTO ===');
+      console.log('Tipo:', tipo);
+      console.log('Sopa:', sopa);
+      console.log('Segundo:', segundo);
+      console.log('Jugo:', jugo);
+      console.log('Observación:', observacion);
+
+      if ((tipo === 'almuerzo' && (!sopa || !segundo || !jugo)) ||
+          (tipo === 'sopa' && (!sopa || !jugo)) ||
+          (tipo === 'segundo' && (!segundo || !jugo))) {
+        console.log('❌ Validación fallida - faltan componentes');
+        alert('Selecciona todas las opciones necesarias antes de agregar al carrito.');
+        return;
+      }
+
+      console.log('✅ Validación exitosa');
+
+      const sopaText = document.querySelector('.btn-sopa.active')?.textContent.trim();
+      const segundoText = document.querySelector('.btn-segundo.active')?.textContent.trim();
+      const jugoText = document.querySelector('.btn-jugo.active')?.textContent.trim();
+
+      console.log('Sopa Text:', sopaText);
+      console.log('Segundo Text:', segundoText);
+      console.log('Jugo Text:', jugoText);
+
+      // Nueva estructura: guardar componentes individuales
+      let tipoProducto = '';
+      let componentes = [];
+      switch (tipo) {
+        case 'almuerzo':
+          tipoProducto = 'Almuerzo';
+          componentes = [sopaText, segundoText, jugoText];
+          break;
+        case 'sopa':
+          tipoProducto = 'Sopa';
+          componentes = [sopaText, jugoText];
+          break;
+        case 'segundo':
+          tipoProducto = 'Segundo';
+          componentes = [segundoText, jugoText];
+          break;
+      }
+      let observacionProducto = observacion || '';
+
+      console.log('Tipo Producto:', tipoProducto);
+      console.log('Componentes:', componentes);
+
+      // Calcular el precio desde PRECIOS según tipoPedido
+      const tipoPedidoActual = tipoPedidoInput.value;
+      let precioBase = PRECIOS[tipo]?.[tipoPedidoActual] || 0;
+
+      console.log('Tipo Pedido Actual:', tipoPedidoActual);
+      console.log('Precio Base:', precioBase);
+
+      try {
+        console.log('Enviando petición al servidor...');
+        const response = await fetch("{% url 'agregar_al_carrito' %}", {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': '{{ csrf_token }}'
+          },
+          body: new URLSearchParams({
+            tipo: tipo,
+            sopa_id: sopa,
+            segundo_id: segundo,
+            jugo_id: jugo,
+            cantidad: 1,
+            observacion: observacion
+          })
+        });
+
+        console.log('Respuesta del servidor:', response.status);
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('Datos de respuesta:', data);
+
+        if (data.status === 'ok') {
+          console.log('✅ Producto agregado exitosamente al backend');
+          let resumenCarrito = document.getElementById('resumenCarrito');
+          let encontrado = false;
+
+          // Inicializar window.carrito si no existe
+          if (!window.carrito) {
+            window.carrito = [];
+          }
+
+          // Buscar si ya existe el producto (por tipo y componentes)
+          resumenCarrito.querySelectorAll('.resumen-item').forEach(li => {
+            const nombreTipo = li.getAttribute('data-tipo');
+            const nombreComponentes = li.getAttribute('data-componentes');
+            if (nombreTipo === tipoProducto && nombreComponentes === componentes.join('|')) {
+              let cantidadSpan = li.querySelector('.cantidad-producto');
+              let precioSpan = li.querySelector('.resumen-precio');
+              let nuevaCantidad = parseInt(cantidadSpan.textContent) + 1;
+              cantidadSpan.textContent = nuevaCantidad;
+              precioSpan.textContent = `$${(nuevaCantidad * precioBase).toFixed(2)}`;
+              encontrado = true;
+              console.log('✅ Producto existente actualizado');
+              
+              // Actualizar en window.carrito
+              const index = window.carrito.findIndex(item => 
+                item.tipo === tipoProducto && 
+                item.componentes.join('|') === componentes.join('|')
+              );
+              if (index !== -1) {
+                window.carrito[index].cantidad = nuevaCantidad;
+              }
+            }
+          });
+
+          if (!encontrado) {
+            console.log('✅ Creando nuevo producto en el carrito');
+            const li = document.createElement('li');
+            li.classList.add('resumen-item');
+            li.setAttribute('data-tipo', tipoProducto);
+            li.setAttribute('data-componentes', componentes.join('|'));
+            // Generar detalles en línea y en lista vertical
+            let detallesLinea = componentes.filter(Boolean).join(' + ');
+            let detallesHTML = `
+              <span class="detalles-linea">${detallesLinea}</span>
+              <ul class="resumen-lista-vertical">${componentes.map(parte => `<li>${parte}</li>`).join('')}</ul>
+            `;
+            let nombreHTML = `<span class=\"nombre-tipo\">${tipoProducto}</span> ${detallesHTML}`;
+            li.innerHTML = `
+              <div class=\"resumen-col-izq\">
+                ${nombreHTML}
+                <div class=\"resumen-desc\">${observacionProducto}</div>
+              </div>
+              <div class=\"resumen-col-der\">
+                <span class=\"resumen-precio\">$${precioBase.toFixed(2)}</span>
+                <div class=\"resumen-cantidad\">
+                  <button class=\"btn-restar\" aria-label=\"Restar\">-</button>
+                  <span class=\"cantidad-producto\">1</span>
+                  <button class=\"btn-sumar\" aria-label=\"Sumar\">+</button>
+                </div>
+              </div>
+            `;
+            resumenCarrito.appendChild(li);
+            
+                      // Agregar a window.carrito
+          const nuevoItem = {
+            tipo: tipoProducto,
+            componentes: componentes,
+            cantidad: 1,
+            precio_unitario: precioBase,
+            observacion: observacionProducto,
+            sopa_id: sopa,
+            segundo_id: segundo,
+            jugo_id: jugo
+          };
+          window.carrito.push(nuevoItem);
+          console.log('=== NUEVO PRODUCTO AGREGADO DURANTE EDICIÓN ===');
+          console.log('Nuevo item:', nuevoItem);
+          console.log('window.carrito después de agregar:', window.carrito);
+          console.log('Cantidad total en window.carrito:', window.carrito.length);
+          }
+
+          // Asignar funcionalidad a los botones de sumar/restar
+          asignarEventosSumarRestar();
+
+          actualizarTotalPedido();
+
+          const modal = bootstrap.Modal.getInstance(document.getElementById('agregarProductoModal'));
+          modal.hide();
+
+          console.log('✅ Proceso completado exitosamente');
+
+        } else {
+          console.error('❌ Error del servidor:', data.message);
+          alert('Error al agregar: ' + (data.message || 'Error desconocido'));
+        }
+
+      } catch (error) {
+        console.error('❌ Error al agregar producto:', error);
+        alert('Error inesperado al agregar producto: ' + error.message);
+      }
+    });
+  }
+
+});
+
+// Script para los botones de subtipo en modo reserva
+document.addEventListener('DOMContentLoaded', function() {
+  const subtipoBtns = document.querySelectorAll('.card-modo-reserva .btn-subtipo');
+  subtipoBtns.forEach(btn => {
+    btn.addEventListener('click', function() {
+      subtipoBtns.forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      // Si quieres guardar el valor seleccionado en el input hidden:
+      document.getElementById('subtipo_reservado').value = this.getAttribute('data-subtipo');
+    });
+  });
+});
+
+// --- Función de Validación Centralizada ---
+function validarPedido(tipoPedido) {
+  const errores = [];
+  
+  // Validar forma de pago
+  const formaPago = document.getElementById('forma_pago').value;
+  if (!formaPago) {
+    errores.push('Por favor, seleccione una forma de pago');
+  }
+  
+  // Validar según el tipo de pedido
+  if (tipoPedido === 'servirse') {
+    const mesa = document.getElementById('mesa').value || '';
+    if (!mesa) {
+      errores.push('Por favor, seleccione una mesa');
+    }
+    // Nombre es opcional para servirse
+  } else if (tipoPedido === 'llevar') {
+    const contacto = document.getElementById('nombre_llevar')?.value.trim();
+    if (!contacto) {
+      errores.push('Por favor, ingrese un nombre o teléfono');
+    }
+  } else if (tipoPedido === 'reservado') {
+    const contacto = document.getElementById('nombre_reservado')?.value.trim();
+    if (!contacto) {
+      errores.push('Por favor, ingrese un nombre o teléfono');
+    }
+  }
+  
+  // Validar que hay productos en el carrito
+  const resumenCarrito = document.getElementById('resumenCarrito');
+  if (resumenCarrito.children.length === 0) {
+    errores.push('Debe agregar al menos un producto al pedido');
+  }
+  
+  return {
+    esValido: errores.length === 0,
+    errores: errores
+  };
+}
+
+// --- Función para obtener datos del pedido ---
+function obtenerDatosPedido() {
+  const tipoPedido = document.getElementById('tipo_pedido').value;
+  const formaPago = document.getElementById('forma_pago').value;
+  let mesa = '';
+  let cliente = '';
+
+  if (tipoPedido === 'servirse') {
+    mesa = document.getElementById('mesa').value || '';
+    cliente = document.getElementById('nombre_servirse')?.value || '';
+  } else if (tipoPedido === 'llevar') {
+    cliente = document.getElementById('nombre_llevar')?.value.trim();
+  } else if (tipoPedido === 'reservado') {
+    cliente = document.getElementById('nombre_reservado')?.value.trim();
+  }
+
+  // Productos y total desde window.carrito (fuente de verdad más confiable)
+  const productos = [];
+  let total = 0;
+  
+  // Usar window.carrito en lugar del DOM para evitar desincronización
+  if (window.carrito && Array.isArray(window.carrito)) {
+    window.carrito.forEach(item => {
+      const precioTotal = item.cantidad * item.precio_unitario;
+      productos.push({
+        tipo: item.tipo,
+        componentes: item.componentes || [],
+        cantidad: item.cantidad,
+        precioUnitario: item.precio_unitario,
+        precioTotal: precioTotal,
+        observacion: item.observacion || '',
+        sopa_id: item.sopa_id || null,
+        segundo_id: item.segundo_id || null,
+        jugo_id: item.jugo_id || null
+      });
+      total += precioTotal;
+    });
+  } else {
+    // Fallback al DOM si window.carrito no está disponible
+    document.querySelectorAll('#resumenCarrito .resumen-item').forEach(li => {
+      const tipo = li.getAttribute('data-tipo');
+      const componentes = li.getAttribute('data-componentes').split('|');
+      const cantidad = parseInt(li.querySelector('.cantidad-producto').textContent);
+      const precioTotal = parseFloat(li.querySelector('.resumen-precio').textContent.replace('$', '').trim());
+      const precioUnitario = precioTotal / cantidad;
+      const observacion = li.querySelector('.resumen-desc')?.textContent || '';
+      productos.push({
+        tipo,
+        componentes,
+        cantidad,
+        precioUnitario,
+        precioTotal,
+        observacion
+      });
+      total += precioTotal;
+    });
+  }
+
+  const pedidoId = window.pedidoEditando || '';
+  return { tipo: tipoPedido, mesa, cliente, productos, total, formaPago, pedidoId };
+}
+
+
+
+// Agregar función para actualizar el total general
+function actualizarTotalPedido() {
+  let total = 0;
+  document.querySelectorAll('#resumenCarrito .resumen-item').forEach(li => {
+    const precioSpan = li.querySelector('.resumen-precio');
+    const match = precioSpan.textContent.match(/\$(\d+(?:\.\d+)?)/);
+    if (match) {
+      total += parseFloat(match[1]);
+    }
+  });
+  document.getElementById('total-pedido').textContent = `$${total.toFixed(2)}`;
+}
+
+let contadorPedidos = 1; // Para el número incremental temporal
+
+// Función DEPRECATED - Ya no se usa
+// function crearCardPedido(pedido, numeroPedido) { ... }
+
+// Función para asignar eventos a los botones sumar/restar
+function asignarEventosSumarRestar() {
+  const resumenCarrito = document.getElementById('resumenCarrito');
+  resumenCarrito.querySelectorAll('.resumen-item').forEach(li => {
+    const btnSumar = li.querySelector('.btn-sumar');
+    const btnRestar = li.querySelector('.btn-restar');
+    const cantidadSpan = li.querySelector('.cantidad-producto');
+    const precioSpan = li.querySelector('.resumen-precio');
+    const nombreTipo = li.getAttribute('data-tipo');
+    const nombreComponentes = li.getAttribute('data-componentes');
+    
+    // Calcular precio unitario
+    let precioUnitario = 0;
+    const match = precioSpan.textContent.match(/\$(\d+(?:\.\d+)?)/);
+    if (match) {
+      precioUnitario = parseFloat(match[1]) / parseInt(cantidadSpan.textContent);
+    }
+    
+    // Asignar eventos
+    btnSumar.onclick = () => {
+      let cantidad = parseInt(cantidadSpan.textContent) + 1;
+      cantidadSpan.textContent = cantidad;
+      precioSpan.textContent = `$${(cantidad * precioUnitario).toFixed(2)}`;
+        // Sincronizar memoria
+        if (Array.isArray(window.carrito)) {
+          const item = window.carrito.find(p => p.tipo === nombreTipo && (p.componentes || []).join('|') === nombreComponentes);
+          if (item) {
+            item.cantidad = cantidad;
+          }
+        }
+        actualizarTotalPedido();
+    };
+    btnRestar.onclick = () => {
+      let cantidad = parseInt(cantidadSpan.textContent) - 1;
+      if (cantidad <= 0) {
+          // Eliminar del DOM y de la memoria
+          li.remove();
+          if (Array.isArray(window.carrito)) {
+            window.carrito = window.carrito.filter(p => !(p.tipo === nombreTipo && (p.componentes || []).join('|') === nombreComponentes));
+          }
+      } else {
+        cantidadSpan.textContent = cantidad;
+        precioSpan.textContent = `$${(cantidad * precioUnitario).toFixed(2)}`;
+          // Sincronizar memoria
+          if (Array.isArray(window.carrito)) {
+            const item = window.carrito.find(p => p.tipo === nombreTipo && (p.componentes || []).join('|') === nombreComponentes);
+            if (item) {
+              item.cantidad = cantidad;
+            }
+          }
+      }
+      actualizarTotalPedido();
+    };
+  });
+}
+
+function agregarEventosCardPedido(cardNode) {
+  // Aceptar tanto el contenedor de columna como el nodo .pedido-card
+  const card = cardNode?.classList?.contains('pedido-card')
+    ? cardNode
+    : cardNode?.querySelector?.('.pedido-card');
+  if (!card) return;
+
+  // Botón Eliminar
+  card.querySelector('.btn-eliminar').addEventListener('click', function() {
+    // Mostrar confirmación antes de eliminar
+    if (confirm('¿Estás seguro de que quieres eliminar este pedido? Esta acción no se puede deshacer.')) {
+      card.remove();
+    }
+  });
+
+  // Botón Editar
+  card.querySelector('.btn-editar').addEventListener('click', async function() {
+    const pedidoId = card.getAttribute('data-pedido-id');
+    if (!pedidoId) {
+      alert('Error: No se encontró el ID del pedido');
+      return;
+    }
+
+    try {
+      // Obtener datos del pedido
+      const response = await fetch(`/obtener-pedido/${pedidoId}/`);
+      const data = await response.json();
+      
+      if (data.status === 'ok') {
+        const pedido = data.pedido;
+        
+        console.log('=== CARGANDO PEDIDO PARA EDITAR ===');
+        console.log('Pedido recibido:', pedido);
+        console.log('Productos del pedido:', pedido.productos);
+        console.log('Cantidad de productos:', pedido.productos ? pedido.productos.length : 0);
+        
+        // Limpiar el carrito actual (DOM y memoria)
+        document.getElementById('resumenCarrito').innerHTML = '';
+        window.carrito = [];
+        console.log('Carrito limpiado, window.carrito:', window.carrito);
+        
+        // Agregar productos al carrito
+        pedido.productos.forEach((producto, index) => {
+          console.log(`Agregando producto ${index + 1} al carrito:`, producto);
+          // Crear li para el carrito
+          const li = document.createElement('li');
+          li.classList.add('resumen-item');
+          li.setAttribute('data-tipo', producto.tipo);
+          
+          const componentes = (producto.componentes || []).filter(Boolean);
+          // Guardar los componentes en el atributo con el formato estándar "|"
+          li.setAttribute('data-componentes', componentes.join('|'));
+          
+          li.innerHTML = `
+            <div class="resumen-col-izq">
+              <span class="nombre-tipo">${producto.tipo}${componentes.length ? ' - ' + componentes.join(' + ') : ''}</span>
+              <span class="detalles-linea">Producto del pedido</span>
+            </div>
+            <div class="resumen-col-der">
+              <span class="resumen-precio">$${(producto.cantidad * producto.precio_unitario).toFixed(2)}</span>
+              <div class="resumen-cantidad">
+                <button class="btn-restar" aria-label="Restar">-</button>
+                <span class="cantidad-producto">${producto.cantidad}</span>
+                <button class="btn-sumar" aria-label="Sumar">+</button>
+              </div>
+            </div>
+          `;
+          document.getElementById('resumenCarrito').appendChild(li);
+
+          // Sincronizar estructura en memoria para guardado posterior
+          const itemCarrito = {
+            tipo: producto.tipo,
+            componentes: componentes,
+            cantidad: Number(producto.cantidad) || 1,
+            precio_unitario: Number(producto.precio_unitario) || 0,
+            observacion: producto.observacion || '',
+            sopa_id: producto.sopa_id || null,
+            segundo_id: producto.segundo_id || null,
+            jugo_id: producto.jugo_id || null
+          };
+          window.carrito.push(itemCarrito);
+          console.log(`Producto ${index + 1} agregado a window.carrito:`, itemCarrito);
+        });
+        
+        console.log('window.carrito después de cargar productos:', window.carrito);
+        console.log('Cantidad de productos en window.carrito:', window.carrito.length);
+        
+        // Asignar eventos a los botones sumar/restar
+        asignarEventosSumarRestar();
+        actualizarTotalPedido();
+        
+        // Llenar el formulario del modal
+        document.getElementById('tipo_pedido').value = pedido.tipo.toLowerCase();
+        
+        // Actualizar tabs según el tipo de pedido
+        document.querySelectorAll('.nav-link').forEach(tab => {
+          tab.classList.remove('active');
+        });
+        document.querySelectorAll('.tab-pane').forEach(pane => {
+          pane.classList.remove('show', 'active');
+        });
+        
+        if (pedido.tipo.toLowerCase() === 'servirse') {
+          document.getElementById('mesa').value = pedido.mesa || '';
+          document.getElementById('nombre_servirse').value = pedido.contacto || '';
+          document.querySelector('.nav-link[data-bs-target="#servirse"]').classList.add('active');
+          document.querySelector('#servirse').classList.add('show', 'active');
+        } else if (pedido.tipo.toLowerCase() === 'llevar') {
+          document.getElementById('nombre_llevar').value = pedido.contacto || '';
+          document.querySelector('.nav-link[data-bs-target="#llevar"]').classList.add('active');
+          document.querySelector('#llevar').classList.add('show', 'active');
+        } else if (pedido.tipo.toLowerCase() === 'reservado') {
+          document.getElementById('nombre_reservado').value = pedido.contacto || '';
+          document.querySelector('.nav-link[data-bs-target="#reservado"]').classList.add('active');
+          document.querySelector('#reservado').classList.add('show', 'active');
+        }
+        
+        // Establecer forma de pago
+        document.getElementById('forma_pago').value = pedido.forma_pago;
+        // Actualizar botones de forma de pago visualmente
+        document.querySelectorAll('.btn-forma-pago').forEach(btn => {
+          btn.classList.remove('active');
+        });
+        if (pedido.forma_pago === 'Efectivo') {
+          document.querySelector('.btn-forma-pago:first-child').classList.add('active');
+        } else if (pedido.forma_pago === 'Transferencia') {
+          document.querySelector('.btn-forma-pago:last-child').classList.add('active');
+        }
+        
+        // Marcar que estamos editando
+        window.pedidoEditando = pedidoId;
+        
+        // Abrir el modal
+        const modal = new bootstrap.Modal(document.getElementById('tomarPedidoModal'));
+        modal.show();
+        
+      } else {
+        alert('Error al cargar el pedido: ' + (data.message || 'Error desconocido'));
+      }
+    } catch (error) {
+      console.error('Error al cargar pedido:', error);
+      alert('Error inesperado al cargar el pedido');
+    }
+  });
+
+  // Botón Marcar Listo
+  card.querySelector('.btn-guardar').addEventListener('click', async function() {
+    const pedidoId = card.getAttribute('data-pedido-id');
+    if (!pedidoId) {
+      alert('Error: No se encontró el ID del pedido');
+      return;
+    }
+
+    try {
+      const response = await fetch("{% url 'marcar_pedido_completado' %}", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: new URLSearchParams({
+          pedido_id: pedidoId
+        })
+      });
+      
+      const data = await response.json();
+      if (data.status === 'ok') {
+        alert('Pedido marcado como completado');
+        card.remove();
+      } else {
+        alert('Error al marcar pedido: ' + (data.message || 'Error desconocido'));
+      }
+    } catch (error) {
+      console.error('Error al marcar pedido:', error);
+      alert('Error inesperado al marcar el pedido');
+    }
+  });
+}
+
+function guardarPedidoFrontend() {
+  const pedido = obtenerDatosPedido();
+  
+  // Validar pedido usando la función centralizada
+  const validacion = validarPedido(pedido.tipo);
+  if (!validacion.esValido) {
+    alert(validacion.errores.join('\n'));
+    return;
+  }
+  
+  // Obtener productos del carrito (usar window.carrito directamente)
+  const productosCarrito = window.carrito || [];
+  
+  console.log('=== DEBUG ENVÍO AL BACKEND ===');
+  console.log('window.carrito:', window.carrito);
+  console.log('productosCarrito:', productosCarrito);
+  console.log('JSON.stringify(productosCarrito):', JSON.stringify(productosCarrito));
+  
+  // Enviar pedido al backend
+  fetch("{% url 'guardar_pedido' %}", {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'X-CSRFToken': '{{ csrf_token }}'
+    },
+    body: new URLSearchParams({
+      tipo_pedido: pedido.tipo,
+      forma_pago: pedido.formaPago,
+      mesa: pedido.mesa,
+      cliente: pedido.cliente,
+      productos_carrito: JSON.stringify(productosCarrito),
+      pedido_id: window.pedidoEditando || ''
+    })
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  })
+  .then(data => {
+    if (data.status === 'ok') {
+      const cardHTML = crearCardPedidoDesdeBD(data.pedido_data);
+      const contenedor = document.getElementById('contenedor-cards-pedidos');
+
+      // Si estamos editando, reemplazar la card existente; si no, insertar nueva
+      const existingCard = contenedor.querySelector(`.pedido-card[data-pedido-id="${data.pedido_data.id}"]`);
+      
+      if (existingCard) {
+        const wrapper = existingCard.parentElement; // div.col-*
+        wrapper.outerHTML = cardHTML;
+        
+        const newCardNode = contenedor.querySelector(`.pedido-card[data-pedido-id="${data.pedido_data.id}"]`)?.parentElement || null;
+        if (newCardNode) agregarEventosCardPedido(newCardNode);
+      } else {
+        contenedor.insertAdjacentHTML('beforeend', cardHTML);
+        const nuevaCard = contenedor.lastElementChild;
+        agregarEventosCardPedido(nuevaCard);
+      }
+      
+      // Limpiar el modal y el carrito
+      document.getElementById('resumenCarrito').innerHTML = '';
+      document.getElementById('total-pedido').textContent = '$0.00';
+      window.carrito = []; // Limpiar el carrito global
+      window.pedidoEditando = null;
+      
+      // Cerrar el modal
+      const modal = bootstrap.Modal.getInstance(document.getElementById('tomarPedidoModal'));
+      modal.hide();
+      
+      alert('Pedido guardado correctamente');
+    } else {
+      alert('Error al guardar el pedido: ' + (data.message || 'Error desconocido'));
+    }
+  })
+  .catch(error => {
+    console.error('Error al guardar pedido:', error);
+    alert('Error inesperado al guardar el pedido: ' + error.message);
+  });
+}
+
+function crearCardPedidoDesdeBD(pedidoData) {
+  console.log('=== CREAR CARD DESDE BD ===');
+  console.log('Datos del pedido:', pedidoData);
+  console.log('Productos:', pedidoData.productos);
+  console.log('Cantidad de productos:', pedidoData.productos ? pedidoData.productos.length : 0);
+  
+  const horaActual = new Date(pedidoData.fecha_creacion).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  
+  // Icono y color según forma de pago
+  let formaPagoIcono = '';
+  let formaPagoColor = '';
+  if (pedidoData.forma_pago === 'Efectivo') {
+    formaPagoIcono = '<i class="bi bi-cash-coin text-success"></i>';
+    formaPagoColor = 'text-success';
+  } else if (pedidoData.forma_pago === 'Transferencia') {
+    formaPagoIcono = '<i class="bi bi-bank2 text-primary"></i>';
+    formaPagoColor = 'text-primary';
+  }
+
+  // Generar HTML de productos
+  let productosHTML = '';
+  console.log('Generando HTML de productos...');
+  console.log('productosHTML inicial:', productosHTML);
+  
+  if (pedidoData.productos && pedidoData.productos.length > 0) {
+    console.log('Entrando al bucle forEach con', pedidoData.productos.length, 'productos');
+    pedidoData.productos.forEach((producto, index) => {
+      console.log(`Procesando producto ${index + 1}:`, producto);
+      // Si hay componentes específicos, usarlos junto con el tipo; si no, usar solo el tipo
+      let descripcionProducto = producto.tipo;
+      if (producto.componentes && producto.componentes.length > 0) {
+        descripcionProducto = producto.tipo + ' - ' + producto.componentes.filter(Boolean).join(' + ');
+      }
+      
+      const nuevoHTML = `
+        <div class="d-flex justify-content-between align-items-center mb-1">
+          <span>${producto.cantidad} ${descripcionProducto}</span>
+          <span>$${(producto.cantidad * producto.precio_unitario).toFixed(2)}</span>
+        </div>
+        ${producto.observacion ? `<div class='text-muted small ms-3'>${producto.observacion}</div>` : ''}
+      `;
+      
+      console.log(`Nuevo HTML a agregar:`, nuevoHTML);
+      productosHTML += nuevoHTML;
+      console.log(`HTML después del producto ${index + 1}:`, productosHTML);
+      console.log(`Longitud de productosHTML:`, productosHTML.length);
+    });
+    console.log('Saliendo del bucle forEach');
+  } else {
+    console.log('No hay productos para procesar');
+  }
+  
+  console.log('HTML final de productos:', productosHTML);
+  console.log('Longitud final de productosHTML:', productosHTML.length);
+
+  // Construir el cardHTML de forma más segura
+  const cardHTML = '<div class="col-12 col-md-6 col-lg-4">' +
+    '<div class="card mb-3 pedido-card" data-pedido-id="' + pedidoData.id + '">' +
+      '<div class="card-body">' +
+        '<div class="d-flex justify-content-between align-items-center mb-2">' +
+          '<span class="fw-bold">#' + pedidoData.id.toString().padStart(3, '0') + '</span>' +
+          '<div class="d-flex align-items-center gap-2">' +
+            '<span class="badge badge-' + pedidoData.tipo.toLowerCase() + '">' + pedidoData.tipo + '</span>' +
+            '<span class="text-muted"><i class="fas fa-clock"></i> ' + horaActual + '</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="mb-1 text-muted">' + (pedidoData.mesa ? 'Mesa ' + pedidoData.mesa : '') + '</div>' +
+        '<div class="fw-bold mb-2">' + (pedidoData.contacto || 'Sin contacto') + '</div>' +
+        productosHTML +
+        '<div class="fw-bold mt-2">Total: <span class="text-success">$' + pedidoData.total.toFixed(2) + '</span></div>' +
+        '<div class="mt-2 ' + formaPagoColor + '">' +
+          '<small>' + formaPagoIcono + ' ' + pedidoData.forma_pago + '</small>' +
+        '</div>' +
+        '<div class="mt-3 d-flex gap-2">' +
+          '<button class="btn btn-light btn-editar"><i class="fas fa-pen"></i> Editar</button>' +
+          '<button class="btn btn-success btn-guardar">Marcar Listo</button>' +
+          '<button class="btn btn-danger btn-eliminar"><i class="fas fa-trash"></i></button>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+  
+  console.log('=== CARD HTML GENERADO ===');
+  console.log('productosHTML en cardHTML:', productosHTML);
+  console.log('Longitud de productosHTML en cardHTML:', productosHTML.length);
+  console.log('Verificación final - productosHTML contiene:', productosHTML.includes('Almuerzo') ? 'Almuerzo' : 'NO Almuerzo');
+  console.log('Verificación final - productosHTML contiene:', productosHTML.includes('Sopa') ? 'Sopa' : 'NO Sopa');
+  console.log('cardHTML completo:', cardHTML);
+  
+  return cardHTML;
+}
+
+
+
+// --- Función para limpiar formulario del modal ---
+// Función para cargar pedidos existentes desde la base de datos
+async function cargarPedidosExistentes() {
+  try {
+    console.log('=== CARGANDO PEDIDOS EXISTENTES ===');
+    
+    // Obtener pedidos pendientes desde el backend
+    console.log('Haciendo fetch a /obtener-pedidos-pendientes/');
+    const response = await fetch('/obtener-pedidos-pendientes/');
+    console.log('Respuesta recibida:', response.status);
+    
+    const data = await response.json();
+    console.log('Datos parseados:', data);
+    
+    if (data.status === 'ok') {
+      console.log('Pedidos recibidos:', data.pedidos);
+      console.log('Cantidad de pedidos:', data.pedidos ? data.pedidos.length : 0);
+      
+      const contenedor = document.getElementById('contenedor-cards-pedidos');
+      console.log('Contenedor encontrado:', contenedor);
+      contenedor.innerHTML = ''; // Limpiar contenedor
+      
+      // Generar cards para cada pedido
+      data.pedidos.forEach((pedido, index) => {
+        console.log(`Procesando pedido ${index + 1}:`, pedido.id, 'con productos:', pedido.productos);
+        const cardHTML = crearCardPedidoDesdeBD(pedido);
+        contenedor.insertAdjacentHTML('beforeend', cardHTML);
+      });
+      
+      // Agregar eventos a todas las cards
+      document.querySelectorAll('.pedido-card').forEach(card => {
+        agregarEventosCardPedido(card);
+      });
+      
+      console.log('Pedidos cargados exitosamente');
+    } else {
+      console.error('Error al cargar pedidos:', data.message);
+    }
+  } catch (error) {
+    console.error('Error al cargar pedidos existentes:', error);
+    console.error('Detalles del error:', error.message);
+  }
+}
+
+function limpiarFormularioPedido() {
+  // Limpiar campos de entrada
+  document.getElementById('nombre_servirse').value = '';
+  document.getElementById('nombre_llevar').value = '';
+  document.getElementById('nombre_reservado').value = '';
+  document.getElementById('mesa').value = '';
+  
+  // Establecer valores por defecto
+  document.getElementById('tipo_pedido').value = 'servirse';
+  document.getElementById('forma_pago').value = 'Efectivo';
+  
+  // Activar tab "Servirse" por defecto
+  document.querySelectorAll('.nav-link').forEach(tab => {
+    tab.classList.remove('active');
+  });
+  document.querySelector('.nav-link[data-bs-target="#servirse"]').classList.add('active');
+  
+  document.querySelectorAll('.tab-pane').forEach(pane => {
+    pane.classList.remove('show', 'active');
+  });
+  document.querySelector('#servirse').classList.add('show', 'active');
+  
+  // Activar botón "Efectivo" por defecto
+  document.querySelectorAll('.btn-forma-pago').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  document.querySelector('.btn-forma-pago:first-child').classList.add('active');
+  
+  // Limpiar carrito
+  document.getElementById('resumenCarrito').innerHTML = '';
+  document.getElementById('total-pedido').textContent = '$0.00';
+  
+  // Establecer tipo de pedido por defecto
+  document.getElementById('tipo_pedido').value = 'servirse';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const btnConfirmar = document.querySelector('#tomarPedidoModal .btn-success');
+  if (btnConfirmar) {
+    btnConfirmar.removeAttribute('onclick');
+    btnConfirmar.addEventListener('click', guardarPedidoFrontend);
+  }
+  
+  // Cargar pedidos existentes desde la base de datos
+  cargarPedidosExistentes();
+  
+  // Limpiar formulario cuando se abre el modal solo si NO estamos editando
+  const tomarPedidoModal = document.getElementById('tomarPedidoModal');
+  tomarPedidoModal.addEventListener('show.bs.modal', function () {
+    if (!window.pedidoEditando) {
+      limpiarFormularioPedido();
+    }
+  });
+  
+  // Actualizar tipo de pedido cuando se cambia de tab
+  document.querySelectorAll('.nav-link[data-bs-toggle="tab"]').forEach(tab => {
+    tab.addEventListener('shown.bs.tab', function (event) {
+      const target = event.target.getAttribute('data-bs-target');
+      if (target === '#servirse') {
+        document.getElementById('tipo_pedido').value = 'servirse';
+      } else if (target === '#llevar') {
+        document.getElementById('tipo_pedido').value = 'llevar';
+      } else if (target === '#reservado') {
+        document.getElementById('tipo_pedido').value = 'reservado';
+      }
+    });
+  });
+  
+  // Actualizar forma de pago cuando se cambia de botón
+  document.querySelectorAll('.btn-forma-pago').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.btn-forma-pago').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      const formaPago = this.textContent.trim();
+      document.getElementById('forma_pago').value = formaPago;
+    });
+  });
+  
+  // Manejar el cierre del modal para guardar automáticamente
+  tomarPedidoModal.addEventListener('hidden.bs.modal', function () {
+    // Resetear flag de edición
+    window.pedidoEditando = null;
+    // Verificar si hay productos en el carrito antes de guardar
+    const resumenCarrito = document.getElementById('resumenCarrito');
+    if (resumenCarrito.children.length > 0) {
+      // Preguntar al usuario si quiere guardar los cambios
+      if (confirm('¿Deseas guardar los cambios del pedido?')) {
+        guardarPedidoFrontend();
+      } else {
+        // Limpiar el carrito si no quiere guardar
+        document.getElementById('resumenCarrito').innerHTML = '';
+        document.getElementById('total-pedido').textContent = '$0.00';
+      }
+    }
+  });
+});
+</script>
+
+
+{% endblock %}
+

@@ -1,0 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=Reem+Kufi+Fun:wght@500&display=swap');
+
+:root {
+    --primary-color: #A80018;
+    --primary-color-hover: #5f0c19;
+    --secondary-color: #00833B;
+    --secondary-color-hover: #1b5c39;
+    --tertiary-color: #b95a01;
+    --fuente-principal: 'Reem Kufi Fun', sans-serif;
+    --fuente-titulos: 'Lilita One', sans-serif;
+
+}

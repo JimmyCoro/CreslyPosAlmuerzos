@@ -1,0 +1,37 @@
+{% load static %}
+<nav class="navbar navbar-expand-lg fixed-top ">
+  <div class="container-fluid" style="max-width: 80%;">
+    <a class="navbar-brand" href="/">
+      <img src="{% static 'IMG/logo.png' %}" alt="Logo" class="logo-navbar">
+    </a>  
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse justify-content-end " id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item-bar nav-caja">
+          <a class="nav-link" href="">Caja</a>
+        </li>
+        <li class="nav-item-bar nav-mesas">
+          <a class="nav-link" href="">Mesas</a>
+        </li>
+
+        {% if user.is_authenticated %}
+          <!-- Mostrar nombre del usuario autenticado -->
+
+          <li class="nav-sesion d-flex align-items-center">
+            <a class="nav-link" href="#"></a>
+          </li>
+        {% else %}
+          <!-- Mostrar el botón para iniciar sesión si no está autenticado
+          <li class="nav-item nav-cuenta d-flex justify-content-end">
+            <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#authModal" data-bs-whatever="@getbootstrap">
+              <i class="bi bi-person-circle"></i>
+            </button>
+          </li> -->
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>

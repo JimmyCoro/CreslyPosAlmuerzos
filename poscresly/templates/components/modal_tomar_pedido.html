@@ -1,0 +1,130 @@
+
+<!-- Modal principal: Tomar pedido -->
+<div class="modal fade" id="tomarPedidoModal" tabindex="-1" aria-labelledby="modalPedidoLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+
+      <div class="modal-header border-bottom border-3 border-primary bg-white">
+        <h5 class="modal-title"><i class="bi bi-clipboard2-plus me-2"></i>Nuevo Pedido</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Unificada: Sección Agregar productos y Resumen del pedido, responsive -->
+        <div class="row g-3">
+          <div class="col-12 col-lg-4">
+            <div class="card shadow-sm rounded p-3 mb-3 mb-lg-0">
+              <h6 class="mb-3"><i class="bi bi-person-lines-fill me-2"></i>Datos del pedido</h6>
+              <ul class="nav nav-tabs mb-3 d-flex" id="tipoPedidoTabs" role="tablist">
+                <li class="nav-item flex-fill">
+                  <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#servirse" type="button">
+                    <i class="bi bi-people"></i> Servirse
+                  </button>
+                </li>
+                <li class="nav-item flex-fill">
+                  <button class="nav-link" data-bs-toggle="tab" data-bs-target="#llevar" type="button">
+                    <i class="bi bi-bag"></i> Llevar
+                  </button>
+                </li>
+                <li class="nav-item flex-fill">
+                  <button class="nav-link" data-bs-toggle="tab" data-bs-target="#reservado" type="button">
+                    <i class="bi bi-calendar-event"></i> Reservado
+                  </button>
+                </li>
+              </ul>
+              <div class="tab-content mt-3">
+                <!-- Servirse -->
+                <div class="tab-pane fade show active" id="servirse">
+                  <div class="mb-3">
+                    <label for="mesa"><i class="bi bi-grid-3x3-gap"></i> Número de mesa</label>
+                    <select name="mesa" id="mesa" class="form-select w-100">
+                      <option value="" selected disabled>Selecciona un Mesa</option>
+                      {% for mesa in mesas %}
+                        <option value="{{ mesa }}">Mesa {{ mesa }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div class="mb-3 position-relative">
+                    <label for="nombre_servirse"><i class="bi bi-person"></i> Nombre (Opcional)</label>
+                    <input type="text" id="nombre_servirse" class="form-control w-100" placeholder="Nombre del cliente">
+                  </div>
+                </div>
+                <!-- Llevar -->
+                <div class="tab-pane fade" id="llevar">
+                  <div class="mb-3">
+                    <label for="nombre_llevar"><i class="bi bi-person"></i> Nombre o Teléfono</label>
+                    <input type="text" id="nombre_llevar" class="form-control w-100" placeholder="Nombre o Teléfono">
+                  </div>
+                </div>
+                <!-- Reservado -->
+                <div class="tab-pane fade" id="reservado">
+                  <div class="mb-3">
+                    <label for="nombre_reservado"><i class="bi bi-person"></i> Nombre o Teléfono</label>
+                    <input type="text" id="nombre_reservado" class="form-control w-100" placeholder="Nombre o Teléfono">
+                  </div>
+                  <label class="mt-2">¿Cómo se servirá?</label>
+                  <div class="card-modo-reserva d-flex gap-2 mb-2">
+                    <button type="button" class="btn btn-subtipo active" data-subtipo="servirse"><i class="bi bi-egg-fried me-1"></i>Servirse</button>
+                    <button type="button" class="btn btn-subtipo" data-subtipo="llevar"><i class="bi bi-bag me-1"></i>Llevar</button>
+                  </div>
+                  <input type="hidden" id="subtipo_reservado" name="subtipo_reservado">
+                </div>
+              </div>
+              <input type="hidden" name="tipo_pedido" id="tipo_pedido">
+              <hr>
+              <div class="mb-2">
+                <label class="form-label">Forma de pago</label>
+                <div class="card-pago d-flex gap-2">
+                  <button type="button" class="btn btn-forma-pago active">
+                    <i class="bi bi-cash-coin me-1"></i> Efectivo
+                  </button>
+                  <button type="button" class="btn btn-forma-pago">
+                    <i class="bi bi-bank2 me-1"></i> Transferencia
+                  </button>
+                </div>
+                <input type="hidden" name="forma_pago" id="forma_pago">
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-lg-8">
+            <div class="agregar-productos-header">
+              <h2>+ ¡Agregar Productos!</h2>
+            </div>
+            <div class="productos-platillos mb-3">
+              <div class="producto-card almuerzo" onclick="abrirModalProducto('almuerzo')">
+                <div class="icono-circulo">
+                  <span class="material-icons producto-icono">restaurant</span>
+                </div>
+                <div class="producto-titulo">Almuerzo</div>
+              </div>
+              <div class="producto-card sopa" onclick="abrirModalProducto('sopa') ">
+                <div class="icono-circulo">
+                  <span class="material-icons producto-icono">ramen_dining</span>
+                </div>
+                <div class="producto-titulo">Sopa</div>
+              </div>
+              <div class="producto-card segundo" onclick="abrirModalProducto('segundo')">
+                <div class="icono-circulo">
+                  <i class="fas fa-drumstick-bite producto-icono"></i>
+                </div>
+                <div class="producto-titulo">Segundo</div>
+              </div>
+            </div>
+            <div class="card shadow-sm rounded p-3 bg-light">
+              <h6 class="mb-3"><i class="bi bi-list-check me-2"></i>Resumen del pedido</h6>
+              <ul id="resumenCarrito" class="list-group mb-3"></ul>
+              <div class="d-flex justify-content-between align-items-center py-2">
+                <strong>Total:</strong>
+                <span id="total-pedido" class="fs-4 text-success">$0.00</span>
+              </div>
+              <button class="btn btn-success w-100 mt-3 btn-lg" onclick="guardarPedido()">
+                <i class="bi bi-check-circle me-1"></i> Confirmar Pedido
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
