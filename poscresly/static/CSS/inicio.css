@@ -126,6 +126,7 @@
     margin-bottom: 15px;
     background: white;
     overflow: hidden;
+    font-family: var(--fuente-principal);
 }
 
 .pedido-card:hover {
@@ -134,21 +135,22 @@
 }
 
 .pedido-card .card-body {
-    padding: 1.25rem;
+    padding: 1rem;
 }
 
 /* Header de la card */
 .pedido-card .d-flex.justify-content-between.align-items-center.mb-2 {
     border-bottom: 1px solid #f0f0f0;
     padding-bottom: 0.75rem;
-    margin-bottom: 1rem;
+    margin-bottom: 2rem;
 }
 
 /* Número de pedido */
 .pedido-card .fw-bold {
-    font-size: 1.1rem;
+    font-size: 0.95rem;
     font-weight: 600;
     color: #333;
+    font-family: var(--fuente-titulos);
 }
 
 /* Badges de tipo de pedido */
@@ -158,6 +160,7 @@
     border-radius: 12px;
     font-weight: 500;
     color: white;
+    font-family: var(--fuente-principal);
 }
 
 .pedido-card .badge-servirse {
@@ -175,57 +178,62 @@
 /* Hora */
 .pedido-card .text-muted {
     font-size: 0.85rem;
-    color: #6c757d;
+    color: #ce3a15;
+    font-family: var(--fuente-principal);
 }
 
 /* Información del servicio */
 .pedido-card .mb-1.text-muted {
     font-size: 0.9rem;
-    color: #495057;
+    color: #232324;
+    font-weight: 600;
+    font-family: var(--fuente-principal);
+}
+
+.card-tipo-producto{
+    font-size: 0.9rem;
     font-weight: 500;
+    color: #0e0d0d;
+    font-family: var(--fuente-principal);
 }
 
 /* Nombre del cliente */
-.pedido-card .fw-bold.mb-2 {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #212529;
-    margin-bottom: 1rem !important;
+.contacto-pedido-card{
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #202020;
+    margin-bottom: 0.5rem;
+    font-family: var(--fuente-principal);
 }
 
 /* Productos del pedido */
-.pedido-card .d-flex.justify-content-between.align-items-center.mb-1 {
-    padding: 0.5rem 0;
-    border-bottom: 1px solid #f8f9fa;
+.componentes-producto-card{
+    font-size: 0.85rem;
+    font-weight: 300;
+    color: #5f5f5f;
+    font-family: var(--fuente-principal);
+}
+
+/* Total Prodcutos*/
+
+.total-producto-card{
     font-size: 0.9rem;
-}
-
-.pedido-card .d-flex.justify-content-between.align-items-center.mb-1:last-of-type {
-    border-bottom: none;
-}
-
-.pedido-card .d-flex.justify-content-between.align-items-center.mb-1 span:first-child {
-    color: #495057;
-    font-weight: 500;
-}
-
-.pedido-card .d-flex.justify-content-between.align-items-center.mb-1 span:last-child {
-    color: #28a745;
     font-weight: 600;
+    color: #1c2220;
+    font-family: var(--fuente-titulos);
 }
 
-/* Total */
-.pedido-card .fw-bold.mt-2 {
-    border-top: 2px solid #e9ecef;
-    padding-top: 0.75rem;
-    margin-top: 1rem !important;
-    font-size: 1.1rem;
-    color: #212529;
+/* Total Pedido*/
+.total-pedido-card{
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #4c504d;
+    font-family: var(--fuente-titulos);
 }
 
-.pedido-card .fw-bold.mt-2 .text-success {
-    color: #28a745 !important;
-    font-weight: 700;
+.rounded-circle{
+    background-color: #ececec;
+    color: white;
 }
 
 /* Forma de pago */
@@ -233,6 +241,7 @@
     font-size: 0.8rem;
     color: #6c757d;
     margin-top: 0.5rem;
+    font-family: var(--fuente-principal);
 }
 
 .pedido-card .mt-2.small i {
@@ -251,6 +260,7 @@
     font-weight: 500;
     padding: 0.375rem 0.75rem;
     transition: all 0.2s ease;
+    font-family: var(--fuente-principal);
 }
 
 .pedido-card .btn-light {
@@ -296,6 +306,20 @@
     font-style: italic;
     margin-left: 1rem !important;
     padding: 0.25rem 0;
+    font-family: var(--fuente-principal);
+}
+
+/* Aplicar fuentes a elementos específicos de productos */
+.pedido-card .tipo-producto-card {
+    font-family: var(--fuente-titulos);
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #202020;
+}
+
+.pedido-card .precio-total-card {
+    font-family: var(--fuente-principal);
+    font-weight: 600;
 }
 
 /* Card en modo edición */

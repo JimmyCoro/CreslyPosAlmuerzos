@@ -1,5 +1,6 @@
 @import './variables.css';
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Source+Sans+Pro:wght@400;600;700&display=swap');
 
 
 
@@ -484,6 +485,40 @@ h5 {
   font-size: 0.9rem;
 }
 
+/* Estilos consistentes para todos los productos del carrito */
+.resumen-item .detalles-linea {
+  color: #495057;
+  font-weight: 500;
+  font-size: 0.9rem;
+  margin-top: 0.2rem;
+}
+
+.resumen-item .resumen-lista-vertical {
+  margin-top: 0.3rem;
+  padding-left: 1rem;
+}
+
+.resumen-item .resumen-lista-vertical li {
+  color: #6c757d;
+  font-size: 0.85rem;
+  margin-bottom: 0.1rem;
+  list-style: disc;
+}
+
+.resumen-item .nombre-tipo {
+  font-weight: 700;
+  color: #222;
+  font-size: 1rem;
+  margin-bottom: 0.1rem;
+}
+
+.resumen-item .resumen-desc {
+  color: #b7b7b7;
+  font-size: 0.85rem;
+  margin-top: 0.3rem;
+  font-style: italic;
+}
+
 /* Estilos para el total cuando se actualiza */
 #total-pedido {
   transition: all 0.3s ease;
@@ -869,4 +904,15 @@ h5 {
 @media (max-width: 600px) {
   .detalles-linea { display: none; }
   .resumen-lista-vertical { display: block; }
+}
+
+/* Regla general para aplicar fuente principal a todo */
+body {
+  font-family: var(--fuente-principal);
+}
+
+/* Aplicar fuente secundaria solo a elementos específicos */
+h1, h2, h3, h4, h5, h6,
+.modal-title {
+  font-family: var(--fuente-titulos);
 }

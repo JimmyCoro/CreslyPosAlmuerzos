@@ -376,7 +376,16 @@ if (menuDiaModal) {
 
       // Calcular el precio desde PRECIOS según tipoPedido
       const tipoPedidoActual = tipoPedidoInput.value;
-      let precioBase = PRECIOS[tipo]?.[tipoPedidoActual] || 0;
+      let precioBase = 0;
+      
+      if (tipoPedidoActual === 'reservado') {
+        // Para pedidos reservados, usar el subtipo seleccionado
+        const subtipoReservado = document.getElementById('subtipo_reservado').value;
+        precioBase = PRECIOS[tipo]?.[subtipoReservado] || 0;
+        console.log('Subtipo Reservado:', subtipoReservado);
+      } else {
+        precioBase = PRECIOS[tipo]?.[tipoPedidoActual] || 0;
+      }
 
       console.log('Tipo Pedido Actual:', tipoPedidoActual);
       console.log('Precio Base:', precioBase);
@@ -758,10 +767,18 @@ function agregarEventosCardPedido(cardNode) {
           // Guardar los componentes en el atributo con el formato estándar "|"
           li.setAttribute('data-componentes', componentes.join('|'));
           
+          // Generar detalles en línea y en lista vertical (igual que en producto nuevo)
+          let detallesLinea = componentes.filter(Boolean).join(' + ');
+          let detallesHTML = `
+            <span class="detalles-linea">${detallesLinea}</span>
+            <ul class="resumen-lista-vertical">${componentes.map(parte => `<li>${parte}</li>`).join('')}</ul>
+          `;
+          let nombreHTML = `<span class="nombre-tipo">${producto.tipo}</span> ${detallesHTML}`;
+          
           li.innerHTML = `
             <div class="resumen-col-izq">
-              <span class="nombre-tipo">${producto.tipo}${componentes.length ? ' - ' + componentes.join(' + ') : ''}</span>
-              <span class="detalles-linea">Producto del pedido</span>
+              ${nombreHTML}
+              <div class="resumen-desc">${producto.observacion || ''}</div>
             </div>
             <div class="resumen-col-der">
               <span class="resumen-precio">$${(producto.cantidad * producto.precio_unitario).toFixed(2)}</span>
@@ -820,6 +837,17 @@ function agregarEventosCardPedido(cardNode) {
           document.getElementById('nombre_reservado').value = pedido.contacto || '';
           document.querySelector('.nav-link[data-bs-target="#reservado"]').classList.add('active');
           document.querySelector('#reservado').classList.add('show', 'active');
+          
+          // Establecer el subtipo de reservado si existe
+          if (pedido.subtipo_reservado) {
+            document.getElementById('subtipo_reservado').value = pedido.subtipo_reservado;
+            
+            // Actualizar botones de subtipo visualmente
+            document.querySelectorAll('.btn-subtipo').forEach(btn => {
+              btn.classList.remove('active');
+            });
+            document.querySelector(`.btn-subtipo[data-subtipo="${pedido.subtipo_reservado}"]`).classList.add('active');
+          }
         }
         
         // Establecer forma de pago
@@ -914,6 +942,7 @@ function guardarPedidoFrontend() {
       forma_pago: pedido.formaPago,
       mesa: pedido.mesa,
       cliente: pedido.cliente,
+      subtipo_reservado: document.getElementById('subtipo_reservado').value,
       productos_carrito: JSON.stringify(productosCarrito),
       pedido_id: window.pedidoEditando || ''
     })
@@ -968,6 +997,10 @@ function guardarPedidoFrontend() {
 function crearCardPedidoDesdeBD(pedidoData) {
   console.log('=== CREAR CARD DESDE BD ===');
   console.log('Datos del pedido:', pedidoData);
+  console.log('Tipo de pedido:', pedidoData.tipo);
+  console.log('Subtipo reservado:', pedidoData.subtipo_reservado);
+  console.log('¿Es pedido reservado?', pedidoData.tipo === 'Reservado');
+  console.log('¿Tiene subtipo?', !!pedidoData.subtipo_reservado);
   console.log('Productos:', pedidoData.productos);
   console.log('Cantidad de productos:', pedidoData.productos ? pedidoData.productos.length : 0);
   
@@ -1000,11 +1033,17 @@ function crearCardPedidoDesdeBD(pedidoData) {
       }
       
       const nuevoHTML = `
-        <div class="d-flex justify-content-between align-items-center mb-1">
-          <span>${producto.cantidad} ${descripcionProducto}</span>
-          <span>$${(producto.cantidad * producto.precio_unitario).toFixed(2)}</span>
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <div class="d-flex align-items-center">
+            <span class="badge rounded-circle text-dark me-2" style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 12px;">${producto.cantidad}</span>
+            <div>
+              <div class="card-tipo-producto">${producto.tipo}</div>
+              <div class="componentes-producto-card">${producto.componentes ? producto.componentes.filter(Boolean).join(' + ') : ''}</div>
+              ${producto.observacion ? `<div class='text-muted small'>${producto.observacion}</div>` : ''}
+            </div>
+          </div>
+          <span class="total-producto-card">$${(producto.cantidad * producto.precio_unitario).toFixed(2)}</span>
         </div>
-        ${producto.observacion ? `<div class='text-muted small ms-3'>${producto.observacion}</div>` : ''}
       `;
       
       console.log(`Nuevo HTML a agregar:`, nuevoHTML);
@@ -1020,6 +1059,14 @@ function crearCardPedidoDesdeBD(pedidoData) {
   console.log('HTML final de productos:', productosHTML);
   console.log('Longitud final de productosHTML:', productosHTML.length);
 
+  // Debug del subtipo reservado
+  console.log('=== DEBUG SUBTIPO RESERVADO ===');
+  console.log('Tipo de pedido:', pedidoData.tipo);
+  console.log('Subtipo reservado:', pedidoData.subtipo_reservado);
+  console.log('¿Es Reservado?', pedidoData.tipo === 'reservado');
+  console.log('¿Tiene subtipo?', !!pedidoData.subtipo_reservado);
+  console.log('Condición completa:', pedidoData.tipo === 'reservado' && pedidoData.subtipo_reservado);
+
   // Construir el cardHTML de forma más segura
   const cardHTML = '<div class="col-12 col-md-6 col-lg-4">' +
     '<div class="card mb-3 pedido-card" data-pedido-id="' + pedidoData.id + '">' +
@@ -1032,9 +1079,14 @@ function crearCardPedidoDesdeBD(pedidoData) {
           '</div>' +
         '</div>' +
         '<div class="mb-1 text-muted">' + (pedidoData.mesa ? 'Mesa ' + pedidoData.mesa : '') + '</div>' +
-        '<div class="fw-bold mb-2">' + (pedidoData.contacto || 'Sin contacto') + '</div>' +
+        '<div class="contacto-pedido-card">' + (pedidoData.contacto || '') + '</div>' +
+        (pedidoData.tipo === 'reservado' && pedidoData.subtipo_reservado ? 
+          '<div class="mb-1 text-info"><small><i class="bi bi-arrow-right"></i> ' + pedidoData.subtipo_reservado.charAt(0).toUpperCase() + pedidoData.subtipo_reservado.slice(1) + '</small></div>' : '') +
         productosHTML +
-        '<div class="fw-bold mt-2">Total: <span class="text-success">$' + pedidoData.total.toFixed(2) + '</span></div>' +
+        '<div class="d-flex justify-content-between align-items-center mt-3">' +
+          '<span class="total-pedido-card">Total:</span>' +
+          '<span class="text-success fw-bold fs-5">$' + pedidoData.total.toFixed(2) + '</span>' +
+        '</div>' +
         '<div class="mt-2 ' + formaPagoColor + '">' +
           '<small>' + formaPagoIcono + ' ' + pedidoData.forma_pago + '</small>' +
         '</div>' +
@@ -1113,6 +1165,7 @@ function limpiarFormularioPedido() {
   // Establecer valores por defecto
   document.getElementById('tipo_pedido').value = 'servirse';
   document.getElementById('forma_pago').value = 'Efectivo';
+  document.getElementById('subtipo_reservado').value = 'servirse';
   
   // Activar tab "Servirse" por defecto
   document.querySelectorAll('.nav-link').forEach(tab => {
@@ -1167,6 +1220,10 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('tipo_pedido').value = 'llevar';
       } else if (target === '#reservado') {
         document.getElementById('tipo_pedido').value = 'reservado';
+        // Asegurar que el subtipo de reservado esté inicializado
+        if (!document.getElementById('subtipo_reservado').value) {
+          document.getElementById('subtipo_reservado').value = 'servirse';
+        }
       }
     });
   });

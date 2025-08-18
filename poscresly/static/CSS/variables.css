@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Reem+Kufi+Fun:wght@500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Source+Sans+Pro:wght@400;600;700&display=swap');
 
 :root {
     --primary-color: #A80018;
@@ -6,7 +6,6 @@
     --secondary-color: #00833B;
     --secondary-color-hover: #1b5c39;
     --tertiary-color: #b95a01;
-    --fuente-principal: 'Reem Kufi Fun', sans-serif;
-    --fuente-titulos: 'Lilita One', sans-serif;
-
+    --fuente-principal: 'Lato', sans-serif;
+    --fuente-titulos: 'Source Sans Pro', sans-serif;
 }

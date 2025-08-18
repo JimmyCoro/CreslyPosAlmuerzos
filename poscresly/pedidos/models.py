@@ -27,6 +27,7 @@ class Pedido( models.Model):
     estado = models.CharField(max_length=20, choices=ESTADOS, default='pendiente')
     numero_mesa = models.IntegerField(blank=True, null=True)
     contacto = models.CharField(max_length=100, blank=True, null=True)  # Puede ser nombre o teléfono
+    subtipo_reservado = models.CharField(max_length=20, blank=True, null=True)  # Para pedidos reservados: 'servirse' o 'llevar'
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0)  # Total del pedido
 
     def __str__(self):
