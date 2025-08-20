@@ -9,4 +9,7 @@ urlpatterns = [
     path('marcar-completado/', pedidos_views.marcar_pedido_completado, name='marcar_pedido_completado'),
     path('obtener-pedido/<int:pedido_id>/', pedidos_views.obtener_pedido, name='obtener_pedido'),
     path('obtener-pedidos-pendientes/', pedidos_views.obtener_pedidos_pendientes, name='obtener_pedidos_pendientes'),
+    path('eliminar-pedido/', pedidos_views.eliminar_pedido, name='eliminar_pedido'),
+    path('obtener-cantidades-actualizadas/', pedidos_views.obtener_cantidades_actualizadas, name='obtener_cantidades_actualizadas'),
+
 ]

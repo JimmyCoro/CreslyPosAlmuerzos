@@ -51,18 +51,32 @@ class MenuDiaSopa(models.Model):
     sopa = models.ForeignKey(Plato, on_delete=models.CASCADE, limit_choices_to={'tipo': 'sopa'})
     nota = models.CharField(max_length=100, blank=True, null=True)
     cantidad = models.PositiveIntegerField(default=0)
+    cantidad_actual = models.PositiveIntegerField(default=0)  # Cantidad disponible actual
 
     def __str__(self):
         return f"{self.sopa} para {self.menu.fecha}"
+    
+    def save(self, *args, **kwargs):
+        # Al crear por primera vez, cantidad_actual = cantidad
+        if not self.pk:
+            self.cantidad_actual = self.cantidad
+        super().save(*args, **kwargs)
 
 class MenuDiaSegundo(models.Model):
     menu = models.ForeignKey(MenuDia, on_delete=models.CASCADE, related_name='segundos')
     segundo = models.ForeignKey(Plato, on_delete=models.CASCADE, limit_choices_to={'tipo': 'segundo'})
     nota = models.CharField(max_length=100, blank=True, null=True)
     cantidad = models.PositiveIntegerField(default=0)
+    cantidad_actual = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return f"{self.segundo} para {self.menu.fecha}"
+    
+    def save(self, *args, **kwargs):
+        # Al crear por primera vez, cantidad_actual = cantidad
+        if not self.pk:
+            self.cantidad_actual = self.cantidad
+        super().save(*args, **kwargs)
 
 class MenuDiaJugo(models.Model):
     menu = models.ForeignKey(MenuDia, on_delete=models.CASCADE, related_name='jugos')

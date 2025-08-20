@@ -23,11 +23,11 @@
         </div>
         <ul class="list-group list-group-flush">
           {% for item in sopas_dia %}
-            <li class="list-group-item">
+            <li class="list-group-item" data-sopa-id="{{ item.id }}">
             <span class="nombre-sopa">{{ item.sopa }}</span> 
             <span class="cantidad-sopa">
-              <span class="punto-cantidad"></span>
-              {{ item.cantidad }}
+              <span class="punto-cantidad{% if item.cantidad_actual == 0 %} sin-productos{% elif item.cantidad_actual <= item.cantidad|add:'-1'|multiply:0.5 %} pocos-productos{% endif %}"></span>
+              {{ item.cantidad_actual }}
             </span>
             </li>{% empty %}
             <li class="list-group-item text-muted">No configurado</li>
@@ -41,11 +41,11 @@
         </div>
         <ul class="list-group list-group-flush">
         {% for item in segundos_dia %}
-        <li class="list-group-item">
+        <li class="list-group-item" data-segundo-id="{{ item.id }}">
         <span class="nombre-segundo">{{ item.segundo }}</span> 
         <span class="cantidad-segundo">
-          <span class="punto-cantidad{% if item.cantidad == 0 %} sin-productos{% endif %}"></span>
-          {{ item.cantidad }}
+          <span class="punto-cantidad{% if item.cantidad_actual == 0 %} sin-productos{% elif item.cantidad_actual <= item.cantidad|add:'-1'|multiply:0.5 %} pocos-productos{% endif %}"></span>
+          {{ item.cantidad_actual }}
         </span>
         </li>{% empty %}
         <li class="list-group-item text-muted">No configurado</li>{% endfor %}</ul></div>
@@ -76,11 +76,11 @@
           <div class="card-header card-header-sopas">Sopas</div>
           <ul class="list-group list-group-flush">
             {% for item in sopas_dia %}
-              <li class="list-group-item">
+              <li class="list-group-item" data-sopa-id="{{ item.id }}">
                 <span class="nombre-sopa">{{ item.sopa }}</span> 
                 <span class="cantidad-sopa">
-                  <span class="punto-cantidad"></span>
-                  {{ item.cantidad }}
+                  <span class="punto-cantidad{% if item.cantidad_actual == 0 %} sin-productos{% elif item.cantidad_actual <= item.cantidad|add:'-1'|multiply:0.5 %} pocos-productos{% endif %}"></span>
+                  {{ item.cantidad_actual }}
                 </span>
               </li>{% empty %}
             <li class="list-group-item text-muted">No configurado</li>{% endfor %}
@@ -91,11 +91,11 @@
           <div class="card-header card-header-segundos">Segundos</div>
           <ul class="list-group list-group-flush">
             {% for item in segundos_dia %}
-              <li class="list-group-item">
+              <li class="list-group-item" data-segundo-id="{{ item.id }}">
                 <span class="nombre-segundo">{{ item.segundo }}</span> 
                 <span class="cantidad-segundo">
-                  <span class="punto-cantidad{% if item.cantidad == 0 %} sin-productos{% endif %}"></span>
-                  {{ item.cantidad }}
+                  <span class="punto-cantidad{% if item.cantidad_actual == 0 %} sin-productos{% elif item.cantidad_actual <= item.cantidad|add:'-1'|multiply:0.5 %} pocos-productos{% endif %}"></span>
+                  {{ item.cantidad_actual }}
                 </span>
               </li>{% empty %}
             <li class="list-group-item text-muted">No configurado</li>{% endfor %}
@@ -722,10 +722,43 @@ function agregarEventosCardPedido(cardNode) {
   if (!card) return;
 
   // Botón Eliminar
-  card.querySelector('.btn-eliminar').addEventListener('click', function() {
+  card.querySelector('.btn-eliminar').addEventListener('click', async function() {
+    const pedidoId = card.getAttribute('data-pedido-id');
+    if (!pedidoId) {
+      alert('Error: No se encontró el ID del pedido');
+      return;
+    }
+    
     // Mostrar confirmación antes de eliminar
     if (confirm('¿Estás seguro de que quieres eliminar este pedido? Esta acción no se puede deshacer.')) {
-      card.remove();
+      try {
+        const response = await fetch('/eliminar-pedido/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': '{{ csrf_token }}'
+          },
+          body: new URLSearchParams({
+            pedido_id: pedidoId
+          })
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'ok') {
+          // Eliminar la card del DOM
+          card.remove();
+          alert('Pedido eliminado correctamente');
+          
+          // Recargar la página para actualizar cantidades
+          location.reload();
+        } else {
+          alert('Error al eliminar el pedido: ' + (data.message || 'Error desconocido'));
+        }
+      } catch (error) {
+        console.error('Error al eliminar pedido:', error);
+        alert('Error inesperado al eliminar el pedido: ' + error.message);
+      }
     }
   });
 
@@ -984,6 +1017,10 @@ function guardarPedidoFrontend() {
       modal.hide();
       
       alert('Pedido guardado correctamente');
+      
+      // Actualizar cantidades disponibles después de guardar pedido
+      actualizarCantidadesDisponibles();
+
     } else {
       alert('Error al guardar el pedido: ' + (data.message || 'Error desconocido'));
     }
@@ -1152,6 +1189,110 @@ async function cargarPedidosExistentes() {
   } catch (error) {
     console.error('Error al cargar pedidos existentes:', error);
     console.error('Detalles del error:', error.message);
+  }
+}
+
+
+
+// Función para actualizar cantidades disponibles en tiempo real
+async function actualizarCantidadesDisponibles() {
+  try {
+    console.log('=== ACTUALIZANDO CANTIDADES DISPONIBLES ===');
+    
+    const response = await fetch('/obtener-cantidades-actualizadas/');
+    const data = await response.json();
+    
+    if (data.status === 'ok') {
+      console.log('Cantidades actualizadas recibidas:', data);
+      
+      // Actualizar sopas
+      data.sopas.forEach(sopa => {
+        console.log(`Procesando sopa ID ${sopa.id}: ${sopa.nombre}`);
+        const sopaElement = document.querySelector(`[data-sopa-id="${sopa.id}"]`);
+        if (sopaElement) {
+          console.log(`Elemento sopa encontrado para ID ${sopa.id}`);
+          const cantidadSpan = sopaElement.querySelector('.cantidad-sopa');
+          const puntoSpan = sopaElement.querySelector('.punto-cantidad');
+          
+          if (cantidadSpan) {
+            // Actualizar solo el texto del número, manteniendo el punto
+            const puntoSpan = cantidadSpan.querySelector('.punto-cantidad');
+            if (puntoSpan) {
+              // Limpiar el contenido y agregar el punto actualizado + el número
+              cantidadSpan.innerHTML = '';
+              cantidadSpan.appendChild(puntoSpan);
+              cantidadSpan.appendChild(document.createTextNode(' ' + sopa.cantidad_actual));
+            } else {
+              cantidadSpan.textContent = sopa.cantidad_actual;
+            }
+          }
+          
+          if (puntoSpan) {
+            console.log(`Actualizando punto para sopa ${sopa.nombre}: cantidad_actual=${sopa.cantidad_actual}, cantidad_configurada=${sopa.cantidad_configurada}`);
+            // Actualizar color del punto
+            puntoSpan.classList.remove('sin-productos', 'pocos-productos');
+            if (sopa.cantidad_actual === 0) {
+              puntoSpan.classList.add('sin-productos');
+              console.log(`  → Agregada clase 'sin-productos' (rojo)`);
+            } else if (sopa.cantidad_actual <= sopa.cantidad_configurada * 0.5) {
+              puntoSpan.classList.add('pocos-productos');
+              console.log(`  → Agregada clase 'pocos-productos' (naranja)`);
+            } else {
+              console.log(`  → Sin clases especiales (verde)`);
+            }
+          } else {
+            console.log(`No se encontró punto para sopa ${sopa.nombre}`);
+          }
+        }
+      });
+      
+      // Actualizar segundos
+      data.segundos.forEach(segundo => {
+        console.log(`Procesando segundo ID ${segundo.id}: ${segundo.nombre}`);
+        const segundoElement = document.querySelector(`[data-segundo-id="${segundo.id}"]`);
+        if (segundoElement) {
+          console.log(`Elemento segundo encontrado para ID ${segundo.id}`);
+          const cantidadSpan = segundoElement.querySelector('.cantidad-segundo');
+          const puntoSpan = segundoElement.querySelector('.punto-cantidad');
+          
+          if (cantidadSpan) {
+            // Actualizar solo el texto del número, manteniendo el punto
+            const puntoSpan = cantidadSpan.querySelector('.punto-cantidad');
+            if (puntoSpan) {
+              // Limpiar el contenido y agregar el punto actualizado + el número
+              cantidadSpan.innerHTML = '';
+              cantidadSpan.appendChild(puntoSpan);
+              cantidadSpan.appendChild(document.createTextNode(' ' + segundo.cantidad_actual));
+            } else {
+              cantidadSpan.textContent = segundo.cantidad_actual;
+            }
+          }
+          
+          if (puntoSpan) {
+            console.log(`Actualizando punto para segundo ${segundo.nombre}: cantidad_actual=${segundo.cantidad_actual}, cantidad_configurada=${segundo.cantidad_configurada}`);
+            // Actualizar color del punto
+            puntoSpan.classList.remove('sin-productos', 'pocos-productos');
+            if (segundo.cantidad_actual === 0) {
+              puntoSpan.classList.add('sin-productos');
+              console.log(`  → Agregada clase 'sin-productos' (rojo)`);
+            } else if (segundo.cantidad_actual <= segundo.cantidad_configurada * 0.5) {
+              puntoSpan.classList.add('pocos-productos');
+              console.log(`  → Agregada clase 'pocos-productos' (naranja)`);
+            } else {
+              console.log(`  → Sin clases especiales (verde)`);
+            }
+          } else {
+            console.log(`No se encontró punto para segundo ${segundo.nombre}`);
+          }
+        }
+      });
+      
+      console.log('Cantidades actualizadas exitosamente');
+    } else {
+      console.error('Error al obtener cantidades actualizadas:', data.message);
+    }
+  } catch (error) {
+    console.error('Error al actualizar cantidades:', error);
   }
 }
 

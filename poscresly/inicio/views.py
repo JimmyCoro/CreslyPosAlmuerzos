@@ -3,6 +3,7 @@ from datetime import date
 from .forms import MenuDiaForm, MenuDiaSopaForm, MenuDiaSegundoForm, MenuDiaJugoForm
 from menu.models import MenuDia, MenuDiaSopa, MenuDiaSegundo, MenuDiaJugo, Producto
 from pedidos.models import Pedido
+
 import json
 from django.core.serializers.json import DjangoJSONEncoder
 from decimal import Decimal
@@ -26,6 +27,8 @@ def inicio(request):
                 if form.cleaned_data.get('sopa'):
                     obj = form.save(commit=False)
                     obj.menu = menu
+                    # Inicializar cantidad_actual con cantidad
+                    obj.cantidad_actual = obj.cantidad
                     obj.save()
 
             # Limpiar y volver a guardar segundos
@@ -34,6 +37,8 @@ def inicio(request):
                 if form.cleaned_data.get('segundo'):
                     obj = form.save(commit=False)
                     obj.menu = menu
+                    # Inicializar cantidad_actual con cantidad
+                    obj.cantidad_actual = obj.cantidad
                     obj.save()
 
             # Limpiar y volver a guardar jugos

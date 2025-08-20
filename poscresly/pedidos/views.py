@@ -5,7 +5,98 @@ from datetime import date
 from decimal import Decimal
 from .models import Pedido, CajaDiaria, PedidoAlmuerzo, PedidoSopa, PedidoSegundo
 
+
 # ===== FUNCIONES AUXILIARES =====
+
+def actualizar_cantidades_menu(productos_carrito, operacion='restar'):
+    """
+    Actualiza las cantidades del menú del día según los productos vendidos.
+    
+    Args:
+        productos_carrito: Lista de productos del pedido
+        operacion: 'restar' para crear pedido, 'sumar' para eliminar pedido
+    """
+    from datetime import date
+    from menu.models import MenuDia, MenuDiaSopa, MenuDiaSegundo
+    import logging
+    
+    logger = logging.getLogger(__name__)
+    
+    hoy = date.today()
+    logger.info(f"Actualizando cantidades para {hoy}, operación: {operacion}")
+    logger.info(f"Productos a procesar: {productos_carrito}")
+    
+    try:
+        menu = MenuDia.objects.get(fecha=hoy)
+        logger.info(f"Menú encontrado: {menu}")
+    except MenuDia.DoesNotExist:
+        logger.warning("No hay menú configurado para hoy")
+        return  # No hay menú configurado para hoy
+    
+    for producto in productos_carrito:
+        cantidad = producto.get('cantidad', 1)
+        tipo = producto.get('tipo', '').lower()
+        
+        logger.info(f"Procesando producto: tipo={tipo}, cantidad={cantidad}")
+        
+        if operacion == 'restar':
+            cantidad = -cantidad  # Restar
+        # Si es 'sumar', cantidad ya es positiva
+        
+        if tipo == 'almuerzo':
+            # Almuerzo consume 1 sopa + 1 segundo
+            sopa_id = producto.get('sopa_id')
+            segundo_id = producto.get('segundo_id')
+            
+            logger.info(f"Almuerzo - sopa_id: {sopa_id}, segundo_id: {segundo_id}")
+            
+            if sopa_id:
+                try:
+                    sopa_menu = MenuDiaSopa.objects.get(menu=menu, sopa_id=sopa_id)
+                    cantidad_anterior = sopa_menu.cantidad_actual
+                    sopa_menu.cantidad_actual = max(0, sopa_menu.cantidad_actual + cantidad)
+                    sopa_menu.save()
+                    logger.info(f"Sopa actualizada: {sopa_menu.sopa} - {cantidad_anterior} → {sopa_menu.cantidad_actual}")
+                except MenuDiaSopa.DoesNotExist:
+                    logger.warning(f"No se encontró sopa con ID {sopa_id} en el menú")
+            
+            if segundo_id:
+                try:
+                    segundo_menu = MenuDiaSegundo.objects.get(menu=menu, segundo_id=segundo_id)
+                    cantidad_anterior = segundo_menu.cantidad_actual
+                    segundo_menu.cantidad_actual = max(0, segundo_menu.cantidad_actual + cantidad)
+                    segundo_menu.save()
+                    logger.info(f"Segundo actualizado: {segundo_menu.segundo} - {cantidad_anterior} → {segundo_menu.cantidad_actual}")
+                except MenuDiaSegundo.DoesNotExist:
+                    logger.warning(f"No se encontró segundo con ID {segundo_id} en el menú")
+        
+        elif tipo == 'sopa':
+            # Sopa individual
+            sopa_id = producto.get('sopa_id')
+            logger.info(f"Sopa individual - sopa_id: {sopa_id}")
+            if sopa_id:
+                try:
+                    sopa_menu = MenuDiaSopa.objects.get(menu=menu, sopa_id=sopa_id)
+                    cantidad_anterior = sopa_menu.cantidad_actual
+                    sopa_menu.cantidad_actual = max(0, sopa_menu.cantidad_actual + cantidad)
+                    sopa_menu.save()
+                    logger.info(f"Sopa individual actualizada: {sopa_menu.sopa} - {cantidad_anterior} → {sopa_menu.cantidad_actual}")
+                except MenuDiaSopa.DoesNotExist:
+                    logger.warning(f"No se encontró sopa con ID {sopa_id} en el menú")
+        
+        elif tipo == 'segundo':
+            # Segundo individual
+            segundo_id = producto.get('segundo_id')
+            logger.info(f"Segundo individual - segundo_id: {segundo_id}")
+            if segundo_id:
+                try:
+                    segundo_menu = MenuDiaSegundo.objects.get(menu=menu, segundo_id=segundo_id)
+                    cantidad_anterior = segundo_menu.cantidad_actual
+                    segundo_menu.cantidad_actual = max(0, segundo_menu.cantidad_actual + cantidad)
+                    segundo_menu.save()
+                    logger.info(f"Segundo individual actualizado: {segundo_menu.segundo} - {cantidad_anterior} → {segundo_menu.cantidad_actual}")
+                except MenuDiaSegundo.DoesNotExist:
+                    logger.warning(f"No se encontró segundo con ID {segundo_id} en el menú")
 
 def calcular_precio_producto(tipo):
     """Calcula el precio unitario de un producto según su tipo"""
@@ -308,6 +399,9 @@ def guardar_pedido(request):
                 caja.total_transferencia += total_pedido
         caja.save()
 
+        # Actualizar cantidades del menú del día
+        actualizar_cantidades_menu(productos_carrito, 'restar')
+
         # Si es edición, eliminar productos que ya no están en el carrito
         if pedido_id_editar:
             # Encontrar productos que no fueron procesados (eliminados del carrito)
@@ -435,3 +529,110 @@ def obtener_pedidos_pendientes(request):
         
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': f'Error interno: {str(e)}'}, status=500)
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def eliminar_pedido(request):
+    """Elimina un pedido y actualiza las cantidades del menú"""
+    try:
+        pedido_id = request.POST.get('pedido_id')
+        if not pedido_id:
+            return JsonResponse({'status': 'error', 'message': 'ID de pedido requerido'}, status=400)
+        
+        pedido = Pedido.objects.get(id=pedido_id, estado='pendiente')
+        
+        # Obtener productos del pedido antes de eliminarlo
+        productos_pedido = []
+        
+        # Obtener almuerzos
+        for almuerzo in pedido.almuerzos.all():
+            productos_pedido.append({
+                'tipo': 'almuerzo',
+                'cantidad': almuerzo.cantidad,
+                'sopa_id': almuerzo.sopa.id,
+                'segundo_id': almuerzo.segundo.id
+            })
+        
+        # Obtener sopas individuales
+        for sopa in pedido.sopas.all():
+            productos_pedido.append({
+                'tipo': 'sopa',
+                'cantidad': sopa.cantidad,
+                'sopa_id': sopa.sopa.id
+            })
+        
+        # Obtener segundos individuales
+        for segundo in pedido.segundos.all():
+            productos_pedido.append({
+                'tipo': 'segundo',
+                'cantidad': segundo.cantidad,
+                'segundo_id': segundo.segundo.id
+            })
+        
+        # Actualizar cantidades del menú (sumar de vuelta)
+        actualizar_cantidades_menu(productos_pedido, 'sumar')
+        
+        # Eliminar el pedido
+        pedido.delete()
+        
+        return JsonResponse({'status': 'ok', 'message': 'Pedido eliminado correctamente'})
+        
+    except Pedido.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Pedido no encontrado'}, status=404)
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': f'Error interno: {str(e)}'}, status=500)
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def obtener_cantidades_actualizadas(request):
+    """Obtiene las cantidades actualizadas del menú del día"""
+    try:
+        from datetime import date
+        from menu.models import MenuDia, MenuDiaSopa, MenuDiaSegundo
+        
+        hoy = date.today()
+        
+        try:
+            menu = MenuDia.objects.get(fecha=hoy)
+        except MenuDia.DoesNotExist:
+            return JsonResponse({
+                'status': 'ok',
+                'sopas': [],
+                'segundos': []
+            })
+        
+        # Obtener sopas con cantidades actuales
+        sopas_data = []
+        for sopa in MenuDiaSopa.objects.filter(menu=menu):
+            sopas_data.append({
+                'id': sopa.id,
+                'nombre': str(sopa.sopa),
+                'cantidad_configurada': sopa.cantidad,
+                'cantidad_actual': sopa.cantidad_actual,
+                'cantidad_vendida': sopa.cantidad - sopa.cantidad_actual
+            })
+        
+        # Obtener segundos con cantidades actuales
+        segundos_data = []
+        for segundo in MenuDiaSegundo.objects.filter(menu=menu):
+            segundos_data.append({
+                'id': segundo.id,
+                'nombre': str(segundo.segundo),
+                'cantidad_configurada': segundo.cantidad,
+                'cantidad_actual': segundo.cantidad_actual,
+                'cantidad_vendida': segundo.cantidad - segundo.cantidad_actual
+            })
+        
+        return JsonResponse({
+            'status': 'ok',
+            'sopas': sopas_data,
+            'segundos': segundos_data
+        })
+        
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': f'Error interno: {str(e)}'}, status=500)
+
+
+

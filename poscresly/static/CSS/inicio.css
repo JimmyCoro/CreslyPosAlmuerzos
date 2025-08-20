@@ -103,6 +103,12 @@
   background: #c00707;
 }
 
+.punto-cantidad.pocos-productos {
+  background: #ffa500;
+}
+
+
+
 
 .cantidad-sopa{
     display: flex;
