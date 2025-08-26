@@ -4,6 +4,8 @@ from django.views.decorators.http import require_http_methods
 from datetime import date
 from decimal import Decimal
 from .models import Pedido, CajaDiaria, PedidoAlmuerzo, PedidoSopa, PedidoSegundo
+from menu.models import MenuDiaSopa, MenuDiaSegundo, MenuDiaJugo
+import json
 
 
 # ===== FUNCIONES AUXILIARES =====
@@ -633,6 +635,132 @@ def obtener_cantidades_actualizadas(request):
         
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': f'Error interno: {str(e)}'}, status=500)
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def marcar_pedidos_completados(request):
+    """Marcar múltiples pedidos como completados"""
+    try:
+        data = json.loads(request.body)
+        pedido_ids = data.get('pedido_ids', [])
+        
+        if not pedido_ids:
+            return JsonResponse({'status': 'error', 'message': 'No se proporcionaron IDs de pedidos'})
+        
+        # Actualizar pedidos
+        pedidos_actualizados = Pedido.objects.filter(id__in=pedido_ids, estado='pendiente')
+        cantidad_actualizada = pedidos_actualizados.update(estado='completado')
+        
+
+        
+        return JsonResponse({
+            'status': 'ok',
+            'message': f'{cantidad_actualizada} pedidos marcados como completados',
+            'pedidos_actualizados': cantidad_actualizada
+        })
+        
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)})
+
+
+
+@require_http_methods(["GET"])
+def obtener_pedidos_por_tipo(request):
+    """Obtener pedidos filtrados por tipo"""
+    try:
+        tipo = request.GET.get('tipo', 'todos')
+        
+        pedidos = Pedido.objects.filter(estado='pendiente').prefetch_related(
+            'almuerzos__sopa', 'almuerzos__segundo', 'almuerzos__jugo',
+            'sopas__sopa', 'sopas__jugo',
+            'segundos__segundo', 'segundos__jugo'
+        ).order_by('-fecha_creacion')
+        
+        if tipo == 'servirse':
+            pedidos = pedidos.filter(tipo='Servirse')
+        elif tipo == 'llevar':
+            pedidos = pedidos.filter(tipo='Levar')
+        elif tipo == 'reservados':
+            pedidos = pedidos.filter(tipo='Reservado')
+        
+        # Calcular totales para cada pedido
+        for pedido in pedidos:
+            total_calculado = Decimal('0.00')
+            
+            for almuerzo in pedido.almuerzos.all():
+                total_calculado += almuerzo.precio_unitario * Decimal(str(almuerzo.cantidad))
+            
+            for sopa in pedido.sopas.all():
+                total_calculado += sopa.precio_unitario * Decimal(str(sopa.cantidad))
+            
+            for segundo in pedido.segundos.all():
+                total_calculado += segundo.precio_unitario * Decimal(str(segundo.cantidad))
+            
+            pedido.total_calculado = total_calculado
+        
+        # Serializar pedidos
+        pedidos_data = []
+        for pedido in pedidos:
+            productos = []
+            
+            for almuerzo in pedido.almuerzos.all():
+                productos.append({
+                    'tipo': 'Almuerzo',
+                    'componentes': [
+                        almuerzo.sopa.sopa.nombre_plato,
+                        almuerzo.segundo.segundo.nombre_plato,
+                        almuerzo.jugo.jugo.nombre_plato
+                    ],
+                    'cantidad': almuerzo.cantidad,
+                    'precio_unitario': float(almuerzo.precio_unitario),
+                    'observacion': almuerzo.observacion or ''
+                })
+            
+            for sopa in pedido.sopas.all():
+                productos.append({
+                    'tipo': 'Sopa',
+                    'componentes': [
+                        sopa.sopa.sopa.nombre_plato,
+                        sopa.jugo.jugo.nombre_plato
+                    ],
+                    'cantidad': sopa.cantidad,
+                    'precio_unitario': float(sopa.precio_unitario),
+                    'observacion': sopa.observacion or ''
+                })
+            
+            for segundo in pedido.segundos.all():
+                productos.append({
+                    'tipo': 'Segundo',
+                    'componentes': [
+                        segundo.segundo.segundo.nombre_plato,
+                        segundo.jugo.jugo.nombre_plato
+                    ],
+                    'cantidad': segundo.cantidad,
+                    'precio_unitario': float(segundo.precio_unitario),
+                    'observacion': segundo.observacion or ''
+                })
+            
+            pedidos_data.append({
+                'id': pedido.id,
+                'tipo': pedido.tipo,
+                'forma_pago': pedido.forma_pago,
+                'fecha_creacion': pedido.fecha_creacion.isoformat(),
+                'mesa': pedido.numero_mesa,
+                'contacto': pedido.contacto,
+                'subtipo_reservado': pedido.subtipo_reservado,
+                'total': float(pedido.total),
+                'productos': productos
+            })
+        
+        return JsonResponse({
+            'status': 'ok',
+            'pedidos': pedidos_data,
+            'cantidad': len(pedidos_data)
+        })
+        
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)})
 
 
 

@@ -3,7 +3,6 @@
 .contenedor-principal{
     padding-top: 20px !important;
     margin-left: 30px !important;
-    margin-right: 0px !important;
   }
 
 .col-izq{
@@ -13,7 +12,202 @@
 }
 .col-der{
    padding-top: 20px;
-   background-color: #F7F7F9;;
+   padding-right: 20px;
+   background-color: #F7F7F9;
+}
+
+
+/* Estilos para el header */
+.card-header h4 {
+    font-family: var(--fuente-titulos);
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.card-header h4 i {
+    color: #007bff;
+}
+
+/* Contenedor de tabs */
+.nav-tabs-container {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+/* Estilos para los tabs redondeados (como en la imagen) */
+.nav-link-tab-rounded {
+    font-family: var(--fuente-principal);
+    font-size: 0.9rem;
+    font-weight: 500;
+    border: none;
+    background-color: white;
+    color: #6c757d;
+    transition: all 0.2s ease;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    min-width: 0;
+    flex: 1;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.nav-link-tab-rounded:hover {
+    color: #495057;
+    background-color: #f8f9fa;
+    text-decoration: none;
+}
+
+.nav-link-tab-rounded.active {
+    color: #007bff;
+    background-color: #e3f2fd;
+    font-weight: 600;
+    box-shadow: 0 2px 4px rgba(0,123,255,0.2);
+}
+
+.nav-link-tab-rounded .badge {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+}
+
+/* Badges específicos como en la imagen */
+.badge-todos {
+    background-color: #6c757d !important;
+    color: white;
+}
+
+.badge-servirse {
+    background-color: #007bff !important;
+    color: white;
+}
+
+.badge-llevar {
+    background-color: #ffc107 !important;
+    color: #212529;
+}
+
+.badge-reservados {
+    background-color: #fd7e14 !important;
+    color: white;
+}
+
+/* Estilos para los botones de selección múltiple */
+
+.content-nav-tabs{
+    background-color:#eeeef0;
+    border-radius: 10px;
+}
+
+.btn-marcar-todos {
+    font-family: var(--fuente-principal);
+    font-size: 0.95rem;
+    font-weight: 540;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+    padding: 0.3rem 1.2rem;
+    border: 1px solid #2475bd;
+    color: #2475bd;
+    background-color: white;
+}
+
+.btn-marcar-todos:hover {
+    transform: scale(1.05);
+    transition: transform 0.2s ease;
+    border: 1px solid #2475bd;
+    color: #2475bd;
+    background-color: white;
+}
+
+.btn-marcar-todos.active {
+    background-color: #2475bd;
+    border-color: #2475bd;
+    color: white;
+}
+
+.btn-marcar-listos {
+    font-family: var(--fuente-principal);
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 0.3rem 1.2rem;
+    border-radius: 10px;
+
+    border-radius: 4px;
+    border-radius: 10px;
+    padding: 0.3rem 1.2rem;
+    transition: all 0.2s ease;
+    background-color: #28a745;
+    border-color: #28a745;
+    color: white;
+}
+
+.btn-marcar-listos:hover {
+    transform: scale(1.05);
+    transition: transform 0.2s ease;
+    border: 1px solid #ffffff;
+    color: #ffffff;
+    background-color: #28a745;
+}
+
+.btn-marcar-listos.disabled {
+    background-color: #6c757d;
+    padding: 0.3rem 1.2rem;
+    border-color: #6c757d;
+    color: #adb5bd;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.btn-marcar-listos.disabled:hover {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    color: #adb5bd;
+}
+
+/* Separación del borde derecho para el header */
+.card-header .d-flex.justify-content-between {
+    padding-right: 1rem;
+}
+
+/* Estilos para los checkboxes de selección */
+.checkbox-pedido {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #dee2e6;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.checkbox-pedido:checked {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.checkbox-pedido:hover {
+    border-color: #007bff;
+}
+
+/* Estilos para el contenedor de pedidos */
+.pedidos-scroll {
+    background-color: #f8f9fa;
+    border-radius: 0 0 8px 8px;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+.pedidos-scroll .row {
+    margin: 0;
+}
+
+.pedidos-scroll .col-12,
+.pedidos-scroll .col-md-6,
+.pedidos-scroll .col-lg-4 {
+    padding: 0.5rem;
 }
 
 .card-header-sopas {
@@ -43,9 +237,9 @@
     width: 100%;
     background-color: var(--secondary-color);
     color: white;
+    font-weight: 400;
     font-family: var(--fuente-principal);
     font-size: 1.1rem;
-    font-weight: 100;
     padding: 5px 5px;
     text-align: center;
 }
@@ -60,8 +254,8 @@
 
 .btn-configurar-menu{
     width: 100%;
-    border: 2px solid #F7F7F9;
-    background-color: #F7F7F9;
+    border: 2px solid #eeeef0;
+    background-color: #eeeef0;
     color: black;
     font-weight: 90;
     font-family: var(--fuente-principal);
@@ -71,9 +265,9 @@
 .btn-configurar-menu:hover {
     transform: scale(1.05);
     transition: transform 0.2s;
-    background-color: #F7F7F9 !important;
+    background-color: #eeeef0 !important;
     color: rgb(0, 0, 0) !important;
-    border: 2px solid #F7F7F9 !important;
+    border: 2px solid #eeeef0 !important;
 }
 
 .list-group-item{

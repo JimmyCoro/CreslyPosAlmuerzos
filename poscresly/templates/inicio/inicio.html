@@ -118,14 +118,46 @@
     </div>
 
 
-    <div class="col-9 col-der d-flex flex-column" style="height: 100%;">
-      <div class="tipo-pedido d-flex justify-content-evenly mb-3 flex-shrink-0">
-        <a class="nav-link" href="#">Servirse</a>
-        <a class="nav-link" href="#">Reservados</a>
-        <a class="nav-link" href="#">Llevar</a>
+        <div class="col-9 col-der d-flex flex-column" style="height: 100%;">
+      <!-- Header con título y botones -->
+        <div class="row-btns d-flex justify-content-between align-items-center px-5 mb-2 ">
+          <h4 class="mb-0 fw-bold text-dark">
+            <i class="fas fa-clipboard-list me-2"></i>Pedidos Pendientes
+          </h4>
+          <!-- Botones de acción -->
+          <div class="d-flex align-items-center gap-3">
+            <button type="button" class="btn btn-marcar-todos" id="btn-seleccionar-todos" title="Marcar Todo">
+              <i class="fas fa-square me-1"></i>Marcar Todo
+            </button>
+            <button type="button" class="btn btn-marcar-listos disabled" id="btn-marcar-listos" title="Marcar Listos" disabled>
+              <i class="fas fa-check-circle me-1"></i>Marcar Listos
+            </button>
+          </div>
+        </div>
+      
+      <!-- Tabs redondeados -->
+      <div class="nav-tabs-container bg-light border-bottom me-4">
+        <div class="content-nav-tabs d-flex justify-content-between align-items-center py-2 px-3">
+          <div class="d-flex align-items-center w-100">
+            <button class="nav-link-tab-rounded active flex-fill me-2" id="todos-tab" data-tipo="todos" type="button">
+              Todos <span class="badge badge-todos ms-1" id="contador-todos">{{ pedidos_todos.count }}</span>
+            </button>
+            <button class="nav-link-tab-rounded flex-fill me-2" id="servirse-tab" data-tipo="servirse" type="button">
+              Servirse <span class="badge badge-servirse ms-1" id="contador-servirse">{{ pedidos_servirse.count }}</span>
+            </button>
+            <button class="nav-link-tab-rounded flex-fill me-2" id="llevar-tab" data-tipo="llevar" type="button">
+              Llevar <span class="badge badge-llevar ms-1" id="contador-llevar">{{ pedidos_llevar.count }}</span>
+            </button>
+            <button class="nav-link-tab-rounded flex-fill" id="reservados-tab" data-tipo="reservados" type="button">
+              Reservados <span class="badge badge-reservados ms-1" id="contador-reservados">{{ pedidos_reservados.count }}</span>
+            </button>
+          </div>
+        </div>
       </div>
-      <div class="pedidos-scroll flex-grow-1" style="overflow-y: auto; min-height: 0;">
-        <div class="row g-3" id="contenedor-cards-pedidos">
+      
+      <!-- Contenedor único para todos los pedidos -->
+      <div class="pedidos-scroll">
+        <div class="row g-3 p-3" id="contenedor-cards-pedidos">
           <!-- Aquí van las cards de los pedidos generadas dinámicamente por JavaScript -->
         </div>
       </div>
@@ -721,6 +753,17 @@ function agregarEventosCardPedido(cardNode) {
     : cardNode?.querySelector?.('.pedido-card');
   if (!card) return;
 
+  // Checkbox de selección múltiple
+  const checkbox = card.querySelector('.checkbox-pedido');
+  if (checkbox) {
+    checkbox.addEventListener('change', function() {
+      const pedidoId = this.value;
+      const checked = this.checked;
+      
+      manejarSeleccionMultiple(pedidoId, checked);
+    });
+  }
+
   // Botón Eliminar
   card.querySelector('.btn-eliminar').addEventListener('click', async function() {
     const pedidoId = card.getAttribute('data-pedido-id');
@@ -1109,7 +1152,10 @@ function crearCardPedidoDesdeBD(pedidoData) {
     '<div class="card mb-3 pedido-card" data-pedido-id="' + pedidoData.id + '">' +
       '<div class="card-body">' +
         '<div class="d-flex justify-content-between align-items-center mb-2">' +
-          '<span class="fw-bold">#' + pedidoData.id.toString().padStart(3, '0') + '</span>' +
+          '<div class="d-flex align-items-center gap-2">' +
+            '<input type="checkbox" class="form-check-input checkbox-pedido" value="' + pedidoData.id + '" style="margin-right: 8px;">' +
+            '<span class="fw-bold">#' + pedidoData.id.toString().padStart(3, '0') + '</span>' +
+          '</div>' +
           '<div class="d-flex align-items-center gap-2">' +
             '<span class="badge badge-' + pedidoData.tipo.toLowerCase() + '">' + pedidoData.tipo + '</span>' +
             '<span class="text-muted"><i class="fas fa-clock"></i> ' + horaActual + '</span>' +
@@ -1154,41 +1200,57 @@ async function cargarPedidosExistentes() {
   try {
     console.log('=== CARGANDO PEDIDOS EXISTENTES ===');
     
-    // Obtener pedidos pendientes desde el backend
-    console.log('Haciendo fetch a /obtener-pedidos-pendientes/');
-    const response = await fetch('/obtener-pedidos-pendientes/');
-    console.log('Respuesta recibida:', response.status);
+    // Cargar pedidos del tipo actual (todos por defecto)
+    await cargarPedidosPorTipo('todos');
     
+    console.log('Pedidos cargados exitosamente');
+  } catch (error) {
+    console.error('Error al cargar pedidos existentes:', error);
+    console.error('Detalles del error:', error.message);
+  }
+}
+
+// Función para cargar pedidos por tipo
+async function cargarPedidosPorTipo(tipo) {
+  try {
+    console.log(`=== CARGANDO PEDIDOS ${tipo.toUpperCase()} ===`);
+    
+    const response = await fetch(`/obtener-pedidos-por-tipo/?tipo=${tipo}`);
     const data = await response.json();
-    console.log('Datos parseados:', data);
     
     if (data.status === 'ok') {
-      console.log('Pedidos recibidos:', data.pedidos);
-      console.log('Cantidad de pedidos:', data.pedidos ? data.pedidos.length : 0);
+      console.log(`Pedidos ${tipo} recibidos:`, data.pedidos);
       
       const contenedor = document.getElementById('contenedor-cards-pedidos');
-      console.log('Contenedor encontrado:', contenedor);
       contenedor.innerHTML = ''; // Limpiar contenedor
       
       // Generar cards para cada pedido
       data.pedidos.forEach((pedido, index) => {
-        console.log(`Procesando pedido ${index + 1}:`, pedido.id, 'con productos:', pedido.productos);
+        console.log(`Procesando pedido ${index + 1}:`, pedido.id);
         const cardHTML = crearCardPedidoDesdeBD(pedido);
         contenedor.insertAdjacentHTML('beforeend', cardHTML);
       });
       
       // Agregar eventos a todas las cards
-      document.querySelectorAll('.pedido-card').forEach(card => {
+      contenedor.querySelectorAll('.pedido-card').forEach(card => {
         agregarEventosCardPedido(card);
       });
       
-      console.log('Pedidos cargados exitosamente');
+      // Actualizar contador
+      const contador = document.getElementById(`contador-${tipo}`);
+      if (contador) {
+        contador.textContent = data.cantidad;
+      }
+      
+      // Actualizar tipo actual
+      window.tipoActual = tipo;
+      
+      console.log(`Pedidos ${tipo} cargados exitosamente`);
     } else {
-      console.error('Error al cargar pedidos:', data.message);
+      console.error(`Error al cargar pedidos ${tipo}:`, data.message);
     }
   } catch (error) {
-    console.error('Error al cargar pedidos existentes:', error);
-    console.error('Detalles del error:', error.message);
+    console.error(`Error al cargar pedidos ${tipo}:`, error);
   }
 }
 
@@ -1333,6 +1395,118 @@ function limpiarFormularioPedido() {
   document.getElementById('tipo_pedido').value = 'servirse';
 }
 
+// Variables globales para selección múltiple
+window.pedidosSeleccionados = new Set();
+window.tipoActual = 'todos';
+
+// Función para manejar selección múltiple
+function manejarSeleccionMultiple(pedidoId, checked) {
+  if (checked) {
+    window.pedidosSeleccionados.add(pedidoId);
+  } else {
+    window.pedidosSeleccionados.delete(pedidoId);
+  }
+  
+  // Actualizar botón de marcar como listos
+  const btnMarcarListos = document.getElementById('btn-marcar-listos');
+  const btnSeleccionarTodos = document.getElementById('btn-seleccionar-todos');
+  
+  if (window.pedidosSeleccionados.size > 0) {
+    btnMarcarListos.classList.remove('disabled');
+    btnMarcarListos.disabled = false;
+    btnSeleccionarTodos.classList.add('active');
+  } else {
+    btnMarcarListos.classList.add('disabled');
+    btnMarcarListos.disabled = true;
+    btnSeleccionarTodos.classList.remove('active');
+  }
+}
+
+// Función para seleccionar/deseleccionar todos los pedidos visibles
+function seleccionarTodosPedidos() {
+  const contenedor = document.getElementById('contenedor-cards-pedidos');
+  const checkboxes = contenedor.querySelectorAll('.checkbox-pedido');
+  const btnSeleccionar = document.getElementById('btn-seleccionar-todos');
+  const icon = btnSeleccionar.querySelector('i');
+  
+  // Cambiar icono
+  if (icon.classList.contains('fa-square')) {
+    icon.classList.remove('fa-square');
+    icon.classList.add('fa-check-square');
+    btnSeleccionar.classList.add('active');
+    checkboxes.forEach(checkbox => {
+      checkbox.checked = true;
+      manejarSeleccionMultiple(checkbox.value, true);
+    });
+  } else {
+    icon.classList.remove('fa-check-square');
+    icon.classList.add('fa-square');
+    btnSeleccionar.classList.remove('active');
+    checkboxes.forEach(checkbox => {
+      checkbox.checked = false;
+      manejarSeleccionMultiple(checkbox.value, false);
+    });
+  }
+}
+
+// Función para marcar múltiples pedidos como listos
+async function marcarPedidosCompletados() {
+  try {
+    const pedidosIds = Array.from(window.pedidosSeleccionados);
+    
+    if (pedidosIds.length === 0) {
+      alert('No hay pedidos seleccionados');
+      return;
+    }
+    
+    if (!confirm(`¿Estás seguro de que quieres marcar ${pedidosIds.length} pedidos como completados?`)) {
+      return;
+    }
+    
+    const response = await fetch('/marcar-pedidos-completados/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': '{{ csrf_token }}'
+      },
+      body: JSON.stringify({
+        pedido_ids: pedidosIds
+      })
+    });
+    
+    const data = await response.json();
+    
+    if (data.status === 'ok') {
+      alert(data.message);
+      
+      // Limpiar selección
+      window.pedidosSeleccionados.clear();
+      const btnMarcarListos = document.getElementById('btn-marcar-listos');
+      const btnSeleccionarTodos = document.getElementById('btn-seleccionar-todos');
+      btnMarcarListos.classList.add('disabled');
+      btnMarcarListos.disabled = true;
+      btnSeleccionarTodos.classList.remove('active');
+      
+      // Resetear icono del botón seleccionar todos
+      const icon = btnSeleccionarTodos.querySelector('i');
+      icon.classList.remove('fa-check-square');
+      icon.classList.add('fa-square');
+      
+      // Recargar pedidos del tipo actual
+      await cargarPedidosPorTipo(window.tipoActual);
+      
+    } else {
+      alert('Error: ' + data.message);
+    }
+    
+  } catch (error) {
+    console.error('Error al marcar pedidos como completados:', error);
+    alert('Error inesperado al marcar pedidos como completados');
+  }
+}
+
+
+
 document.addEventListener('DOMContentLoaded', function() {
   const btnConfirmar = document.querySelector('#tomarPedidoModal .btn-success');
   if (btnConfirmar) {
@@ -1342,6 +1516,42 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Cargar pedidos existentes desde la base de datos
   cargarPedidosExistentes();
+  
+  // Eventos para botones de selección múltiple
+  document.getElementById('btn-seleccionar-todos').addEventListener('click', seleccionarTodosPedidos);
+  
+  // Eventos para botones de marcar como listos
+  document.getElementById('btn-marcar-listos').addEventListener('click', marcarPedidosCompletados);
+  
+  // Eventos para los tabs
+  document.querySelectorAll('.nav-link-tab-rounded').forEach(tab => {
+    tab.addEventListener('click', async function() {
+      // Remover clase active de todos los tabs
+      document.querySelectorAll('.nav-link-tab-rounded').forEach(t => t.classList.remove('active'));
+      // Agregar clase active al tab clickeado
+      this.classList.add('active');
+      
+      // Obtener el tipo del tab
+      const tipo = this.getAttribute('data-tipo');
+      
+      // Limpiar selección al cambiar de tab
+      window.pedidosSeleccionados.clear();
+      const btnMarcarListos = document.getElementById('btn-marcar-listos');
+      btnMarcarListos.classList.add('disabled');
+      btnMarcarListos.disabled = true;
+      
+      // Resetear icono del botón marcar todo
+      const btnSeleccionar = document.getElementById('btn-seleccionar-todos');
+      const icon = btnSeleccionar.querySelector('i');
+      icon.classList.remove('fa-check-square');
+      icon.classList.add('fa-square');
+      
+      // Cargar pedidos del tipo seleccionado
+      await cargarPedidosPorTipo(tipo);
+    });
+  });
+  
+
   
   // Limpiar formulario cuando se abre el modal solo si NO estamos editando
   const tomarPedidoModal = document.getElementById('tomarPedidoModal');

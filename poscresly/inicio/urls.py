@@ -11,5 +11,8 @@ urlpatterns = [
     path('obtener-pedidos-pendientes/', pedidos_views.obtener_pedidos_pendientes, name='obtener_pedidos_pendientes'),
     path('eliminar-pedido/', pedidos_views.eliminar_pedido, name='eliminar_pedido'),
     path('obtener-cantidades-actualizadas/', pedidos_views.obtener_cantidades_actualizadas, name='obtener_cantidades_actualizadas'),
-
+    
+    # Nuevas URLs para selección múltiple de pedidos
+    path('marcar-pedidos-completados/', pedidos_views.marcar_pedidos_completados, name='marcar_pedidos_completados'),
+    path('obtener-pedidos-por-tipo/', pedidos_views.obtener_pedidos_por_tipo, name='obtener_pedidos_por_tipo'),
 ]

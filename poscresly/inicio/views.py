@@ -12,6 +12,8 @@ def inicio(request):
     hoy = date.today()
     menu, _ = MenuDia.objects.get_or_create(fecha=hoy)
 
+
+
     if request.method == 'POST':
         form_postre = MenuDiaForm(request.POST, instance=menu)
         sopa_forms = [MenuDiaSopaForm(request.POST, prefix=f'sopa{i}') for i in range(2)]
@@ -66,15 +68,19 @@ def inicio(request):
             'llevar': float(producto.precio_llevar)
         }
 
-    # -------- Cargar pedidos pendientes --------
-    pedidos_pendientes = Pedido.objects.filter(estado='pendiente').prefetch_related(
+    # -------- Cargar pedidos pendientes por categoría --------
+    pedidos_todos = Pedido.objects.filter(estado='pendiente').prefetch_related(
         'almuerzos__sopa', 'almuerzos__segundo', 'almuerzos__jugo',
         'sopas__sopa', 'sopas__jugo',
         'segundos__segundo', 'segundos__jugo'
     ).order_by('-fecha_creacion')
 
+    pedidos_servirse = pedidos_todos.filter(tipo='Servirse')
+    pedidos_llevar = pedidos_todos.filter(tipo='Levar')
+    pedidos_reservados = pedidos_todos.filter(tipo='Reservado')
+
     # Calcular totales para cada pedido
-    for pedido in pedidos_pendientes:
+    for pedido in pedidos_todos:
         total_calculado = Decimal('0.00')
         
         # Sumar almuerzos
@@ -101,7 +107,10 @@ def inicio(request):
         'jugos_dia': MenuDiaJugo.objects.filter(menu=menu),
         'mesas': range(1, 15),
         'precios': json.dumps(precios, cls=DjangoJSONEncoder),  # Convierte el diccionario Python precios a formato JSON 
-        'pedidos_pendientes': pedidos_pendientes,
+        'pedidos_todos': pedidos_todos,
+        'pedidos_servirse': pedidos_servirse,
+        'pedidos_llevar': pedidos_llevar,
+        'pedidos_reservados': pedidos_reservados,
     }
 
     return render(request, 'inicio/inicio.html', context)
