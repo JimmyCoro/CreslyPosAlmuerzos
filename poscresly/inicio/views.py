@@ -8,64 +8,102 @@ import json
 from django.core.serializers.json import DjangoJSONEncoder
 from decimal import Decimal
 
+def crear_formularios_menu(menu, data=None):
+    """
+    Función helper para crear formularios del menú con o sin datos POST
+    """
+    # Crear formularios de sopa
+    sopas_existentes = MenuDiaSopa.objects.filter(menu=menu).order_by('id')
+    sopa_forms = []
+    for i in range(2):
+        if i < len(sopas_existentes):
+            sopa_forms.append(MenuDiaSopaForm(data, prefix=f'sopa{i}', instance=sopas_existentes[i]))
+        else:
+            sopa_forms.append(MenuDiaSopaForm(data, prefix=f'sopa{i}'))
+    
+    # Crear formularios de segundo
+    segundos_existentes = MenuDiaSegundo.objects.filter(menu=menu).order_by('id')
+    segundo_forms = []
+    for i in range(3):
+        if i < len(segundos_existentes):
+            segundo_forms.append(MenuDiaSegundoForm(data, prefix=f'segundo{i}', instance=segundos_existentes[i]))
+        else:
+            segundo_forms.append(MenuDiaSegundoForm(data, prefix=f'segundo{i}'))
+    
+    # Crear formularios de jugo
+    jugos_existentes = MenuDiaJugo.objects.filter(menu=menu).order_by('id')
+    jugo_forms = []
+    for i in range(2):
+        if i < len(jugos_existentes):
+            jugo_forms.append(MenuDiaJugoForm(data, prefix=f'jugo{i}', instance=jugos_existentes[i]))
+        else:
+            jugo_forms.append(MenuDiaJugoForm(data, prefix=f'jugo{i}'))
+    
+    return sopa_forms, segundo_forms, jugo_forms
+
 def inicio(request):
     hoy = date.today()
     menu, _ = MenuDia.objects.get_or_create(fecha=hoy)
-
-
-
     if request.method == 'POST':
         form_postre = MenuDiaForm(request.POST, instance=menu)
-        sopa_forms = [MenuDiaSopaForm(request.POST, prefix=f'sopa{i}') for i in range(2)]
-        segundo_forms = [MenuDiaSegundoForm(request.POST, prefix=f'segundo{i}') for i in range(3)]
-        jugo_forms = [MenuDiaJugoForm(request.POST, prefix=f'jugo{i}') for i in range(2)]
+        sopa_forms, segundo_forms, jugo_forms = crear_formularios_menu(menu, request.POST)
 
         if form_postre.is_valid() and all(f.is_valid() for f in sopa_forms + jugo_forms + segundo_forms):
             form_postre.save()
 
-            # Limpiar y volver a guardar sopas
-            MenuDiaSopa.objects.filter(menu=menu).delete()
+            # Guardar sopas (actualizar existentes o crear nuevas)
+            sopas_guardadas = []
             for form in sopa_forms:
                 if form.cleaned_data.get('sopa'):
                     obj = form.save(commit=False)
                     obj.menu = menu
-                    # Inicializar cantidad_actual con cantidad
+                    # SIEMPRE sincronizar cantidad_actual con cantidad
                     obj.cantidad_actual = obj.cantidad
                     obj.save()
+                    sopas_guardadas.append(obj.pk)
+            
+            # Eliminar sopas que ya no están en el formulario
+            MenuDiaSopa.objects.filter(menu=menu).exclude(pk__in=sopas_guardadas).delete()
 
-            # Limpiar y volver a guardar segundos
-            MenuDiaSegundo.objects.filter(menu=menu).delete()
+            # Guardar segundos (actualizar existentes o crear nuevos)
+            segundos_guardados = []
             for form in segundo_forms:
                 if form.cleaned_data.get('segundo'):
                     obj = form.save(commit=False)
                     obj.menu = menu
-                    # Inicializar cantidad_actual con cantidad
+                    # SIEMPRE sincronizar cantidad_actual con cantidad
                     obj.cantidad_actual = obj.cantidad
                     obj.save()
+                    segundos_guardados.append(obj.pk)
+            
+            # Eliminar segundos que ya no están en el formulario
+            MenuDiaSegundo.objects.filter(menu=menu).exclude(pk__in=segundos_guardados).delete()
 
-            # Limpiar y volver a guardar jugos
-            MenuDiaJugo.objects.filter(menu=menu).delete()
+            # Guardar jugos (actualizar existentes o crear nuevos)
+            jugos_guardados = []
             for form in jugo_forms:
                 if form.cleaned_data.get('jugo'):
                     obj = form.save(commit=False)
                     obj.menu = menu
                     obj.save()
+                    jugos_guardados.append(obj.pk)
+            
+            # Eliminar jugos que ya no están en el formulario
+            MenuDiaJugo.objects.filter(menu=menu).exclude(pk__in=jugos_guardados).delete()
 
             return redirect('inicio')
 
     else:
         form_postre = MenuDiaForm(instance=menu)
-        sopa_forms = [MenuDiaSopaForm(prefix=f'sopa{i}') for i in range(2)]
-        segundo_forms = [MenuDiaSegundoForm(prefix=f'segundo{i}') for i in range(3)]
-        jugo_forms = [MenuDiaJugoForm(prefix=f'jugo{i}') for i in range(2)]
+        sopa_forms, segundo_forms, jugo_forms = crear_formularios_menu(menu)
 
     # -------- Diccionario de precios --------
     precios = {}
     for producto in Producto.objects.all():
         tipo = producto.nombre_producto.lower()  # 'almuerzo', 'sopa', 'segundo'
         precios[tipo] = {
-            'servirse': float(producto.precio_servirse),
-            'llevar': float(producto.precio_llevar)
+            'Servirse': float(producto.precio_servirse),
+            'Llevar': float(producto.precio_llevar)
         }
 
     # -------- Cargar pedidos pendientes por categoría --------
@@ -76,7 +114,7 @@ def inicio(request):
     ).order_by('-fecha_creacion')
 
     pedidos_servirse = pedidos_todos.filter(tipo='Servirse')
-    pedidos_llevar = pedidos_todos.filter(tipo='Levar')
+    pedidos_llevar = pedidos_todos.filter(tipo='Llevar')
     pedidos_reservados = pedidos_todos.filter(tipo='Reservado')
 
     # Calcular totales para cada pedido

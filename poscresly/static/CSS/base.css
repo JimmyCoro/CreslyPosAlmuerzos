@@ -10,15 +10,22 @@
     margin-top: 0px;
 }
 .nav-item-bar {
-    border-radius: 10rem;
+    border-radius: 10px;
     border: 2px solid;
     padding-left: 0.8rem;
     padding-right: 0.8rem;
-    padding-top: 0.04rem;
-    padding-bottom: 0.04rem;
+    padding-top: 0.01rem;
+    padding-bottom: 0.01rem;
     margin-left: 1rem;
     border-color: var(--primary-color);
     background-color: white;
+}
+.nav-link{
+    font-family: var(--fuente-principal);
+    color: var(--primary-color);
+    padding-top: 0.2rem;
+    font-weight: 550;
+    padding-bottom: 0.2rem;
 }
 
 .nav-item-bar a {
@@ -26,17 +33,31 @@
     color: var(--primary-color);
 }
 
-.nav-item-bar:hover {
-    background-color: var(--primary-color-hover);
-    border-color: var(--primary-color-hover);
-    cursor: pointer; 
-    transform: scale(1.05);
-    color: white;
+.nav-item-bar {
+    border-radius: 10px;
+    border: 2px solid;
+    padding-left: 0.8rem;
+    padding-right: 0.8rem;
+    padding-top: 0.01rem;
+    padding-bottom: 0.01rem;
+    margin-left: 1rem;
+    border-color: var(--primary-color);
+    background-color: white;
+    transition: all 0.2s ease;
 }
 
-.nav-item-bar a:hover {
-    color: white;
+.nav-item-bar:hover {
+    cursor: pointer; 
+    transform: scale(1.05);
+    transition: transform 0.2s ease;
+    box-shadow: 0 2px 8px rgba(168, 0, 24, 0.2);
+    color: var(--primary-color) !important;
 }
+
+.nav-item-bar:hover a {
+    color: var(--primary-color) !important;
+}
+
 
 .logo-navbar {
   height: 50px;

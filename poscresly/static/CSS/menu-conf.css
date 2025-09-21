@@ -3,31 +3,52 @@
 
 .modal-header{
     color: var(--primary-color);
+    padding: 1rem 1.5rem 0.5rem 1.5rem;
 }
 
-.form-group{
+.modal-body {
+    padding: 0.5rem 1.5rem;
+}
+
+.modal-footer {
+    padding: 0.5rem 1.5rem 1rem 1.5rem;
+}
+
+#menuDiaModal .card-body .form-group{
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 1rem;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
 }
 
-.form-control{
+#menuDiaModal .form-control{
     width: 4rem;
 }
 
-.select2{
-    margin-left: 1rem;
+#menuDiaModal .select2{
+    margin-left: 0.5rem;
 } 
 
-.form-select + .select2 .select2-selection {
+#menuDiaModal .form-select + .select2 .select2-selection {
     background-color: #f8f9fa;
-    border: 1px solid #a72828;
-    border-radius: 15px;
-    height: 40px;
+    border: 1px solid #000000;
+    border-radius: 8px;
+    height: 35px;
     display: flex;
     align-items: center;
-    font-size: 1rem;
+    font-size: 0.9rem;
+    padding: 0 15px;
+}
+
+#menuDiaModal .form-select + .select2 .select2-selection__rendered {
+    padding-left: 0;
+    line-height: 33px;
+}
+
+#menuDiaModal .form-select + .select2 .select2-selection__arrow {
+    height: 33px;
+    right: 10px;
 }
  
 .select2-container {
@@ -45,8 +66,55 @@
 .card-jugos-conf{ 
     border-color: var(--tertiary-color);
 }
-  .card-body {
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-  }
+.card-body {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.card-header {
+    padding: 0.5rem 1rem;
+    font-size: 0.95rem;
+}
+
+#menuDiaModal .mb-3 {
+    margin-bottom: 0.5rem !important;
+}
+
+/* Mejorar apariencia de los selects SOLO en el modal de configuración de menú */
+#menuDiaModal .form-select {
+    border-radius: 8px;
+    border: 1px solid #000000;
+    height: 35px;
+    font-size: 0.9rem;
+    padding: 0 15px;
+}
+
+/* Hacer el modal más compacto */
+#menuDiaModal .modal-dialog {
+    max-width: 500px;
+}
+
+/* Reducir espacio entre cards */
+#menuDiaModal .card {
+    margin-bottom: 0.75rem;
+}
+
+/* Mejorar labels */
+#menuDiaModal .form-label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+
+/* Restaurar comportamiento normal de tabs en modal de pedidos */
+#tomarPedidoModal .nav-tabs {
+    display: flex !important;
+    flex-direction: row !important;
+}
+
+#tomarPedidoModal .nav-item {
+    flex: 1;
+}
 

@@ -1,0 +1,650 @@
+@import './variables.css';
+
+/* ===== FUENTES PARA CAJA.HTML ===== */
+/* Usar las fuentes definidas en variables.css */
+
+/* Aplicar fuentes a caja.html */
+
+
+.card-header h5,
+.card-header h4,
+.card-header h3 {
+  font-family: var(--fuente-titulos);
+  font-weight: 600;
+}
+
+.btn {
+  font-family: var(--fuente-principal);
+  font-weight: 400;
+}
+
+.badge {
+  font-family: var(--fuente-principal);
+  font-weight: 500;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--fuente-titulos);
+}
+
+.card{
+    border-radius: 15px;
+}
+.card-estado-caja .card-body {
+  font-family: var(--fuente-principal);
+  color: white;
+}
+
+.card-estado-caja .card-body .text-muted {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.card-estado-caja .card-body strong {
+  color: white !important;
+}
+
+.card-estado-caja{
+    background-color: #5191F7;
+    
+}
+
+.text-estado {
+  font-weight: 800;
+  font-family: var(--fuente-principal);
+}
+
+.badge-activa {
+  background-color: #6DA2F8;
+}
+
+.circulo-indicador {
+  width: 12px;
+  height: 12px;
+  background-color: #1CCD60;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 10px;
+  vertical-align: middle;
+}
+
+.btn-cerrar-abrir {
+  background-color: #6DA2F8;
+  color: white;
+  padding: 0.2rem 0.3rem;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.btn-cerrar-abrir:hover {
+  background-color: #79AAF8;
+  color: white;
+}
+
+.btn-cerrar-abrir i {
+  color: white;
+}
+
+.icono-info {
+  margin-right: 6px;
+  font-size: 0.9rem;
+}
+
+/* Sobrescribir altura para row-principal en caja */
+.row-principal {
+  height: auto !important;
+}
+
+/* Cards de métricas con diseño limpio */
+.metric-card {
+  background: white;
+  border-radius: 15px;
+  border: none;
+  color: #2c3e50;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.metric-card::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  opacity: 0.1;
+  z-index: 1;
+}
+
+
+.metric-card-efectivo::before {
+  background-color: #28a745;
+}
+
+
+.metric-card-transferencia::before {
+  background-color: #007bff;
+}
+
+
+.metric-card-pedidos::before {
+  background-color: #dc3545;
+}
+
+
+.metric-card-promedio::before {
+  background-color: #6f42c1;
+}
+
+.metric-content {
+  flex: 1;
+  z-index: 2;
+}
+
+.metric-label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: #6c757d;
+}
+
+.metric-value {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0;
+  line-height: 1;
+  color: #2c3e50;
+}
+
+.metric-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  z-index: 2;
+  margin-left: 1rem;
+  color: white;
+}
+
+.metric-icon-efectivo {
+  background: linear-gradient(135deg, #28a745, #20c997);
+}
+
+.metric-icon-transferencia {
+  background: linear-gradient(135deg, #007bff, #0056b3);
+}
+
+.metric-icon-pedidos {
+  background: linear-gradient(135deg, #fd7e14, #e67e22);
+}
+
+.metric-icon-promedio {
+  background: linear-gradient(135deg, #6f42c1, #5a32a3);
+}
+
+/* Badges de porcentaje */
+.metric-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  margin-top: 0.5rem;
+  display: inline-block;
+}
+
+.metric-badge-positive {
+  background-color: #000;
+  color: white;
+}
+
+.metric-badge-negative {
+  background-color: #dc3545;
+  color: white;
+}
+
+.text-resumen {
+  font-family: var(--fuente-principal);
+  font-weight: 500;
+  font-size: 0.8rem;
+}
+
+/* Widget de métodos de pago con gráfico de pastel */
+.payment-widget {
+  background: white;
+  border-radius: 15px;
+  padding: 1.5rem;
+  color: #2c3e50;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.payment-widget-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 1.5rem;
+}
+
+.payment-widget-icon {
+  width: 24px;
+  height: 24px;
+  background: linear-gradient(135deg, #f39c12, #e67e22);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 0.75rem;
+  font-size: 0.8rem;
+  color: white;
+}
+
+.payment-widget-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+  color: #2c3e50;
+}
+
+.pie-chart-container {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 1.5rem;
+}
+
+.pie-chart {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  position: relative;
+}
+
+.pie-chart::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 60px;
+  height: 60px;
+  background: white;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.payment-legend {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 0.5rem;
+}
+
+.legend-color-efectivo {
+  background-color: #1abc9c;
+}
+
+.legend-color-transferencia {
+  background-color: #3498db;
+}
+
+.legend-label {
+  font-size: 0.9rem;
+  flex: 1;
+  text-align: left;
+  color: #2c3e50;
+}
+
+.legend-value {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+/* Widget de evolución de ventas */
+.evolution-chart-widget {
+  background: white;
+  border-radius: 15px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  height: 100%;
+}
+
+.evolution-chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.evolution-chart-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2c3e50;
+  display: flex;
+  align-items: center;
+  font-family: var(--fuente-principal);
+}
+
+.evolution-chart-legend {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.evolution-chart-legend .legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: #2c3e50;
+  font-family: var(--fuente-principal);
+  font-weight: 500;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.legend-dot-ventas {
+  background-color: #3498db;
+}
+
+.legend-dot-pedidos {
+  background-color: #2ecc71;
+}
+
+.evolution-chart-container {
+  height: 250px;
+  position: relative;
+}
+
+/* Iconos con fondo de color para ventas del día */
+.icono-efectivo {
+  width: 24px;
+  height: 24px;
+  background-color: #1ABC9C;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.icono-efectivo i {
+  font-size: 0.7rem;
+}
+
+.icono-transferencia {
+  width: 24px;
+  height: 24px;
+  background-color: #3498DB;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.icono-transferencia i {
+  font-size: 0.7rem;
+}
+
+/* Asegurar que la fecha del header sea visible */
+.row-btns {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+}
+
+.row-btns .badge {
+  display: inline-block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Widget de productos vendidos */
+.productos-widget {
+  background: white;
+  border-radius: 15px;
+  padding: 0.75rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  height: 100%;
+}
+
+.productos-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.productos-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+  font-family: var(--fuente-principal);
+}
+
+.productos-total {
+  background-color: #007bff;
+  color: white;
+  padding: 0.15rem 0.5rem;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.productos-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.producto-item {
+  display: flex;
+  align-items: center;
+  background: white;
+  border-radius: 6px;
+  padding: 0.4rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  border: 1px solid #f0f0f0;
+}
+
+.producto-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 0.8rem;
+  margin-right: 0.6rem;
+}
+
+.producto-avatar-1 { background-color: #007bff; }
+.producto-avatar-2 { background-color: #007bff; }
+.producto-avatar-3 { background-color: #fd7e14; }
+.producto-avatar-4 { background-color: #28a745; }
+.producto-avatar-5 { background-color: #dc3545; }
+
+.producto-info {
+  flex: 1;
+}
+
+.producto-nombre {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.85rem;
+  margin-bottom: 0.1rem;
+  font-family: var(--fuente-principal);
+}
+
+.producto-id {
+  font-size: 0.7rem;
+  color: #6c757d;
+  font-family: var(--fuente-principal);
+}
+
+.producto-cantidad {
+  margin-left: auto;
+}
+
+.cantidad-badge {
+  background-color: #e3f2fd;
+  color: #1976d2;
+  padding: 0.25rem 0.5rem;
+  border-radius: 50%;
+  font-weight: 600;
+  font-size: 0.8rem;
+  min-width: 24px;
+  text-align: center;
+  display: inline-block;
+}
+
+/* Widget de pedidos recientes */
+.pedidos-widget {
+  background: white;
+  border-radius: 15px;
+  padding: 0.75rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  height: 100%;
+}
+
+.pedidos-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.pedidos-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+  font-family: var(--fuente-principal);
+}
+
+.pedidos-total {
+  background-color: #6c757d;
+  color: white;
+  padding: 0.15rem 0.5rem;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.pedidos-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.pedido-item {
+  display: flex;
+  align-items: center;
+  background: white;
+  border-radius: 6px;
+  padding: 0.4rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  border: 1px solid #f0f0f0;
+}
+
+.pedido-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background-color: #6c757d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 0.8rem;
+  margin-right: 0.6rem;
+}
+
+.pedido-info {
+  flex: 1;
+}
+
+.pedido-numero {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.85rem;
+  margin-bottom: 0.1rem;
+  font-family: var(--fuente-principal);
+}
+
+.pedido-details {
+  font-size: 0.7rem;
+  color: #6c757d;
+  font-family: var(--fuente-principal);
+}
+
+.pedido-separator {
+  margin: 0 0.3rem;
+}
+
+.pedido-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.2rem;
+}
+
+.pedido-tipo {
+  margin-bottom: 0.1rem;
+}
+
+.tipo-badge {
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.tipo-servirse {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.tipo-llevar {
+  background-color: #cce5ff;
+  color: #004085;
+}
+
+.pedido-pago {
+  font-size: 0.7rem;
+}
+
+.pedido-total {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.8rem;
+  font-family: var(--fuente-principal);
+}

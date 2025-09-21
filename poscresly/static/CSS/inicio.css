@@ -14,93 +14,10 @@
    padding-top: 20px;
    padding-right: 20px;
    background-color: #F7F7F9;
+   height: calc(100vh - 70px);
+   overflow-y: auto;
 }
 
-
-/* Estilos para el header */
-.card-header h4 {
-    font-family: var(--fuente-titulos);
-    font-size: 1.5rem;
-    color: #333;
-}
-
-.card-header h4 i {
-    color: #007bff;
-}
-
-/* Contenedor de tabs */
-.nav-tabs-container {
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #dee2e6;
-}
-
-/* Estilos para los tabs redondeados (como en la imagen) */
-.nav-link-tab-rounded {
-    font-family: var(--fuente-principal);
-    font-size: 0.9rem;
-    font-weight: 500;
-    border: none;
-    background-color: white;
-    color: #6c757d;
-    transition: all 0.2s ease;
-    padding: 0.75rem 1rem;
-    border-radius: 8px;
-    cursor: pointer;
-    text-decoration: none;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    min-width: 0;
-    flex: 1;
-    text-align: center;
-    white-space: nowrap;
-}
-
-.nav-link-tab-rounded:hover {
-    color: #495057;
-    background-color: #f8f9fa;
-    text-decoration: none;
-}
-
-.nav-link-tab-rounded.active {
-    color: #007bff;
-    background-color: #e3f2fd;
-    font-weight: 600;
-    box-shadow: 0 2px 4px rgba(0,123,255,0.2);
-}
-
-.nav-link-tab-rounded .badge {
-    font-size: 0.7rem;
-    font-weight: 600;
-    padding: 0.25rem 0.5rem;
-    border-radius: 12px;
-}
-
-/* Badges específicos como en la imagen */
-.badge-todos {
-    background-color: #6c757d !important;
-    color: white;
-}
-
-.badge-servirse {
-    background-color: #007bff !important;
-    color: white;
-}
-
-.badge-llevar {
-    background-color: #ffc107 !important;
-    color: #212529;
-}
-
-.badge-reservados {
-    background-color: #fd7e14 !important;
-    color: white;
-}
-
-/* Estilos para los botones de selección múltiple */
-
-.content-nav-tabs{
-    background-color:#eeeef0;
-    border-radius: 10px;
-}
 
 .btn-marcar-todos {
     font-family: var(--fuente-principal);
@@ -120,6 +37,7 @@
     border: 1px solid #2475bd;
     color: #2475bd;
     background-color: white;
+    box-shadow: 0 4px 12px rgba(36, 117, 189, 0.3);
 }
 
 .btn-marcar-todos.active {
@@ -150,6 +68,7 @@
     border: 1px solid #ffffff;
     color: #ffffff;
     background-color: #28a745;
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
 }
 
 .btn-marcar-listos.disabled {
@@ -165,6 +84,87 @@
     background-color: #6c757d;
     border-color: #6c757d;
     color: #adb5bd;
+}
+
+.content-nav-tabs{
+    background-color:#eeeef0;
+    border-radius: 10px;
+}
+
+
+
+/* Estilos para el header */
+.card-header h4 {
+    font-family: var(--fuente-titulos);
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.card-header h4 i {
+    color: #007bff;
+}
+
+
+/* Estilos para los tabs redondeados (como en la imagen) */
+.nav-link-tab-rounded {
+    font-family: var(--fuente-principal);
+    font-size: 0.9rem;
+    font-weight: 550;
+    border: 1px solid #eeeef0;
+    background-color:#eeeef0;
+    color: #000000;
+    transition: all 0.2s ease;
+    padding: 0.4rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    min-width: 0;
+    flex: 1;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.nav-link-tab-rounded:hover {
+    color: #495057;
+
+    background-color: #f8f9fa;
+    text-decoration: none;
+}
+
+.nav-link-tab-rounded.active {
+    color: #000000;
+    font-size: 1rem;
+
+    background-color: #ffffff;
+    font-weight: 600;
+}
+
+.nav-link-tab-rounded .badge {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+}
+
+/* Badges específicos como en la imagen */
+.badge-todos {
+    background-color: #6c757d !important;
+    color: white;
+}
+
+.badge-servirse {
+    background-color: #007bffa9 !important;
+    color: white;
+}
+
+.badge-llevar {
+    background-color: #24bb75b6 !important;
+    color: #212529;
+}
+
+.badge-reservados {
+    background-color: #fd7d14c4 !important;
+    color: white;
 }
 
 /* Separación del borde derecho para el header */
@@ -205,8 +205,10 @@
 }
 
 .pedidos-scroll .col-12,
-.pedidos-scroll .col-md-6,
-.pedidos-scroll .col-lg-4 {
+.pedidos-scroll .col-sm-6,
+.pedidos-scroll .col-md-4,
+.pedidos-scroll .col-lg-3,
+.pedidos-scroll .col-xl-3 {
     padding: 0.5rem;
 }
 
@@ -242,14 +244,16 @@
     font-size: 1.1rem;
     padding: 5px 5px;
     text-align: center;
+    transition: all 0.2s ease;
 }
 
 .btn-tomar-pedido:hover {
     transform: scale(1.05);
-    transition: transform 0.2s;
+    transition: transform 0.2s ease;
     background-color: var(--secondary-color) !important;
     color: white !important;
     border: 2px solid var(--secondary-color) !important;
+    box-shadow: 0 4px 12px rgba(0, 131, 59, 0.3);
 }
 
 .btn-configurar-menu{
@@ -260,14 +264,16 @@
     font-weight: 90;
     font-family: var(--fuente-principal);
     font-size: 1rem;
+    transition: all 0.2s ease;
 }
 
 .btn-configurar-menu:hover {
     transform: scale(1.05);
-    transition: transform 0.2s;
+    transition: transform 0.2s ease;
     background-color: #eeeef0 !important;
     color: rgb(0, 0, 0) !important;
     border: 2px solid #eeeef0 !important;
+    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
 }
 
 .list-group-item{
@@ -332,6 +338,18 @@
 .pedido-card:hover {
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
     transform: translateY(-2px);
+}
+
+/* Estilo para cards de pedidos seleccionados */
+.pedido-card.seleccionado {
+    box-shadow: 0 8px 20px rgba(45, 140, 241, 0.3);
+    border: 2px solid #65a1e2a9;
+    transform: translateY(-3px);
+}
+
+.pedido-card.seleccionado:hover {
+    box-shadow: 0 10px 25px rgba(0, 123, 255, 0.4);
+    transform: translateY(-4px);
 }
 
 .pedido-card .card-body {
@@ -448,10 +466,35 @@
     margin-right: 0.25rem;
 }
 
+/* Estilos para los íconos de forma de pago */
+.forma-pago-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+}
+
+.efectivo-icon {
+    background-color: #20c997;
+    color: white;
+}
+
+.transferencia-icon {
+    background-color: #007bff;
+    color: white;
+}
+
+.forma-pago-icon i {
+    font-size: 0.7rem;
+    margin: 0;
+}
+
 /* Botones de acción */
-.pedido-card .mt-3.d-flex.gap-2 {
-    margin-top: 1rem !important;
-    gap: 0.5rem !important;
+.pedido-card .mt-2.d-flex.justify-content-between {
+    margin-top: 0.75rem !important;
 }
 
 .pedido-card .btn {
@@ -461,6 +504,30 @@
     padding: 0.375rem 0.75rem;
     transition: all 0.2s ease;
     font-family: var(--fuente-principal);
+    min-width: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Botones de acción con íconos (todos circulares) */
+.pedido-card .btn-light,
+.pedido-card .btn-success,
+.pedido-card .btn-danger {
+    width: 35px;
+    height: 35px;
+    padding: 0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 0.25rem;
+}
+
+.pedido-card .btn-light i,
+.pedido-card .btn-success i,
+.pedido-card .btn-danger i {
+    font-size: 0.9rem;
 }
 
 .pedido-card .btn-light {
@@ -527,6 +594,154 @@
     border: 2px solid #007bff !important;
     box-shadow: 0 0 15px rgba(0, 123, 255, 0.3) !important;
     transform: scale(1.02);
+}
+
+/* Estilos responsivos para las cards de pedidos */
+@media (max-width: 575.98px) {
+  /* Móviles pequeños - 1 pedido por fila */
+  .pedido-card .card-body {
+    padding: 0.75rem;
+  }
+  .pedido-card .btn {
+    width: 30px;
+    height: 30px;
+    font-size: 0.8rem;
+  }
+  .pedido-card .fw-bold {
+    font-size: 0.9rem;
+  }
+  
+  /* Mejorar el menú colapsable en móviles */
+  .d-block.d-md-none {
+    padding: 0 15px;
+    margin-bottom: 1rem;
+  }
+  
+  .d-block.d-md-none .btn {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+  }
+  
+  .d-block.d-md-none .card {
+    margin-bottom: 0.5rem;
+  }
+  
+  .d-block.d-md-none .list-group-item {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+  }
+  
+  .d-block.d-md-none .card-header {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
+  }
+  
+  /* Ajustar íconos de forma de pago en móviles */
+  .forma-pago-icon {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .forma-pago-icon i {
+    font-size: 0.6rem;
+  }
+  
+  /* Mejorar la transición del menú colapsable */
+  .collapse {
+    transition: all 0.3s ease-in-out;
+  }
+  
+  .collapse.show {
+    animation: slideDown 0.3s ease-in-out;
+  }
+  
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+@media (min-width: 576px) and (max-width: 767.98px) {
+  /* Móviles grandes - 2 pedidos por fila */
+  .pedido-card .card-body {
+    padding: 0.8rem;
+  }
+  .pedido-card .btn {
+    width: 32px;
+    height: 32px;
+    font-size: 0.85rem;
+  }
+  
+  /* Mejorar el menú colapsable en móviles grandes */
+  .d-block.d-md-none {
+    padding: 0 20px;
+  }
+  
+  .d-block.d-md-none .btn {
+    font-size: 0.95rem;
+    padding: 0.6rem 1.2rem;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991.98px) {
+  /* Tablets - 3 pedidos por fila */
+  .pedido-card .card-body {
+    padding: 0.9rem;
+  }
+  .pedido-card .btn {
+    width: 33px;
+    height: 33px;
+    font-size: 0.85rem;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  /* Desktop pequeño - 4 pedidos por fila */
+  .pedido-card .card-body {
+    padding: 1rem;
+  }
+  .pedido-card .btn {
+    width: 35px;
+    height: 35px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  /* Desktop grande - 4 pedidos por fila */
+  .pedido-card .card-body {
+    padding: 1rem;
+  }
+  .pedido-card .btn {
+    width: 35px;
+    height: 35px;
+    font-size: 0.9rem;
+  }
+  .pedido-card .fw-bold {
+    font-size: 0.95rem;
+  }
+  .pedido-card .card-tipo-producto {
+    font-size: 0.85rem;
+  }
+  .pedido-card .componentes-producto-card {
+    font-size: 0.8rem;
+  }
+  
+  /* Ajustar íconos de forma de pago en pantallas grandes */
+  .forma-pago-icon {
+    width: 26px;
+    height: 26px;
+  }
+  
+  .forma-pago-icon i {
+    font-size: 0.8rem;
+  }
 }
 
 @media (min-width: 768px) {

@@ -1,11 +1,16 @@
+import logging
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from datetime import date
 from decimal import Decimal
-from .models import Pedido, CajaDiaria, PedidoAlmuerzo, PedidoSopa, PedidoSegundo
+from .models import Pedido, PedidoAlmuerzo, PedidoSopa, PedidoSegundo
+from caja.models import CajaDiaria, CajaEfectivo, CajaTransferencia
 from menu.models import MenuDiaSopa, MenuDiaSegundo, MenuDiaJugo
 import json
+
+# Configurar logger
+logger = logging.getLogger(__name__)
 
 
 # ===== FUNCIONES AUXILIARES =====
@@ -19,7 +24,7 @@ def actualizar_cantidades_menu(productos_carrito, operacion='restar'):
         operacion: 'restar' para crear pedido, 'sumar' para eliminar pedido
     """
     from datetime import date
-    from menu.models import MenuDia, MenuDiaSopa, MenuDiaSegundo
+    from menu.models import MenuDia, MenuDiaSopa, MenuDiaSegundo, Plato
     import logging
     
     logger = logging.getLogger(__name__)
@@ -54,23 +59,25 @@ def actualizar_cantidades_menu(productos_carrito, operacion='restar'):
             
             if sopa_id:
                 try:
-                    sopa_menu = MenuDiaSopa.objects.get(menu=menu, sopa_id=sopa_id)
-                    cantidad_anterior = sopa_menu.cantidad_actual
-                    sopa_menu.cantidad_actual = max(0, sopa_menu.cantidad_actual + cantidad)
-                    sopa_menu.save()
-                    logger.info(f"Sopa actualizada: {sopa_menu.sopa} - {cantidad_anterior} → {sopa_menu.cantidad_actual}")
+                    # Buscar directamente por Plato ID en el menú actual
+                    sopa_actual = MenuDiaSopa.objects.get(menu=menu, sopa_id=sopa_id)
+                    cantidad_anterior = sopa_actual.cantidad_actual
+                    sopa_actual.cantidad_actual = max(0, sopa_actual.cantidad_actual + cantidad)
+                    sopa_actual.save()
+                    logger.info(f"Sopa actualizada: {sopa_actual.sopa} - {cantidad_anterior} → {sopa_actual.cantidad_actual}")
                 except MenuDiaSopa.DoesNotExist:
-                    logger.warning(f"No se encontró sopa con ID {sopa_id} en el menú")
+                    logger.warning(f"No se encontró sopa con Plato ID {sopa_id} en el menú actual")
             
             if segundo_id:
                 try:
-                    segundo_menu = MenuDiaSegundo.objects.get(menu=menu, segundo_id=segundo_id)
-                    cantidad_anterior = segundo_menu.cantidad_actual
-                    segundo_menu.cantidad_actual = max(0, segundo_menu.cantidad_actual + cantidad)
-                    segundo_menu.save()
-                    logger.info(f"Segundo actualizado: {segundo_menu.segundo} - {cantidad_anterior} → {segundo_menu.cantidad_actual}")
+                    # Buscar directamente por Plato ID en el menú actual
+                    segundo_actual = MenuDiaSegundo.objects.get(menu=menu, segundo_id=segundo_id)
+                    cantidad_anterior = segundo_actual.cantidad_actual
+                    segundo_actual.cantidad_actual = max(0, segundo_actual.cantidad_actual + cantidad)
+                    segundo_actual.save()
+                    logger.info(f"Segundo actualizado: {segundo_actual.segundo} - {cantidad_anterior} → {segundo_actual.cantidad_actual}")
                 except MenuDiaSegundo.DoesNotExist:
-                    logger.warning(f"No se encontró segundo con ID {segundo_id} en el menú")
+                    logger.warning(f"No se encontró segundo con Plato ID {segundo_id} en el menú actual")
         
         elif tipo == 'sopa':
             # Sopa individual
@@ -78,13 +85,14 @@ def actualizar_cantidades_menu(productos_carrito, operacion='restar'):
             logger.info(f"Sopa individual - sopa_id: {sopa_id}")
             if sopa_id:
                 try:
-                    sopa_menu = MenuDiaSopa.objects.get(menu=menu, sopa_id=sopa_id)
-                    cantidad_anterior = sopa_menu.cantidad_actual
-                    sopa_menu.cantidad_actual = max(0, sopa_menu.cantidad_actual + cantidad)
-                    sopa_menu.save()
-                    logger.info(f"Sopa individual actualizada: {sopa_menu.sopa} - {cantidad_anterior} → {sopa_menu.cantidad_actual}")
+                    # Buscar directamente por Plato ID en el menú actual
+                    sopa_actual = MenuDiaSopa.objects.get(menu=menu, sopa_id=sopa_id)
+                    cantidad_anterior = sopa_actual.cantidad_actual
+                    sopa_actual.cantidad_actual = max(0, sopa_actual.cantidad_actual + cantidad)
+                    sopa_actual.save()
+                    logger.info(f"Sopa individual actualizada: {sopa_actual.sopa} - {cantidad_anterior} → {sopa_actual.cantidad_actual}")
                 except MenuDiaSopa.DoesNotExist:
-                    logger.warning(f"No se encontró sopa con ID {sopa_id} en el menú")
+                    logger.warning(f"No se encontró sopa con Plato ID {sopa_id} en el menú actual")
         
         elif tipo == 'segundo':
             # Segundo individual
@@ -92,13 +100,14 @@ def actualizar_cantidades_menu(productos_carrito, operacion='restar'):
             logger.info(f"Segundo individual - segundo_id: {segundo_id}")
             if segundo_id:
                 try:
-                    segundo_menu = MenuDiaSegundo.objects.get(menu=menu, segundo_id=segundo_id)
-                    cantidad_anterior = segundo_menu.cantidad_actual
-                    segundo_menu.cantidad_actual = max(0, segundo_menu.cantidad_actual + cantidad)
-                    segundo_menu.save()
-                    logger.info(f"Segundo individual actualizado: {segundo_menu.segundo} - {cantidad_anterior} → {segundo_menu.cantidad_actual}")
+                    # Buscar directamente por Plato ID en el menú actual
+                    segundo_actual = MenuDiaSegundo.objects.get(menu=menu, segundo_id=segundo_id)
+                    cantidad_anterior = segundo_actual.cantidad_actual
+                    segundo_actual.cantidad_actual = max(0, segundo_actual.cantidad_actual + cantidad)
+                    segundo_actual.save()
+                    logger.info(f"Segundo individual actualizada: {segundo_actual.segundo} - {cantidad_anterior} → {segundo_actual.cantidad_actual}")
                 except MenuDiaSegundo.DoesNotExist:
-                    logger.warning(f"No se encontró segundo con ID {segundo_id} en el menú")
+                    logger.warning(f"No se encontró segundo con Plato ID {segundo_id} en el menú actual")
 
 def calcular_precio_producto(tipo):
     """Calcula el precio unitario de un producto según su tipo"""
@@ -112,9 +121,9 @@ def convertir_producto_a_dict(producto_obj, tipo):
     if tipo == 'Almuerzo':
         return {
             'tipo': 'Almuerzo',
-            'sopa_id': producto_obj.sopa.id,
-            'segundo_id': producto_obj.segundo.id,
-            'jugo_id': producto_obj.jugo.id,
+            'sopa_id': producto_obj.sopa.sopa.id,  # Plato ID
+            'segundo_id': producto_obj.segundo.segundo.id,  # Plato ID
+            'jugo_id': producto_obj.jugo.jugo.id,  # Plato ID
             'cantidad': producto_obj.cantidad,
             'precio_unitario': float(producto_obj.precio_unitario),
             'observacion': producto_obj.observacion or '',
@@ -127,8 +136,8 @@ def convertir_producto_a_dict(producto_obj, tipo):
     elif tipo == 'Sopa':
         return {
             'tipo': 'Sopa',
-            'sopa_id': producto_obj.sopa.id,
-            'jugo_id': producto_obj.jugo.id,
+            'sopa_id': producto_obj.sopa.sopa.id,  # Plato ID
+            'jugo_id': producto_obj.jugo.jugo.id,  # Plato ID
             'cantidad': producto_obj.cantidad,
             'precio_unitario': float(producto_obj.precio_unitario),
             'observacion': producto_obj.observacion or '',
@@ -140,8 +149,8 @@ def convertir_producto_a_dict(producto_obj, tipo):
     elif tipo == 'Segundo':
         return {
             'tipo': 'Segundo',
-            'segundo_id': producto_obj.segundo.id,
-            'jugo_id': producto_obj.jugo.id,
+            'segundo_id': producto_obj.segundo.segundo.id,  # Plato ID
+            'jugo_id': producto_obj.jugo.jugo.id,  # Plato ID
             'cantidad': producto_obj.cantidad,
             'precio_unitario': float(producto_obj.precio_unitario),
             'observacion': producto_obj.observacion or '',
@@ -283,6 +292,11 @@ def agregar_al_carrito(request):
 @require_http_methods(["POST"])
 def guardar_pedido(request):
     caja, created = CajaDiaria.objects.get_or_create(fecha=date.today())
+    
+    # Si se creó una nueva caja, crear también los objetos relacionados
+    if created:
+        CajaEfectivo.objects.create(caja_diaria=caja, monto_inicial=0)
+        CajaTransferencia.objects.create(caja_diaria=caja, monto_inicial=0)
 
     try:
         tipo_pedido = request.POST.get('tipo_pedido')
@@ -348,17 +362,38 @@ def guardar_pedido(request):
         # Si es edición, manejar productos existentes y nuevos
         productos_existentes = {}  # Cambiar a diccionario para mantener referencias
         productos_procesados = set()  # Para rastrear qué productos se procesaron
+        productos_originales = []  # Para devolver cantidades originales
+        
         if pedido_id_editar:
             # Obtener productos existentes con sus referencias
             for almuerzo in pedido.almuerzos.all():
                 key = f"almuerzo_{almuerzo.sopa.id}_{almuerzo.segundo.id}_{almuerzo.jugo.id}"
                 productos_existentes[key] = {'tipo': 'almuerzo', 'objeto': almuerzo}
+                # Agregar a productos originales para devolver cantidades
+                productos_originales.append({
+                    'tipo': 'almuerzo',
+                    'cantidad': almuerzo.cantidad,
+                    'sopa_id': almuerzo.sopa.sopa.id,  # Plato ID
+                    'segundo_id': almuerzo.segundo.segundo.id  # Plato ID
+                })
             for sopa in pedido.sopas.all():
                 key = f"sopa_{sopa.sopa.id}_{sopa.jugo.id}"
                 productos_existentes[key] = {'tipo': 'sopa', 'objeto': sopa}
+                # Agregar a productos originales para devolver cantidades
+                productos_originales.append({
+                    'tipo': 'sopa',
+                    'cantidad': sopa.cantidad,
+                    'sopa_id': sopa.sopa.sopa.id  # Plato ID
+                })
             for segundo in pedido.segundos.all():
                 key = f"segundo_{segundo.segundo.id}_{segundo.jugo.id}"
                 productos_existentes[key] = {'tipo': 'segundo', 'objeto': segundo}
+                # Agregar a productos originales para devolver cantidades
+                productos_originales.append({
+                    'tipo': 'segundo',
+                    'cantidad': segundo.cantidad,
+                    'segundo_id': segundo.segundo.segundo.id  # Plato ID
+                })
         
         for producto in productos_carrito:
             # Generar clave del producto usando función auxiliar
@@ -391,18 +426,30 @@ def guardar_pedido(request):
             # Ajustar por diferencia respecto al total anterior
             diferencia = total_pedido - total_anterior
             if forma_pago == 'Efectivo':
-                caja.total_efectivo += diferencia
+                caja.caja_efectivo.total_ventas += diferencia
+                caja.caja_efectivo.save()
             elif forma_pago == 'Transferencia':
-                caja.total_transferencia += diferencia
+                caja.caja_transferencia.total_ventas += diferencia
+                caja.caja_transferencia.save()
         else:
             if forma_pago == 'Efectivo':
-                caja.total_efectivo += total_pedido
+                caja.caja_efectivo.total_ventas += total_pedido
+                caja.caja_efectivo.save()
             elif forma_pago == 'Transferencia':
-                caja.total_transferencia += total_pedido
-        caja.save()
+                caja.caja_transferencia.total_ventas += total_pedido
+                caja.caja_transferencia.save()
 
+        # Si es edición, devolver cantidades originales antes de restar las nuevas
+        if pedido_id_editar and productos_originales:
+            print(f"=== EDITANDO PEDIDO {pedido_id_editar} ===")
+            print(f"Productos originales: {productos_originales}")
+            actualizar_cantidades_menu(productos_originales, 'sumar')
+            print("✅ Cantidades originales devueltas")
+        
         # Actualizar cantidades del menú del día
+        print(f"Productos nuevos: {productos_carrito}")
         actualizar_cantidades_menu(productos_carrito, 'restar')
+        print("✅ Cantidades nuevas restadas")
 
         # Si es edición, eliminar productos que ya no están en el carrito
         if pedido_id_editar:
@@ -552,8 +599,8 @@ def eliminar_pedido(request):
             productos_pedido.append({
                 'tipo': 'almuerzo',
                 'cantidad': almuerzo.cantidad,
-                'sopa_id': almuerzo.sopa.id,
-                'segundo_id': almuerzo.segundo.id
+                'sopa_id': almuerzo.sopa.sopa.id,      # Plato.id
+                'segundo_id': almuerzo.segundo.segundo.id  # Plato.id
             })
         
         # Obtener sopas individuales
@@ -561,7 +608,7 @@ def eliminar_pedido(request):
             productos_pedido.append({
                 'tipo': 'sopa',
                 'cantidad': sopa.cantidad,
-                'sopa_id': sopa.sopa.id
+                'sopa_id': sopa.sopa.sopa.id           # Plato.id
             })
         
         # Obtener segundos individuales
@@ -569,7 +616,7 @@ def eliminar_pedido(request):
             productos_pedido.append({
                 'tipo': 'segundo',
                 'cantidad': segundo.cantidad,
-                'segundo_id': segundo.segundo.id
+                'segundo_id': segundo.segundo.segundo.id  # Plato.id
             })
         
         # Actualizar cantidades del menú (sumar de vuelta)
@@ -680,7 +727,7 @@ def obtener_pedidos_por_tipo(request):
         if tipo == 'servirse':
             pedidos = pedidos.filter(tipo='Servirse')
         elif tipo == 'llevar':
-            pedidos = pedidos.filter(tipo='Levar')
+            pedidos = pedidos.filter(tipo='Llevar')
         elif tipo == 'reservados':
             pedidos = pedidos.filter(tipo='Reservado')
         
@@ -763,4 +810,25 @@ def obtener_pedidos_por_tipo(request):
         return JsonResponse({'status': 'error', 'message': str(e)})
 
 
-
+@require_http_methods(["GET"])
+def obtener_contadores_tabs(request):
+    """Obtener contadores de pedidos para cada tab"""
+    try:
+        # Obtener pedidos pendientes
+        pedidos = Pedido.objects.filter(estado='pendiente')
+        
+        # Contar por tipo
+        contadores = {
+            'todos': pedidos.count(),
+            'servirse': pedidos.filter(tipo='Servirse').count(),
+            'llevar': pedidos.filter(tipo='Llevar').count(),
+            'reservados': pedidos.filter(tipo='Reservado').count()
+        }
+        
+        return JsonResponse({
+            'status': 'ok',
+            'contadores': contadores
+        })
+        
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)})

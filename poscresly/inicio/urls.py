@@ -1,4 +1,5 @@
 from django.urls import path
+
 from pedidos import views as pedidos_views
 from . import views
 
@@ -15,4 +16,7 @@ urlpatterns = [
     # Nuevas URLs para selección múltiple de pedidos
     path('marcar-pedidos-completados/', pedidos_views.marcar_pedidos_completados, name='marcar_pedidos_completados'),
     path('obtener-pedidos-por-tipo/', pedidos_views.obtener_pedidos_por_tipo, name='obtener_pedidos_por_tipo'),
+    
+    # URL para obtener contadores de tabs
+    path('obtener-contadores-tabs/', pedidos_views.obtener_contadores_tabs, name='obtener_contadores_tabs'),
 ]

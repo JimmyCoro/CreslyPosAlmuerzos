@@ -7,12 +7,12 @@ class Pedido( models.Model):
     TIPO_CHOICES = [
         ('Servirse', 'Servirse'),
         ('Reservado', 'Reservado'),
-        ('Levar', 'Levar'),
+        ('Llevar', 'Llevar'),
     ]
 
     FORMA_PAGO = [
         ('Efectivo', 'Efectivo'),
-        ('Transferecncia', 'Transferecncia')
+        ('Transferencia', 'Transferencia')
     ]
 
     ESTADOS = [
@@ -60,14 +60,3 @@ class PedidoSegundo(models.Model):
     cantidad = models.PositiveIntegerField(default=1)
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     observacion = models.CharField(max_length=200, blank=True, null=True)
-
-class CajaDiaria(models.Model):
-    fecha = models.DateField(auto_now_add=True)
-    total_efectivo = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    total_transferencia = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    
-    def total_general(self):
-        return self.total_efectivo + self.total_transferencia
-
-    def __str__(self):
-        return f"Caja del {self.fecha} - Total: {self.total_general()}"
