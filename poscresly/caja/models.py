@@ -9,7 +9,7 @@ ESTADOS = [
 ]
 
 class CajaDiaria(models.Model):
-    fecha = models.DateField(unique=True)  # Una caja por día
+    fecha = models.DateField()  # Múltiples cajas por día permitidas
     estado = models.CharField(max_length=20, choices=ESTADOS, default='abierta')
     fecha_apertura = models.DateTimeField(auto_now_add=True)
     fecha_cierre = models.DateTimeField(null=True, blank=True)

@@ -5,159 +5,57 @@
 {% load math_filters %}
 
 {% block content %}
-<div class="container-fluid contenedor-principal mt-5 pt-5">
-  <div class="row">
-    <div class="col-izq col-12 col-md-2 d-none d-md-block">
-      <button class="btn btn-tomar-pedido w-100 mb-3" data-bs-toggle="modal" data-bs-target="#tomarPedidoModal">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#fff" viewBox="0 0 16 16" class="me-2">
-          <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zm.104-14.804A1.5 1.5 0 0 0 5.5 2c0 .628.134 1.197.356 1.684C4.14 4.36 3 5.828 3 7.5V11l-.447.894A.5.5 0 0 0 3 13h10a.5.5 0 0 0 .447-.724L13 11V7.5c0-1.672-1.14-3.14-2.856-3.816A3.5 3.5 0 0 0 8.104 1.196z"/>
-        </svg>
-        ¡Haz tu pedido!
-      </button>
-
-      <button class="btn btn-configurar-menu btn-outline-secondary w-100 mb-4" data-bs-toggle="modal" data-bs-target="#menuDiaModal">
-        <i class="fas fa-cogs me-2"></i>Configurar Menú
-      </button>
-
-      <div class="card card-sopas mb-3">
-        <div class="card-header card-header-sopas">  
-          <i class="fas fa-mug-hot me-2"></i>Sopas
-        </div>
-        <ul class="list-group list-group-flush">
-          {% for item in sopas_dia %}
-            <li class="list-group-item" data-sopa-id="{{ item.id }}">
-            <span class="nombre-sopa">{{ item.sopa }}</span> 
-            <span class="cantidad-sopa">
-              <span class="punto-cantidad{% if item.cantidad_actual == 0 %} sin-productos{% elif item.cantidad_actual <= item.cantidad|add:'-1'|multiply:0.5 %} pocos-productos{% endif %}"></span>
-              {{ item.cantidad_actual }}
+<div class="container-fluid contenedor-principal">
+  <div class="row h-100">
+    <div class="col-12 col-inicio d-flex flex-column">
+      <!-- Header con botones principales -->
+      <div class="row-btns d-flex justify-content-between align-items-center px-5 mb-2">
+        <!-- Botones principales -->
+        <div class="d-flex align-items-center gap-3">
+          <button class="btn btn-tomar-pedido" data-bs-toggle="modal" data-bs-target="#tomarPedidoModal">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#fff" viewBox="0 0 16 16" class="me-2 d-none d-sm-inline">
+              <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zm.104-14.804A1.5 1.5 0 0 0 5.5 2c0 .628.134 1.197.356 1.684C4.14 4.36 3 5.828 3 7.5V11l-.447.894A.5.5 0 0 0 3 13h10a.5.5 0 0 0 .447-.724L13 11V7.5c0-1.672-1.14-3.14-2.856-3.816A3.5 3.5 0 0 0 8.104 1.196z"/>
+            </svg>
+            <span class="d-none d-sm-inline">¡Haz tu pedido!</span>
+            <span class="d-inline d-sm-none" title="¡Haz tu pedido!">
+              <i class="fas fa-plus me-1"></i>Pedido
             </span>
-            </li>{% empty %}
-            <li class="list-group-item text-muted">No configurado</li>
-          {% endfor %}
-        </ul>
-      </div>
-
-      <div class="card card-segundos mb-3">
-        <div class="card-header card-header-segundos">
-            <i class="fas fa-drumstick-bite me-2"></i>Segundos
+          </button>
         </div>
-        <ul class="list-group list-group-flush">
-        {% for item in segundos_dia %}
-        <li class="list-group-item" data-segundo-id="{{ item.id }}">
-        <span class="nombre-segundo">{{ item.segundo }}</span> 
-        <span class="cantidad-segundo">
-          <span class="punto-cantidad{% if item.cantidad_actual == 0 %} sin-productos{% elif item.cantidad_actual <= item.cantidad|add:'-1'|multiply:0.5 %} pocos-productos{% endif %}"></span>
-          {{ item.cantidad_actual }}
-        </span>
-        </li>{% empty %}
-        <li class="list-group-item text-muted">No configurado</li>{% endfor %}</ul></div>
-
-      <div class="card card-jugos mb-3">
-        <div class="card-header card-header-jugos">
-            <i class="fas fa-glass-whiskey me-2"></i></i>Jugos
-        </div>
-        <ul class="list-group list-group-flush">
-        {% for item in jugos_dia %}
-        <li class="list-group-item">{{ item.jugo }}</li>{% empty %}
-        <li class="list-group-item text-muted">No configurado</li>{% endfor %}</ul></div>
-
-    </div>
-
-    <div class="d-block d-md-none mb-3">
-      <button class="btn btn-tomar-pedido w-100 mb-3" data-bs-toggle="modal" data-bs-target="#tomarPedidoModal">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#fff" viewBox="0 0 16 16" class="me-2">
-          <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zm.104-14.804A1.5 1.5 0 0 0 5.5 2c0 .628.134 1.197.356 1.684C4.14 4.36 3 5.828 3 7.5V11l-.447.894A.5.5 0 0 0 3 13h10a.5.5 0 0 0 .447-.724L13 11V7.5c0-1.672-1.14-3.14-2.856-3.816A3.5 3.5 0 0 0 8.104 1.196z"/>
-        </svg>
-        ¡Haz tu pedido!
-      </button>
-
-      <button class="btn btn-outline-secondary w-100 mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#menuDiaCollapse">
-        <i class="fas fa-list me-2"></i>Ver menú del día
-      </button>
-
-      <div class="collapse mt-2" id="menuDiaCollapse">
-        <button class="btn btn-configurar-menu btn-outline-secondary w-100 mb-4" data-bs-toggle="modal" data-bs-target="#menuDiaModal">
-          <i class="fas fa-cogs me-2"></i>Configurar Menú
-        </button>
-        <div class="card mb-2">
-          <div class="card-header card-header-sopas">Sopas</div>
-          <ul class="list-group list-group-flush">
-            {% for item in sopas_dia %}
-              <li class="list-group-item" data-sopa-id="{{ item.id }}">
-                <span class="nombre-sopa">{{ item.sopa }}</span> 
-                <span class="cantidad-sopa">
-                  <span class="punto-cantidad{% if item.cantidad_actual == 0 %} sin-productos{% elif item.cantidad_actual <= item.cantidad|add:'-1'|multiply:0.5 %} pocos-productos{% endif %}"></span>
-                  {{ item.cantidad_actual }}
-                </span>
-              </li>{% empty %}
-            <li class="list-group-item text-muted">No configurado</li>{% endfor %}
-          </ul>
-        </div>
-
-        <div class="card mb-2">
-          <div class="card-header card-header-segundos">Segundos</div>
-          <ul class="list-group list-group-flush">
-            {% for item in segundos_dia %}
-              <li class="list-group-item" data-segundo-id="{{ item.id }}">
-                <span class="nombre-segundo">{{ item.segundo }}</span> 
-                <span class="cantidad-segundo">
-                  <span class="punto-cantidad{% if item.cantidad_actual == 0 %} sin-productos{% elif item.cantidad_actual <= item.cantidad|add:'-1'|multiply:0.5 %} pocos-productos{% endif %}"></span>
-                  {{ item.cantidad_actual }}
-                </span>
-              </li>{% empty %}
-            <li class="list-group-item text-muted">No configurado</li>{% endfor %}
-          </ul>
-        </div>
-
-        <div class="card mb-2">
-          <div class="card-header card-header-jugos">Jugos</div>
-          <ul class="list-group list-group-flush">
-            {% for item in jugos_dia %}<li class="list-group-item">{{ item.jugo }}</li>{% empty %}
-            <li class="list-group-item text-muted">No configurado</li>{% endfor %}
-          </ul>
+        <!-- Botones de acción -->
+        <div class="d-flex align-items-center gap-3">
+          <button type="button" class="btn btn-marcar-todos" id="btn-seleccionar-todos" title="Marcar Todo">
+            <i class="fas fa-square me-1"></i>
+            <span class="d-none d-sm-inline">Marcar Todo</span>
+          </button>
+          <button type="button" class="btn btn-marcar-listos disabled" id="btn-marcar-listos" title="Marcar Listos" disabled>
+            <i class="fas fa-check-circle me-1"></i>
+            <span class="d-none d-sm-inline">Marcar Listos</span>
+          </button>
         </div>
       </div>
-    </div>
-
-
-        <div class="col-10 col-der d-flex flex-column" style="height: 100%;">
-      <!-- Header con título y botones -->
-        <div class="row-btns d-flex justify-content-between align-items-center px-5 mb-2 ">
-          <h4 class="mb-0 fw-bold text-dark">
-            <i class="fas fa-clipboard-list me-2"></i>Pedidos Pendientes
-          </h4>
-          <!-- Botones de acción -->
-          <div class="d-flex align-items-center gap-3">
-            <button type="button" class="btn btn-marcar-todos" id="btn-seleccionar-todos" title="Marcar Todo">
-              <i class="fas fa-square me-1"></i>Marcar Todo
-            </button>
-            <button type="button" class="btn btn-marcar-listos disabled" id="btn-marcar-listos" title="Marcar Listos" disabled>
-              <i class="fas fa-check-circle me-1"></i>Marcar Listos
-            </button>
-          </div>
-        </div>
       
       <!-- Tabs redondeados -->
-        <div class="content-nav-tabs d-flex justify-content-between align-items-center py-1 px-1 me-4">
-          <div class="d-flex align-items-center w-100">
-            <button class="nav-link-tab-rounded active flex-fill me-2" id="todos-tab" data-tipo="todos" type="button">
-              Todos <span class="badge badge-todos ms-1" id="contador-todos">{{ pedidos_todos.count }}</span>
-            </button>
-            <button class="nav-link-tab-rounded flex-fill me-2" id="servirse-tab" data-tipo="servirse" type="button">
-              Servirse <span class="badge badge-servirse ms-1" id="contador-servirse">{{ pedidos_servirse.count }}</span>
-            </button>
-            <button class="nav-link-tab-rounded flex-fill me-2" id="llevar-tab" data-tipo="llevar" type="button">
-              Llevar <span class="badge badge-llevar ms-1" id="contador-llevar">{{ pedidos_llevar.count }}</span>
-            </button>
-            <button class="nav-link-tab-rounded flex-fill" id="reservados-tab" data-tipo="reservados" type="button">
-              Reservados <span class="badge badge-reservados ms-1" id="contador-reservados">{{ pedidos_reservados.count }}</span>
-            </button>
-          </div>
+      <div class="content-nav-tabs d-flex justify-content-between align-items-center py-1 px-1">
+        <div class="d-flex align-items-center w-100">
+          <button class="nav-link-tab-rounded active flex-fill" id="todos-tab" data-tipo="todos" type="button">
+            Todos <span class="badge badge-todos ms-1" id="contador-todos">{{ pedidos_todos.count }}</span>
+          </button>
+          <button class="nav-link-tab-rounded flex-fill" id="servirse-tab" data-tipo="servirse" type="button">
+            Servirse <span class="badge badge-servirse ms-1" id="contador-servirse">{{ pedidos_servirse.count }}</span>
+          </button>
+          <button class="nav-link-tab-rounded flex-fill" id="llevar-tab" data-tipo="llevar" type="button">
+            Llevar <span class="badge badge-llevar ms-1" id="contador-llevar">{{ pedidos_llevar.count }}</span>
+          </button>
+          <button class="nav-link-tab-rounded flex-fill" id="reservados-tab" data-tipo="reservados" type="button">
+            Reservados <span class="badge badge-reservados ms-1" id="contador-reservados">{{ pedidos_reservados.count }}</span>
+          </button>
         </div>
+      </div>
       
       <!-- Contenedor único para todos los pedidos -->
       <div class="pedidos-scroll">
-        <div class="row g-3 p-3" id="contenedor-cards-pedidos">
+        <div class="row g-2 p-0" id="contenedor-cards-pedidos">
           <!-- Aquí van las cards de los pedidos generadas dinámicamente por JavaScript -->
         </div>
       </div>
@@ -172,26 +70,55 @@
 <!-- Templates de formularios -->
 <template id="formulario-almuerzo">
   <div>
-    <label><strong>Sopa:</strong></label>
-    <div class="d-flex flex-wrap gap-2 mb-3">
+    <label><strong><i class="fas fa-utensils me-2" style="background: #2196f3; color: white; padding: 0.3rem; border-radius: 4px;"></i>Sopa:</strong></label>
+    <div class="d-flex flex-column gap-0 mb-2">
       {% for s in sopas_dia %}
-        <button type="button" class="btn btn-outline-primary btn-sopa" data-id="{{ s.sopa.id }}">{{ s.sopa.nombre_plato }}</button>
+        <button type="button" class="btn btn-sopa" data-id="{{ s.sopa.id }}" data-sopa-dia-id="{{ s.id }}">
+          <div class="d-flex align-items-center justify-content-between w-90 pb-1">
+            <div class="d-flex align-items-center">
+              <div class="checkbox-circle me-3 mb-1"></div>
+              <span>{{ s.sopa.nombre_plato }}</span>
+            </div>
+            <span class="cantidad-disponible" data-sopa-dia-id="{{ s.id }}">
+              <span class="punto-cantidad{% if s.cantidad_actual == 0 %} sin-productos{% elif s.cantidad_actual <= s.cantidad|add:'-1'|multiply:0.5 %} pocos-productos{% endif %}"></span>
+              {{ s.cantidad_actual }} disponibles
+            </span>
+          </div>
+        </button>
       {% endfor %}
     </div>
     <input type="hidden" name="sopa" id="sopa-seleccionada">
 
-    <label><strong>Segundo:</strong></label>
-    <div class="d-flex flex-wrap gap-2 mb-3">
+    <label><strong><i class="fas fa-coffee me-2" style="background: #4caf50; color: white; padding: 0.3rem; border-radius: 4px;"></i>Segundo:</strong></label>
+    <div class="d-flex flex-column gap-0 mb-2">
       {% for s in segundos_dia %}
-        <button type="button" class="btn btn-outline-success btn-segundo" data-id="{{ s.segundo.id }}">{{ s.segundo.nombre_plato }}</button>
+        <button type="button" class="btn btn-segundo" data-id="{{ s.segundo.id }}" data-segundo-dia-id="{{ s.id }}">
+          <div class="d-flex align-items-center justify-content-between w-100">
+            <div class="d-flex align-items-center">
+              <div class="checkbox-circle me-3"></div>
+              <span>{{ s.segundo.nombre_plato }}</span>
+            </div>
+            <span class="cantidad-disponible" data-segundo-dia-id="{{ s.id }}">
+              <span class="punto-cantidad{% if s.cantidad_actual == 0 %} sin-productos{% elif s.cantidad_actual <= s.cantidad|add:'-1'|multiply:0.5 %} pocos-productos{% endif %}"></span>
+              {{ s.cantidad_actual }}
+            </span>
+          </div>
+        </button>
       {% endfor %}
     </div>
     <input type="hidden" name="segundo" id="segundo-seleccionado">
 
-    <label><strong>Jugo:</strong></label>
-    <div class="d-flex flex-wrap gap-2 mb-3">
+    <label><strong><i class="fas fa-glass-martini me-" style="background: #ff9800; color: white; padding: 0.3rem; border-radius: 4px;"></i>Jugo:</strong></label>
+    <div class="d-flex flex-column gap-0 mb-2">
       {% for j in jugos_dia %}
-        <button type="button" class="btn btn-outline-warning btn-jugo" data-id="{{ j.jugo.id }}">{{ j.jugo.nombre_plato }}</button>
+        <button type="button" class="btn btn-jugo" data-id="{{ j.jugo.id }}">
+          <div class="d-flex align-items-center justify-content-between w-100">
+            <div class="d-flex align-items-center">
+              <div class="checkbox-circle me-3"></div>
+              <span>{{ j.jugo.nombre_plato }}</span>
+            </div>
+          </div>
+        </button>
       {% endfor %}
     </div>
     <input type="hidden" name="jugo" id="jugo-seleccionado">
@@ -200,18 +127,36 @@
 
 <template id="formulario-sopa">
   <div>
-    <label><strong>Sopa:</strong></label>
-    <div class="d-flex flex-wrap gap-2 mb-3">
+    <label><strong><i class="fas fa-utensils me-2" style="background: #2196f3; color: white; padding: 0.3rem; border-radius: 4px;"></i>Sopa:</strong></label>
+    <div class="d-flex flex-column gap-2 mb-3">
       {% for s in sopas_dia %}
-        <button type="button" class="btn btn-outline-primary btn-sopa" data-id="{{ s.sopa.id }}">{{ s.sopa.nombre_plato }}</button>
+        <button type="button" class="btn btn-sopa" data-id="{{ s.sopa.id }}" data-sopa-dia-id="{{ s.id }}">
+          <div class="d-flex align-items-center justify-content-between w-100">
+            <div class="d-flex align-items-center">
+              <div class="checkbox-circle me-3"></div>
+              <span>{{ s.sopa.nombre_plato }}</span>
+            </div>
+            <span class="cantidad-disponible" data-sopa-dia-id="{{ s.id }}">
+              <span class="punto-cantidad{% if s.cantidad_actual == 0 %} sin-productos{% elif s.cantidad_actual <= s.cantidad|add:'-1'|multiply:0.5 %} pocos-productos{% endif %}"></span>
+              {{ s.cantidad_actual }} disponibles
+            </span>
+          </div>
+        </button>
       {% endfor %}
     </div>
     <input type="hidden" name="sopa" id="sopa-seleccionada">
 
-    <label><strong>Jugo:</strong></label>
-    <div class="d-flex flex-wrap gap-2 mb-3">
+    <label><strong><i class="fas fa-glass-martini me-2" style="background: #ff9800; color: white; padding: 0.3rem; border-radius: 4px;"></i>Jugo:</strong></label>
+    <div class="d-flex flex-column gap-2 mb-3">
       {% for j in jugos_dia %}
-        <button type="button" class="btn btn-outline-warning btn-jugo" data-id="{{ j.jugo.id }}">{{ j.jugo.nombre_plato }}</button>
+        <button type="button" class="btn btn-jugo" data-id="{{ j.jugo.id }}">
+          <div class="d-flex align-items-center justify-content-between w-100">
+            <div class="d-flex align-items-center">
+              <div class="checkbox-circle me-3"></div>
+              <span>{{ j.jugo.nombre_plato }}</span>
+            </div>
+          </div>
+        </button>
       {% endfor %}
     </div>
     <input type="hidden" name="jugo" id="jugo-seleccionado">
@@ -220,18 +165,36 @@
 
 <template id="formulario-segundo">
   <div>
-    <label><strong>Segundo:</strong></label>
-    <div class="d-flex flex-wrap gap-2 mb-3">
+    <label><strong><i class="fas fa-coffee me-2" style="background: #4caf50; color: white; padding: 0.3rem; border-radius: 4px;"></i>Segundo:</strong></label>
+    <div class="d-flex flex-column gap-2 mb-3">
       {% for s in segundos_dia %}
-        <button type="button" class="btn btn-outline-success btn-segundo" data-id="{{ s.segundo.id }}">{{ s.segundo.nombre_plato }}</button>
+        <button type="button" class="btn btn-segundo" data-id="{{ s.segundo.id }}" data-segundo-dia-id="{{ s.id }}">
+          <div class="d-flex align-items-center justify-content-between w-100">
+            <div class="d-flex align-items-center">
+              <div class="checkbox-circle me-3"></div>
+              <span>{{ s.segundo.nombre_plato }}</span>
+            </div>
+            <span class="cantidad-disponible" data-segundo-dia-id="{{ s.id }}">
+              <span class="punto-cantidad{% if s.cantidad_actual == 0 %} sin-productos{% elif s.cantidad_actual <= s.cantidad|add:'-1'|multiply:0.5 %} pocos-productos{% endif %}"></span>
+              {{ s.cantidad_actual }}
+            </span>
+          </div>
+        </button>
       {% endfor %}
     </div>
     <input type="hidden" name="segundo" id="segundo-seleccionado">
 
-    <label><strong>Jugo:</strong></label>
-    <div class="d-flex flex-wrap gap-2 mb-3">
+    <label><strong><i class="fas fa-glass-martini me-2" style="background: #ff9800; color: white; padding: 0.3rem; border-radius: 4px;"></i>Jugo:</strong></label>
+    <div class="d-flex flex-column gap-2 mb-3">
       {% for j in jugos_dia %}
-        <button type="button" class="btn btn-outline-warning btn-jugo" data-id="{{ j.jugo.id }}">{{ j.jugo.nombre_plato }}</button>
+        <button type="button" class="btn btn-jugo" data-id="{{ j.jugo.id }}">
+          <div class="d-flex align-items-center justify-content-between w-100">
+            <div class="d-flex align-items-center">
+              <div class="checkbox-circle me-3"></div>
+              <span>{{ j.jugo.nombre_plato }}</span>
+            </div>
+          </div>
+        </button>
       {% endfor %}
     </div>
     <input type="hidden" name="jugo" id="jugo-seleccionado">
@@ -290,6 +253,18 @@ if (menuDiaModal) {
       }, 100);
     }
   });
+  
+  // Actualizar cantidades cuando se cierre el modal de configuración del menú
+  menuDiaModal.addEventListener('hidden.bs.modal', async function () {
+    console.log('=== MODAL DE CONFIGURACIÓN CERRADO - ACTUALIZANDO CANTIDADES ===');
+    // Actualizar cantidades en la columna izquierda
+    await actualizarCantidadesDisponibles();
+    // Actualizar cantidades en el modal de agregar productos si está abierto
+    const modalAgregarProducto = document.getElementById('agregarProductoModal');
+    if (modalAgregarProducto && modalAgregarProducto.classList.contains('show')) {
+      await actualizarCantidadesModal();
+    }
+  });
 }
 
 
@@ -346,6 +321,86 @@ if (menuDiaModal) {
 
   activarBotonesSeleccion();
 
+  // --- Función para actualizar cantidades en el modal ---
+  async function actualizarCantidadesModal() {
+    try {
+      console.log('=== ACTUALIZANDO CANTIDADES DEL MODAL ===');
+      
+      const response = await fetch('/obtener-cantidades-modal/');
+      const data = await response.json();
+      
+      if (data.status === 'ok') {
+        console.log('Cantidades recibidas:', data);
+        
+        // Actualizar sopas en el modal
+        if (data.sopas) {
+          data.sopas.forEach(sopa => {
+            const sopaElement = document.querySelector(`[data-sopa-dia-id="${sopa.id}"]`);
+            if (sopaElement) {
+              const cantidadSpan = sopaElement.querySelector('.cantidad-disponible');
+              
+              if (cantidadSpan) {
+                // Actualizar número
+                cantidadSpan.innerHTML = sopa.cantidad_actual;
+                
+                // Actualizar color del badge según cantidad
+                cantidadSpan.classList.remove('sin-productos', 'pocos-productos');
+                console.log(`Sopa ${sopa.nombre}: cantidad=${sopa.cantidad_actual}, configurada=${sopa.cantidad_configurada}`);
+                
+                if (sopa.cantidad_actual === 0) {
+                  cantidadSpan.classList.add('sin-productos');
+                  console.log('✅ Aplicando clase sin-productos (rojo)');
+                } else if (sopa.cantidad_actual <= sopa.cantidad_configurada * 0.5) {
+                  cantidadSpan.classList.add('pocos-productos');
+                  console.log('✅ Aplicando clase pocos-productos (amarillo)');
+                } else {
+                  console.log('✅ Manteniendo color verde por defecto');
+                }
+              }
+            }
+          });
+        }
+        
+        // Actualizar segundos en el modal
+        if (data.segundos) {
+          data.segundos.forEach(segundo => {
+            const segundoElement = document.querySelector(`[data-segundo-dia-id="${segundo.id}"]`);
+            if (segundoElement) {
+              const cantidadSpan = segundoElement.querySelector('.cantidad-disponible');
+              
+              if (cantidadSpan) {
+                // Actualizar número
+                cantidadSpan.innerHTML = segundo.cantidad_actual;
+                
+                // Actualizar color del badge según cantidad
+                cantidadSpan.classList.remove('sin-productos', 'pocos-productos');
+                console.log(`Segundo ${segundo.nombre}: cantidad=${segundo.cantidad_actual}, configurada=${segundo.cantidad_configurada}`);
+                
+                if (segundo.cantidad_actual === 0) {
+                  cantidadSpan.classList.add('sin-productos');
+                  console.log('✅ Aplicando clase sin-productos (rojo)');
+                } else if (segundo.cantidad_actual <= segundo.cantidad_configurada * 0.5) {
+                  cantidadSpan.classList.add('pocos-productos');
+                  console.log('✅ Aplicando clase pocos-productos (amarillo)');
+                } else {
+                  console.log('✅ Manteniendo color verde por defecto');
+                }
+              }
+            }
+          });
+        }
+        
+        // Los jugos no tienen cantidades, solo se muestran con ícono de check
+        
+        console.log('✅ Cantidades del modal actualizadas');
+      } else {
+        console.error('❌ Error al obtener cantidades:', data.message);
+      }
+    } catch (error) {
+      console.error('❌ Error al actualizar cantidades del modal:', error);
+    }
+  }
+
   // --- Abrir modal para agregar producto ---
   window.abrirModalProducto = function(tipo) {
     const contenedor = document.getElementById('contenedorFormularioProducto');
@@ -362,6 +417,9 @@ if (menuDiaModal) {
         const tipoCapitalizado = tipo.charAt(0).toUpperCase() + tipo.slice(1);
         titulo.textContent = 'Agregar ' + tipoCapitalizado;
       }
+
+      // Actualizar cantidades en el modal
+      actualizarCantidadesModal();
 
       const modal = new bootstrap.Modal(document.getElementById('agregarProductoModal'));
       modal.show();
@@ -480,6 +538,7 @@ if (menuDiaModal) {
         if (data.status === 'ok') {
           console.log('✅ Producto agregado exitosamente al backend');
           let resumenCarrito = document.getElementById('resumenCarrito');
+          let resumenCarritoMovil = document.getElementById('resumenCarritoMovil');
           let encontrado = false;
 
           // Inicializar window.carrito si no existe
@@ -487,29 +546,37 @@ if (menuDiaModal) {
             window.carrito = [];
           }
 
-          // Buscar si ya existe el producto (por tipo y componentes)
-          resumenCarrito.querySelectorAll('.resumen-item').forEach(li => {
-            const nombreTipo = li.getAttribute('data-tipo');
-            const nombreComponentes = li.getAttribute('data-componentes');
-            if (nombreTipo === tipoProducto && nombreComponentes === componentes.join('|')) {
-              let cantidadSpan = li.querySelector('.cantidad-producto');
-              let precioSpan = li.querySelector('.resumen-precio');
-              let nuevaCantidad = parseInt(cantidadSpan.textContent) + 1;
-              cantidadSpan.textContent = nuevaCantidad;
-              precioSpan.textContent = `$${(nuevaCantidad * precioBase).toFixed(2)}`;
-              encontrado = true;
-              console.log('✅ Producto existente actualizado');
-              
-              // Actualizar en window.carrito
-              const index = window.carrito.findIndex(item => 
-                item.tipo === tipoProducto && 
-                item.componentes.join('|') === componentes.join('|')
-              );
-              if (index !== -1) {
-                window.carrito[index].cantidad = nuevaCantidad;
+          // Función para buscar y actualizar producto en un elemento
+          function buscarYActualizarProducto(elemento) {
+            elemento.querySelectorAll('.resumen-item').forEach(li => {
+              const nombreTipo = li.getAttribute('data-tipo');
+              const nombreComponentes = li.getAttribute('data-componentes');
+              if (nombreTipo === tipoProducto && nombreComponentes === componentes.join('|')) {
+                let cantidadSpan = li.querySelector('.cantidad-producto');
+                let precioSpan = li.querySelector('.resumen-precio');
+                let nuevaCantidad = parseInt(cantidadSpan.textContent) + 1;
+                cantidadSpan.textContent = nuevaCantidad;
+                precioSpan.textContent = `$${(nuevaCantidad * precioBase).toFixed(2)}`;
+                encontrado = true;
+                console.log('✅ Producto existente actualizado');
+                
+                // Actualizar en window.carrito
+                const index = window.carrito.findIndex(item => 
+                  item.tipo === tipoProducto && 
+                  item.componentes.join('|') === componentes.join('|')
+                );
+                if (index !== -1) {
+                  window.carrito[index].cantidad = nuevaCantidad;
+                }
               }
-            }
-          });
+            });
+          }
+
+          // Buscar en ambos elementos
+          buscarYActualizarProducto(resumenCarrito);
+          if (resumenCarritoMovil) {
+            buscarYActualizarProducto(resumenCarritoMovil);
+          }
 
           if (!encontrado) {
             console.log('✅ Creando nuevo producto en el carrito');
@@ -525,20 +592,28 @@ if (menuDiaModal) {
             `;
             let nombreHTML = `<span class=\"nombre-tipo\">${tipoProducto}</span> ${detallesHTML}`;
             li.innerHTML = `
-              <div class=\"resumen-col-izq\">
-                ${nombreHTML}
-                <div class=\"resumen-desc\">${observacionProducto}</div>
-              </div>
-              <div class=\"resumen-col-der\">
-                <span class=\"resumen-precio\">$${precioBase.toFixed(2)}</span>
-                <div class=\"resumen-cantidad\">
-                  <button class=\"btn-restar\" aria-label=\"Restar\">-</button>
-                  <span class=\"cantidad-producto\">1</span>
-                  <button class=\"btn-sumar\" aria-label=\"Sumar\">+</button>
+              <div class=\"row align-items-center g-0\">
+                <div class=\"col-9\">
+                  ${nombreHTML}
+                  <div class=\"resumen-desc\">${observacionProducto}</div>
+                </div>
+                <div class=\"col-3 d-md-flex\">
+                  <span class=\"resumen-precio\">$${precioBase.toFixed(2)}</span>
+                  <div class=\"resumen-cantidad\">
+                    <button class=\"btn-restar\" aria-label=\"Restar\">-</button>
+                    <span class=\"cantidad-producto\">1</span>
+                    <button class=\"btn-sumar\" aria-label=\"Sumar\">+</button>
+                  </div>
                 </div>
               </div>
             `;
             resumenCarrito.appendChild(li);
+            
+            // También agregar al resumen móvil si existe
+            if (resumenCarritoMovil) {
+              const liMovil = li.cloneNode(true);
+              resumenCarritoMovil.appendChild(liMovil);
+            }
             
                       // Agregar a window.carrito
           const nuevoItem = {
@@ -710,7 +785,17 @@ function actualizarTotalPedido() {
       total += parseFloat(match[1]);
     }
   });
-  document.getElementById('total-pedido').textContent = `$${total.toFixed(2)}`;
+  
+  // Actualizar ambos totales
+  const totalDesktop = document.getElementById('total-pedido');
+  const totalMovil = document.getElementById('total-pedido-movil');
+  
+  if (totalDesktop) {
+    totalDesktop.textContent = `$${total.toFixed(2)}`;
+  }
+  if (totalMovil) {
+    totalMovil.textContent = `$${total.toFixed(2)}`;
+  }
 }
 
 let contadorPedidos = 1; // Para el número incremental temporal
@@ -718,10 +803,63 @@ let contadorPedidos = 1; // Para el número incremental temporal
 // Función DEPRECATED - Ya no se usa
 // function crearCardPedido(pedido, numeroPedido) { ... }
 
+// Función para sincronizar elementos entre desktop y móvil
+function sincronizarElementos(nombreTipo, nombreComponentes, cantidad, precioUnitario) {
+  const resumenCarrito = document.getElementById('resumenCarrito');
+  const resumenCarritoMovil = document.getElementById('resumenCarritoMovil');
+  
+  // Buscar el elemento correspondiente en el otro contenedor
+  const contenedorOrigen = resumenCarritoMovil;
+  const contenedorDestino = resumenCarrito;
+  
+  // Buscar en ambos contenedores
+  [resumenCarrito, resumenCarritoMovil].forEach(contenedor => {
+    if (contenedor) {
+      contenedor.querySelectorAll('.resumen-item').forEach(li => {
+        const tipo = li.getAttribute('data-tipo');
+        const componentes = li.getAttribute('data-componentes');
+        
+        if (tipo === nombreTipo && componentes === nombreComponentes) {
+          const cantidadSpan = li.querySelector('.cantidad-producto');
+          const precioSpan = li.querySelector('.resumen-precio');
+          
+          if (cantidadSpan && precioSpan) {
+            cantidadSpan.textContent = cantidad;
+            precioSpan.textContent = `$${(cantidad * precioUnitario).toFixed(2)}`;
+          }
+        }
+      });
+    }
+  });
+}
+
+// Función para eliminar elemento correspondiente
+function eliminarElementoCorrespondiente(nombreTipo, nombreComponentes) {
+  const resumenCarrito = document.getElementById('resumenCarrito');
+  const resumenCarritoMovil = document.getElementById('resumenCarritoMovil');
+  
+  [resumenCarrito, resumenCarritoMovil].forEach(contenedor => {
+    if (contenedor) {
+      contenedor.querySelectorAll('.resumen-item').forEach(li => {
+        const tipo = li.getAttribute('data-tipo');
+        const componentes = li.getAttribute('data-componentes');
+        
+        if (tipo === nombreTipo && componentes === nombreComponentes) {
+          li.remove();
+        }
+      });
+    }
+  });
+}
+
 // Función para asignar eventos a los botones sumar/restar
 function asignarEventosSumarRestar() {
   const resumenCarrito = document.getElementById('resumenCarrito');
-  resumenCarrito.querySelectorAll('.resumen-item').forEach(li => {
+  const resumenCarritoMovil = document.getElementById('resumenCarritoMovil');
+  
+  // Función para asignar eventos a un elemento específico
+  function asignarEventosAElemento(elemento) {
+    elemento.querySelectorAll('.resumen-item').forEach(li => {
     const btnSumar = li.querySelector('.btn-sumar');
     const btnRestar = li.querySelector('.btn-restar');
     const cantidadSpan = li.querySelector('.cantidad-producto');
@@ -741,6 +879,36 @@ function asignarEventosSumarRestar() {
       let cantidad = parseInt(cantidadSpan.textContent) + 1;
       cantidadSpan.textContent = cantidad;
       precioSpan.textContent = `$${(cantidad * precioUnitario).toFixed(2)}`;
+      
+      // Sincronizar con el elemento correspondiente (desktop/móvil)
+      sincronizarElementos(nombreTipo, nombreComponentes, cantidad, precioUnitario);
+      
+      // Sincronizar memoria
+      if (Array.isArray(window.carrito)) {
+        const item = window.carrito.find(p => p.tipo === nombreTipo && (p.componentes || []).join('|') === nombreComponentes);
+        if (item) {
+          item.cantidad = cantidad;
+        }
+      }
+      actualizarTotalPedido();
+    };
+    btnRestar.onclick = () => {
+      let cantidad = parseInt(cantidadSpan.textContent) - 1;
+      if (cantidad <= 0) {
+          // Eliminar del DOM y de la memoria
+          li.remove();
+          // También eliminar el elemento correspondiente (desktop/móvil)
+          eliminarElementoCorrespondiente(nombreTipo, nombreComponentes);
+          if (Array.isArray(window.carrito)) {
+            window.carrito = window.carrito.filter(p => !(p.tipo === nombreTipo && (p.componentes || []).join('|') === nombreComponentes));
+          }
+      } else {
+        cantidadSpan.textContent = cantidad;
+        precioSpan.textContent = `$${(cantidad * precioUnitario).toFixed(2)}`;
+        
+        // Sincronizar con el elemento correspondiente (desktop/móvil)
+        sincronizarElementos(nombreTipo, nombreComponentes, cantidad, precioUnitario);
+        
         // Sincronizar memoria
         if (Array.isArray(window.carrito)) {
           const item = window.carrito.find(p => p.tipo === nombreTipo && (p.componentes || []).join('|') === nombreComponentes);
@@ -748,30 +916,17 @@ function asignarEventosSumarRestar() {
             item.cantidad = cantidad;
           }
         }
-        actualizarTotalPedido();
-    };
-    btnRestar.onclick = () => {
-      let cantidad = parseInt(cantidadSpan.textContent) - 1;
-      if (cantidad <= 0) {
-          // Eliminar del DOM y de la memoria
-          li.remove();
-          if (Array.isArray(window.carrito)) {
-            window.carrito = window.carrito.filter(p => !(p.tipo === nombreTipo && (p.componentes || []).join('|') === nombreComponentes));
-          }
-      } else {
-        cantidadSpan.textContent = cantidad;
-        precioSpan.textContent = `$${(cantidad * precioUnitario).toFixed(2)}`;
-          // Sincronizar memoria
-          if (Array.isArray(window.carrito)) {
-            const item = window.carrito.find(p => p.tipo === nombreTipo && (p.componentes || []).join('|') === nombreComponentes);
-            if (item) {
-              item.cantidad = cantidad;
-            }
-          }
       }
       actualizarTotalPedido();
     };
   });
+  }
+  
+  // Asignar eventos a ambos elementos
+  asignarEventosAElemento(resumenCarrito);
+  if (resumenCarritoMovil) {
+    asignarEventosAElemento(resumenCarritoMovil);
+  }
 }
 
 function agregarEventosCardPedido(cardNode) {
@@ -856,20 +1011,18 @@ function agregarEventosCardPedido(cardNode) {
         
         // Limpiar el carrito actual (DOM y memoria)
         document.getElementById('resumenCarrito').innerHTML = '';
+        const resumenMovil = document.getElementById('resumenCarritoMovil');
+        if (resumenMovil) {
+          resumenMovil.innerHTML = '';
+        }
         window.carrito = [];
         console.log('Carrito limpiado, window.carrito:', window.carrito);
         
         // Agregar productos al carrito
         pedido.productos.forEach((producto, index) => {
           console.log(`Agregando producto ${index + 1} al carrito:`, producto);
-          // Crear li para el carrito
-          const li = document.createElement('li');
-          li.classList.add('resumen-item');
-          li.setAttribute('data-tipo', producto.tipo);
           
           const componentes = (producto.componentes || []).filter(Boolean);
-          // Guardar los componentes en el atributo con el formato estándar "|"
-          li.setAttribute('data-componentes', componentes.join('|'));
           
           // Generar detalles en línea y en lista vertical (igual que en producto nuevo)
           let detallesLinea = componentes.filter(Boolean).join(' + ');
@@ -879,21 +1032,55 @@ function agregarEventosCardPedido(cardNode) {
           `;
           let nombreHTML = `<span class="nombre-tipo">${producto.tipo}</span> ${detallesHTML}`;
           
+          // Crear li para el carrito DESKTOP
+          const li = document.createElement('li');
+          li.classList.add('resumen-item');
+          li.setAttribute('data-tipo', producto.tipo);
+          li.setAttribute('data-componentes', componentes.join('|'));
+          
           li.innerHTML = `
-            <div class="resumen-col-izq">
-              ${nombreHTML}
-              <div class="resumen-desc">${producto.observacion || ''}</div>
-            </div>
-            <div class="resumen-col-der">
-              <span class="resumen-precio">$${(producto.cantidad * producto.precio_unitario).toFixed(2)}</span>
-              <div class="resumen-cantidad">
-                <button class="btn-restar" aria-label="Restar">-</button>
-                <span class="cantidad-producto">${producto.cantidad}</span>
-                <button class="btn-sumar" aria-label="Sumar">+</button>
+            <div class="row align-items-center g-0">
+              <div class="col-9">
+                ${nombreHTML}
+                <div class="resumen-desc">${producto.observacion || ''}</div>
+              </div>
+              <div class="col-3 d-md-flex">
+                <span class="resumen-precio">$${(producto.cantidad * producto.precio_unitario).toFixed(2)}</span>
+                <div class="resumen-cantidad">
+                  <button class="btn-restar" aria-label="Restar">-</button>
+                  <span class="cantidad-producto">${producto.cantidad}</span>
+                  <button class="btn-sumar" aria-label="Sumar">+</button>
+                </div>
               </div>
             </div>
           `;
           document.getElementById('resumenCarrito').appendChild(li);
+          
+          // Crear li para el carrito MÓVIL
+          if (resumenMovil) {
+            const liMovil = document.createElement('li');
+            liMovil.classList.add('resumen-item');
+            liMovil.setAttribute('data-tipo', producto.tipo);
+            liMovil.setAttribute('data-componentes', componentes.join('|'));
+            
+            liMovil.innerHTML = `
+              <div class="row align-items-center g-0">
+                <div class="col-9">
+                  ${nombreHTML}
+                  <div class="resumen-desc">${producto.observacion || ''}</div>
+                </div>
+                <div class="col-3 d-md-flex">
+                  <span class="resumen-precio">$${(producto.cantidad * producto.precio_unitario).toFixed(2)}</span>
+                  <div class="resumen-cantidad">
+                    <button class="btn-restar" aria-label="Restar">-</button>
+                    <span class="cantidad-producto">${producto.cantidad}</span>
+                    <button class="btn-sumar" aria-label="Sumar">+</button>
+                  </div>
+                </div>
+              </div>
+            `;
+            resumenMovil.appendChild(liMovil);
+          }
 
           // Sincronizar estructura en memoria para guardado posterior
           const itemCarrito = {
@@ -915,6 +1102,12 @@ function agregarEventosCardPedido(cardNode) {
         
         // Asignar eventos a los botones sumar/restar
         asignarEventosSumarRestar();
+        
+        // Asegurar que los eventos se asignen también a los elementos móviles
+        setTimeout(() => {
+          asignarEventosSumarRestar();
+        }, 100);
+        
         actualizarTotalPedido();
         
         // Llenar el formulario del modal
@@ -1033,6 +1226,8 @@ function guardarPedidoFrontend() {
   console.log('window.carrito:', window.carrito);
   console.log('productosCarrito:', productosCarrito);
   console.log('JSON.stringify(productosCarrito):', JSON.stringify(productosCarrito));
+  console.log('Tipo de pedido:', pedido.tipo);
+  console.log('Subtipo reservado:', document.getElementById('subtipo_reservado').value);
   
   // Enviar pedido al backend
   fetch("{% url 'guardar_pedido' %}", {
@@ -1047,6 +1242,9 @@ function guardarPedidoFrontend() {
       mesa: pedido.mesa,
       cliente: pedido.cliente,
       subtipo_reservado: document.getElementById('subtipo_reservado').value,
+      // Debug del subtipo
+      debug_subtipo: document.getElementById('subtipo_reservado').value,
+      observaciones_generales: document.getElementById('observaciones_generales').value,
       productos_carrito: JSON.stringify(productosCarrito),
       pedido_id: window.pedidoEditando || ''
     })
@@ -1077,6 +1275,10 @@ function guardarPedidoFrontend() {
         agregarEventosCardPedido(nuevaCard);
       }
       
+      // Guardar ID del pedido para reimprimir
+      window.ultimoPedidoId = data.pedido_data.id;
+      
+      
       // Limpiar el modal y el carrito
       document.getElementById('resumenCarrito').innerHTML = '';
       document.getElementById('total-pedido').textContent = '$0.00';
@@ -1105,6 +1307,7 @@ function guardarPedidoFrontend() {
   });
 }
 
+
 function crearCardPedidoDesdeBD(pedidoData) {
   console.log('=== CREAR CARD DESDE BD ===');
   console.log('Datos del pedido:', pedidoData);
@@ -1121,10 +1324,10 @@ function crearCardPedidoDesdeBD(pedidoData) {
   let formaPagoIcono = '';
   let formaPagoColor = '';
   if (pedidoData.forma_pago === 'Efectivo') {
-    formaPagoIcono = '<div class="forma-pago-icon efectivo-icon"><i class="fas fa-dollar-sign"></i></div>';
+    formaPagoIcono = '<div class="forma-pago-icon efectivo-icon"><i class="bi bi-cash-stack"></i></div>';
     formaPagoColor = 'text-success';
   } else if (pedidoData.forma_pago === 'Transferencia') {
-    formaPagoIcono = '<div class="forma-pago-icon transferencia-icon"><i class="fas fa-credit-card"></i></div>';
+    formaPagoIcono = '<div class="forma-pago-icon transferencia-icon"><i class="bi bi-arrow-left-right"></i></div>';
     formaPagoColor = 'text-primary';
   }
 
@@ -1179,14 +1382,14 @@ function crearCardPedidoDesdeBD(pedidoData) {
   console.log('Condición completa:', pedidoData.tipo === 'reservado' && pedidoData.subtipo_reservado);
 
   // Construir el cardHTML de forma más segura
-  const cardHTML = '<div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-3">' +
+  const cardHTML = '<div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2">' +
   
     '<div class="card mb-3 pedido-card" data-pedido-id="' + pedidoData.id + '">' +
       '<div class="card-body">' +
         '<div class="d-flex justify-content-between align-items-center mb-2">' +
           '<div class="d-flex align-items-center gap-2">' +
             '<input type="checkbox" class="form-check-input checkbox-pedido" value="' + pedidoData.id + '" style="margin-right: 8px;">' +
-            '<span class="fw-bold">#' + pedidoData.id.toString().padStart(3, '0') + '</span>' +
+            '<span class="fw-bold">#' + (pedidoData.numero_pedido_completo || pedidoData.numero_dia?.toString().padStart(3, '0') || pedidoData.id.toString().padStart(3, '0')) + '</span>' +
           '</div>' +
           '<div class="d-flex align-items-center gap-2">' +
             '<span class="badge badge-' + pedidoData.tipo.toLowerCase() + '">' + pedidoData.tipo + '</span>' +
@@ -1402,6 +1605,7 @@ function limpiarFormularioPedido() {
   document.getElementById('nombre_llevar').value = '';
   document.getElementById('nombre_reservado').value = '';
   document.getElementById('mesa').value = '';
+  document.getElementById('observaciones_generales').value = '';
   
   // Establecer valores por defecto
   document.getElementById('tipo_pedido').value = 'Servirse';
@@ -1425,9 +1629,21 @@ function limpiarFormularioPedido() {
   });
   document.querySelector('.btn-forma-pago:first-child').classList.add('active');
   
-  // Limpiar carrito
+  // Limpiar carrito (DOM y memoria)
   document.getElementById('resumenCarrito').innerHTML = '';
   document.getElementById('total-pedido').textContent = '$0.00';
+  
+  // Limpiar también el carrito móvil si existe
+  const resumenCarritoMovil = document.getElementById('resumenCarritoMovil');
+  const totalMovil = document.getElementById('total-pedido-movil');
+  if (resumenCarritoMovil) {
+    resumenCarritoMovil.innerHTML = '';
+  }
+  if (totalMovil) {
+    totalMovil.textContent = '$0.00';
+  }
+  
+  window.carrito = []; // Limpiar la memoria del carrito
   
   // Establecer tipo de pedido por defecto
   document.getElementById('tipo_pedido').value = 'Servirse';
@@ -1609,11 +1825,12 @@ window.actualizarContadoresTabs = async function() {
 };
 
 document.addEventListener('DOMContentLoaded', function() {
-  const btnConfirmar = document.querySelector('#tomarPedidoModal .btn-success');
-  if (btnConfirmar) {
-    btnConfirmar.removeAttribute('onclick');
-    btnConfirmar.addEventListener('click', guardarPedidoFrontend);
-  }
+  // Agregar event listeners a todos los botones de confirmar
+  const btnConfirmar = document.querySelectorAll('#tomarPedidoModal .btn-success');
+  btnConfirmar.forEach(btn => {
+    btn.removeAttribute('onclick');
+    btn.addEventListener('click', guardarPedidoFrontend);
+  });
   
       // Cargar pedidos existentes desde la base de datos
     cargarPedidosExistentes();
@@ -1710,9 +1927,21 @@ document.addEventListener('DOMContentLoaded', function() {
       if (confirm('¿Deseas guardar los cambios del pedido?')) {
         guardarPedidoFrontend();
       } else {
-        // Limpiar el carrito si no quiere guardar
+        // Limpiar el carrito si no quiere guardar (DOM y memoria)
         document.getElementById('resumenCarrito').innerHTML = '';
         document.getElementById('total-pedido').textContent = '$0.00';
+        
+        // Limpiar también el carrito móvil si existe
+        const resumenCarritoMovil = document.getElementById('resumenCarritoMovil');
+        const totalMovil = document.getElementById('total-pedido-movil');
+        if (resumenCarritoMovil) {
+          resumenCarritoMovil.innerHTML = '';
+        }
+        if (totalMovil) {
+          totalMovil.textContent = '$0.00';
+        }
+        
+        window.carrito = []; // Limpiar la memoria del carrito
       }
     }
   });

@@ -1,0 +1,201 @@
+/* ===== MODAL AGREGAR PRODUCTO - SOLO FUENTES ===== */
+
+/* Importar variables de fuentes */
+@import url('variables.css');
+
+/* ===== APLICAR FUENTES A TODO EL MODAL ===== */
+#agregarProductoModal {
+    font-family: var(--fuente-principal);
+}
+
+#agregarProductoModal .modal-title {
+    font-family: var(--fuente-titulos);
+    font-weight: 600;
+}
+
+#agregarProductoModal label {
+    font-family: var(--fuente-titulos);
+    font-weight: 600;
+}
+
+/* ===== DISEÑO DE CARDS VERTICALES ===== */
+#agregarProductoModal .btn-sopa,
+#agregarProductoModal .btn-segundo,
+#agregarProductoModal .btn-jugo {
+    font-family: var(--fuente-principal);
+    font-weight: 500;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 0.4rem 1rem;
+    text-align: left;
+    transition: all 0.2s ease;
+    position: relative;
+    min-height: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-bottom: 0.25rem;
+    margin-top: 0.3rem;
+    width: 100%;
+}
+
+#agregarProductoModal .btn-jugo {
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#agregarProductoModal .btn-sopa:hover,
+#agregarProductoModal .btn-segundo:hover,
+#agregarProductoModal .btn-jugo:hover {
+    background: #e9ecef;
+    border-color: #dee2e6;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+#agregarProductoModal .btn-sopa.active{
+    background: #EFF6FF;
+    border-color: #0056b3;
+    color: rgba(0, 123, 255, 1);;
+    box-shadow: 0 4px 12px rgba(53, 124, 201, 0.3);
+}
+
+
+#agregarProductoModal .btn-segundo.active{
+    background: #F0FDF4;
+    border-color: #00C950;
+    color: #14754b;
+    box-shadow: 0 4px 12px rgba(21, 121, 79, 0.3);
+}
+
+#agregarProductoModal .btn-jugo.active {
+    background: #f7f4f0;
+    border-color: #e48334;
+    color: #db6300;
+    box-shadow: 0 4px 12px rgba(172, 103, 38, 0.3);
+}
+
+/* ===== BADGE DE CANTIDAD DISPONIBLE ===== */
+#agregarProductoModal .cantidad-disponible {
+    font-family: var(--fuente-titulos);
+    font-weight: 600;
+    font-size: 0.8rem;
+    background: #22973d;
+    color: white;
+    padding: 0.3rem 0.6rem;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    min-width: 35px;
+    justify-content: center;
+}
+
+#agregarProductoModal .cantidad-disponible.sin-productos {
+    background: #dc3545;
+}
+
+#agregarProductoModal .cantidad-disponible.pocos-productos {
+    background: #ffc107;
+    color: #212529;
+}
+
+/* ===== CHECKBOX CIRCULAR ===== */
+#agregarProductoModal .checkbox-circle {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #dee2e6;
+    border-radius: 50%;
+    background: white;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+#agregarProductoModal .btn-sopa.active .checkbox-circle,
+#agregarProductoModal .btn-segundo.active .checkbox-circle,
+#agregarProductoModal .btn-jugo.active .checkbox-circle {
+    background: #007bff;
+    border-color: #007bff;
+}
+
+#agregarProductoModal .btn-sopa.active .checkbox-circle::after,
+#agregarProductoModal .btn-segundo.active .checkbox-circle::after,
+#agregarProductoModal .btn-jugo.active .checkbox-circle::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* ===== PUNTO DE ESTADO - OCULTO ===== */
+#agregarProductoModal .punto-cantidad {
+    display: none;
+}
+
+/* ===== TEXTO DEL PRODUCTO ===== */
+#agregarProductoModal .btn-sopa span:first-child,
+#agregarProductoModal .btn-segundo span:first-child,
+#agregarProductoModal .btn-jugo span:first-child {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #212529;
+    line-height: 1.2;
+    margin-bottom: 0;
+    display: block;
+}
+
+#agregarProductoModal .btn-sopa.active span:first-child,
+#agregarProductoModal .btn-segundo.active span:first-child,
+#agregarProductoModal .btn-jugo.active span:first-child {
+    color: white;
+}
+
+/* ===== ESTADO DISPONIBLE - OCULTO ===== */
+#agregarProductoModal .btn-sopa::after,
+#agregarProductoModal .btn-segundo::after {
+    display: none;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    #agregarProductoModal .btn-sopa,
+    #agregarProductoModal .btn-segundo {
+        min-height: 50px;
+        padding: 0.5rem 0.75rem;
+    }
+    
+    #agregarProductoModal .btn-jugo {
+        min-height: 50px;
+        padding: 0.5rem 0.75rem;
+    }
+    
+    #agregarProductoModal .cantidad-disponible {
+        font-size: 0.7rem;
+        padding: 0.2rem 0.4rem;
+        min-width: 50px;
+    }
+}
+
+#agregarProductoModal .btn-primary {
+    font-family: var(--fuente-titulos);
+    font-weight: 600;
+}
+
+#agregarProductoModal #observacion-producto {
+    font-family: var(--fuente-principal);
+}
+
+#agregarProductoModal .form-label {
+    font-family: var(--fuente-titulos);
+    font-weight: 600;
+}

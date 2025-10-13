@@ -4,17 +4,206 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Source+Sans+Pro:wght@400;600;700&display=swap');
 
+/* Eliminar espacio extra del modal - Selectores con mayor especificidad */
+#tomarPedidoModal.modal .modal-body {
+    padding: 1rem 1.5rem 0;
+    margin: 0;
+    height: auto;
+    min-height: auto;
+    max-height: none;
+}
+
+#tomarPedidoModal.modal .modal-content {
+    padding: 0;
+    margin: 0;
+    height: fit-content;
+}
+
+#tomarPedidoModal.modal .modal-dialog {
+    margin-bottom: 0;
+    height: fit-content;
+    max-height: 90vh;
+}
+
+/* Eliminar espacio extra de las columnas - Selectores con mayor especificidad */
+#tomarPedidoModal.modal .col-md-6 {
+    padding-bottom: 0;
+    margin-bottom: 0;
+}
+
+/* Eliminar cualquier espacio extra del contenedor principal */
+#tomarPedidoModal.modal .row {
+    margin-bottom: 0;
+}
+
+#tomarPedidoModal.modal .container-fluid {
+    padding-bottom: 0;
+}
+
+/* Eliminar márgenes específicos del modal */
+#tomarPedidoModal .mb-3 {
+    margin-bottom: 0.5rem;
+}
+
+#tomarPedidoModal .mt-3 {
+    margin-top: 0.5rem;
+}
+
+#tomarPedidoModal .card {
+    margin-bottom: 0;
+}
+
+#tomarPedidoModal .btn-lg {
+    margin-top: 0.5rem;
+}
+
+/* Solución radical - eliminar todo el espacio extra */
+#tomarPedidoModal {
+    padding: 0;
+    margin: 0;
+}
 
 
+.nav-tipo {
+  background-color: #F1F5F9;
+  border-radius: 10px;
+  border: 1.5px solid transparent;
+  color: #222;
+  font-weight: 400;
+  flex: 1 1 0;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
 
-@media (max-width: 991.98px) {
-  .productos-horizontal-lg {
-    flex-direction: row !important;
-    gap: 1rem;
+/* Anular la altura forzada del .col-12 dentro del modal */
+#tomarPedidoModal .col-12 {
+    height: auto;
+    min-height: auto;
+    max-height: none;
+    background-color: transparent;
+    overflow-y: visible;
+}
+
+
+#tomarPedidoModal .col-12,
+#tomarPedidoModal .col-lg-4,
+#tomarPedidoModal .col-lg-8 {
+    padding-bottom: 0;
+    margin-bottom: 0;
+    height: auto;
+    min-height: auto;
+    max-height: none;
+}
+
+/* Pantallas pequeñas (tablets) */
+@media (min-width: 601px) and (max-width: 991.98px) {
+  #tomarPedidoModal .modal-dialog {
+    margin: 1rem;
+    max-width: calc(100% - 2rem);
   }
-  .productos-horizontal-lg .btn {
-    min-width: 0;
-    flex: 1 1 0;
+  
+  #tomarPedidoModal .modal-body {
+    padding: 1rem;
+  }
+  
+  #tomarPedidoModal .productos-platillos {
+    flex-direction: row;
+    gap: 0.75rem;
+  }
+  
+  #tomarPedidoModal .producto-card {
+    flex: 1;
+  }
+  
+  /* Tabs horizontales en tablets */
+  #tomarPedidoModal .nav-tabs {
+    flex-direction: row;
+    gap: 0.5rem;
+  }
+  
+  /* Centrar contenido de los tabs de tipo en tablets */
+  #tomarPedidoModal .nav-tipo {
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+    gap: 0.5rem;
+  }
+  
+  #tomarPedidoModal .nav-tipo i {
+    margin-right: 0;
+    margin-bottom: 0;
+  }
+  
+  #tomarPedidoModal .nav-link {
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+
+  
+  /* Servirse: Mesa y Nombre en la misma línea para tablets */
+  #tomarPedidoModal .servirse-inputs-container {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
+  }
+  
+  #tomarPedidoModal .servirse-inputs-container .mb-3 {
+    flex: 1;
+    margin-bottom: 0.5rem !important;
+  }
+  
+  /* Reservado: Nombre y Cómo se servirá en la misma línea para tablets */
+  #tomarPedidoModal .reservado-inputs-container {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
+  }
+  
+  #tomarPedidoModal .reservado-inputs-container .mb-3 {
+    flex: 1;
+    margin-bottom: 0.5rem !important;
+  }
+  
+  /* Observaciones y forma de pago en la misma línea para tablets */
+  #tomarPedidoModal .observaciones-pago-container {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
+  }
+  
+  #tomarPedidoModal .observaciones-pago-container .mb-3 {
+    flex: 1;
+    margin-bottom: 0.5rem !important;
+  }
+  
+  #tomarPedidoModal .observaciones-pago-container .mb-2 {
+    flex: 1;
+    margin-bottom: 0.5rem !important;
+  }
+}
+
+/* Pantallas grandes (laptops y desktop) */
+@media (min-width: 992px) {
+  #tomarPedidoModal .modal-dialog {
+    max-width: 950px;
+  }
+  
+  #tomarPedidoModal .col-lg-4 {
+    flex: 0 0 36%;
+    max-width: 36%;
+  }
+  
+  #tomarPedidoModal .col-lg-8 {
+    flex: 0 0 64%;
+    max-width: 64%;
   }
 }
 
@@ -25,8 +214,8 @@ h5 {
 }
 
 .agregar-productos-header {
-  background: linear-gradient(90deg, var(--primary-color) 0%, var(--tertiary-color) 100%);
-  color: #fff;
+
+  color: #ffffff;
   padding: 0.7rem 0.8rem 0.4rem 0.8rem;
   border-radius: 10px 10px 0 0;
   text-align: center;
@@ -81,8 +270,8 @@ h5 {
 }
 
 .producto-card:hover .icono-circulo {
-  width: 44px !important;
-  height: 44px !important;
+  width: 44px;
+  height: 44px;
   box-shadow: 0 4px 16px rgba(0,0,0,0.13);
 }
 
@@ -101,7 +290,7 @@ h5 {
 }
 
 .producto-card:hover .producto-icono {
-  font-size: 1.6rem !important;
+  font-size: 1.6rem;
 }
 
 /* Título toma el color del fondo del círculo en hover */
@@ -216,6 +405,7 @@ h5 {
 
 
 /* === ESTILO BASE (ESCRITORIO Y GENERAL) === */
+
 #resumenCarrito .resumen-item {
   display: flex;
   flex-direction: row;
@@ -223,31 +413,39 @@ h5 {
   justify-content: space-between;
   gap: 1.2rem;
   padding: 0.7rem 1rem 0.5rem 1rem;
-  background: #fffaf6;
   border-radius: 12px;
-  border: 1.5px solid #f7e9d6;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
-  margin-bottom: 0.7rem;
   transition: all 0.3s ease;
+  width: 100%;
+  box-sizing: border-box;
+  flex-wrap: nowrap;
+  min-height: 60px;
+  list-style: none;
 }
 
-#resumenCarrito .resumen-item:hover {
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  transform: translateY(-1px);
+#resumenCarrito .resumen-item .row {
+  width: 100%;
+  margin: 0;
 }
 
-.resumen-col-izq {
-  flex: 1 1 60%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+#resumenCarritoMovil .resumen-item {
+  list-style: none;
 }
+
+#resumenCarritoMovil .resumen-item .row {
+  width: 100%;
+  margin: 0;
+}
+
+
 
 .resumen-nombre {
   font-weight: 700;
   color: #222;
   font-size: 1rem;
   margin-bottom: 0.1rem;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 
 .nombre-tipo {
@@ -263,14 +461,6 @@ h5 {
   font-weight: 400;
 }
 
-.resumen-col-der {
-  flex: 1 1 40%;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 0.7rem;
-}
 
 .resumen-cantidad {
   display: flex;
@@ -315,15 +505,14 @@ h5 {
 .cantidad-producto {
   background: transparent;
   color: #222;
-  font-weight: 600;
-  font-size: 1.1rem;
-  min-width: 32px;
+  font-weight: 500;
+  font-size: 0.9rem;
   text-align: center;
-  margin: 0;
+  margin: 0rem;
+  padding: 0 rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 0.5rem;
 }
 
 .resumen-lista-vertical {
@@ -381,8 +570,8 @@ h5 {
   color: #114c1a;
   font-size: 1rem;
   font-weight: 700;
-  border-radius: 2.5rem;
-  padding: 0.3rem 1.1rem;
+  border-radius: 2rem;
+  padding: 0.25rem 1rem;
   margin-bottom: 0.2rem;
   text-align: center;
   transition: all 0.3s ease;
@@ -392,14 +581,8 @@ h5 {
   background: #d4edda;
   color: #155724;
   transform: scale(1.05);
-  animation: precioUpdate 0.3s ease;
 }
 
-@keyframes precioUpdate {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-  100% { transform: scale(1.05); }
-}
 
 /* Estilos para cuando se está editando */
 .resumen-item.editando {
@@ -493,6 +676,9 @@ h5 {
   font-weight: 500;
   font-size: 0.9rem;
   margin-top: 0.2rem;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 
 .resumen-item .resumen-lista-vertical {
@@ -538,36 +724,7 @@ h5 {
   100% { transform: scale(1); color: #28a745; }
 }
 
-/* Mejoras para el resumen en modo móvil */
-@media (max-width: 600px) {
-  #resumenCarrito .resumen-item {
-    padding: 0.8rem 0.8rem 0.6rem 0.8rem;
-    margin-bottom: 0.8rem;
-  }
-  
-  .resumen-cantidad {
-    background: #f1f3f4;
-    border: 1px solid #dadce0;
-    border-radius: 6px;
-    padding: 0.15rem;
-  }
-  
-  .resumen-cantidad button {
-    width: 26px;
-    height: 26px;
-    font-size: 1rem;
-  }
-  
-  .cantidad-producto {
-    font-size: 1rem;
-    min-width: 28px;
-  }
-  
-  .resumen-precio {
-    font-size: 0.95rem;
-    padding: 0.25rem 0.8rem;
-  }
-}
+/* Mejoras para el resumen en modo móvil - CONSOLIDADO EN MEDIA QUERY UNIFICADA */
 
 /* Estilos para el estado de carga/actualización */
 .resumen-item.cargando {
@@ -595,196 +752,42 @@ h5 {
 }
 
 
-@media (max-width: 600px) {
-  .productos-platillos {
-    flex-direction: column;
-    gap: 0.5rem;
-    align-items: stretch;
-  }
-  .producto-card {
-    max-width: 100%;
-    min-width: 0;
-  }
-  #resumenCarrito {
-    padding: 0;
-    margin: 0;
-  }
-  #resumenCarrito .resumen-item {
-    flex-direction: row !important;
-    align-items: stretch !important;
-    justify-content: space-between !important;
-    gap: 0.5rem;
-    display: flex;
-    background: #fffcf8;
-    border-radius: 16px;
-    border: 2px solid #ececec;
-    padding: 1.1rem 1.2rem 1.1rem 1.2rem;
-    margin-bottom: 1.2rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    min-width: 0;
-    font-size: 1.05rem;
-  }
-  .resumen-col-izq {
-    width: 70%;
-    flex: 1 1 60%;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-  }
-  .resumen-col-der {
-    width: 30%;
-    flex: 1 1 40%;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    justify-content: flex-start;
-    gap: 0.5rem;
-  }
-  .resumen-nombre {
-    color: #222;
-    font-weight: 700;
-    font-size: 1.1rem;
-    flex: 1 1 0;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 1.1rem;
-    margin-right: 0.7rem;
-  }
-  .nombre-tipo {
-    font-size: 1.1rem;
-    font-weight: 800;
-    color: #111;
-    border-bottom: 2.5px solid #7c3aed;
-    border-radius: 3px;
-    padding-bottom: 1px;
-    margin-bottom: 0;
-    display: inline-block;
-    background: none;
-    box-shadow: none;
-  }
-  .resumen-cantidad {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-end;
-    gap: 0.3rem;
-    margin-top: 0.1rem;
-    background: transparent;
-    border-radius: 8px;
-    box-shadow: none;
-    padding: 0;
-  }
-  .resumen-cantidad button {
-    border: 1.2px solid #ececec !important;
-    border-radius: 6px !important;
-    width: 25px !important;
-    height: 25px !important;
-    font-size: 1.2rem !important;
-    color: #333 !important;
-    background: #fff !important;
-    font-weight: 700;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    box-shadow: none !important;
-    transition: border 0.15s, color 0.15s, background 0.15s !important;
-    cursor: pointer !important;
-    outline: none !important;
-    padding: 0 !important;
-  }
-  .cantidad-producto {
-    background: transparent !important;
-    color: #222 !important;
-    font-weight: 600 !important;
-    font-size: 1.1rem !important;
-    min-width: 32px !important;
-    text-align: center !important;
-    margin: 0rem !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-  }
-  .resumen-desc {
-    color: #b7b7b7;
-    font-size: 0.92rem;
-    margin-top: 0.2rem;
-    margin-left: 2px;
-    font-weight: 400;
-  }
-  .resumen-precio {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    width: 100%;
-    min-width: 70px;
-    font-size: 1.15rem;
-    padding: 0.3rem 1.1rem;
-    margin-bottom: 0.2rem;
-    background: #c8efce;
-    color: #114c1a;
-    font-weight: 700;
-    border-radius: 2.5rem;
-    text-align: right;
-    align-self: flex-end;
-    margin-top: 0.5rem;
-  }
-  .resumen-lista-vertical {
-    display: flex;
-    flex-direction: column;
-    margin: 0.1rem 0 0 0.1rem;
-    padding-left: 1.2rem;
-    font-size: 1rem;
-    color: #222;
-    text-align: left;
-    list-style: disc;
-  }
-  .resumen-lista-vertical li {
-    display: list-item;
-    background: none;
-    border: none;
-    box-shadow: none;
-    margin: 0 0 0.2rem 0;
-    padding: 0;
-    min-height: 0;
-    line-height: 1.3;
-    font-size: 1rem;
-    font-weight: 400;
-    color: #222;
-    list-style: disc;
-  }
-  .resumen-lista-vertical li:not(:last-child)::after {
-    content: none;
-  }
-}
+/* CONSOLIDADO EN MEDIA QUERY UNIFICADA */
 
 #tipoPedidoTabs {
-  display: flex !important;
-  flex-direction: row !important;
-  justify-content: flex-start;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
   gap: 0.2rem;
   background-color: #F1F5F9;
   padding: 0.2rem;
   border-radius: 10px;
+  flex-wrap: nowrap;
 }
 #tipoPedidoTabs .nav-item {
-  flex: 1 1 0 !important;
+  flex: 1 1 0;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 #tipoPedidoTabs .nav-link {
-  font-size: 0.9rem;
-  padding: 0.2rem 0.6rem;
+  font-size: 0.8rem;
+  padding: 0.3rem 0.4rem;
   border-radius: 8px;
   border: 1.5px solid transparent;
   background: #F1F5F9;
   color: #222;
-  min-width: 80px;
+  min-width: 0;
   min-height: 32px;
-  text-align: center !important;
+  text-align: center;
   font-weight: 400;
   transition: border 0.15s, color 0.15s, background 0.15s;
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.3rem;
+  white-space: nowrap;
+  flex: 1;
 }
 #tipoPedidoTabs .nav-link.active {
   border: 2px solid #e88b4a;
@@ -792,6 +795,8 @@ h5 {
   background: #fff;
   font-weight: 600;
   box-shadow: 0 0 0 2px #ffe5c2;
+  width: 100%;
+  box-sizing: border-box;
 }
 #tipoPedidoTabs .nav-link i, #tipoPedidoTabs .nav-link .material-icons {
   font-size: 1rem;
@@ -823,6 +828,8 @@ h5 {
   justify-content: center;
   align-items: center;
   gap: 0.5rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .btn-forma-pago.active,
@@ -864,6 +871,8 @@ h5 {
   justify-content: center;
   align-items: center;
   gap: 0.5rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .btn-subtipo.active,
@@ -880,33 +889,13 @@ h5 {
   margin-right: 0.1rem;
 }
 
-@media (max-width: 600px) {
-  #tipoPedidoTabs {
-    flex-wrap: nowrap !important;
-    gap: 0.1rem;
-    padding: 0.1rem;
-  }
-  #tipoPedidoTabs .nav-link {
-    font-size: 0.85rem;
-    padding: 0.15rem 0.3rem;
-    min-width: 0;
-    min-height: 28px;
-    white-space: nowrap;
-    flex: 1 1 0;
-  }
-  #tipoPedidoTabs .nav-item {
-    flex: 1 1 0 !important;
-  }
-}
+/* CONSOLIDADO EN MEDIA QUERY UNIFICADA */
 
 /* Mostrar detalles en línea solo en escritorio, y lista vertical solo en móviles */
 .detalles-linea { display: inline; }
 .resumen-lista-vertical { display: none; }
 
-@media (max-width: 600px) {
-  .detalles-linea { display: none; }
-  .resumen-lista-vertical { display: block; }
-}
+/* CONSOLIDADO EN MEDIA QUERY UNIFICADA */
 
 /* Regla general para aplicar fuente principal a todo */
 body {
@@ -917,4 +906,141 @@ body {
 h1, h2, h3, h4, h5, h6,
 .modal-title {
   font-family: var(--fuente-titulos);
+}
+
+/* Dropdowns para móviles */
+.dropdown-header {
+  cursor: pointer;
+  user-select: none;
+}
+
+.dropdown-header:hover {
+  background-color: rgba(0,0,0,0.05);
+  border-radius: 0.375rem;
+}
+
+.dropdown-icon {
+  transition: transform 0.3s ease;
+}
+
+.dropdown-icon.rotated {
+  transform: rotate(180deg);
+}
+
+
+/* En móviles: estilos unificados */
+@media (max-width: 600px) {
+  /* Resumen del carrito */
+  #resumenCarrito .resumen-item {
+    padding: 0.8rem 0.8rem 0.6rem 0.8rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .resumen-cantidad button {
+    width: 2.1rem;
+    height: 2rem;
+    font-size: 1.1rem;
+  }
+  
+  .resumen-precio {
+    font-size: 0.9rem;
+    padding: 0.2rem 0.6rem;
+  }
+
+  /* Productos en columna */
+  .productos-platillos {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: stretch;
+  }
+  
+  .producto-card {
+    max-width: 100%;
+    min-width: 0;
+  }
+  
+  #resumenCarrito {
+    padding: 0;
+    margin: 0;
+  }
+
+  /* Tabs más pequeños */
+  #tipoPedidoTabs {
+    flex-wrap: nowrap;
+    gap: 0.1rem;
+    padding: 0.1rem;
+    overflow-x: auto;
+  }
+  
+  #tipoPedidoTabs .nav-link {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.3rem;
+    min-width: 0;
+    min-height: 28px;
+    white-space: nowrap;
+    flex: 1 1 0;
+  }
+
+  /* Ocultar detalles horizontales */
+  .detalles-linea { display: none; }
+  .resumen-lista-vertical { display: block; }
+
+  /* Dropdowns colapsables */
+  .dropdown-content {
+    display: none;
+    padding-top: 1rem;
+  }
+  
+  .dropdown-content.show {
+    display: block;
+  }
+  
+  /* Separador visual entre productos y resumen */
+  .resumen-movil {
+    border-top: 1px solid #dee2e6;
+    padding-top: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  /* Reducir espaciado entre cards */
+  .col-lg-4 .card,
+  .col-lg-8 .card {
+    margin-bottom: 0.5rem;
+  }
+  
+  .col-lg-8 .card:first-of-type {
+    margin-bottom: 0.3rem;
+  }
+
+  /* Productos en orientación horizontal */
+  .productos-platillos {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 0.2rem;
+    justify-content: space-between;
+  }
+  
+  .producto-card {
+    flex: 1;
+    min-width: 0;
+    padding: 0.3rem 0.2rem;
+    min-height: auto;
+  }
+  
+  .producto-card .icono-circulo {
+    width: 25px;
+    height: 25px;
+    margin: 0 auto 0.2rem;
+  }
+  
+  .producto-card .producto-titulo {
+    font-size: 0.65rem;
+    text-align: center;
+    margin: 0;
+    line-height: 1.1;
+  }
+  
+  .producto-card .producto-icono {
+    font-size: 14px;
+  }
 }

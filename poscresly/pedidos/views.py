@@ -6,7 +6,7 @@ from datetime import date
 from decimal import Decimal
 from .models import Pedido, PedidoAlmuerzo, PedidoSopa, PedidoSegundo
 from caja.models import CajaDiaria, CajaEfectivo, CajaTransferencia
-from menu.models import MenuDiaSopa, MenuDiaSegundo, MenuDiaJugo
+from menu.models import MenuDia, MenuDiaSopa, MenuDiaSegundo, MenuDiaJugo
 import json
 
 # Configurar logger
@@ -71,7 +71,7 @@ def actualizar_cantidades_menu(productos_carrito, operacion='restar'):
             if segundo_id:
                 try:
                     # Buscar directamente por Plato ID en el menú actual
-                    segundo_actual = MenuDiaSegundo.objects.get(menu=menu, segundo_id=segundo_id)
+                    segundo_actual = MenuDiaSegundo.objects.filter(menu=menu, segundo_id=segundo_id).first()
                     cantidad_anterior = segundo_actual.cantidad_actual
                     segundo_actual.cantidad_actual = max(0, segundo_actual.cantidad_actual + cantidad)
                     segundo_actual.save()
@@ -101,7 +101,7 @@ def actualizar_cantidades_menu(productos_carrito, operacion='restar'):
             if segundo_id:
                 try:
                     # Buscar directamente por Plato ID en el menú actual
-                    segundo_actual = MenuDiaSegundo.objects.get(menu=menu, segundo_id=segundo_id)
+                    segundo_actual = MenuDiaSegundo.objects.filter(menu=menu, segundo_id=segundo_id).first()
                     cantidad_anterior = segundo_actual.cantidad_actual
                     segundo_actual.cantidad_actual = max(0, segundo_actual.cantidad_actual + cantidad)
                     segundo_actual.save()
@@ -291,10 +291,15 @@ def agregar_al_carrito(request):
 @csrf_exempt
 @require_http_methods(["POST"])
 def guardar_pedido(request):
-    caja, created = CajaDiaria.objects.get_or_create(fecha=date.today())
+    # Buscar caja abierta actual o crear una nueva para hoy
+    caja = CajaDiaria.objects.filter(estado='abierta').first()
     
-    # Si se creó una nueva caja, crear también los objetos relacionados
-    if created:
+    if not caja:
+        # No hay caja abierta, crear una nueva para hoy
+        caja = CajaDiaria.objects.create(
+            fecha=date.today(),
+            estado='abierta'
+        )
         CajaEfectivo.objects.create(caja_diaria=caja, monto_inicial=0)
         CajaTransferencia.objects.create(caja_diaria=caja, monto_inicial=0)
 
@@ -304,6 +309,8 @@ def guardar_pedido(request):
         mesa = request.POST.get('mesa')
         contacto = request.POST.get('cliente')  # Viene del frontend como 'cliente'
         subtipo_reservado = request.POST.get('subtipo_reservado')  # Para pedidos reservados
+        print(f"[DEBUG] Subtipo recibido del frontend: {subtipo_reservado}")
+        observaciones_generales = request.POST.get('observaciones_generales')
         pedido_id_editar = request.POST.get('pedido_id')
 
         total_pedido = Decimal('0.00')
@@ -342,6 +349,7 @@ def guardar_pedido(request):
             pedido.numero_mesa = mesa if mesa else None
             pedido.contacto = contacto
             pedido.subtipo_reservado = subtipo_reservado if tipo_pedido == 'reservado' else None
+            pedido.observaciones_generales = observaciones_generales
             pedido.total = total_pedido
             pedido.save()
         else:
@@ -351,10 +359,15 @@ def guardar_pedido(request):
                 forma_pago=forma_pago,
                 numero_mesa=mesa if mesa else None,
                 contacto=contacto,
-                subtipo_reservado=subtipo_reservado if tipo_pedido == 'reservado' else None,
+                subtipo_reservado=subtipo_reservado if tipo_pedido.lower() == 'reservado' else None,
+                observaciones_generales=observaciones_generales,
                 estado='pendiente',  # Guardar como pendiente
                 total=total_pedido  # Guardar el total del pedido
             )
+            
+            # Debug: verificar que se guardó correctamente
+            print(f"[DEBUG] Pedido creado - ID: {pedido.id}, Subtipo guardado: {pedido.subtipo_reservado}")
+            print(f"[DEBUG] Tipo pedido: '{tipo_pedido}', Comparación: {tipo_pedido.lower() == 'reservado'}")
 
         # Guardar productos del carrito en BD
         productos_guardados = []
@@ -421,23 +434,8 @@ def guardar_pedido(request):
                 if producto_dict:
                     productos_guardados.append(producto_dict)
 
-        # Actualizar caja diaria según forma de pago
-        if pedido_id_editar:
-            # Ajustar por diferencia respecto al total anterior
-            diferencia = total_pedido - total_anterior
-            if forma_pago == 'Efectivo':
-                caja.caja_efectivo.total_ventas += diferencia
-                caja.caja_efectivo.save()
-            elif forma_pago == 'Transferencia':
-                caja.caja_transferencia.total_ventas += diferencia
-                caja.caja_transferencia.save()
-        else:
-            if forma_pago == 'Efectivo':
-                caja.caja_efectivo.total_ventas += total_pedido
-                caja.caja_efectivo.save()
-            elif forma_pago == 'Transferencia':
-                caja.caja_transferencia.total_ventas += total_pedido
-                caja.caja_transferencia.save()
+        # NOTA: No se actualiza caja automáticamente aquí
+        # Las ventas solo se suman cuando el pedido se marca como 'completado'
 
         # Si es edición, devolver cantidades originales antes de restar las nuevas
         if pedido_id_editar and productos_originales:
@@ -476,11 +474,84 @@ def guardar_pedido(request):
             pedido.total = total_real
             pedido.save()
 
+        # Imprimir comando para cocina
+        try:
+            from impresion.impresora import ImpresoraTermica
+            from datetime import datetime
+            
+            # Crear comando para cocina
+            # Crear línea dinámica según el tipo de pedido
+            linea_info = f"{pedido.tipo.upper()}"
+            
+            if pedido.tipo == 'Servirse' and pedido.numero_mesa:
+                # Para servirse: mostrar mesa
+                espacios = 45 - len(f"{pedido.tipo.upper()}.") - len(f"MESA: {pedido.numero_mesa}")
+                linea_info += " " * espacios + f"MESA: {pedido.numero_mesa}"
+            elif pedido.tipo == 'Llevar' and pedido.contacto:
+                # Para llevar: mostrar cliente
+                espacios = 45 - len(f"{pedido.tipo.upper()}.") - len(f"{pedido.contacto}")
+                linea_info += " " * espacios + f"{pedido.contacto.upper()}"
+            elif pedido.tipo == 'Reservado' and pedido.contacto:
+                # Para reservado: mostrar cliente y subtipo
+                print(f"[DEBUG] Pedido Reservado - Contacto: {pedido.contacto}, Subtipo: {pedido.subtipo_reservado}")
+                print(f"[DEBUG] Tipo de pedido: {pedido.tipo}, Subtipo_reservado: {pedido.subtipo_reservado}")
+                subtipo_texto = f" ({pedido.subtipo_reservado})" if pedido.subtipo_reservado else ""
+                espacios = 45 - len(f"{pedido.tipo.upper()}.") - len(f"{pedido.contacto}{subtipo_texto}")
+                linea_info += " " * espacios + f"{pedido.contacto.upper()}{subtipo_texto.upper()}"
+            
+            # Calcular espacios para la segunda línea
+            espacios_segunda = 45 - len(f"Pedido #{pedido.numero_pedido_completo}") - len(f"Hora: {datetime.now().strftime('%H:%M')}")
+            
+            comando_cocina = [
+                linea_info,
+                f"Pedido #{pedido.numero_pedido_completo}" + " " * espacios_segunda + f"Hora: {datetime.now().strftime('%H:%M')}"
+            ]
+            
+            # Agregar observaciones generales si existen
+            if pedido.observaciones_generales:
+                comando_cocina.append(f"  {pedido.observaciones_generales}")
+
+            comando_cocina.append("-" * 45)
+                        
+
+            
+            # Agregar productos con componentes verticales
+            for producto in productos_reconstruidos:
+                # Línea principal con cantidad y tipo
+                comando_cocina.append(f"{producto['cantidad']}x {producto['tipo']}")
+                
+                # Componentes en forma vertical (uno debajo del otro)
+                if producto.get('componentes'):
+                    for componente in producto['componentes']:
+                        comando_cocina.append(f"  - {componente}")
+                
+                # Observación en línea separada si existe
+                if producto.get('observacion'):
+                    comando_cocina.append(f"  Obs: {producto['observacion']}")
+                
+                comando_cocina.append("")
+
+
+            
+            # Imprimir
+            impresora = ImpresoraTermica()
+            if impresora.conectar():
+                impresora.imprimir_ticket(comando_cocina)
+                impresora.desconectar()
+                print(f"[OK] Comando para cocina impreso - Pedido #{pedido.numero_pedido_completo}")
+            else:
+                print(f"[ERROR] No se pudo conectar a la impresora - Pedido #{pedido.numero_pedido_completo}")
+                
+        except Exception as e:
+            print(f"[ERROR] Error al imprimir comando: {e}")
+
         return JsonResponse({
             'status': 'ok', 
             'pedido_id': pedido.id,
             'pedido_data': {
                 'id': pedido.id,
+                'numero_dia': pedido.numero_dia,
+                'numero_pedido_completo': pedido.numero_pedido_completo,
                 'tipo': pedido.tipo,
                 'forma_pago': pedido.forma_pago,
                 'mesa': pedido.numero_mesa,
@@ -510,6 +581,23 @@ def marcar_pedido_completado(request):
         pedido.estado = 'completado'
         pedido.save()
         
+        # Sumar a caja cuando se marca como completado
+        from caja.models import CajaDiaria
+        from datetime import date
+        
+        try:
+            # Buscar caja abierta actual
+            caja = CajaDiaria.objects.filter(estado='abierta').first()
+            if caja:
+                if pedido.forma_pago == 'Efectivo':
+                    caja.caja_efectivo.total_ventas += pedido.total
+                    caja.caja_efectivo.save()
+                elif pedido.forma_pago == 'Transferencia':
+                    caja.caja_transferencia.total_ventas += pedido.total
+                    caja.caja_transferencia.save()
+        except Exception:
+            pass  # No hay caja abierta, no se suma
+        
         return JsonResponse({'status': 'ok', 'message': 'Pedido marcado como completado'})
         
     except Pedido.DoesNotExist:
@@ -531,6 +619,8 @@ def obtener_pedido(request, pedido_id):
             'status': 'ok',
             'pedido': {
                 'id': pedido.id,
+                'numero_dia': pedido.numero_dia,
+                'numero_pedido_completo': pedido.numero_pedido_completo,
                 'tipo': pedido.tipo,
                 'forma_pago': pedido.forma_pago,
                 'mesa': pedido.numero_mesa,
@@ -560,6 +650,8 @@ def obtener_pedidos_pendientes(request):
             
             pedidos_data.append({
                 'id': pedido.id,
+                'numero_dia': pedido.numero_dia,
+                'numero_pedido_completo': pedido.numero_pedido_completo,
                 'tipo': pedido.tipo,
                 'forma_pago': pedido.forma_pago,
                 'mesa': pedido.numero_mesa,
@@ -699,7 +791,33 @@ def marcar_pedidos_completados(request):
         pedidos_actualizados = Pedido.objects.filter(id__in=pedido_ids, estado='pendiente')
         cantidad_actualizada = pedidos_actualizados.update(estado='completado')
         
-
+        # Sumar a caja los pedidos que se marcaron como completados
+        from caja.models import CajaDiaria
+        from datetime import date
+        
+        try:
+            # Buscar caja abierta actual
+            caja = CajaDiaria.objects.filter(estado='abierta').first()
+            if caja:
+                total_efectivo = 0
+                total_transferencia = 0
+                
+                for pedido in pedidos_actualizados:
+                    if pedido.forma_pago == 'Efectivo':
+                        total_efectivo += pedido.total
+                    elif pedido.forma_pago == 'Transferencia':
+                        total_transferencia += pedido.total
+                
+                # Actualizar totales en caja
+                if total_efectivo > 0:
+                    caja.caja_efectivo.total_ventas += total_efectivo
+                    caja.caja_efectivo.save()
+                if total_transferencia > 0:
+                    caja.caja_transferencia.total_ventas += total_transferencia
+                    caja.caja_transferencia.save()
+                
+        except Exception:
+            pass  # No hay caja abierta, no se suma
         
         return JsonResponse({
             'status': 'ok',
@@ -790,6 +908,8 @@ def obtener_pedidos_por_tipo(request):
             
             pedidos_data.append({
                 'id': pedido.id,
+                'numero_dia': pedido.numero_dia,
+                'numero_pedido_completo': pedido.numero_pedido_completo,
                 'tipo': pedido.tipo,
                 'forma_pago': pedido.forma_pago,
                 'fecha_creacion': pedido.fecha_creacion.isoformat(),
@@ -828,6 +948,45 @@ def obtener_contadores_tabs(request):
         return JsonResponse({
             'status': 'ok',
             'contadores': contadores
+        })
+        
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)})
+
+
+@require_http_methods(["GET"])
+def obtener_cantidades_modal(request):
+    """Obtener cantidades actualizadas para el modal de agregar productos"""
+    try:
+        hoy = date.today()
+        menu = MenuDia.objects.get(fecha=hoy)
+        
+        # Obtener sopas con cantidades
+        sopas = []
+        for sopa_dia in MenuDiaSopa.objects.filter(menu=menu):
+            sopas.append({
+                'id': sopa_dia.id,
+                'sopa_id': sopa_dia.sopa.id,
+                'nombre': sopa_dia.sopa.nombre_plato,
+                'cantidad_actual': sopa_dia.cantidad_actual,
+                'cantidad_configurada': sopa_dia.cantidad
+            })
+        
+        # Obtener segundos con cantidades
+        segundos = []
+        for segundo_dia in MenuDiaSegundo.objects.filter(menu=menu):
+            segundos.append({
+                'id': segundo_dia.id,
+                'segundo_id': segundo_dia.segundo.id,
+                'nombre': segundo_dia.segundo.nombre_plato,
+                'cantidad_actual': segundo_dia.cantidad_actual,
+                'cantidad_configurada': segundo_dia.cantidad
+            })
+        
+        return JsonResponse({
+            'status': 'ok',
+            'sopas': sopas,
+            'segundos': segundos
         })
         
     except Exception as e:

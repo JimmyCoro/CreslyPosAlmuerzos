@@ -5,6 +5,7 @@ from . import views
 
 urlpatterns = [
     path('', views.inicio, name='inicio'),
+    path('menu/', views.menu, name='menu'),
     path('agregar-al-carrito/', pedidos_views.agregar_al_carrito, name='agregar_al_carrito'),
     path('guardar-pedido/', pedidos_views.guardar_pedido, name='guardar_pedido'),
     path('marcar-completado/', pedidos_views.marcar_pedido_completado, name='marcar_pedido_completado'),
@@ -12,6 +13,7 @@ urlpatterns = [
     path('obtener-pedidos-pendientes/', pedidos_views.obtener_pedidos_pendientes, name='obtener_pedidos_pendientes'),
     path('eliminar-pedido/', pedidos_views.eliminar_pedido, name='eliminar_pedido'),
     path('obtener-cantidades-actualizadas/', pedidos_views.obtener_cantidades_actualizadas, name='obtener_cantidades_actualizadas'),
+    path('obtener-cantidades-modal/', pedidos_views.obtener_cantidades_modal, name='obtener_cantidades_modal'),
     
     # Nuevas URLs para selección múltiple de pedidos
     path('marcar-pedidos-completados/', pedidos_views.marcar_pedidos_completados, name='marcar_pedidos_completados'),
@@ -19,4 +21,6 @@ urlpatterns = [
     
     # URL para obtener contadores de tabs
     path('obtener-contadores-tabs/', pedidos_views.obtener_contadores_tabs, name='obtener_contadores_tabs'),
+    
+    # URL para reimprimir comando de cocina
 ]

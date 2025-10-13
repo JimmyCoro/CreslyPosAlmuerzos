@@ -10,9 +10,30 @@
 <div class="container-fluid contenedor-principal mt-5 pt-5">
   <div class="row">
     <!-- Sidebar izquierdo -->
-    <div class="col-izq col-12 col-md-2 d-none d-md-block">
+
+    <!-- Contenido principal -->
+    <div class="col-12 col-der">
+
+      <!-- Header -->
+      <div class="row-btns d-flex justify-content-between align-items-center px-5 mb-4">
+        <h4 class="mb-0 fw-bold text-dark">
+          <i class="fas fa-tachometer-alt me-2"></i>Dashboard de Caja
+        </h4>
+        <div class="d-flex align-items-center gap-3">
+          <span class="badge bg-dark text-white px-3 py-2" style="font-size: 0.9rem;">
+            <i class="fas fa-calendar me-2"></i>{% now "d/m/Y" %}
+          </span>
+        </div>
+      </div>
+
+      <!-- Cards de métricas principales -->
+      <div class="row-principal row g-2 px-2 mb-2">
+
+
+<!-- Card Caja Apertura -->
+        <div class="col-6 col-md-6 col-lg-3">
       <div class="card-estado-caja card mb-3">
-        <div class="card-body p-4">
+        <div class="card-body py-3 px-4 w-100">
           <!-- Título con círculo verde 
           <div class="d-flex align-items-center mb-3">
             <div class="bg-success rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 12px; height: 12px;">
@@ -23,23 +44,20 @@
           
           {% if caja_hoy and caja_hoy.estado == 'abierta' %}
             <!-- Estado actual -->
-              <div class="d-flex justify-content-between align-items-center mb-3">
+              <div class="d-flex justify-content-between align-items-center mb-2">
                 <strong><span class="circulo-indicador"></span>Caja Abierta</strong>
-              <span class="badge-activa badge px-1 py-1">
-                <i class="fas fa-check me-1"></i>Activa
-              </span>
+                <small class="text-muted">{{ caja_hoy.fecha|date:"d/m/Y" }} - {{ caja_hoy.fecha_apertura|time:"H:i" }}</small>
             </div>
             
-            <!-- Información de fecha y hora -->
-            <div class="row g-2 mb-3">
-                <div class="rounded  text-center d-flex justify-content-between">
-                  <small class="text text-muted d-block"><i class="fas fa-calendar-alt icono-info"></i>Fecha</small>
-                  <strong>{{ caja_hoy.fecha|date:"d/m/Y" }}</strong>
+            <!-- Información de caja apertura -->
+            <div class="barra-caja-apertura mb-2">
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-cash-stack me-2 text-white"></i>
+                  <span class="text-white">Apertura</span>
                 </div>
-                <div class="rounded text-center d-flex justify-content-between">
-                  <small class="text-muted d-block"><i class="fas fa-clock icono-info"></i>Apertura</small>
-                  <strong>{{ caja_hoy.fecha_apertura|time:"H:i" }}</strong>
-                </div>
+                <span class="text-white fw-bold">${{ monto_inicial_efectivo|floatformat:2|default:"0.00" }}</span>
+              </div>
             </div>
             
             <!-- Botón para cerrar caja -->
@@ -50,14 +68,12 @@
             </div>
           {% elif caja_hoy and caja_hoy.estado == 'cerrada' %}
             <!-- Estado cerrado -->
-              <div class="d-flex justify-content-between align-items-center mb-3">
+              <div class="d-flex justify-content-between align-items-center mb-2">
                 <strong><span class="circulo-indicador"></span>Caja Cerrada</strong>
-              <span class="badge-activa badge px-1 py-1">
-                <i class="fas fa-times me-1"></i>Inactiva
-              </span>
+                <small class="text-muted">{{ caja_hoy.fecha|date:"d/m/Y" }}</small>
             </div>
             
-            <div class="text-center text-muted py-2">
+            <div class="text-center text-muted mb-2">
               <small>Caja cerrada para hoy</small>
             </div>
             
@@ -69,14 +85,12 @@
             </div>
           {% else %}
             <!-- No hay caja para hoy -->
-              <div class="d-flex justify-content-between align-items-center mb-3">
+              <div class="d-flex justify-content-between align-items-center mb-2">
                 <strong><span class="circulo-indicador"></span>Sin Caja</strong>
-              <span class="badge-activa badge px-3 py-1">
-                <i class="fas fa-exclamation me-1"></i>Sin Iniciar
-              </span>
+                <small class="text-muted">{% now "d/m/Y" %}</small>
             </div>
             
-            <div class="text-center text-muted py-2">
+            <div class="text-center text-muted mb-2">
               <small>No hay caja para hoy</small>
             </div>
             
@@ -94,127 +108,11 @@
         </div>
 
       </div>
-
-
-
-      <!-- Resumen de ventas -->
-      {% if caja_hoy %}
-        <div class="card py-2 px-2">
-              <div class="mb-1 mx-3">
-                <i class="fas fa-cash-register me-2 ml-2"></i>Ventas del Día
-              </div>
-            <!-- Cards individuales para cada elemento financiero -->
-            <div class="row g-1 mt-2">
-              <!-- Card Efectivo -->
-              <div class="col-6 mb-2 mt-2">
-                <div class="card bg-light">
-                  <div class="card-body text-center p-2">
-                    <div class="d-flex align-items-center justify-content-center mb-1">
-                      <div class="icono-efectivo me-2">
-                        <i class="fas fa-dollar-sign text-white"></i>
-                      </div>
-                      <h6 class="text-success mb-0">${{ total_efectivo|floatformat:2 }}</h6>
-                    </div>
-                    <small class="text-resumen mb-0">Efectivo</small>
-                  </div>
-                </div>
-              </div>
-              
-              <!-- Card Transferencia-->
-              <div class="col-6 mb-2 mt-2">
-                <div class="card bg-light ">
-                  <div class="card-body text-center p-2">
-                    <div class="d-flex align-items-center justify-content-center mb-1">
-                      <div class="icono-transferencia me-2">
-                        <i class="fas fa-credit-card text-white"></i>
-                      </div>
-                      <h6 class="text-primary mb-0">${{ total_transferencia|floatformat:2 }}</h6>
-                    </div>
-                    <small class="text-resumen mb-0">Transferencia</small>
-                  </div>
-                </div>
-              </div>
-              
-              
-            </div>
-            {% if total_gastos > 0 %}
-              <hr>
-              <div class="text-center">
-                <h6 class="text-danger">Gastos</h6>
-                <h5 class="text-danger">${{ total_gastos|floatformat:2 }}</h5>
-              </div>
-            {% endif %}
-        </div>
-      {% endif %}
-
-      <!-- Card de gastos -->
-      <div class="card mt-3">
-        <div class="card-header bg-warning text-dark">
-          <i class="fas fa-receipt me-2"></i>Gastos del Día
-        </div>
-        <div class="card-body">
-          {% if gastos_hoy %}
-            <div class="text-center mb-3">
-              <h4 class="text-danger">${{ total_gastos|floatformat:2 }}</h4>
-              <p class="text-muted">{{ gastos_hoy.count }} gastos registrados</p>
-            </div>
-            <div class="list-group list-group-flush">
-              {% for gasto in gastos_hoy|slice:":3" %}
-                <div class="list-group-item d-flex justify-content-between align-items-center">
-                  <div>
-                    <h6 class="mb-1">{{ gasto.descripcion }}</h6>
-                    <small class="text-muted">{{ gasto.categoria|title }}</small>
-                  </div>
-                  <span class="badge bg-danger">${{ gasto.monto|floatformat:2 }}</span>
-                </div>
-              {% endfor %}
-              {% if gastos_hoy.count > 3 %}
-                <div class="list-group-item text-center">
-                  <small class="text-muted">... y {{ gastos_hoy.count|add:"-3" }} más</small>
-                </div>
-              {% endif %}
-            </div>
-          {% else %}
-            <div class="text-center text-muted">
-              <i class="fas fa-receipt fa-3x mb-3"></i>
-              <p>No hay gastos registrados hoy</p>
-            </div>
-          {% endif %}
-        </div>
-      </div>
-    </div>
-
-    <!-- Contenido principal -->
-    <div class="col-10 col-der">
-      <!-- Header -->
-      <div class="row-btns d-flex justify-content-between align-items-center px-5 mb-4">
-        <h4 class="mb-0 fw-bold text-dark">
-          <i class="fas fa-tachometer-alt me-2"></i>Dashboard de Caja
-        </h4>
-        <div class="d-flex align-items-center gap-3">
-          <span class="badge bg-dark text-white px-3 py-2" style="font-size: 0.9rem;">
-            <i class="fas fa-calendar me-2"></i>{% now "d/m/Y" %}
-          </span>
-        </div>
-      </div>
-
-      <!-- Cards de métricas principales -->
-      <div class="row-principal row g-4 px-3 mb-2">
-        <!-- Card Efectivo -->
-        <div class="col-3">
-          <div class="metric-card metric-card-efectivo">
-            <div class="metric-content">
-              <div class="metric-label">Caja Apertura</div>
-              <div class="metric-value">${{ monto_inicial_efectivo|floatformat:2|default:"0.00" }}</div>
-            </div>
-            <div class="metric-icon metric-icon-efectivo">
-              <i class="fas fa-dollar-sign"></i>
-            </div>
           </div>
-        </div>
+
 
         <!-- Card Ventas Hoy -->
-        <div class="col-3">
+        <div class="col-6 col-md-6 col-lg-3">
           <div class="metric-card metric-card-transferencia">
             <div class="metric-content">
               <div class="metric-label">Ventas Hoy</div>
@@ -227,7 +125,7 @@
         </div>
 
         <!-- Card Total Pedidos -->
-        <div class="col-3">
+        <div class="col-6 col-md-6 col-lg-3">
           <div class="metric-card metric-card-pedidos">
             <div class="metric-content">
               <div class="metric-label">Total Pedidos</div>
@@ -239,8 +137,8 @@
           </div>
         </div>
 
-        <!-- Card Ticket Promedio -->
-        <div class="col-3">
+        <!-- Card Total Gastos -->
+        <div class="col-6 col-md-6 col-lg-3">
           <div class="metric-card metric-card-promedio">
             <div class="metric-content">
               <div class="metric-label">Total Gastos</div>
@@ -261,9 +159,12 @@
 
       <!-- Cards de información -->
       
-      <div class="row g-3 px-3">
+      <!-- Resumen de ventas -->
+      
+
+      <div class="row g-2 px-2">
         <!-- Widget de evolución de ventas -->
-        <div class="col-5">
+        <div class="col-12 col-lg-4">
           <div class="evolution-chart-widget">
             <div class="evolution-chart-header">
               <div class="evolution-chart-title">
@@ -287,44 +188,74 @@
           </div>
         </div>
 
-        <!-- Widget de métodos de pago -->
-        <div class="col-3">
-          <div class="payment-widget">
-            <div class="payment-widget-header">
-              <div class="payment-widget-icon">
-                <i class="fas fa-clock"></i>
+        <!-- Widget combinado: Métodos de Pago y Ventas del Día -->
+        <div class="col-12 col-lg-4">
+          <div class="combined-widget">
+            <div class="combined-widget-header">
+              <div class="combined-widget-icon">
+                <i class="fas fa-cash-register"></i>
               </div>
-              <h5 class="payment-widget-title">Métodos de Pago</h5>
+              <h5 class="combined-widget-title">Ventas del Día</h5>
             </div>
             
-            <div class="pie-chart-container">
-              <div class="pie-chart" style="background: conic-gradient(
-                #1abc9c 0deg {% widthratio pedidos_efectivo pedidos_efectivo|add:pedidos_transferencia 360 %}deg,
-                #3498db {% widthratio pedidos_efectivo pedidos_efectivo|add:pedidos_transferencia 360 %}deg 360deg
-              );"></div>
-            </div>
-            
-            <div class="payment-legend">
-              <div class="legend-item">
-                <div style="display: flex; align-items: center;">
-                  <div class="legend-color legend-color-efectivo"></div>
-                  <span class="legend-label">Efectivo</span>
+            <div class="row g-2">
+              <!-- Gráfico de métodos de pago -->
+              <div class="col-6">
+                <div class="pie-chart-container">
+                  <div class="pie-chart" style="background: conic-gradient(
+                    #1abc9c 0deg {% widthratio pedidos_efectivo pedidos_efectivo|add:pedidos_transferencia 360 %}deg,
+                    #3498db {% widthratio pedidos_efectivo pedidos_efectivo|add:pedidos_transferencia 360 %}deg 360deg
+                  );"></div>
                 </div>
-                <span class="legend-value">{{ pedidos_efectivo }}</span>
+                
+                <div class="payment-legend pt-4">
+                  <div class="legend-item">
+                    <div style="display: flex; align-items: center;">
+                      <div class="legend-color legend-color-efectivo"></div>
+                      <span class="legend-label">Efectivo</span>
+                    </div>
+                    <span class="legend-value">{{ pedidos_efectivo }}</span>
+                  </div>
+                  <div class="legend-item">
+                    <div style="display: flex; align-items: center;">
+                      <div class="legend-color legend-color-transferencia"></div>
+                      <span class="legend-label">Transferencia</span>
+                    </div>
+                    <span class="legend-value">{{ pedidos_transferencia }}</span>
+                  </div>
+                </div>
               </div>
-              <div class="legend-item">
-                <div style="display: flex; align-items: center;">
-                  <div class="legend-color legend-color-transferencia"></div>
-                  <span class="legend-label">Transferencia</span>
+              
+              <!-- Resumen de ventas -->
+              <div class="col-6">
+                <div class="sales-summary">
+                  <div class="sales-item">
+                    <div class="sales-icon efectivo">
+                      <i class="bi bi-cash-stack"></i>
+                    </div>
+                    <div class="sales-info">
+                      <div class="sales-amount">${{ total_efectivo|floatformat:2 }}</div>
+                      <div class="sales-label">Efectivo</div>
+                    </div>
+                  </div>
+                  
+                  <div class="sales-item">
+                    <div class="sales-icon transferencia">
+                      <i class="bi bi-arrow-left-right"></i>
+                    </div>
+                    <div class="sales-info">
+                      <div class="sales-amount">${{ total_transferencia|floatformat:2 }}</div>
+                      <div class="sales-label">Transferencia</div>
+                    </div>
+                  </div>
                 </div>
-                <span class="legend-value">{{ pedidos_transferencia }}</span>
               </div>
             </div>
           </div>
         </div>
-
+        
       <!-- Análisis de productos vendidos -->
-        <div class="col-4">
+        <div class="col-12 col-lg-4">
           <div class="productos-widget">
             <div class="productos-header">
               <h5 class="productos-title">Productos Vendidos del Día</h5>
@@ -365,13 +296,48 @@
         </div>
       
 
-      <!-- Lista de pedidos recientes -->
-        <div class="col-6">
+      <!-- Card de gastos -->
+      <div class="card mt-3">
+        <div class="card-header bg-warning text-dark">
+          <i class="fas fa-receipt me-2"></i>Gastos del Día
+        </div>
+        <div class="card-body">
+          {% if gastos_hoy %}
+            <div class="text-center mb-3">
+              <h4 class="text-danger">${{ total_gastos|floatformat:2 }}</h4>
+              <p class="text-muted">{{ gastos_hoy.count }} gastos registrados</p>
+            </div>
+            <div class="list-group list-group-flush">
+              {% for gasto in gastos_hoy|slice:":3" %}
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                  <div>
+                    <h6 class="mb-1">{{ gasto.descripcion }}</h6>
+                    <small class="text-muted">{{ gasto.categoria|title }}</small>
+                  </div>
+                  <span class="badge bg-danger">${{ gasto.monto|floatformat:2 }}</span>
+                </div>
+              {% endfor %}
+              {% if gastos_hoy.count > 3 %}
+                <div class="list-group-item text-center">
+                  <small class="text-muted">... y {{ gastos_hoy.count|add:"-3" }} más</small>
+                </div>
+              {% endif %}
+            </div>
+          {% else %}
+            <div class="text-center text-muted">
+              <i class="fas fa-receipt fa-3x mb-3"></i>
+              <p>No hay gastos registrados hoy</p>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+      <!-- Lista de pedidos recientes (SOLO COMPLETADOS) -->
+        <div class="col-12 col-lg-6">
           <div class="pedidos-widget">
             <div class="pedidos-header">
-              <h5 class="pedidos-title">Pedidos Recientes</h5>
+              <h5 class="pedidos-title">Pedidos Completados</h5>
               {% if pedidos_hoy %}
-                <span class="pedidos-total">{{ pedidos_hoy|length }} pedidos</span>
+                <span class="pedidos-total">{{ pedidos_hoy|length }} completados</span>
               {% endif %}
             </div>
             
@@ -383,7 +349,7 @@
                       <i class="fas fa-receipt"></i>
                     </div>
                     <div class="pedido-info">
-                      <div class="pedido-numero">Pedido #{{ pedido.id }}</div>
+                      <div class="pedido-numero">Pedido #{{ pedido.numero_pedido_completo }}</div>
                       <div class="pedido-details">
                         <span class="pedido-hora">{{ pedido.fecha_creacion|time:"H:i" }}</span>
                         <span class="pedido-separator">•</span>
@@ -398,9 +364,9 @@
                       </div>
                       <div class="pedido-pago">
                         {% if pedido.forma_pago == 'Efectivo' %}
-                          <i class="fas fa-money-bill-wave text-success"></i>
+                          <i class="bi bi-cash-stack text-success"></i>
                         {% else %}
-                          <i class="fas fa-credit-card text-primary"></i>
+                          <i class="bi bi-arrow-left-right text-primary"></i>
                         {% endif %}
                       </div>
                       <div class="pedido-total">${{ pedido.total|floatformat:2 }}</div>

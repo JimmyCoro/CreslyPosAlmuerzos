@@ -9,6 +9,25 @@
     padding-top: 0px;
     margin-top: 0px;
 }
+
+/* Solución para móviles - contenido por debajo del navbar */
+@media (max-width: 600px) {
+  .navbar {
+    position: fixed;
+    z-index: 1030;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-top: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  
+  .contenido {
+    margin-top: 10px;
+    padding-top: 5px;
+    min-height: calc(100vh - 70px);
+  }
+}
 .nav-item-bar {
     border-radius: 10px;
     border: 2px solid;
@@ -74,9 +93,4 @@
   .logo-navbar {
     height: 30px;
   }
-}
-
-.col-izq {
-  height: calc(100vh - 70px); /* Ajusta 70px si tu navbar tiene otra altura */
-  overflow-y: auto;
 }

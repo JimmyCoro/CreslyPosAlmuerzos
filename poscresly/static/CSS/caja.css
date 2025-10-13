@@ -45,7 +45,11 @@ h1, h2, h3, h4, h5, h6 {
 
 .card-estado-caja{
     background-color: #5191F7;
-    
+    height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .text-estado {
@@ -92,6 +96,14 @@ h1, h2, h3, h4, h5, h6 {
 /* Sobrescribir altura para row-principal en caja */
 .row-principal {
   height: auto !important;
+  margin: 0 !important;
+  padding: 0 0.5rem !important;
+}
+
+/* Optimizar espacio horizontal en cards de métricas */
+.row-principal .col-3 {
+  padding-left: 0.5rem !important;
+  padding-right: 0.5rem !important;
 }
 
 /* Cards de métricas con diseño limpio */
@@ -163,22 +175,22 @@ h1, h2, h3, h4, h5, h6 {
 .metric-icon {
   width: 50px;
   height: 50px;
-  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.2rem;
   z-index: 2;
   margin-left: 1rem;
-  color: white;
+  color: #000000;
+  background-color: transparent;
 }
 
 .metric-icon-efectivo {
-  background: linear-gradient(135deg, #28a745, #20c997);
+  background-color: transparent;
 }
 
 .metric-icon-transferencia {
-  background: linear-gradient(135deg, #007bff, #0056b3);
+  background-color: transparent;
 }
 
 .metric-icon-pedidos {
@@ -213,6 +225,104 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--fuente-principal);
   font-weight: 500;
   font-size: 0.8rem;
+}
+
+/* Widget combinado: Métodos de Pago y Ventas del Día */
+.combined-widget {
+  background: white;
+  border-radius: 15px;
+  padding: 1.5rem;
+  color: #2c3e50;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  height: 100%;
+}
+
+.combined-widget-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 1.5rem;
+}
+
+.combined-widget-icon {
+  width: 24px;
+  height: 24px;
+  background: linear-gradient(135deg, #f39c12, #e67e22);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 0.75rem;
+  font-size: 0.8rem;
+  color: white;
+}
+
+.combined-widget-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+  color: #2c3e50;
+}
+
+/* Resumen de ventas */
+.sales-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sales-item {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border-left: 3px solid;
+}
+
+.sales-item:first-child {
+  border-left-color: #1abc9c;
+}
+
+.sales-item:last-child {
+  border-left-color: #3498db;
+}
+
+.sales-icon {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 0.5rem;
+  font-size: 0.8rem;
+  color: #000000;
+  background-color: transparent;
+}
+
+.sales-icon.efectivo {
+  background-color: transparent;
+}
+
+.sales-icon.transferencia {
+  background-color: transparent;
+}
+
+.sales-info {
+  flex: 1;
+}
+
+.sales-amount {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 0.1rem;
+}
+
+.sales-label {
+  font-size: 0.85rem;
+  color: #6c757d;
+  font-weight: 500;
 }
 
 /* Widget de métodos de pago con gráfico de pastel */
@@ -379,35 +489,33 @@ h1, h2, h3, h4, h5, h6 {
   position: relative;
 }
 
-/* Iconos con fondo de color para ventas del día */
+/* Iconos sin fondo de color para ventas del día */
 .icono-efectivo {
   width: 24px;
   height: 24px;
-  background-color: #1ABC9C;
-  border-radius: 6px;
+  background-color: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 .icono-efectivo i {
   font-size: 0.7rem;
+  color: #000000;
 }
 
 .icono-transferencia {
   width: 24px;
   height: 24px;
-  background-color: #3498DB;
-  border-radius: 6px;
+  background-color: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 .icono-transferencia i {
   font-size: 0.7rem;
+  color: #000000;
 }
 
 /* Asegurar que la fecha del header sea visible */
@@ -647,4 +755,253 @@ h1, h2, h3, h4, h5, h6 {
   color: #2c3e50;
   font-size: 0.8rem;
   font-family: var(--fuente-principal);
+}
+
+/* ===== RESPONSIVE - DISEÑO MÓVIL Y TABLETS ===== */
+
+/* Tablets y pantallas medianas (768px - 991px) */
+@media (max-width: 991px) {
+  .row-btns {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+  
+  .row-btns h4 {
+    font-size: 1.1rem;
+  }
+  
+  .metric-value {
+    font-size: 1.5rem;
+  }
+  
+  .evolution-chart-widget {
+    height: 200px;
+  }
+
+  .evolution-chart-container {
+    height: 200px;
+  }
+  
+  .productos-widget,
+  .pedidos-widget {
+    margin-bottom: 1rem;
+  }
+}
+
+/* Móviles (hasta 768px) */
+@media (max-width: 768px) {
+  .contenedor-principal {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+  
+  .row-btns {
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem !important;
+    margin-bottom: 1rem !important;
+  }
+  
+  .row-btns h4 {
+    font-size: 0.9rem;
+    margin-bottom: 0 !important;
+  }
+  
+  .row-btns .d-flex {
+    gap: 0.5rem !important;
+  }
+  
+  .row-btns .badge {
+    font-size: 0.75rem;
+  }
+  
+  /* Cards de estado de caja */
+  .card-estado-caja {
+    height: auto;
+    min-height: 120px;
+  }
+  
+  /* Cards de métricas */
+  .metric-card {
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .metric-label {
+    font-size: 0.8rem;
+  }
+  
+  .metric-value {
+    font-size: 1.3rem;
+  }
+  
+  .metric-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+  
+  /* Widgets */
+  .combined-widget,
+  .evolution-chart-widget,
+  .productos-widget,
+  .pedidos-widget {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .combined-widget-title,
+  .evolution-chart-title,
+  .productos-title,
+  .pedidos-title {
+    font-size: 0.9rem;
+  }
+  
+  /* Gráfico de evolución */
+  .evolution-chart-container {
+    height: 180px;
+  }
+  
+  .evolution-chart-legend {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  /* Gráfico de pastel más pequeño */
+  .pie-chart-container {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .pie-chart::after {
+    width: 50px;
+    height: 50px;
+  }
+  
+  /* Items de ventas */
+  .sales-item {
+    padding: 0.75rem;
+  }
+  
+  .sales-amount {
+    font-size: 0.9rem;
+  }
+  
+  /* Items de productos y pedidos */
+  .producto-item,
+  .pedido-item {
+    padding: 0.6rem;
+  }
+  
+  .producto-avatar,
+  .pedido-avatar {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .producto-nombre,
+  .pedido-numero {
+    font-size: 0.9rem;
+  }
+  
+  /* Botón cerrar/abrir caja */
+  .btn-cerrar-abrir {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.5rem;
+  }
+  
+  .barra-caja-apertura {
+    padding: 0.5rem;
+  }
+}
+
+/* Móviles pequeños (hasta 480px) */
+@media (max-width: 480px) {
+  .row-btns {
+    flex-wrap: nowrap !important;
+    gap: 0.25rem !important;
+    padding: 0.25rem 0.5rem !important;
+  }
+  
+  .row-btns h4 {
+    font-size: 0.8rem;
+    margin-bottom: 0 !important;
+  }
+  
+  .row-btns h4 i {
+    display: none; /* Ocultar iconos en móviles muy pequeños */
+  }
+  
+  .row-btns .d-flex {
+    gap: 0.25rem !important;
+  }
+  
+  .row-btns .badge {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.4rem !important;
+  }
+  
+  .metric-value {
+    font-size: 1.2rem;
+  }
+  
+  .metric-icon {
+    width: 35px;
+    height: 35px;
+    font-size: 0.9rem;
+    margin-left: 0.5rem;
+  }
+  
+  .combined-widget-header,
+  .payment-widget-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .evolution-chart-container {
+    height: 150px;
+  }
+  
+  /* Reducir padding en móviles pequeños */
+  .row-principal {
+    padding: 0 0.25rem !important;
+  }
+  
+  .row-principal .col-12 {
+    padding-left: 0.25rem !important;
+    padding-right: 0.25rem !important;
+  }
+  
+  /* Ajustar tamaños de texto */
+  .producto-nombre,
+  .pedido-numero {
+    font-size: 0.85rem;
+  }
+  
+  .producto-id,
+  .pedido-details {
+    font-size: 0.65rem;
+  }
+  
+  .cantidad-badge {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.4rem;
+  }
+}
+
+/* Scroll específico para caja.html - NO afecta inicio.html */
+.col-der {
+  padding-top: 20px;
+  padding-right: 20px;
+  height: calc(100vh - 70px);
+  overflow-y: auto;
+}
+
+@media (max-width: 767.98px) {
+  .col-der {
+    height: calc(100vh - 90px);
+    padding-top: 5px;
+    padding-right: 10px;
+  }
 }

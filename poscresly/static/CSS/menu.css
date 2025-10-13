@@ -1,0 +1,234 @@
+@import './variables.css';
+
+/* ===== PÁGINA MENÚ ===== */
+.contenedor-principal {
+    padding-top: 20px !important;
+    margin-left: 30px !important;
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+}
+
+/* Anular cualquier altura forzada del row */
+.row {
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+}
+
+/* Anular la altura forzada de Bootstrap */
+.card.h-100 {
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+}
+
+/* Forzar desactivación del height 100% */
+.card.card-jugos.h-100,
+.card.card-sopas.h-100,
+.card.card-segundos.h-100 {
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+}
+
+/* Solución radical - eliminar completamente la clase h-100 */
+.card-sopas, .card-segundos, .card-jugos {
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+    flex: 0 0 auto !important;
+}
+
+/* Anular cualquier altura forzada de Bootstrap */
+.h-100 {
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+}
+
+/* Anular altura forzada en las columnas */
+.col-12, .col-md-6, .col-lg-4 {
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Forzar que las cards se ajusten al contenido */
+.card-sopas, .card-segundos, .card-jugos {
+    flex: 0 0 auto !important;
+    height: fit-content !important;
+}
+
+/* Cards del menú */
+.card-sopas, .card-segundos, .card-jugos {
+    border-radius: 20px !important;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+}
+
+.card-sopas:hover, .card-segundos:hover, .card-jugos:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Headers de las cards */
+.card-header-sopas {
+    background: linear-gradient(90deg, var(--primary-color) 0%, #d34343 100%);
+    border-color: var(--primary-color);
+    color: white;
+    font-weight: 600;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+}
+
+.card-header-segundos {
+    background: linear-gradient(90deg, #28a745 0%, #20c997 100%);
+    border-color: #28a745;
+    color: white;
+    font-weight: 600;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+}
+
+.card-header-jugos {
+    background: linear-gradient(90deg, #ffc107 0%, #fd7e14 100%);
+    border-color: #ffc107;
+    color: white;
+    font-weight: 600;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+}
+
+/* Items de la lista */
+.list-group-item {
+    border: none;
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--fuente-principal);
+}
+
+.list-group-item:last-child {
+    border-bottom: none;
+}
+
+/* Nombres de productos */
+.nombre-sopa, .nombre-segundo {
+    font-weight: 500;
+    color: #333;
+    font-size: 0.9rem;
+}
+
+/* Cantidades */
+.cantidad-sopa, .cantidad-segundo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1rem;
+    color: black;
+    font-weight: 600;
+}
+
+/* Puntos de cantidad */
+.punto-cantidad {
+    display: inline-block;
+    margin-right: 8px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgb(36, 192, 22);
+    transition: background 0.2s;
+}
+
+.punto-cantidad.sin-productos {
+    background: #c00707;
+}
+
+.punto-cantidad.pocos-productos {
+    background: #ffa500;
+}
+
+/* Botón volver */
+.btn-outline-secondary {
+    font-family: var(--fuente-principal);
+    font-weight: 500;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    transition: all 0.2s ease;
+}
+
+.btn-outline-secondary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* ===== RESPONSIVE ===== */
+
+/* Móviles */
+@media (max-width: 575.98px) {
+    .contenedor-principal {
+        margin-left: 15px !important;
+        padding-top: 15px !important;
+    }
+    
+    .card-header-sopas,
+    .card-header-segundos,
+    .card-header-jugos {
+        padding: 0.75rem;
+        font-size: 0.9rem;
+    }
+    
+    .list-group-item {
+        padding: 0.5rem 0.75rem;
+    }
+    
+    .nombre-sopa, .nombre-segundo {
+        font-size: 0.9rem;
+    }
+    
+    .cantidad-sopa, .cantidad-segundo {
+        font-size: 1rem;
+    }
+}
+
+/* Tablets */
+@media (min-width: 576px) and (max-width: 991.98px) {
+    .contenedor-principal {
+        margin-left: 20px !important;
+    }
+    
+    .card-header-sopas,
+    .card-header-segundos,
+    .card-header-jugos {
+        padding: 0.875rem;
+    }
+}
+
+/* Desktop */
+@media (min-width: 992px) {
+    .card-sopas, .card-segundos, .card-jugos {
+        min-height: auto;
+        max-height: none;
+    }
+    
+    .list-group-item {
+        padding: 0.75rem 1rem;
+    }
+    
+    .nombre-sopa, .nombre-segundo {
+        font-size: 1rem;
+    }
+    
+    .cantidad-sopa, .cantidad-segundo {
+        font-size: 1.1rem;
+    }
+}

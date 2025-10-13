@@ -41,6 +41,83 @@ def crear_formularios_menu(menu, data=None):
     
     return sopa_forms, segundo_forms, jugo_forms
 
+def menu(request):
+    """
+    Vista para mostrar la página del menú del día
+    """
+    hoy = date.today()
+    menu, _ = MenuDia.objects.get_or_create(fecha=hoy)
+    
+    # Manejar POST para configuración del menú
+    if request.method == 'POST':
+        form_postre = MenuDiaForm(request.POST, instance=menu)
+        sopa_forms, segundo_forms, jugo_forms = crear_formularios_menu(menu, request.POST)
+
+        if form_postre.is_valid() and all(f.is_valid() for f in sopa_forms + jugo_forms + segundo_forms):
+            form_postre.save()
+
+            # Guardar sopas (actualizar existentes o crear nuevas)
+            sopas_guardadas = []
+            for form in sopa_forms:
+                if form.cleaned_data.get('sopa'):
+                    obj = form.save(commit=False)
+                    obj.menu = menu
+                    # SIEMPRE sincronizar cantidad_actual con cantidad
+                    obj.cantidad_actual = obj.cantidad
+                    obj.save()
+                    sopas_guardadas.append(obj.pk)
+            
+            # Eliminar sopas que ya no están en el formulario
+            MenuDiaSopa.objects.filter(menu=menu).exclude(pk__in=sopas_guardadas).delete()
+
+            # Guardar segundos (actualizar existentes o crear nuevos)
+            segundos_guardados = []
+            for form in segundo_forms:
+                if form.cleaned_data.get('segundo'):
+                    obj = form.save(commit=False)
+                    obj.menu = menu
+                    # SIEMPRE sincronizar cantidad_actual con cantidad
+                    obj.cantidad_actual = obj.cantidad
+                    obj.save()
+                    segundos_guardados.append(obj.pk)
+            
+            # Eliminar segundos que ya no están en el formulario
+            MenuDiaSegundo.objects.filter(menu=menu).exclude(pk__in=segundos_guardados).delete()
+
+            # Guardar jugos (actualizar existentes o crear nuevos)
+            jugos_guardados = []
+            for form in jugo_forms:
+                if form.cleaned_data.get('jugo'):
+                    obj = form.save(commit=False)
+                    obj.menu = menu
+                    obj.save()
+                    jugos_guardados.append(obj.pk)
+            
+            # Eliminar jugos que ya no están en el formulario
+            MenuDiaJugo.objects.filter(menu=menu).exclude(pk__in=jugos_guardados).delete()
+
+            return redirect('menu')
+    else:
+        form_postre = MenuDiaForm(instance=menu)
+        sopa_forms, segundo_forms, jugo_forms = crear_formularios_menu(menu)
+    
+    # Obtener datos del menú del día
+    sopas_dia = MenuDiaSopa.objects.filter(menu=menu).select_related('sopa')
+    segundos_dia = MenuDiaSegundo.objects.filter(menu=menu).select_related('segundo')
+    jugos_dia = MenuDiaJugo.objects.filter(menu=menu).select_related('jugo')
+    
+    context = {
+        'form_postre': form_postre,
+        'sopa_forms': sopa_forms,
+        'segundo_forms': segundo_forms,
+        'jugo_forms': jugo_forms,
+        'sopas_dia': sopas_dia,
+        'segundos_dia': segundos_dia,
+        'jugos_dia': jugos_dia,
+    }
+    
+    return render(request, 'menu.html', context)
+
 def inicio(request):
     hoy = date.today()
     menu, _ = MenuDia.objects.get_or_create(fecha=hoy)
