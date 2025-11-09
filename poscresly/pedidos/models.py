@@ -1,5 +1,5 @@
 from django.db import models
-from menu.models import MenuDiaSopa, MenuDiaSegundo, MenuDiaJugo
+from menu.models import MenuDiaSopa, MenuDiaSegundo, MenuDiaJugo, Plato
 from django.utils import timezone
 
 class Pedido( models.Model):
@@ -39,7 +39,7 @@ class Pedido( models.Model):
         # Si es un nuevo pedido (no tiene ID), asignar el siguiente número del día
         if not self.pk:
             today = timezone.now().date()
-            ultimo_pedido_hoy = Pedido.objects.filter(fecha=today).order_by('-numero_dia').first()
+            ultimo_pedido_hoy = Pedido.objects.filter(fecha_creacion__date=today).order_by('-numero_dia').first()
             
             if ultimo_pedido_hoy:
                 self.numero_dia = ultimo_pedido_hoy.numero_dia + 1
@@ -77,6 +77,13 @@ class PedidoSegundo(models.Model):
     segundo = models.ForeignKey(MenuDiaSegundo, on_delete=models.PROTECT)
     jugo = models.ForeignKey(MenuDiaJugo, on_delete=models.PROTECT)
     postre = models.CharField(max_length=100)
+    cantidad = models.PositiveIntegerField(default=1)
+    precio_unitario = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    observacion = models.CharField(max_length=200, blank=True, null=True)
+
+class PedidoExtra(models.Model):
+    pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name='extras')
+    extra = models.ForeignKey(Plato, on_delete=models.PROTECT, limit_choices_to={'tipo': 'extra'})
     cantidad = models.PositiveIntegerField(default=1)
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     observacion = models.CharField(max_length=200, blank=True, null=True)

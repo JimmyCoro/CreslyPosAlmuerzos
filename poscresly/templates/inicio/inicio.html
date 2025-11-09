@@ -201,6 +201,26 @@
   </div>
 </template>
 
+<template id="formulario-extra">
+  <div>
+    <label><strong><i class="fas fa-plus-circle me-2" style="background: #7b1fa2; color: white; padding: 0.3rem; border-radius: 4px;"></i>Extras:</strong></label>
+    <div class="d-flex flex-column gap-2 mb-3">
+      {% for e in extras_dia %}
+        <button type="button" class="btn btn-extra" data-id="{{ e.id }}">
+          <div class="d-flex align-items-center justify-content-between w-100">
+            <div class="d-flex align-items-center">
+              <div class="checkbox-circle me-3"></div>
+              <span>{{ e.nombre_plato }}</span>
+            </div>
+            <span class="text-success fw-bold">${{ e.precio }}</span>
+          </div>
+        </button>
+      {% endfor %}
+    </div>
+    <input type="hidden" name="extras_seleccionados" id="extras-seleccionados">
+  </div>
+</template>
+
 <script>
 const PRECIOS = {{ precios|safe }};
 </script>
@@ -315,6 +335,20 @@ if (menuDiaModal) {
         document.querySelectorAll('.btn-jugo').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         document.getElementById('jugo-seleccionado').value = btn.dataset.id;
+      });
+    });
+
+    document.querySelectorAll('.btn-extra').forEach(btn => {
+      btn.addEventListener('click', () => {
+        // Toggle selection (permitir múltiple selección)
+        btn.classList.toggle('active');
+        
+        // Actualizar lista de extras seleccionados
+        const extrasSeleccionados = [];
+        document.querySelectorAll('.btn-extra.active').forEach(btnActivo => {
+          extrasSeleccionados.push(btnActivo.dataset.id);
+        });
+        document.getElementById('extras-seleccionados').value = extrasSeleccionados.join(',');
       });
     });
   }
@@ -434,6 +468,7 @@ if (menuDiaModal) {
       const sopa = document.getElementById('sopa-seleccionada')?.value || null;
       const segundo = document.getElementById('segundo-seleccionado')?.value || null;
       const jugo = document.getElementById('jugo-seleccionado')?.value || null;
+      const extras = document.getElementById('extras-seleccionados')?.value || null;
       const observacion = document.getElementById('observacion-producto')?.value.trim();
 
       console.log('=== DEBUG AGREGAR PRODUCTO ===');
@@ -441,11 +476,13 @@ if (menuDiaModal) {
       console.log('Sopa:', sopa);
       console.log('Segundo:', segundo);
       console.log('Jugo:', jugo);
+      console.log('Extras:', extras);
       console.log('Observación:', observacion);
 
       if ((tipo === 'almuerzo' && (!sopa || !segundo || !jugo)) ||
           (tipo === 'sopa' && (!sopa || !jugo)) ||
-          (tipo === 'segundo' && (!segundo || !jugo))) {
+          (tipo === 'segundo' && (!segundo || !jugo)) ||
+          (tipo === 'extra' && !extras)) {
         console.log('❌ Validación fallida - faltan componentes');
         alert('Selecciona todas las opciones necesarias antes de agregar al carrito.');
         return;
@@ -453,13 +490,20 @@ if (menuDiaModal) {
 
       console.log('✅ Validación exitosa');
 
-      const sopaText = document.querySelector('.btn-sopa.active')?.textContent.trim();
-      const segundoText = document.querySelector('.btn-segundo.active')?.textContent.trim();
-      const jugoText = document.querySelector('.btn-jugo.active')?.textContent.trim();
+      const sopaText = document.querySelector('.btn-sopa.active span')?.textContent.trim();
+      const segundoText = document.querySelector('.btn-segundo.active span')?.textContent.trim();
+      const jugoText = document.querySelector('.btn-jugo.active span')?.textContent.trim();
+      
+      // Obtener todos los extras seleccionados
+      const extrasTexts = [];
+      document.querySelectorAll('.btn-extra.active span').forEach(span => {
+        extrasTexts.push(span.textContent.trim());
+      });
 
       console.log('Sopa Text:', sopaText);
       console.log('Segundo Text:', segundoText);
       console.log('Jugo Text:', jugoText);
+      console.log('Extras Text:', extrasTexts);
 
       // Nueva estructura: guardar componentes individuales
       let tipoProducto = '';
@@ -477,6 +521,10 @@ if (menuDiaModal) {
           tipoProducto = 'Segundo';
           componentes = [segundoText, jugoText];
           break;
+        case 'extra':
+          tipoProducto = 'Extra';
+          componentes = extrasTexts;
+          break;
       }
       let observacionProducto = observacion || '';
 
@@ -487,7 +535,19 @@ if (menuDiaModal) {
       const tipoPedidoActual = tipoPedidoInput.value;
       let precioBase = 0;
       
-      if (tipoPedidoActual === 'Reservado') {
+      if (tipo === 'extra') {
+        // Para extras, sumar el precio de todos los extras seleccionados
+        precioBase = 0;
+        const extrasSeleccionados = Array.from(document.querySelectorAll('.btn-extra.active span')).map(span => span.textContent.trim());
+        extrasSeleccionados.forEach(nombre => {
+          const precioExtra = window.PRECIOS.extra?.[nombre] || 0;
+          precioBase += precioExtra;
+        });
+        console.log('=== DEBUG PRECIOS EXTRA ===');
+        console.log('Extras seleccionados:', extrasSeleccionados);
+        console.log('window.PRECIOS.extra:', window.PRECIOS.extra);
+        console.log('Precio Base Final:', precioBase);
+      } else if (tipoPedidoActual === 'Reservado') {
         // Para pedidos reservados, usar el subtipo seleccionado
         const subtipoReservado = document.getElementById('subtipo_reservado').value;
         console.log('=== DEBUG PRECIOS RESERVADO ===');
@@ -521,6 +581,7 @@ if (menuDiaModal) {
             sopa_id: sopa,
             segundo_id: segundo,
             jugo_id: jugo,
+            extras_ids: extras,
             cantidad: 1,
             observacion: observacion
           })
@@ -624,7 +685,8 @@ if (menuDiaModal) {
             observacion: observacionProducto,
             sopa_id: sopa,
             segundo_id: segundo,
-            jugo_id: jugo
+            jugo_id: jugo,
+            extras_ids: (tipoProducto === 'Extra') ? (extras || '') : null
           };
           window.carrito.push(nuevoItem);
           console.log('=== NUEVO PRODUCTO AGREGADO DURANTE EDICIÓN ===');
@@ -744,7 +806,8 @@ function obtenerDatosPedido() {
         observacion: item.observacion || '',
         sopa_id: item.sopa_id || null,
         segundo_id: item.segundo_id || null,
-        jugo_id: item.jugo_id || null
+            jugo_id: item.jugo_id || null,
+            extras_ids: item.extras_ids || null
       });
       total += precioTotal;
     });
@@ -1175,6 +1238,98 @@ function agregarEventosCardPedido(cardNode) {
     }
   });
 
+  // Botón Agregar Producto
+  card.querySelector('.btn-agregar-producto').addEventListener('click', async function() {
+    const pedidoId = card.getAttribute('data-pedido-id');
+    if (!pedidoId) {
+      alert('Error: No se encontró el ID del pedido');
+      return;
+    }
+
+    try {
+      // Obtener datos del pedido existente
+      const response = await fetch(`/obtener-pedido/${pedidoId}/`);
+      const data = await response.json();
+      
+      if (data.status === 'ok') {
+        const pedido = data.pedido;
+        
+        console.log('=== CARGANDO PEDIDO PARA AGREGAR PRODUCTOS ===');
+        console.log('Pedido recibido:', pedido);
+        
+        // Marcar que estamos agregando productos a un pedido existente
+        window.pedidoAgregandoProductos = pedidoId;
+        
+        // Limpiar el carrito para agregar nuevos productos
+        document.getElementById('resumenCarrito').innerHTML = '';
+        document.getElementById('total-pedido').textContent = '$0.00';
+        window.carrito = [];
+        
+        // Llenar el formulario con los datos del pedido existente
+        document.getElementById('tipo_pedido').value = pedido.tipo;
+        
+        // Actualizar tabs según el tipo de pedido
+        document.querySelectorAll('.nav-link').forEach(tab => {
+          tab.classList.remove('active');
+        });
+        document.querySelectorAll('.tab-pane').forEach(pane => {
+          pane.classList.remove('show', 'active');
+        });
+        
+        if (pedido.tipo === 'Servirse') {
+          document.getElementById('mesa').value = pedido.mesa || '';
+          document.getElementById('nombre_servirse').value = pedido.contacto || '';
+          document.querySelector('.nav-link[data-bs-target="#servirse"]').classList.add('active');
+          document.querySelector('#servirse').classList.add('show', 'active');
+        } else if (pedido.tipo === 'Llevar') {
+          document.getElementById('nombre_llevar').value = pedido.contacto || '';
+          document.querySelector('.nav-link[data-bs-target="#llevar"]').classList.add('active');
+          document.querySelector('#llevar').classList.add('show', 'active');
+        } else if (pedido.tipo === 'Reservado') {
+          document.getElementById('nombre_reservado').value = pedido.contacto || '';
+          document.querySelector('.nav-link[data-bs-target="#reservado"]').classList.add('active');
+          document.querySelector('#reservado').classList.add('show', 'active');
+          
+          // Establecer el subtipo de reservado si existe
+          if (pedido.subtipo_reservado) {
+            document.getElementById('subtipo_reservado').value = pedido.subtipo_reservado;
+            
+            // Actualizar botones de subtipo visualmente
+            document.querySelectorAll('.btn-subtipo').forEach(btn => {
+              btn.classList.remove('active');
+            });
+            document.querySelector(`.btn-subtipo[data-subtipo="${pedido.subtipo_reservado}"]`).classList.add('active');
+          }
+        }
+        
+        // Establecer forma de pago
+        document.getElementById('forma_pago').value = pedido.forma_pago;
+        // Actualizar botones de forma de pago visualmente
+        document.querySelectorAll('.btn-forma-pago').forEach(btn => {
+          btn.classList.remove('active');
+        });
+        if (pedido.forma_pago === 'Efectivo') {
+          document.querySelector('.btn-forma-pago:first-child').classList.add('active');
+        } else if (pedido.forma_pago === 'Transferencia') {
+          document.querySelector('.btn-forma-pago:last-child').classList.add('active');
+        }
+        
+        // Establecer observaciones generales
+        document.getElementById('observaciones_generales').value = pedido.observaciones_generales || '';
+        
+        // Abrir modal de agregar productos
+        const modal = new bootstrap.Modal(document.getElementById('tomarPedidoModal'));
+        modal.show();
+        
+      } else {
+        alert('Error al cargar el pedido: ' + (data.message || 'Error desconocido'));
+      }
+    } catch (error) {
+      console.error('Error al cargar pedido:', error);
+      alert('Error inesperado al cargar el pedido');
+    }
+  });
+
   // Botón Marcar Listo
   card.querySelector('.btn-guardar').addEventListener('click', async function() {
     const pedidoId = card.getAttribute('data-pedido-id');
@@ -1229,6 +1384,10 @@ function guardarPedidoFrontend() {
   console.log('Tipo de pedido:', pedido.tipo);
   console.log('Subtipo reservado:', document.getElementById('subtipo_reservado').value);
   
+  // Determinar si estamos agregando productos a un pedido existente
+  const esAgregarProductos = window.pedidoAgregandoProductos;
+  const pedidoId = window.pedidoEditando || esAgregarProductos || '';
+  
   // Enviar pedido al backend
   fetch("{% url 'guardar_pedido' %}", {
     method: 'POST',
@@ -1246,7 +1405,8 @@ function guardarPedidoFrontend() {
       debug_subtipo: document.getElementById('subtipo_reservado').value,
       observaciones_generales: document.getElementById('observaciones_generales').value,
       productos_carrito: JSON.stringify(productosCarrito),
-      pedido_id: window.pedidoEditando || ''
+      pedido_id: pedidoId,
+      es_agregar_productos: esAgregarProductos ? 'true' : 'false'
     })
   })
   .then(response => {
@@ -1260,7 +1420,7 @@ function guardarPedidoFrontend() {
       const cardHTML = crearCardPedidoDesdeBD(data.pedido_data);
       const contenedor = document.getElementById('contenedor-cards-pedidos');
 
-      // Si estamos editando, reemplazar la card existente; si no, insertar nueva
+      // Si estamos editando o agregando productos, reemplazar la card existente
       const existingCard = contenedor.querySelector(`.pedido-card[data-pedido-id="${data.pedido_data.id}"]`);
       
       if (existingCard) {
@@ -1278,24 +1438,25 @@ function guardarPedidoFrontend() {
       // Guardar ID del pedido para reimprimir
       window.ultimoPedidoId = data.pedido_data.id;
       
-      
       // Limpiar el modal y el carrito
       document.getElementById('resumenCarrito').innerHTML = '';
       document.getElementById('total-pedido').textContent = '$0.00';
       window.carrito = []; // Limpiar el carrito global
       window.pedidoEditando = null;
+      window.pedidoAgregandoProductos = null; // Limpiar flag de agregar productos
       
       // Cerrar el modal
       const modal = bootstrap.Modal.getInstance(document.getElementById('tomarPedidoModal'));
       modal.hide();
       
-      alert('Pedido guardado correctamente');
+      // Usar el mensaje del backend
+      alert(data.message || 'Operación completada correctamente');
       
-              // Actualizar cantidades disponibles después de guardar pedido
-        actualizarCantidadesDisponibles();
-        
-        // Actualizar contadores de tabs automáticamente
-        actualizarContadoresTabs();
+      // Actualizar cantidades disponibles después de guardar pedido
+      actualizarCantidadesDisponibles();
+      
+      // Actualizar contadores de tabs automáticamente
+      actualizarContadoresTabs();
 
     } else {
       alert('Error al guardar el pedido: ' + (data.message || 'Error desconocido'));
@@ -1353,7 +1514,7 @@ function crearCardPedidoDesdeBD(pedidoData) {
             <div>
               <div class="card-tipo-producto">${producto.tipo}</div>
               <div class="componentes-producto-card">${producto.componentes ? producto.componentes.filter(Boolean).join(' + ') : ''}</div>
-              ${producto.observacion ? `<div class='text-muted small'>${producto.observacion}</div>` : ''}
+              ${producto.observacion ? `<div class='text-muted small'><i class="fas fa-sticky-note me-1"></i>${producto.observacion}</div>` : ''}
             </div>
           </div>
           <span class="total-producto-card">$${(producto.cantidad * producto.precio_unitario).toFixed(2)}</span>
@@ -1400,6 +1561,8 @@ function crearCardPedidoDesdeBD(pedidoData) {
         '<div class="contacto-pedido-card">' + (pedidoData.contacto || '') + '</div>' +
         (pedidoData.tipo === 'Reservado' && pedidoData.subtipo_reservado ? 
           '<div class="mb-1 text-info"><small><i class="bi bi-arrow-right"></i> ' + pedidoData.subtipo_reservado.charAt(0).toUpperCase() + pedidoData.subtipo_reservado.slice(1) + '</small></div>' : '') +
+        (pedidoData.observaciones_generales ? 
+          '<div class="mb-2"><small class="text-muted"><i class="fas fa-sticky-note me-1"></i>Obs: ' + pedidoData.observaciones_generales + '</small></div>' : '') +
         productosHTML +
         '<div class="d-flex justify-content-between align-items-center mt-3">' +
           '<span class="total-pedido-card">Total:</span>' +
@@ -1410,6 +1573,7 @@ function crearCardPedidoDesdeBD(pedidoData) {
             '<small>' + formaPagoIcono + '</small>' +
           '</div>' +
           '<div class="d-flex gap-1">' +
+            '<button class="btn btn-primary btn-agregar-producto" title="Agregar productos"><i class="fas fa-plus"></i></button>' +
             '<button class="btn btn-light btn-editar" title="Editar pedido"><i class="fas fa-pen"></i></button>' +
             '<button class="btn btn-success btn-guardar" title="Marcar como completado"><i class="fas fa-check"></i></button>' +
             '<button class="btn btn-danger btn-eliminar" title="Eliminar pedido"><i class="fas fa-trash"></i></button>' +
@@ -1766,10 +1930,20 @@ async function marcarPedidosCompletados() {
       icon.classList.add('fa-square');
       
       // Recargar pedidos del tipo actual
-              await cargarPedidosPorTipo(window.tipoActual);
+      await cargarPedidosPorTipo(window.tipoActual);
         
-        // Actualizar contadores después de marcar como completados
-        actualizarContadoresTabs();
+      // Actualizar contadores después de marcar como completados
+      actualizarContadoresTabs();
+      
+      // Enviar mensaje WebSocket para notificar a otros dispositivos
+      if (window.wsManager && window.wsManager.isConnected()) {
+        console.log('[WEBSOCKET] Enviando notificación de pedidos marcados como completados');
+        window.wsManager.sendMessage({
+          type: 'pedidos_marcados_completados',
+          pedidos_ids: pedidosIds,
+          cantidad: pedidosIds.length
+        });
+      }
       
     } else {
       alert('Error: ' + data.message);
@@ -1880,10 +2054,10 @@ document.addEventListener('DOMContentLoaded', function() {
   
 
   
-  // Limpiar formulario cuando se abre el modal solo si NO estamos editando
+  // Limpiar formulario cuando se abre el modal solo si NO estamos editando ni agregando productos
   const tomarPedidoModal = document.getElementById('tomarPedidoModal');
   tomarPedidoModal.addEventListener('show.bs.modal', function () {
-    if (!window.pedidoEditando) {
+    if (!window.pedidoEditando && !window.pedidoAgregandoProductos) {
       limpiarFormularioPedido();
     }
   });
@@ -1918,8 +2092,9 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Manejar el cierre del modal para guardar automáticamente
   tomarPedidoModal.addEventListener('hidden.bs.modal', function () {
-    // Resetear flag de edición
+    // Resetear flags de edición y agregar productos
     window.pedidoEditando = null;
+    window.pedidoAgregandoProductos = null;
     // Verificar si hay productos en el carrito antes de guardar
     const resumenCarrito = document.getElementById('resumenCarrito');
     if (resumenCarrito.children.length > 0) {

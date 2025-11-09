@@ -25,18 +25,20 @@ SECRET_KEY = 'django-insecure-xe0bx28-c25$ewf*w64nwgno5%jktx5jqbrhbquhnyc$6tqc%s
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["192.168.1.7", "localhost", "127.0.0.1"]
+ALLOWED_HOSTS = ["192.168.1.7", "localhost", "127.0.0.1", "*"]
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',  # ← Debe ir PRIMERO (importante)
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'channels',  # ← Django Channels
     'inicio',
     'menu',
     'pedidos',
@@ -73,6 +75,9 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'poscresly.wsgi.application'
+
+# ASGI Application (para WebSockets)
+ASGI_APPLICATION = 'poscresly.asgi.application'
 
 
 # Database
@@ -137,3 +142,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Configuración de sesiones
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 SESSION_COOKIE_AGE = 86400  # 24 horas en segundos
+
+# Configuración de Django Channels
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer'
+    }
+}

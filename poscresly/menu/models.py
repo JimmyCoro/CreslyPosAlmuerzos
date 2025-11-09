@@ -20,6 +20,7 @@ PRODUCTO_CHOICES = [
 class Plato(models.Model):
     nombre_plato = models.CharField(max_length=100)
     tipo = models.CharField(max_length=100, choices=TIPO_CHOICES)
+    precio = models.DecimalField(max_digits=6, decimal_places=2, default=0.00)
 
     def __str__(self):
         return f"{self.nombre_plato}"

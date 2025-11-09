@@ -304,10 +304,53 @@ h5 {
   color: #ef6c00;
 }
 
+/* Card Extra */
+.producto-card.extra {
+  background: linear-gradient(90deg, rgba(156, 39, 176, 0.2) 0%, #fff 100%);
+  border: 2px solid rgba(123, 31, 162, 0.4);
+}
+
+.producto-card.extra .icono-circulo {
+  background: rgba(123, 31, 162, 0.8);
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 0.5rem auto;
+  box-shadow: 0 2px 8px rgba(15, 9, 9, 0.1);
+}
+
+.producto-card.extra .producto-icono {
+  color: white;
+  font-size: 1.4rem;
+  margin: 0;
+}
+
+.producto-card.extra:hover .icono-circulo {
+  background: #7b1fa2;
+  border-color: #4a148c;
+}
+
+.producto-card.extra:hover .producto-titulo {
+  color: #7b1fa2;
+}
+
+.producto-card.extra:hover .producto-icono {
+  color: #fff;
+}
+
+.producto-card.extra:active .icono-circulo {
+  background: #4a148c;
+  border-color: #2e0a3e;
+}
+
 /* El icono sigue blanco en hover */
 .producto-card.almuerzo:hover .producto-icono,
 .producto-card.sopa:hover .producto-icono,
-.producto-card.segundo:hover .producto-icono {
+.producto-card.segundo:hover .producto-icono,
+.producto-card.extra:hover .producto-icono {
   color: #fff;
 }
 

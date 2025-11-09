@@ -62,10 +62,61 @@ class ImpresoraTermica:
             self.printer.close()
             print("[INFO] Conexión cerrada")
 
-# Función de prueba
+class ImpresoraMultiple:
+    def __init__(self, ips_impresoras=None):
+        """
+        Inicializa múltiples impresoras térmicas
+        ips_impresoras: Lista de IPs de las impresoras
+        """
+        if ips_impresoras is None:
+            ips_impresoras = ["192.168.1.100", "192.168.1.110"]  # IPs por defecto
+        
+        self.impresoras = []
+        for ip in ips_impresoras:
+            self.impresoras.append(ImpresoraTermica(ip))
+        
+    def conectar_todas(self):
+        """
+        Establece conexión con todas las impresoras
+        """
+        conexiones_exitosas = 0
+        for impresora in self.impresoras:
+            if impresora.conectar():
+                conexiones_exitosas += 1
+        
+        print(f"[INFO] {conexiones_exitosas}/{len(self.impresoras)} impresoras conectadas")
+        return conexiones_exitosas > 0
+    
+    def imprimir_en_todas(self, contenido):
+        """
+        Imprime el contenido en todas las impresoras conectadas
+        contenido: Lista de líneas a imprimir
+        """
+        impresiones_exitosas = 0
+        
+        for i, impresora in enumerate(self.impresoras):
+            if impresora.printer:
+                try:
+                    print(f"[INFO] Imprimiendo en impresora {i+1} ({impresora.ip})")
+                    impresora.imprimir_ticket(contenido)
+                    impresiones_exitosas += 1
+                except Exception as e:
+                    print(f"[ERROR] Error al imprimir en {impresora.ip}: {e}")
+        
+        print(f"[INFO] {impresiones_exitosas}/{len(self.impresoras)} impresiones exitosas")
+        return impresiones_exitosas > 0
+    
+    def desconectar_todas(self):
+        """
+        Cierra la conexión con todas las impresoras
+        """
+        for impresora in self.impresoras:
+            impresora.desconectar()
+
+# Función de prueba para una impresora
 def probar_impresora():
     """
-    Función para probar la conexión con la impresora
+    Función para probar la conexión con una impresora
     """
     impresora = ImpresoraTermica()
     
@@ -90,5 +141,37 @@ def probar_impresora():
     else:
         print("[ERROR] No se pudo conectar a la impresora")
 
+# Función de prueba para múltiples impresoras
+def probar_impresoras_multiples():
+    """
+    Función para probar la conexión con múltiples impresoras
+    """
+    # Lista de IPs de las impresoras
+    ips_impresoras = ["192.168.1.100", "192.168.1.110"]
+    
+    impresoras = ImpresoraMultiple(ips_impresoras)
+    
+    if impresoras.conectar_todas():
+        # Contenido de prueba
+        ticket_prueba = [
+            "RESTAURANTE CRESLY",
+            "Pedido #001",
+            "Fecha: 2024-01-15",
+            "Hora: 14:30",
+            "",
+            "PRODUCTOS:",
+            "1x Almuerzo - $15.00",
+            "1x Sopa - $8.00",
+            "",
+            "TOTAL: $23.00",
+            "Forma de pago: Efectivo"
+        ]
+        
+        impresoras.imprimir_en_todas(ticket_prueba)
+        impresoras.desconectar_todas()
+    else:
+        print("[ERROR] No se pudo conectar a ninguna impresora")
+
 if __name__ == "__main__":
-    probar_impresora()
+    print("=== PRUEBA DE MÚLTIPLES IMPRESORAS ===")
+    probar_impresoras_multiples()

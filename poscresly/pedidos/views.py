@@ -4,9 +4,9 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from datetime import date
 from decimal import Decimal
-from .models import Pedido, PedidoAlmuerzo, PedidoSopa, PedidoSegundo
+from .models import Pedido, PedidoAlmuerzo, PedidoSopa, PedidoSegundo, PedidoExtra
 from caja.models import CajaDiaria, CajaEfectivo, CajaTransferencia
-from menu.models import MenuDia, MenuDiaSopa, MenuDiaSegundo, MenuDiaJugo
+from menu.models import MenuDia, MenuDiaSopa, MenuDiaSegundo, MenuDiaJugo, Plato
 import json
 
 # Configurar logger
@@ -108,6 +108,12 @@ def actualizar_cantidades_menu(productos_carrito, operacion='restar'):
                     logger.info(f"Segundo individual actualizada: {segundo_actual.segundo} - {cantidad_anterior} → {segundo_actual.cantidad_actual}")
                 except MenuDiaSegundo.DoesNotExist:
                     logger.warning(f"No se encontró segundo con Plato ID {segundo_id} en el menú actual")
+        
+        elif tipo == 'extra':
+            # Los extras no consumen cantidades del menú, solo se registran
+            logger.info(f"Extra procesado - no requiere actualización de cantidades")
+        
+        logger.info(f"Producto procesado exitosamente: {tipo}")
 
 def calcular_precio_producto(tipo):
     """Calcula el precio unitario de un producto según su tipo"""
@@ -159,6 +165,17 @@ def convertir_producto_a_dict(producto_obj, tipo):
                 producto_obj.jugo.jugo.nombre_plato
             ]
         }
+    elif tipo == 'Extra':
+        return {
+            'tipo': 'Extra',
+            'extra_id': producto_obj.extra.id,  # Plato ID
+            'cantidad': producto_obj.cantidad,
+            'precio_unitario': float(producto_obj.precio_unitario),
+            'observacion': producto_obj.observacion or '',
+            'componentes': [
+                producto_obj.extra.nombre_plato
+            ]
+        }
     return None
 
 def obtener_productos_pedido(pedido):
@@ -176,6 +193,10 @@ def obtener_productos_pedido(pedido):
     # Segundos
     for segundo in pedido.segundos.all():
         productos.append(convertir_producto_a_dict(segundo, 'Segundo'))
+    
+    # Extras
+    for extra in pedido.extras.all():
+        productos.append(convertir_producto_a_dict(extra, 'Extra'))
     
     return productos
 
@@ -229,6 +250,28 @@ def crear_producto_pedido(pedido, producto_data):
                 observacion=producto_data.get('observacion', '')
             )
     
+    elif tipo == 'Extra':
+        # Para extras, crear múltiples registros si hay múltiples extras
+        extras_ids = producto_data.get('extras_ids', '').split(',')
+        extras_creados = []
+        
+        for extra_id in extras_ids:
+            if extra_id.strip():
+                try:
+                    extra_plato = Plato.objects.get(id=int(extra_id.strip()), tipo='extra')
+                    extra_creado = PedidoExtra.objects.create(
+                        pedido=pedido,
+                        extra=extra_plato,
+                        cantidad=producto_data['cantidad'],
+                        precio_unitario=extra_plato.precio,  # Usar precio del plato
+                        observacion=producto_data.get('observacion', '')
+                    )
+                    extras_creados.append(extra_creado)
+                except Plato.DoesNotExist:
+                    continue
+        
+        return extras_creados[0] if extras_creados else None
+    
     return None
 
 def generar_clave_producto(producto):
@@ -239,6 +282,8 @@ def generar_clave_producto(producto):
         return f"sopa_{producto['sopa_id']}_{producto['jugo_id']}"
     elif producto['tipo'] == 'Segundo':
         return f"segundo_{producto['segundo_id']}_{producto['jugo_id']}"
+    elif producto['tipo'] == 'Extra':
+        return f"extra_{producto.get('extras_ids', '')}"
     return None
 
 def calcular_total_pedido(pedido):
@@ -250,6 +295,10 @@ def calcular_total_pedido(pedido):
         total += Decimal(str(sopa.precio_unitario)) * Decimal(str(sopa.cantidad))
     for segundo in pedido.segundos.all():
         total += Decimal(str(segundo.precio_unitario)) * Decimal(str(segundo.cantidad))
+    
+    for extra in pedido.extras.all():
+        total += Decimal(str(extra.precio_unitario)) * Decimal(str(extra.cantidad))
+    
     return total
 
 # ===== VISTAS PRINCIPALES =====
@@ -262,6 +311,7 @@ def agregar_al_carrito(request):
         sopa_id = request.POST.get('sopa_id')
         segundo_id = request.POST.get('segundo_id')
         jugo_id = request.POST.get('jugo_id')
+        extras_ids_raw = request.POST.get('extras_ids', '')
         
         # Manejar valores None para cantidad
         cantidad_str = request.POST.get('cantidad', '1')
@@ -275,8 +325,16 @@ def agregar_al_carrito(request):
         if not tipo:
             return JsonResponse({'status': 'error', 'message': 'Tipo de producto requerido'}, status=400)
 
-        # Calcular precio unitario usando función auxiliar
-        precio_unitario = calcular_precio_producto(tipo)
+        # Calcular precio unitario
+        if tipo and tipo.lower() == 'extra':
+            # Para extras: sumar precios de todos los extras seleccionados
+            ids = [int(x) for x in extras_ids_raw.split(',') if x.strip().isdigit()]
+            from menu.models import Plato
+            precios = list(Plato.objects.filter(id__in=ids, tipo='extra').values_list('precio', flat=True))
+            precio_unitario = sum(Decimal(str(p)) for p in precios) if precios else Decimal('0.00')
+        else:
+            # Productos normales (almuerzo/sopa/segundo)
+            precio_unitario = calcular_precio_producto(tipo)
         
         return JsonResponse({
             'status': 'ok', 
@@ -312,6 +370,7 @@ def guardar_pedido(request):
         print(f"[DEBUG] Subtipo recibido del frontend: {subtipo_reservado}")
         observaciones_generales = request.POST.get('observaciones_generales')
         pedido_id_editar = request.POST.get('pedido_id')
+        es_agregar_productos = request.POST.get('es_agregar_productos') == 'true'
 
         total_pedido = Decimal('0.00')
         productos_carrito = []
@@ -340,18 +399,22 @@ def guardar_pedido(request):
         if pedido_id_editar:
             pedido = Pedido.objects.get(id=pedido_id_editar, estado='pendiente')
 
-            # Usar el total guardado en la BD (más eficiente)
-            total_anterior = pedido.total
-
-            # NO limpiar productos anteriores - solo actualizar campos del pedido
-            pedido.tipo = tipo_pedido
-            pedido.forma_pago = forma_pago
-            pedido.numero_mesa = mesa if mesa else None
-            pedido.contacto = contacto
-            pedido.subtipo_reservado = subtipo_reservado if tipo_pedido == 'reservado' else None
-            pedido.observaciones_generales = observaciones_generales
-            pedido.total = total_pedido
-            pedido.save()
+            if es_agregar_productos:
+                # Solo agregar productos, no modificar campos del pedido
+                total_anterior = pedido.total
+                pedido.total = total_anterior + total_pedido  # Sumar al total existente
+                pedido.save()
+            else:
+                # Edición normal - actualizar campos del pedido
+                total_anterior = pedido.total
+                pedido.tipo = tipo_pedido
+                pedido.forma_pago = forma_pago
+                pedido.numero_mesa = mesa if mesa else None
+                pedido.contacto = contacto
+                pedido.subtipo_reservado = subtipo_reservado if tipo_pedido == 'reservado' else None
+                pedido.observaciones_generales = observaciones_generales
+                pedido.total = total_pedido
+                pedido.save()
         else:
             # Crear el pedido principal
             pedido = Pedido.objects.create(
@@ -407,9 +470,75 @@ def guardar_pedido(request):
                     'cantidad': segundo.cantidad,
                     'segundo_id': segundo.segundo.segundo.id  # Plato ID
                 })
+            # Agregar extras existentes
+            for extra in pedido.extras.all():
+                key = f"extra_{extra.extra.id}"
+                productos_existentes[key] = {'tipo': 'extra', 'objeto': extra}
+                # Agregar a productos originales para devolver cantidades
+                productos_originales.append({
+                    'tipo': 'extra',
+                    'cantidad': extra.cantidad,
+                    'extra_id': extra.extra.id  # Plato ID
+                })
         
         for producto in productos_carrito:
-            # Generar clave del producto usando función auxiliar
+            # Para extras, procesar cada extra individualmente
+            if producto['tipo'] == 'Extra':
+                # Los extras se procesan individualmente ya que cada uno es un registro separado
+                extras_ids = producto.get('extras_ids', '').split(',')
+                extras_a_crear = []  # Lista de IDs de extras que necesitan ser creados
+                
+                # Si es edición, verificar qué extras ya existen
+                if pedido_id_editar:
+                    for extra_id in extras_ids:
+                        if extra_id.strip():
+                            extra_key = f"extra_{extra_id.strip()}"
+                            if extra_key in productos_existentes:
+                                # El extra existe, actualizar cantidad
+                                extra_existente = productos_existentes[extra_key]['objeto']
+                                productos_procesados.add(extra_key)  # Marcar como procesado
+                                
+                                # Si la cantidad es 0, eliminar el extra
+                                if producto['cantidad'] <= 0:
+                                    extra_existente.delete()
+                                else:
+                                    extra_existente.cantidad = producto['cantidad']
+                                    extra_existente.observacion = producto.get('observacion', '')
+                                    extra_existente.save()
+                            else:
+                                # El extra no existe, agregarlo a la lista para crearlo
+                                extras_a_crear.append(extra_id.strip())
+                else:
+                    # Pedido nuevo, todos los extras deben crearse
+                    extras_a_crear = [eid.strip() for eid in extras_ids if eid.strip()]
+                
+                # Si hay extras a crear, crear el producto (que creará todos los extras)
+                if extras_a_crear:
+                    producto_creado = crear_producto_pedido(pedido, producto)
+                    if producto_creado:
+                        # Agregar todos los extras creados a productos_guardados
+                        for extra_id in extras_a_crear:
+                            if extra_id.strip():
+                                try:
+                                    from menu.models import Plato
+                                    extra_plato = Plato.objects.get(id=int(extra_id.strip()), tipo='extra')
+                                    extra_obj = PedidoExtra.objects.filter(
+                                        pedido=pedido,
+                                        extra=extra_plato
+                                    ).order_by('-id').first()
+                                    if extra_obj:
+                                        producto_dict = convertir_producto_a_dict(extra_obj, 'Extra')
+                                        if producto_dict:
+                                            extra_id_existente = producto_dict.get('extra_id')
+                                            if not any(p.get('extra_id') == extra_id_existente and p.get('tipo') == 'Extra' 
+                                                       for p in productos_guardados):
+                                                productos_guardados.append(producto_dict)
+                                except (Plato.DoesNotExist, ValueError):
+                                    continue
+                # Continuar al siguiente producto
+                continue
+            
+            # Generar clave del producto usando función auxiliar (para productos normales)
             producto_key = generar_clave_producto(producto)
             
             # Si es edición y el producto existe, actualizar cantidad
@@ -429,10 +558,37 @@ def guardar_pedido(request):
             # Crear producto usando función auxiliar
             producto_creado = crear_producto_pedido(pedido, producto)
             if producto_creado:
-                # Agregar a productos guardados usando función auxiliar
-                producto_dict = convertir_producto_a_dict(producto_creado, producto['tipo'])
-                if producto_dict:
-                    productos_guardados.append(producto_dict)
+                # Para extras, crear_producto_pedido puede crear múltiples registros
+                # Necesitamos agregar todos los extras creados
+                if producto['tipo'] == 'Extra':
+                    # Obtener todos los extras recién creados para este pedido
+                    # Usar el ID del pedido y los extras_ids para encontrar los extras creados
+                    extras_ids = producto.get('extras_ids', '').split(',')
+                    for extra_id in extras_ids:
+                        if extra_id.strip():
+                            try:
+                                from menu.models import Plato
+                                extra_plato = Plato.objects.get(id=int(extra_id.strip()), tipo='extra')
+                                # Buscar el extra más reciente creado para este pedido y este plato
+                                extra_obj = PedidoExtra.objects.filter(
+                                    pedido=pedido,
+                                    extra=extra_plato
+                                ).order_by('-id').first()
+                                if extra_obj:
+                                    producto_dict = convertir_producto_a_dict(extra_obj, 'Extra')
+                                    if producto_dict:
+                                        # Verificar que no esté ya en productos_guardados
+                                        extra_id_existente = producto_dict.get('extra_id')
+                                        if not any(p.get('extra_id') == extra_id_existente and p.get('tipo') == 'Extra' 
+                                                   for p in productos_guardados):
+                                            productos_guardados.append(producto_dict)
+                            except (Plato.DoesNotExist, ValueError):
+                                continue
+                else:
+                    # Para otros tipos de productos, usar el método normal
+                    producto_dict = convertir_producto_a_dict(producto_creado, producto['tipo'])
+                    if producto_dict:
+                        productos_guardados.append(producto_dict)
 
         # NOTA: No se actualiza caja automáticamente aquí
         # Las ventas solo se suman cuando el pedido se marca como 'completado'
@@ -450,7 +606,8 @@ def guardar_pedido(request):
         print("✅ Cantidades nuevas restadas")
 
         # Si es edición, eliminar productos que ya no están en el carrito
-        if pedido_id_editar:
+        if pedido_id_editar and not es_agregar_productos:
+            # Solo eliminar productos si NO estamos agregando productos
             # Encontrar productos que no fueron procesados (eliminados del carrito)
             productos_a_eliminar = set(productos_existentes.keys()) - productos_procesados
             print(f"DEBUG: Productos a eliminar: {productos_a_eliminar}")
@@ -473,6 +630,19 @@ def guardar_pedido(request):
         if pedido.total != total_real:
             pedido.total = total_real
             pedido.save()
+
+        # Enviar mensaje WebSocket
+        try:
+            pedido_data = serializar_pedido_para_websocket(pedido)
+            if pedido_data:
+                if pedido_id_editar:
+                    # Pedido actualizado
+                    enviar_mensaje_websocket('pedido_actualizado', pedido_data)
+                else:
+                    # Pedido creado
+                    enviar_mensaje_websocket('pedido_creado', pedido_data)
+        except Exception as e:
+            print(f"[WEBSOCKET] Error al enviar mensaje: {e}")
 
         # Imprimir comando para cocina
         try:
@@ -516,37 +686,114 @@ def guardar_pedido(request):
 
             
             # Agregar productos con componentes verticales
-            for producto in productos_reconstruidos:
-                # Línea principal con cantidad y tipo
-                comando_cocina.append(f"{producto['cantidad']}x {producto['tipo']}")
-                
-                # Componentes en forma vertical (uno debajo del otro)
-                if producto.get('componentes'):
-                    for componente in producto['componentes']:
-                        comando_cocina.append(f"  - {componente}")
-                
-                # Observación en línea separada si existe
-                if producto.get('observacion'):
-                    comando_cocina.append(f"  Obs: {producto['observacion']}")
-                
-                comando_cocina.append("")
+            productos_a_imprimir = productos_carrito if es_agregar_productos else productos_reconstruidos
+            
+            print(f"[DEBUG IMPRESIÓN] Productos a imprimir: {len(productos_a_imprimir)}")
+            print(f"[DEBUG IMPRESIÓN] Es agregar productos: {es_agregar_productos}")
+            
+            # Asegurar que todos los productos tengan componentes formateados
+            productos_formateados = []
+            for producto in productos_a_imprimir:
+                try:
+                    producto_formateado = producto.copy()
+                    
+                    # Si es un extra y no tiene componentes, formatearlo
+                    if producto.get('tipo') == 'Extra':
+                        # Si viene de productos_carrito, puede no tener componentes formateados
+                        if not producto.get('componentes') or len(producto.get('componentes', [])) == 0:
+                            # Intentar obtener el nombre del extra desde extras_ids
+                            extras_ids = producto.get('extras_ids', '')
+                            if extras_ids:
+                                try:
+                                    from menu.models import Plato
+                                    nombres_extras = []
+                                    for extra_id in extras_ids.split(','):
+                                        if extra_id.strip():
+                                            try:
+                                                extra_plato = Plato.objects.get(id=int(extra_id.strip()), tipo='extra')
+                                                nombres_extras.append(extra_plato.nombre_plato)
+                                            except Plato.DoesNotExist:
+                                                continue
+                                    if nombres_extras:
+                                        producto_formateado['componentes'] = nombres_extras
+                                except Exception as e:
+                                    print(f"[ERROR] Error al formatear extras para impresión: {e}")
+                    
+                    productos_formateados.append(producto_formateado)
+                except Exception as e:
+                    print(f"[ERROR] Error al formatear producto para impresión: {e}")
+                    print(f"[ERROR] Producto problemático: {producto}")
+                    continue
+            
+            print(f"[DEBUG IMPRESIÓN] Productos formateados: {len(productos_formateados)}")
+            
+            for producto in productos_formateados:
+                try:
+                    # Línea principal con cantidad y tipo
+                    comando_cocina.append(f"{producto['cantidad']}x {producto['tipo']}")
+                    
+                    # Componentes en forma vertical (uno debajo del otro)
+                    if producto.get('componentes'):
+                        for componente in producto['componentes']:
+                            comando_cocina.append(f"  - {componente}")
+                    
+                    # Observación en línea separada si existe
+                    if producto.get('observacion'):
+                        comando_cocina.append(f"  Obs: {producto['observacion']}")
+                    
+                    comando_cocina.append("")
+                except Exception as e:
+                    print(f"[ERROR] Error al agregar producto al comando: {e}")
+                    print(f"[ERROR] Producto: {producto}")
+                    continue
+            
+            print(f"[DEBUG IMPRESIÓN] Comando cocina generado: {len(comando_cocina)} líneas")
 
 
             
-            # Imprimir
-            impresora = ImpresoraTermica()
-            if impresora.conectar():
-                impresora.imprimir_ticket(comando_cocina)
-                impresora.desconectar()
-                print(f"[OK] Comando para cocina impreso - Pedido #{pedido.numero_pedido_completo}")
-            else:
-                print(f"[ERROR] No se pudo conectar a la impresora - Pedido #{pedido.numero_pedido_completo}")
+            # Imprimir en múltiples impresoras
+            try:
+                from impresion.impresora import ImpresoraMultiple
+                
+                # Lista de IPs de las impresoras
+                ips_impresoras = ["192.168.1.100", "192.168.1.110"]
+                
+                print(f"[DEBUG IMPRESIÓN] Intentando conectar a impresoras: {ips_impresoras}")
+                impresoras = ImpresoraMultiple(ips_impresoras)
+                if impresoras.conectar_todas():
+                    print(f"[DEBUG IMPRESIÓN] Conexión exitosa, imprimiendo...")
+                    impresoras.imprimir_en_todas(comando_cocina)
+                    impresoras.desconectar_todas()
+                    if es_agregar_productos:
+                        print(f"[OK] Productos adicionales impresos en múltiples impresoras - Pedido #{pedido.numero_pedido_completo}")
+                    else:
+                        print(f"[OK] Comando para cocina impreso en múltiples impresoras - Pedido #{pedido.numero_pedido_completo}")
+                else:
+                    if es_agregar_productos:
+                        print(f"[ERROR] No se pudo conectar a ninguna impresora para imprimir productos adicionales - Pedido #{pedido.numero_pedido_completo}")
+                    else:
+                        print(f"[ERROR] No se pudo conectar a ninguna impresora - Pedido #{pedido.numero_pedido_completo}")
+            except Exception as e:
+                print(f"[ERROR] Error al imprimir comando: {e}")
+                import traceback
+                traceback.print_exc()
                 
         except Exception as e:
-            print(f"[ERROR] Error al imprimir comando: {e}")
+            print(f"[ERROR] Error general al imprimir: {e}")
+            import traceback
+            traceback.print_exc()
 
+        # Mensaje diferente según la acción
+        if es_agregar_productos:
+            mensaje = 'Productos agregados al pedido correctamente'
+        elif pedido_id_editar:
+            mensaje = 'Pedido actualizado correctamente'
+        else:
+            mensaje = 'Pedido creado correctamente'
+        
         return JsonResponse({
             'status': 'ok', 
+            'message': mensaje,
             'pedido_id': pedido.id,
             'pedido_data': {
                 'id': pedido.id,
@@ -580,6 +827,14 @@ def marcar_pedido_completado(request):
         pedido = Pedido.objects.get(id=pedido_id)
         pedido.estado = 'completado'
         pedido.save()
+        
+        # Enviar mensaje WebSocket
+        try:
+            pedido_data = serializar_pedido_para_websocket(pedido)
+            if pedido_data:
+                enviar_mensaje_websocket('pedido_actualizado', pedido_data)
+        except Exception as e:
+            print(f"[WEBSOCKET] Error al enviar mensaje: {e}")
         
         # Sumar a caja cuando se marca como completado
         from caja.models import CajaDiaria
@@ -626,6 +881,7 @@ def obtener_pedido(request, pedido_id):
                 'mesa': pedido.numero_mesa,
                 'contacto': pedido.contacto,
                 'subtipo_reservado': pedido.subtipo_reservado,
+                'observaciones_generales': pedido.observaciones_generales,
                 'productos': productos
             }
         })
@@ -657,6 +913,7 @@ def obtener_pedidos_pendientes(request):
                 'mesa': pedido.numero_mesa,
                 'contacto': pedido.contacto,
                 'subtipo_reservado': pedido.subtipo_reservado,
+                'observaciones_generales': pedido.observaciones_generales,
                 'fecha_creacion': pedido.fecha_creacion.isoformat(),
                 'estado': pedido.estado,
                 'productos': productos,
@@ -713,6 +970,14 @@ def eliminar_pedido(request):
         
         # Actualizar cantidades del menú (sumar de vuelta)
         actualizar_cantidades_menu(productos_pedido, 'sumar')
+        
+        # Enviar mensaje WebSocket antes de eliminar
+        try:
+            pedido_data = serializar_pedido_para_websocket(pedido)
+            if pedido_data:
+                enviar_mensaje_websocket('pedido_eliminado', pedido_data)
+        except Exception as e:
+            print(f"[WEBSOCKET] Error al enviar mensaje: {e}")
         
         # Eliminar el pedido
         pedido.delete()
@@ -819,6 +1084,27 @@ def marcar_pedidos_completados(request):
         except Exception:
             pass  # No hay caja abierta, no se suma
         
+        # Enviar mensaje WebSocket para notificar a otros dispositivos
+        try:
+            from channels.layers import get_channel_layer
+            from asgiref.sync import async_to_sync
+            
+            channel_layer = get_channel_layer()
+            if channel_layer:
+                async_to_sync(channel_layer.group_send)(
+                    "pedidos",
+                    {
+                        "type": "pedidos_marcados_completados",
+                        "pedidos_ids": pedido_ids,
+                        "cantidad": cantidad_actualizada
+                    }
+                )
+                print(f"[WEBSOCKET] Notificación enviada: {cantidad_actualizada} pedidos marcados como completados")
+            else:
+                print("[WEBSOCKET] No hay channel layer configurado")
+        except Exception as e:
+            print(f"[WEBSOCKET] Error al enviar notificación: {e}")
+        
         return JsonResponse({
             'status': 'ok',
             'message': f'{cantidad_actualizada} pedidos marcados como completados',
@@ -839,7 +1125,8 @@ def obtener_pedidos_por_tipo(request):
         pedidos = Pedido.objects.filter(estado='pendiente').prefetch_related(
             'almuerzos__sopa', 'almuerzos__segundo', 'almuerzos__jugo',
             'sopas__sopa', 'sopas__jugo',
-            'segundos__segundo', 'segundos__jugo'
+            'segundos__segundo', 'segundos__jugo',
+            'extras__extra'  # Incluir extras
         ).order_by('-fecha_creacion')
         
         if tipo == 'servirse':
@@ -861,6 +1148,10 @@ def obtener_pedidos_por_tipo(request):
             
             for segundo in pedido.segundos.all():
                 total_calculado += segundo.precio_unitario * Decimal(str(segundo.cantidad))
+            
+            # Agregar extras al total
+            for extra in pedido.extras.all():
+                total_calculado += extra.precio_unitario * Decimal(str(extra.cantidad))
             
             pedido.total_calculado = total_calculado
         
@@ -906,6 +1197,18 @@ def obtener_pedidos_por_tipo(request):
                     'observacion': segundo.observacion or ''
                 })
             
+            # Agregar extras
+            for extra in pedido.extras.all():
+                productos.append({
+                    'tipo': 'Extra',
+                    'componentes': [
+                        extra.extra.nombre_plato
+                    ],
+                    'cantidad': extra.cantidad,
+                    'precio_unitario': float(extra.precio_unitario),
+                    'observacion': extra.observacion or ''
+                })
+            
             pedidos_data.append({
                 'id': pedido.id,
                 'numero_dia': pedido.numero_dia,
@@ -916,7 +1219,8 @@ def obtener_pedidos_por_tipo(request):
                 'mesa': pedido.numero_mesa,
                 'contacto': pedido.contacto,
                 'subtipo_reservado': pedido.subtipo_reservado,
-                'total': float(pedido.total),
+                'observaciones_generales': pedido.observaciones_generales,
+                'total': float(pedido.total_calculado),  # Usar total calculado que incluye extras
                 'productos': productos
             })
         
@@ -991,3 +1295,67 @@ def obtener_cantidades_modal(request):
         
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)})
+
+
+# ===== FUNCIONES WEBSOCKET =====
+
+def enviar_mensaje_websocket(tipo_mensaje, pedido_data):
+    """
+    Envía un mensaje WebSocket al grupo 'pedidos' para notificar cambios
+    
+    Args:
+        tipo_mensaje: 'pedido_creado' o 'pedido_actualizado'
+        pedido_data: Datos del pedido en formato JSON
+    """
+    from channels.layers import get_channel_layer
+    from asgiref.sync import async_to_sync
+    
+    try:
+        channel_layer = get_channel_layer()
+        if channel_layer:
+            async_to_sync(channel_layer.group_send)(
+                "pedidos",
+                {
+                    "type": tipo_mensaje,
+                    "pedido": pedido_data
+                }
+            )
+            print(f"[WEBSOCKET] Mensaje enviado: {tipo_mensaje}")
+        else:
+            print("[WEBSOCKET] No hay channel layer configurado")
+    except Exception as e:
+        print(f"[WEBSOCKET] Error al enviar mensaje: {e}")
+
+
+def serializar_pedido_para_websocket(pedido):
+    """
+    Serializa un pedido para enviarlo por WebSocket
+    
+    Args:
+        pedido: Instancia del modelo Pedido
+        
+    Returns:
+        dict: Datos del pedido en formato JSON
+    """
+    try:
+        # Obtener productos del pedido
+        productos = obtener_productos_pedido(pedido)
+        
+        return {
+            'id': pedido.id,
+            'numero_dia': pedido.numero_dia,
+            'numero_pedido_completo': pedido.numero_pedido_completo,
+            'tipo': pedido.tipo,
+            'subtipo': pedido.subtipo_reservado,
+            'forma_pago': pedido.forma_pago,
+            'total': float(pedido.total),
+            'estado_pedido': pedido.estado,
+            'fecha_creacion': pedido.fecha_creacion.isoformat(),
+            'contacto': pedido.contacto,
+            'observaciones_generales': pedido.observaciones_generales,
+            'mesa': pedido.numero_mesa,
+            'productos': productos
+        }
+    except Exception as e:
+        print(f"[WEBSOCKET] Error al serializar pedido: {e}")
+        return None

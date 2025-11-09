@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from datetime import date
 from .forms import MenuDiaForm, MenuDiaSopaForm, MenuDiaSegundoForm, MenuDiaJugoForm
-from menu.models import MenuDia, MenuDiaSopa, MenuDiaSegundo, MenuDiaJugo, Producto
+from menu.models import MenuDia, MenuDiaSopa, MenuDiaSegundo, MenuDiaJugo, MenuDiaExtra, Producto
 from pedidos.models import Pedido
 
 import json
@@ -105,6 +105,7 @@ def menu(request):
     sopas_dia = MenuDiaSopa.objects.filter(menu=menu).select_related('sopa')
     segundos_dia = MenuDiaSegundo.objects.filter(menu=menu).select_related('segundo')
     jugos_dia = MenuDiaJugo.objects.filter(menu=menu).select_related('jugo')
+    extras_dia = MenuDiaExtra.objects.filter(menu=menu).select_related('extra')
     
     context = {
         'form_postre': form_postre,
@@ -114,6 +115,7 @@ def menu(request):
         'sopas_dia': sopas_dia,
         'segundos_dia': segundos_dia,
         'jugos_dia': jugos_dia,
+        'extras_dia': extras_dia,
     }
     
     return render(request, 'menu.html', context)
@@ -182,6 +184,13 @@ def inicio(request):
             'Servirse': float(producto.precio_servirse),
             'Llevar': float(producto.precio_llevar)
         }
+    
+    # Agregar precios de extras (precio único, no diferencia servirse/llevar)
+    from menu.models import Plato
+    extras = Plato.objects.filter(tipo='extra')
+    precios['extra'] = {}
+    for extra in extras:
+        precios['extra'][extra.nombre_plato] = float(extra.precio)
 
     # -------- Cargar pedidos pendientes por categoría --------
     pedidos_todos = Pedido.objects.filter(estado='pendiente').prefetch_related(
@@ -220,6 +229,7 @@ def inicio(request):
         'sopas_dia': MenuDiaSopa.objects.filter(menu=menu),
         'segundos_dia': MenuDiaSegundo.objects.filter(menu=menu),
         'jugos_dia': MenuDiaJugo.objects.filter(menu=menu),
+        'extras_dia': Plato.objects.filter(tipo='extra'),  # Mostrar TODOS los extras siempre
         'mesas': range(1, 15),
         'precios': json.dumps(precios, cls=DjangoJSONEncoder),  # Convierte el diccionario Python precios a formato JSON 
         'pedidos_todos': pedidos_todos,
