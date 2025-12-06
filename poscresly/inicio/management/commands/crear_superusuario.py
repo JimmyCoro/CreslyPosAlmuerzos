@@ -10,8 +10,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         # Obtener credenciales de variables de entorno
-        username = os.getenv('DJANGO_SUPERUSER_USERNAME', 'admin')
-        email = os.getenv('DJANGO_SUPERUSER_EMAIL', 'admin@example.com')
+        username = os.getenv('DJANGO_SUPERUSER_USERNAME', 'cresly')
+        email = os.getenv('DJANGO_SUPERUSER_EMAIL', 'cresly@example.com')
         password = os.getenv('DJANGO_SUPERUSER_PASSWORD', None)
 
         # Si no hay contraseña en variables de entorno, no crear superusuario
