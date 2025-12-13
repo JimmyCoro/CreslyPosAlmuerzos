@@ -751,30 +751,42 @@ def guardar_pedido(request):
 
 
             
-            # Imprimir en múltiples impresoras
+            # Imprimir vía servidor proxy en tablet
             try:
-                from impresion.impresora import ImpresoraMultiple
+                import requests
+                import os
                 
-                # Lista de IPs de las impresoras
-                ips_impresoras = ["192.168.1.100", "192.168.1.110"]
+                TABLET_PRINT_URL = os.getenv('TABLET_PRINT_URL', '')
                 
-                print(f"[DEBUG IMPRESIÓN] Intentando conectar a impresoras: {ips_impresoras}")
-                impresoras = ImpresoraMultiple(ips_impresoras)
-                if impresoras.conectar_todas():
-                    print(f"[DEBUG IMPRESIÓN] Conexión exitosa, imprimiendo...")
-                    impresoras.imprimir_en_todas(comando_cocina)
-                    impresoras.desconectar_todas()
-                    if es_agregar_productos:
-                        print(f"[OK] Productos adicionales impresos en múltiples impresoras - Pedido #{pedido.numero_pedido_completo}")
+                if TABLET_PRINT_URL:
+                    # Obtener IPs de impresoras desde variables de entorno
+                    ips_impresoras_str = os.getenv('IMPRESORAS_IPS', '192.168.1.100,192.168.1.110')
+                    ips_impresoras = [ip.strip() for ip in ips_impresoras_str.split(',') if ip.strip()]
+                    
+                    payload = {
+                        'contenido': comando_cocina,
+                        'impresoras': ips_impresoras
+                    }
+                    
+                    print(f"[DEBUG IMPRESIÓN] Enviando a tablet: {TABLET_PRINT_URL}")
+                    print(f"[DEBUG IMPRESIÓN] Impresoras: {ips_impresoras}")
+                    
+                    response = requests.post(TABLET_PRINT_URL, json=payload, timeout=10)
+                    
+                    if response.status_code == 200:
+                        if es_agregar_productos:
+                            print(f"[OK] Productos adicionales enviados a tablet para imprimir - Pedido #{pedido.numero_pedido_completo}")
+                        else:
+                            print(f"[OK] Comando para cocina enviado a tablet para imprimir - Pedido #{pedido.numero_pedido_completo}")
                     else:
-                        print(f"[OK] Comando para cocina impreso en múltiples impresoras - Pedido #{pedido.numero_pedido_completo}")
+                        print(f"[ERROR] Tablet respondió con error {response.status_code}: {response.text}")
                 else:
-                    if es_agregar_productos:
-                        print(f"[ERROR] No se pudo conectar a ninguna impresora para imprimir productos adicionales - Pedido #{pedido.numero_pedido_completo}")
-                    else:
-                        print(f"[ERROR] No se pudo conectar a ninguna impresora - Pedido #{pedido.numero_pedido_completo}")
+                    print("[INFO] TABLET_PRINT_URL no configurada. Saltando impresión.")
+                    
+            except ImportError:
+                print("[WARNING] 'requests' no instalado. Instala con: pip install requests")
             except Exception as e:
-                print(f"[ERROR] Error al imprimir comando: {e}")
+                print(f"[WARNING] Error al enviar a tablet (pedido guardado): {e}")
                 import traceback
                 traceback.print_exc()
                 
