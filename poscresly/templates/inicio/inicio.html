@@ -1452,11 +1452,11 @@ function guardarPedidoFrontend() {
       // Usar el mensaje del backend
       alert(data.message || 'Operación completada correctamente');
       
-      // Actualizar cantidades disponibles después de guardar pedido
-      actualizarCantidadesDisponibles();
-      
-      // Actualizar contadores de tabs automáticamente
-      actualizarContadoresTabs();
+              // Actualizar cantidades disponibles después de guardar pedido
+        actualizarCantidadesDisponibles();
+        
+        // Actualizar contadores de tabs automáticamente
+        actualizarContadoresTabs();
 
     } else {
       alert('Error al guardar el pedido: ' + (data.message || 'Error desconocido'));
@@ -1930,10 +1930,10 @@ async function marcarPedidosCompletados() {
       icon.classList.add('fa-square');
       
       // Recargar pedidos del tipo actual
-      await cargarPedidosPorTipo(window.tipoActual);
+              await cargarPedidosPorTipo(window.tipoActual);
         
-      // Actualizar contadores después de marcar como completados
-      actualizarContadoresTabs();
+        // Actualizar contadores después de marcar como completados
+        actualizarContadoresTabs();
       
       // Enviar mensaje WebSocket para notificar a otros dispositivos
       if (window.wsManager && window.wsManager.isConnected()) {
