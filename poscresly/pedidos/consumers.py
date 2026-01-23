@@ -1,4 +1,7 @@
 import json
+import os
+from urllib.parse import parse_qs
+
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from .models import Pedido
@@ -93,3 +96,33 @@ class PedidosConsumer(AsyncWebsocketConsumer):
             })
         
         return pedidos_data
+
+
+class ImpresionConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        token = self._get_token()
+        expected_token = os.getenv('TABLET_PRINT_TOKEN', '').strip()
+
+        if not expected_token or token != expected_token:
+            await self.close(code=4001)
+            return
+
+        await self.accept()
+        await self.channel_layer.group_add("impresion", self.channel_name)
+        await self.send(text_data=json.dumps({
+            'type': 'connection_established',
+            'message': 'Conectado al canal de impresión'
+        }))
+
+    async def disconnect(self, close_code):
+        await self.channel_layer.group_discard("impresion", self.channel_name)
+
+    async def print_job(self, event):
+        payload = event.get('payload', {})
+        await self.send(text_data=json.dumps(payload))
+
+    def _get_token(self):
+        query_string = self.scope.get("query_string", b"").decode()
+        query_params = parse_qs(query_string)
+        token = query_params.get("token", [""])[0]
+        return token.strip()

@@ -751,42 +751,11 @@ def guardar_pedido(request):
 
 
             
-            # Imprimir vía servidor proxy en tablet
+            # Imprimir vía WebSocket (tablet conectada a Railway)
             try:
-                import requests
-                import os
-                
-                TABLET_PRINT_URL = os.getenv('TABLET_PRINT_URL', '')
-                
-                if TABLET_PRINT_URL:
-                    # Obtener IPs de impresoras desde variables de entorno
-                    ips_impresoras_str = os.getenv('IMPRESORAS_IPS', '192.168.1.100,192.168.1.110')
-                    ips_impresoras = [ip.strip() for ip in ips_impresoras_str.split(',') if ip.strip()]
-                    
-                    payload = {
-                        'contenido': comando_cocina,
-                        'impresoras': ips_impresoras
-                    }
-                    
-                    print(f"[DEBUG IMPRESIÓN] Enviando a tablet: {TABLET_PRINT_URL}")
-                    print(f"[DEBUG IMPRESIÓN] Impresoras: {ips_impresoras}")
-                    
-                    response = requests.post(TABLET_PRINT_URL, json=payload, timeout=10)
-                    
-                    if response.status_code == 200:
-                        if es_agregar_productos:
-                            print(f"[OK] Productos adicionales enviados a tablet para imprimir - Pedido #{pedido.numero_pedido_completo}")
-                        else:
-                            print(f"[OK] Comando para cocina enviado a tablet para imprimir - Pedido #{pedido.numero_pedido_completo}")
-                    else:
-                        print(f"[ERROR] Tablet respondió con error {response.status_code}: {response.text}")
-                else:
-                    print("[INFO] TABLET_PRINT_URL no configurada. Saltando impresión.")
-                    
-            except ImportError:
-                print("[WARNING] 'requests' no instalado. Instala con: pip install requests")
+                enviar_trabajo_impresion(pedido, comando_cocina, es_agregar_productos)
             except Exception as e:
-                print(f"[WARNING] Error al enviar a tablet (pedido guardado): {e}")
+                print(f"[WARNING] Error al enviar trabajo de impresión: {e}")
                 import traceback
                 traceback.print_exc()
                 
@@ -1337,6 +1306,47 @@ def enviar_mensaje_websocket(tipo_mensaje, pedido_data):
             print("[WEBSOCKET] No hay channel layer configurado")
     except Exception as e:
         print(f"[WEBSOCKET] Error al enviar mensaje: {e}")
+
+
+def enviar_trabajo_impresion(pedido, contenido, es_agregar_productos):
+    """
+    Envía un trabajo de impresión al grupo 'impresion' para la tablet
+    
+    Args:
+        pedido: Instancia del modelo Pedido
+        contenido: Lista de líneas para imprimir
+        es_agregar_productos: bool indicando si son productos adicionales
+    """
+    from channels.layers import get_channel_layer
+    from asgiref.sync import async_to_sync
+    import os
+
+    try:
+        payload = {
+            "type": "print_job",
+            "pedido": serializar_pedido_para_websocket(pedido),
+            "contenido": contenido,
+            "es_agregar_productos": es_agregar_productos,
+        }
+
+        ips_impresoras_str = os.getenv('IMPRESORAS_IPS', '').strip()
+        if ips_impresoras_str:
+            payload["impresoras"] = [ip.strip() for ip in ips_impresoras_str.split(',') if ip.strip()]
+
+        channel_layer = get_channel_layer()
+        if channel_layer:
+            async_to_sync(channel_layer.group_send)(
+                "impresion",
+                {
+                    "type": "print_job",
+                    "payload": payload
+                }
+            )
+            print("[WEBSOCKET] Trabajo de impresión enviado")
+        else:
+            print("[WEBSOCKET] No hay channel layer configurado para impresión")
+    except Exception as e:
+        print(f"[WEBSOCKET] Error al enviar trabajo de impresión: {e}")
 
 
 def serializar_pedido_para_websocket(pedido):
