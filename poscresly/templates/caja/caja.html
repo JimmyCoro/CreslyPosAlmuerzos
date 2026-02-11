@@ -343,7 +343,7 @@
             
             <div class="pedidos-body">
               {% if pedidos_hoy %}
-                {% for pedido in pedidos_hoy|slice:":8" %}
+                {% for pedido in pedidos_hoy %}
                   <div class="pedido-item">
                     <div class="pedido-avatar">
                       <i class="fas fa-receipt"></i>
