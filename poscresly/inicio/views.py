@@ -244,7 +244,7 @@ def inicio(request):
         'segundos_dia': MenuDiaSegundo.objects.filter(menu=menu),
         'jugos_dia': MenuDiaJugo.objects.filter(menu=menu),
         'extras_dia': Plato.objects.filter(tipo='extra'),  # Mostrar TODOS los extras siempre
-        'mesas': range(1, 15),
+        'mesas': range(1, 16),
         'precios': json.dumps(precios, cls=DjangoJSONEncoder),  # Convierte el diccionario Python precios a formato JSON 
         'pedidos_todos': pedidos_todos,
         'pedidos_servirse': pedidos_servirse,
