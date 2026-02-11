@@ -1200,13 +1200,17 @@ function agregarEventosCardPedido(cardNode) {
           
           // Establecer el subtipo de reservado si existe
           if (pedido.subtipo_reservado) {
-            document.getElementById('subtipo_reservado').value = pedido.subtipo_reservado;
+            const subtipoNormalizado = pedido.subtipo_reservado.toLowerCase();
+            document.getElementById('subtipo_reservado').value = subtipoNormalizado;
             
             // Actualizar botones de subtipo visualmente
             document.querySelectorAll('.btn-subtipo').forEach(btn => {
               btn.classList.remove('active');
             });
-            document.querySelector(`.btn-subtipo[data-subtipo="${pedido.subtipo_reservado}"]`).classList.add('active');
+            const btnSubtipo = document.querySelector(`.btn-subtipo[data-subtipo="${subtipoNormalizado}"]`);
+            if (btnSubtipo) {
+              btnSubtipo.classList.add('active');
+            }
           }
         }
         
@@ -1292,13 +1296,17 @@ function agregarEventosCardPedido(cardNode) {
           
           // Establecer el subtipo de reservado si existe
           if (pedido.subtipo_reservado) {
-            document.getElementById('subtipo_reservado').value = pedido.subtipo_reservado;
+            const subtipoNormalizado = pedido.subtipo_reservado.toLowerCase();
+            document.getElementById('subtipo_reservado').value = subtipoNormalizado;
             
             // Actualizar botones de subtipo visualmente
             document.querySelectorAll('.btn-subtipo').forEach(btn => {
               btn.classList.remove('active');
             });
-            document.querySelector(`.btn-subtipo[data-subtipo="${pedido.subtipo_reservado}"]`).classList.add('active');
+            const btnSubtipo = document.querySelector(`.btn-subtipo[data-subtipo="${subtipoNormalizado}"]`);
+            if (btnSubtipo) {
+              btnSubtipo.classList.add('active');
+            }
           }
         }
         
@@ -1774,7 +1782,7 @@ function limpiarFormularioPedido() {
   // Establecer valores por defecto
   document.getElementById('tipo_pedido').value = 'Servirse';
   document.getElementById('forma_pago').value = 'Efectivo';
-  document.getElementById('subtipo_reservado').value = 'Servirse';
+  document.getElementById('subtipo_reservado').value = 'servirse';
   
   // Activar tab "Servirse" por defecto
   document.querySelectorAll('.nav-link').forEach(tab => {
@@ -2060,6 +2068,15 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!window.pedidoEditando && !window.pedidoAgregandoProductos) {
       limpiarFormularioPedido();
     }
+  });
+
+  // Forzar limpieza al iniciar un nuevo pedido desde el botón principal
+  document.querySelectorAll('.btn-tomar-pedido').forEach(btn => {
+    btn.addEventListener('click', function () {
+      window.pedidoEditando = null;
+      window.pedidoAgregandoProductos = null;
+      limpiarFormularioPedido();
+    });
   });
   
   // Actualizar tipo de pedido cuando se cambia de tab

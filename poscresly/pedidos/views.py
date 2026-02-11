@@ -411,7 +411,11 @@ def guardar_pedido(request):
                 pedido.forma_pago = forma_pago
                 pedido.numero_mesa = mesa if mesa else None
                 pedido.contacto = contacto
-                pedido.subtipo_reservado = subtipo_reservado if tipo_pedido == 'reservado' else None
+                pedido.subtipo_reservado = (
+                    subtipo_reservado
+                    if (tipo_pedido or '').lower() == 'reservado'
+                    else None
+                )
                 pedido.observaciones_generales = observaciones_generales
                 pedido.total = total_pedido
                 pedido.save()
