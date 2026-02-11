@@ -1,12 +1,24 @@
 from django.shortcuts import render, redirect
 from datetime import date
 from .forms import MenuDiaForm, MenuDiaSopaForm, MenuDiaSegundoForm, MenuDiaJugoForm
-from menu.models import MenuDia, MenuDiaSopa, MenuDiaSegundo, MenuDiaJugo, MenuDiaExtra, Producto
+from menu.models import MenuDia, MenuDiaSopa, MenuDiaSegundo, MenuDiaJugo, MenuDiaExtra, Producto, Plato
 from pedidos.models import Pedido
 
 import json
 from django.core.serializers.json import DjangoJSONEncoder
 from decimal import Decimal
+
+WATER_JUGO_NAME = 'Agua'
+
+
+def asegurar_jugo_agua(menu):
+    agua_plato, _ = Plato.objects.get_or_create(
+        nombre_plato=WATER_JUGO_NAME,
+        tipo='jugo',
+        defaults={'precio': Decimal('0.00')}
+    )
+    MenuDiaJugo.objects.get_or_create(menu=menu, jugo=agua_plato)
+    return agua_plato
 
 def crear_formularios_menu(menu, data=None):
     """
@@ -47,6 +59,7 @@ def menu(request):
     """
     hoy = date.today()
     menu, _ = MenuDia.objects.get_or_create(fecha=hoy)
+    agua_plato = asegurar_jugo_agua(menu)
     
     # Manejar POST para configuración del menú
     if request.method == 'POST':
@@ -94,7 +107,7 @@ def menu(request):
                     jugos_guardados.append(obj.pk)
             
             # Eliminar jugos que ya no están en el formulario
-            MenuDiaJugo.objects.filter(menu=menu).exclude(pk__in=jugos_guardados).delete()
+            MenuDiaJugo.objects.filter(menu=menu).exclude(pk__in=jugos_guardados).exclude(jugo=agua_plato).delete()
 
             return redirect('menu')
     else:
@@ -123,6 +136,7 @@ def menu(request):
 def inicio(request):
     hoy = date.today()
     menu, _ = MenuDia.objects.get_or_create(fecha=hoy)
+    agua_plato = asegurar_jugo_agua(menu)
     if request.method == 'POST':
         form_postre = MenuDiaForm(request.POST, instance=menu)
         sopa_forms, segundo_forms, jugo_forms = crear_formularios_menu(menu, request.POST)
@@ -168,7 +182,7 @@ def inicio(request):
                     jugos_guardados.append(obj.pk)
             
             # Eliminar jugos que ya no están en el formulario
-            MenuDiaJugo.objects.filter(menu=menu).exclude(pk__in=jugos_guardados).delete()
+            MenuDiaJugo.objects.filter(menu=menu).exclude(pk__in=jugos_guardados).exclude(jugo=agua_plato).delete()
 
             return redirect('inicio')
 
