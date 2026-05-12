@@ -1,10 +1,10 @@
-const CACHE_NAME = "cresly-pos-v1";
+const CACHE_NAME = "cresly-pos-v2";
 const CORE_ASSETS = [
   "/",
   "/static/manifest.json",
   "/static/offline.html",
-  "/static/icons/icon-192.svg",
-  "/static/icons/icon-512.svg",
+  "/static/icons/icon-192.png",
+  "/static/icons/icon-512.png",
 ];
 
 self.addEventListener("install", (event) => {

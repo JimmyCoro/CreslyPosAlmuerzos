@@ -1373,6 +1373,10 @@ function agregarEventosCardPedido(cardNode) {
 }
 
 function guardarPedidoFrontend() {
+  if (window._guardandoPedido) {
+    return;
+  }
+
   const pedido = obtenerDatosPedido();
   
   // Validar pedido usando la función centralizada
@@ -1396,6 +1400,12 @@ function guardarPedidoFrontend() {
   const esAgregarProductos = window.pedidoAgregandoProductos;
   const pedidoId = window.pedidoEditando || esAgregarProductos || '';
   
+  window._guardandoPedido = true;
+  const botonesConfirmar = document.querySelectorAll('#tomarPedidoModal .btn-success');
+  botonesConfirmar.forEach((btn) => {
+    btn.disabled = true;
+  });
+
   // Enviar pedido al backend
   fetch("{% url 'guardar_pedido' %}", {
     method: 'POST',
@@ -1473,6 +1483,12 @@ function guardarPedidoFrontend() {
   .catch(error => {
     console.error('Error al guardar pedido:', error);
     alert('Error inesperado al guardar el pedido: ' + error.message);
+  })
+  .finally(() => {
+    window._guardandoPedido = false;
+    document.querySelectorAll('#tomarPedidoModal .btn-success').forEach((btn) => {
+      btn.disabled = false;
+    });
   });
 }
 

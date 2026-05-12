@@ -1,5 +1,4 @@
 from django.urls import path
-
 from pedidos import views as pedidos_views
 from . import views
 
@@ -21,6 +20,4 @@ urlpatterns = [
     
     # URL para obtener contadores de tabs
     path('obtener-contadores-tabs/', pedidos_views.obtener_contadores_tabs, name='obtener_contadores_tabs'),
-    
-    # URL para reimprimir comando de cocina
 ]

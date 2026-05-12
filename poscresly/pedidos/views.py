@@ -1,4 +1,7 @@
 import logging
+from django.db import transaction
+from django.db.models import F, Value
+from django.db.models.functions import Greatest
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
@@ -15,105 +18,105 @@ logger = logging.getLogger(__name__)
 
 # ===== FUNCIONES AUXILIARES =====
 
-def actualizar_cantidades_menu(productos_carrito, operacion='restar'):
+def _coerce_plato_id(val):
+    """Convierte sopa_id/segundo_id del JSON (str o int) a int o None."""
+    if val is None or val == "":
+        return None
+    try:
+        return int(val)
+    except (TypeError, ValueError):
+        return None
+
+
+def _delta_cantidad(producto, operacion):
+    """Unidades a sumar al stock (negativo si operacion=='restar')."""
+    try:
+        q = int(producto.get("cantidad", 1))
+    except (TypeError, ValueError):
+        q = 1
+    return -q if operacion == "restar" else q
+
+
+def _aplicar_delta_sopa(menu, sopa_plato_id, delta, log):
+    """UPDATE atómico con F(); evita lost updates entre POST concurrentes."""
+    if sopa_plato_id is None or delta == 0:
+        return
+    n = MenuDiaSopa.objects.filter(menu=menu, sopa_id=sopa_plato_id).update(
+        cantidad_actual=Greatest(F("cantidad_actual") + Value(delta), Value(0))
+    )
+    if n:
+        obj = MenuDiaSopa.objects.filter(menu=menu, sopa_id=sopa_plato_id).first()
+        log.info(
+            "Sopa stock delta=%s aplicada: %s (cantidad_actual=%s)",
+            delta,
+            obj.sopa if obj else sopa_plato_id,
+            obj.cantidad_actual if obj else "?",
+        )
+    else:
+        log.warning("No se encontró sopa con Plato ID %s en el menú actual", sopa_plato_id)
+
+
+def _aplicar_delta_segundo(menu, segundo_plato_id, delta, log):
+    if segundo_plato_id is None or delta == 0:
+        return
+    n = MenuDiaSegundo.objects.filter(menu=menu, segundo_id=segundo_plato_id).update(
+        cantidad_actual=Greatest(F("cantidad_actual") + Value(delta), Value(0))
+    )
+    if n:
+        obj = MenuDiaSegundo.objects.filter(menu=menu, segundo_id=segundo_plato_id).first()
+        log.info(
+            "Segundo stock delta=%s aplicado: %s (cantidad_actual=%s)",
+            delta,
+            obj.segundo if obj else segundo_plato_id,
+            obj.cantidad_actual if obj else "?",
+        )
+    else:
+        log.warning("No se encontró segundo con Plato ID %s en el menú actual", segundo_plato_id)
+
+
+def actualizar_cantidades_menu(productos_carrito, operacion="restar"):
     """
-    Actualiza las cantidades del menú del día según los productos vendidos.
-    
+    Actualiza cantidades del menú del día. Usa F() en SQL para stock concurrente.
+
     Args:
         productos_carrito: Lista de productos del pedido
-        operacion: 'restar' para crear pedido, 'sumar' para eliminar pedido
+        operacion: 'restar' al vender, 'sumar' al anular / devolver stock
     """
-    from datetime import date
-    from menu.models import MenuDia, MenuDiaSopa, MenuDiaSegundo, Plato
-    import logging
-    
-    logger = logging.getLogger(__name__)
-    
+    log = logging.getLogger(__name__)
     hoy = date.today()
-    logger.info(f"Actualizando cantidades para {hoy}, operación: {operacion}")
-    logger.info(f"Productos a procesar: {productos_carrito}")
-    
+    log.info("Actualizando cantidades para %s, operación: %s", hoy, operacion)
+    log.info("Productos a procesar: %s", productos_carrito)
+
     try:
         menu = MenuDia.objects.get(fecha=hoy)
-        logger.info(f"Menú encontrado: {menu}")
+        log.info("Menú encontrado: %s", menu)
     except MenuDia.DoesNotExist:
-        logger.warning("No hay menú configurado para hoy")
-        return  # No hay menú configurado para hoy
-    
+        log.warning("No hay menú configurado para hoy")
+        return
+
     for producto in productos_carrito:
-        cantidad = producto.get('cantidad', 1)
-        tipo = producto.get('tipo', '').lower()
-        
-        logger.info(f"Procesando producto: tipo={tipo}, cantidad={cantidad}")
-        
-        if operacion == 'restar':
-            cantidad = -cantidad  # Restar
-        # Si es 'sumar', cantidad ya es positiva
-        
-        if tipo == 'almuerzo':
-            # Almuerzo consume 1 sopa + 1 segundo
-            sopa_id = producto.get('sopa_id')
-            segundo_id = producto.get('segundo_id')
-            
-            logger.info(f"Almuerzo - sopa_id: {sopa_id}, segundo_id: {segundo_id}")
-            
-            if sopa_id:
-                try:
-                    # Buscar directamente por Plato ID en el menú actual
-                    sopa_actual = MenuDiaSopa.objects.get(menu=menu, sopa_id=sopa_id)
-                    cantidad_anterior = sopa_actual.cantidad_actual
-                    sopa_actual.cantidad_actual = max(0, sopa_actual.cantidad_actual + cantidad)
-                    sopa_actual.save()
-                    logger.info(f"Sopa actualizada: {sopa_actual.sopa} - {cantidad_anterior} → {sopa_actual.cantidad_actual}")
-                except MenuDiaSopa.DoesNotExist:
-                    logger.warning(f"No se encontró sopa con Plato ID {sopa_id} en el menú actual")
-            
-            if segundo_id:
-                try:
-                    # Buscar directamente por Plato ID en el menú actual
-                    segundo_actual = MenuDiaSegundo.objects.filter(menu=menu, segundo_id=segundo_id).first()
-                    cantidad_anterior = segundo_actual.cantidad_actual
-                    segundo_actual.cantidad_actual = max(0, segundo_actual.cantidad_actual + cantidad)
-                    segundo_actual.save()
-                    logger.info(f"Segundo actualizado: {segundo_actual.segundo} - {cantidad_anterior} → {segundo_actual.cantidad_actual}")
-                except MenuDiaSegundo.DoesNotExist:
-                    logger.warning(f"No se encontró segundo con Plato ID {segundo_id} en el menú actual")
-        
-        elif tipo == 'sopa':
-            # Sopa individual
-            sopa_id = producto.get('sopa_id')
-            logger.info(f"Sopa individual - sopa_id: {sopa_id}")
-            if sopa_id:
-                try:
-                    # Buscar directamente por Plato ID en el menú actual
-                    sopa_actual = MenuDiaSopa.objects.get(menu=menu, sopa_id=sopa_id)
-                    cantidad_anterior = sopa_actual.cantidad_actual
-                    sopa_actual.cantidad_actual = max(0, sopa_actual.cantidad_actual + cantidad)
-                    sopa_actual.save()
-                    logger.info(f"Sopa individual actualizada: {sopa_actual.sopa} - {cantidad_anterior} → {sopa_actual.cantidad_actual}")
-                except MenuDiaSopa.DoesNotExist:
-                    logger.warning(f"No se encontró sopa con Plato ID {sopa_id} en el menú actual")
-        
-        elif tipo == 'segundo':
-            # Segundo individual
-            segundo_id = producto.get('segundo_id')
-            logger.info(f"Segundo individual - segundo_id: {segundo_id}")
-            if segundo_id:
-                try:
-                    # Buscar directamente por Plato ID en el menú actual
-                    segundo_actual = MenuDiaSegundo.objects.filter(menu=menu, segundo_id=segundo_id).first()
-                    cantidad_anterior = segundo_actual.cantidad_actual
-                    segundo_actual.cantidad_actual = max(0, segundo_actual.cantidad_actual + cantidad)
-                    segundo_actual.save()
-                    logger.info(f"Segundo individual actualizada: {segundo_actual.segundo} - {cantidad_anterior} → {segundo_actual.cantidad_actual}")
-                except MenuDiaSegundo.DoesNotExist:
-                    logger.warning(f"No se encontró segundo con Plato ID {segundo_id} en el menú actual")
-        
-        elif tipo == 'extra':
-            # Los extras no consumen cantidades del menú, solo se registran
-            logger.info(f"Extra procesado - no requiere actualización de cantidades")
-        
-        logger.info(f"Producto procesado exitosamente: {tipo}")
+        tipo = (producto.get("tipo") or "").lower()
+        delta = _delta_cantidad(producto, operacion)
+        log.info("Procesando producto: tipo=%s, delta_stock=%s", tipo, delta)
+
+        if tipo == "almuerzo":
+            sopa_id = _coerce_plato_id(producto.get("sopa_id"))
+            segundo_id = _coerce_plato_id(producto.get("segundo_id"))
+            log.info("Almuerzo - sopa_id: %s, segundo_id: %s", sopa_id, segundo_id)
+            _aplicar_delta_sopa(menu, sopa_id, delta, log)
+            _aplicar_delta_segundo(menu, segundo_id, delta, log)
+        elif tipo == "sopa":
+            sopa_id = _coerce_plato_id(producto.get("sopa_id"))
+            log.info("Sopa individual - sopa_id: %s", sopa_id)
+            _aplicar_delta_sopa(menu, sopa_id, delta, log)
+        elif tipo == "segundo":
+            segundo_id = _coerce_plato_id(producto.get("segundo_id"))
+            log.info("Segundo individual - segundo_id: %s", segundo_id)
+            _aplicar_delta_segundo(menu, segundo_id, delta, log)
+        elif tipo == "extra":
+            log.info("Extra procesado - no requiere actualización de cantidades")
+
+        log.info("Producto procesado exitosamente: %s", tipo)
 
 def calcular_precio_producto(tipo):
     """Calcula el precio unitario de un producto según su tipo"""
@@ -395,137 +398,186 @@ def guardar_pedido(request):
         if not productos_carrito:
             return JsonResponse({'status': 'error', 'message': 'No se recibieron productos del pedido'}, status=400)
 
-        # Si viene un ID, actualizar el pedido existente; si no, crear uno nuevo
-        if pedido_id_editar:
-            pedido = Pedido.objects.get(id=pedido_id_editar, estado='pendiente')
-
-            if es_agregar_productos:
-                # Solo agregar productos, no modificar campos del pedido
-                total_anterior = pedido.total
-                pedido.total = total_anterior + total_pedido  # Sumar al total existente
-                pedido.save()
-            else:
-                # Edición normal - actualizar campos del pedido
-                total_anterior = pedido.total
-                pedido.tipo = tipo_pedido
-                pedido.forma_pago = forma_pago
-                pedido.numero_mesa = mesa if mesa else None
-                pedido.contacto = contacto
-                pedido.subtipo_reservado = (
-                    subtipo_reservado
-                    if (tipo_pedido or '').lower() == 'reservado'
-                    else None
-                )
-                pedido.observaciones_generales = observaciones_generales
-                pedido.total = total_pedido
-                pedido.save()
-        else:
-            # Crear el pedido principal
-            pedido = Pedido.objects.create(
-                tipo=tipo_pedido,
-                forma_pago=forma_pago,
-                numero_mesa=mesa if mesa else None,
-                contacto=contacto,
-                subtipo_reservado=subtipo_reservado if tipo_pedido.lower() == 'reservado' else None,
-                observaciones_generales=observaciones_generales,
-                estado='pendiente',  # Guardar como pendiente
-                total=total_pedido  # Guardar el total del pedido
-            )
-            
-            # Debug: verificar que se guardó correctamente
-            print(f"[DEBUG] Pedido creado - ID: {pedido.id}, Subtipo guardado: {pedido.subtipo_reservado}")
-            print(f"[DEBUG] Tipo pedido: '{tipo_pedido}', Comparación: {tipo_pedido.lower() == 'reservado'}")
-
-        # Guardar productos del carrito en BD
-        productos_guardados = []
-        
-        # Si es edición, manejar productos existentes y nuevos
-        productos_existentes = {}  # Cambiar a diccionario para mantener referencias
-        productos_procesados = set()  # Para rastrear qué productos se procesaron
-        productos_originales = []  # Para devolver cantidades originales
-        
-        if pedido_id_editar:
-            # Obtener productos existentes con sus referencias
-            for almuerzo in pedido.almuerzos.all():
-                key = f"almuerzo_{almuerzo.sopa.id}_{almuerzo.segundo.id}_{almuerzo.jugo.id}"
-                productos_existentes[key] = {'tipo': 'almuerzo', 'objeto': almuerzo}
-                # Agregar a productos originales para devolver cantidades
-                productos_originales.append({
-                    'tipo': 'almuerzo',
-                    'cantidad': almuerzo.cantidad,
-                    'sopa_id': almuerzo.sopa.sopa.id,  # Plato ID
-                    'segundo_id': almuerzo.segundo.segundo.id  # Plato ID
-                })
-            for sopa in pedido.sopas.all():
-                key = f"sopa_{sopa.sopa.id}_{sopa.jugo.id}"
-                productos_existentes[key] = {'tipo': 'sopa', 'objeto': sopa}
-                # Agregar a productos originales para devolver cantidades
-                productos_originales.append({
-                    'tipo': 'sopa',
-                    'cantidad': sopa.cantidad,
-                    'sopa_id': sopa.sopa.sopa.id  # Plato ID
-                })
-            for segundo in pedido.segundos.all():
-                key = f"segundo_{segundo.segundo.id}_{segundo.jugo.id}"
-                productos_existentes[key] = {'tipo': 'segundo', 'objeto': segundo}
-                # Agregar a productos originales para devolver cantidades
-                productos_originales.append({
-                    'tipo': 'segundo',
-                    'cantidad': segundo.cantidad,
-                    'segundo_id': segundo.segundo.segundo.id  # Plato ID
-                })
-            # Agregar extras existentes
-            for extra in pedido.extras.all():
-                key = f"extra_{extra.extra.id}"
-                productos_existentes[key] = {'tipo': 'extra', 'objeto': extra}
-                # Agregar a productos originales para devolver cantidades
-                productos_originales.append({
-                    'tipo': 'extra',
-                    'cantidad': extra.cantidad,
-                    'extra_id': extra.extra.id  # Plato ID
-                })
-        
-        for producto in productos_carrito:
-            # Para extras, procesar cada extra individualmente
-            if producto['tipo'] == 'Extra':
-                # Los extras se procesan individualmente ya que cada uno es un registro separado
-                extras_ids = producto.get('extras_ids', '').split(',')
-                extras_a_crear = []  # Lista de IDs de extras que necesitan ser creados
-                
-                # Si es edición, verificar qué extras ya existen
-                if pedido_id_editar:
-                    for extra_id in extras_ids:
-                        if extra_id.strip():
-                            extra_key = f"extra_{extra_id.strip()}"
-                            if extra_key in productos_existentes:
-                                # El extra existe, actualizar cantidad
-                                extra_existente = productos_existentes[extra_key]['objeto']
-                                productos_procesados.add(extra_key)  # Marcar como procesado
-                                
-                                # Si la cantidad es 0, eliminar el extra
-                                if producto['cantidad'] <= 0:
-                                    extra_existente.delete()
-                                else:
-                                    extra_existente.cantidad = producto['cantidad']
-                                    extra_existente.observacion = producto.get('observacion', '')
-                                    extra_existente.save()
-                            else:
-                                # El extra no existe, agregarlo a la lista para crearlo
-                                extras_a_crear.append(extra_id.strip())
+        with transaction.atomic():
+            # Si viene un ID, actualizar el pedido existente; si no, crear uno nuevo
+            if pedido_id_editar:
+                pedido = Pedido.objects.get(id=pedido_id_editar, estado='pendiente')
+    
+                if es_agregar_productos:
+                    # Solo agregar productos, no modificar campos del pedido
+                    total_anterior = pedido.total
+                    pedido.total = total_anterior + total_pedido  # Sumar al total existente
+                    pedido.save()
                 else:
-                    # Pedido nuevo, todos los extras deben crearse
-                    extras_a_crear = [eid.strip() for eid in extras_ids if eid.strip()]
+                    # Edición normal - actualizar campos del pedido
+                    total_anterior = pedido.total
+                    pedido.tipo = tipo_pedido
+                    pedido.forma_pago = forma_pago
+                    pedido.numero_mesa = mesa if mesa else None
+                    pedido.contacto = contacto
+                    pedido.subtipo_reservado = (
+                        subtipo_reservado
+                        if (tipo_pedido or '').lower() == 'reservado'
+                        else None
+                    )
+                    pedido.observaciones_generales = observaciones_generales
+                    pedido.total = total_pedido
+                    pedido.save()
+            else:
+                # Crear el pedido principal
+                pedido = Pedido.objects.create(
+                    tipo=tipo_pedido,
+                    forma_pago=forma_pago,
+                    numero_mesa=mesa if mesa else None,
+                    contacto=contacto,
+                    subtipo_reservado=subtipo_reservado if tipo_pedido.lower() == 'reservado' else None,
+                    observaciones_generales=observaciones_generales,
+                    estado='pendiente',  # Guardar como pendiente
+                    total=total_pedido  # Guardar el total del pedido
+                )
                 
-                # Si hay extras a crear, crear el producto (que creará todos los extras)
-                if extras_a_crear:
-                    producto_creado = crear_producto_pedido(pedido, producto)
-                    if producto_creado:
-                        # Agregar todos los extras creados a productos_guardados
-                        for extra_id in extras_a_crear:
+                # Debug: verificar que se guardó correctamente
+                print(f"[DEBUG] Pedido creado - ID: {pedido.id}, Subtipo guardado: {pedido.subtipo_reservado}")
+                print(f"[DEBUG] Tipo pedido: '{tipo_pedido}', Comparación: {tipo_pedido.lower() == 'reservado'}")
+    
+            # Guardar productos del carrito en BD
+            productos_guardados = []
+            
+            # Si es edición, manejar productos existentes y nuevos
+            productos_existentes = {}  # Cambiar a diccionario para mantener referencias
+            productos_procesados = set()  # Para rastrear qué productos se procesaron
+            productos_originales = []  # Para devolver cantidades originales
+            
+            if pedido_id_editar:
+                # Obtener productos existentes con sus referencias
+                for almuerzo in pedido.almuerzos.all():
+                    key = f"almuerzo_{almuerzo.sopa.id}_{almuerzo.segundo.id}_{almuerzo.jugo.id}"
+                    productos_existentes[key] = {'tipo': 'almuerzo', 'objeto': almuerzo}
+                    # Agregar a productos originales para devolver cantidades
+                    productos_originales.append({
+                        'tipo': 'almuerzo',
+                        'cantidad': almuerzo.cantidad,
+                        'sopa_id': almuerzo.sopa.sopa.id,  # Plato ID
+                        'segundo_id': almuerzo.segundo.segundo.id  # Plato ID
+                    })
+                for sopa in pedido.sopas.all():
+                    key = f"sopa_{sopa.sopa.id}_{sopa.jugo.id}"
+                    productos_existentes[key] = {'tipo': 'sopa', 'objeto': sopa}
+                    # Agregar a productos originales para devolver cantidades
+                    productos_originales.append({
+                        'tipo': 'sopa',
+                        'cantidad': sopa.cantidad,
+                        'sopa_id': sopa.sopa.sopa.id  # Plato ID
+                    })
+                for segundo in pedido.segundos.all():
+                    key = f"segundo_{segundo.segundo.id}_{segundo.jugo.id}"
+                    productos_existentes[key] = {'tipo': 'segundo', 'objeto': segundo}
+                    # Agregar a productos originales para devolver cantidades
+                    productos_originales.append({
+                        'tipo': 'segundo',
+                        'cantidad': segundo.cantidad,
+                        'segundo_id': segundo.segundo.segundo.id  # Plato ID
+                    })
+                # Agregar extras existentes
+                for extra in pedido.extras.all():
+                    key = f"extra_{extra.extra.id}"
+                    productos_existentes[key] = {'tipo': 'extra', 'objeto': extra}
+                    # Agregar a productos originales para devolver cantidades
+                    productos_originales.append({
+                        'tipo': 'extra',
+                        'cantidad': extra.cantidad,
+                        'extra_id': extra.extra.id  # Plato ID
+                    })
+            
+            for producto in productos_carrito:
+                # Para extras, procesar cada extra individualmente
+                if producto['tipo'] == 'Extra':
+                    # Los extras se procesan individualmente ya que cada uno es un registro separado
+                    extras_ids = producto.get('extras_ids', '').split(',')
+                    extras_a_crear = []  # Lista de IDs de extras que necesitan ser creados
+                    
+                    # Si es edición, verificar qué extras ya existen
+                    if pedido_id_editar:
+                        for extra_id in extras_ids:
+                            if extra_id.strip():
+                                extra_key = f"extra_{extra_id.strip()}"
+                                if extra_key in productos_existentes:
+                                    # El extra existe, actualizar cantidad
+                                    extra_existente = productos_existentes[extra_key]['objeto']
+                                    productos_procesados.add(extra_key)  # Marcar como procesado
+                                    
+                                    # Si la cantidad es 0, eliminar el extra
+                                    if producto['cantidad'] <= 0:
+                                        extra_existente.delete()
+                                    else:
+                                        extra_existente.cantidad = producto['cantidad']
+                                        extra_existente.observacion = producto.get('observacion', '')
+                                        extra_existente.save()
+                                else:
+                                    # El extra no existe, agregarlo a la lista para crearlo
+                                    extras_a_crear.append(extra_id.strip())
+                    else:
+                        # Pedido nuevo, todos los extras deben crearse
+                        extras_a_crear = [eid.strip() for eid in extras_ids if eid.strip()]
+                    
+                    # Si hay extras a crear, crear el producto (que creará todos los extras)
+                    if extras_a_crear:
+                        producto_creado = crear_producto_pedido(pedido, producto)
+                        if producto_creado:
+                            # Agregar todos los extras creados a productos_guardados
+                            for extra_id in extras_a_crear:
+                                if extra_id.strip():
+                                    try:
+                                        from menu.models import Plato
+                                        extra_plato = Plato.objects.get(id=int(extra_id.strip()), tipo='extra')
+                                        extra_obj = PedidoExtra.objects.filter(
+                                            pedido=pedido,
+                                            extra=extra_plato
+                                        ).order_by('-id').first()
+                                        if extra_obj:
+                                            producto_dict = convertir_producto_a_dict(extra_obj, 'Extra')
+                                            if producto_dict:
+                                                extra_id_existente = producto_dict.get('extra_id')
+                                                if not any(p.get('extra_id') == extra_id_existente and p.get('tipo') == 'Extra' 
+                                                           for p in productos_guardados):
+                                                    productos_guardados.append(producto_dict)
+                                    except (Plato.DoesNotExist, ValueError):
+                                        continue
+                    # Continuar al siguiente producto
+                    continue
+                
+                # Generar clave del producto usando función auxiliar (para productos normales)
+                producto_key = generar_clave_producto(producto)
+                
+                # Si es edición y el producto existe, actualizar cantidad
+                if pedido_id_editar and producto_key in productos_existentes:
+                    producto_existente = productos_existentes[producto_key]['objeto']
+                    productos_procesados.add(producto_key)  # Marcar como procesado
+                    
+                    # Si la cantidad es 0, eliminar el producto
+                    if producto['cantidad'] <= 0:
+                        producto_existente.delete()
+                    else:
+                        producto_existente.cantidad = producto['cantidad']
+                        producto_existente.observacion = producto.get('observacion', '')
+                        producto_existente.save()
+                    continue
+                
+                # Crear producto usando función auxiliar
+                producto_creado = crear_producto_pedido(pedido, producto)
+                if producto_creado:
+                    # Para extras, crear_producto_pedido puede crear múltiples registros
+                    # Necesitamos agregar todos los extras creados
+                    if producto['tipo'] == 'Extra':
+                        # Obtener todos los extras recién creados para este pedido
+                        # Usar el ID del pedido y los extras_ids para encontrar los extras creados
+                        extras_ids = producto.get('extras_ids', '').split(',')
+                        for extra_id in extras_ids:
                             if extra_id.strip():
                                 try:
                                     from menu.models import Plato
                                     extra_plato = Plato.objects.get(id=int(extra_id.strip()), tipo='extra')
+                                    # Buscar el extra más reciente creado para este pedido y este plato
                                     extra_obj = PedidoExtra.objects.filter(
                                         pedido=pedido,
                                         extra=extra_plato
@@ -533,107 +585,59 @@ def guardar_pedido(request):
                                     if extra_obj:
                                         producto_dict = convertir_producto_a_dict(extra_obj, 'Extra')
                                         if producto_dict:
+                                            # Verificar que no esté ya en productos_guardados
                                             extra_id_existente = producto_dict.get('extra_id')
                                             if not any(p.get('extra_id') == extra_id_existente and p.get('tipo') == 'Extra' 
                                                        for p in productos_guardados):
                                                 productos_guardados.append(producto_dict)
                                 except (Plato.DoesNotExist, ValueError):
                                     continue
-                # Continuar al siguiente producto
-                continue
+                    else:
+                        # Para otros tipos de productos, usar el método normal
+                        producto_dict = convertir_producto_a_dict(producto_creado, producto['tipo'])
+                        if producto_dict:
+                            productos_guardados.append(producto_dict)
+    
+            # NOTA: No se actualiza caja automáticamente aquí
+            # Las ventas solo se suman cuando el pedido se marca como 'completado'
+    
+            # Si es edición, devolver cantidades originales antes de restar las nuevas
+            if pedido_id_editar and productos_originales:
+                print(f"=== EDITANDO PEDIDO {pedido_id_editar} ===")
+                print(f"Productos originales: {productos_originales}")
+                actualizar_cantidades_menu(productos_originales, 'sumar')
+                print("✅ Cantidades originales devueltas")
             
-            # Generar clave del producto usando función auxiliar (para productos normales)
-            producto_key = generar_clave_producto(producto)
-            
-            # Si es edición y el producto existe, actualizar cantidad
-            if pedido_id_editar and producto_key in productos_existentes:
-                producto_existente = productos_existentes[producto_key]['objeto']
-                productos_procesados.add(producto_key)  # Marcar como procesado
-                
-                # Si la cantidad es 0, eliminar el producto
-                if producto['cantidad'] <= 0:
+            # Actualizar cantidades del menú del día
+            print(f"Productos nuevos: {productos_carrito}")
+            actualizar_cantidades_menu(productos_carrito, 'restar')
+            print("✅ Cantidades nuevas restadas")
+    
+            # Si es edición, eliminar productos que ya no están en el carrito
+            if pedido_id_editar and not es_agregar_productos:
+                # Solo eliminar productos si NO estamos agregando productos
+                # Encontrar productos que no fueron procesados (eliminados del carrito)
+                productos_a_eliminar = set(productos_existentes.keys()) - productos_procesados
+                print(f"DEBUG: Productos a eliminar: {productos_a_eliminar}")
+                print(f"DEBUG: Productos existentes: {set(productos_existentes.keys())}")
+                print(f"DEBUG: Productos procesados: {productos_procesados}")
+                for producto_key in productos_a_eliminar:
+                    producto_existente = productos_existentes[producto_key]['objeto']
                     producto_existente.delete()
-                else:
-                    producto_existente.cantidad = producto['cantidad']
-                    producto_existente.observacion = producto.get('observacion', '')
-                    producto_existente.save()
-                continue
+                    print(f"DEBUG: Producto eliminado: {producto_key}")
             
-            # Crear producto usando función auxiliar
-            producto_creado = crear_producto_pedido(pedido, producto)
-            if producto_creado:
-                # Para extras, crear_producto_pedido puede crear múltiples registros
-                # Necesitamos agregar todos los extras creados
-                if producto['tipo'] == 'Extra':
-                    # Obtener todos los extras recién creados para este pedido
-                    # Usar el ID del pedido y los extras_ids para encontrar los extras creados
-                    extras_ids = producto.get('extras_ids', '').split(',')
-                    for extra_id in extras_ids:
-                        if extra_id.strip():
-                            try:
-                                from menu.models import Plato
-                                extra_plato = Plato.objects.get(id=int(extra_id.strip()), tipo='extra')
-                                # Buscar el extra más reciente creado para este pedido y este plato
-                                extra_obj = PedidoExtra.objects.filter(
-                                    pedido=pedido,
-                                    extra=extra_plato
-                                ).order_by('-id').first()
-                                if extra_obj:
-                                    producto_dict = convertir_producto_a_dict(extra_obj, 'Extra')
-                                    if producto_dict:
-                                        # Verificar que no esté ya en productos_guardados
-                                        extra_id_existente = producto_dict.get('extra_id')
-                                        if not any(p.get('extra_id') == extra_id_existente and p.get('tipo') == 'Extra' 
-                                                   for p in productos_guardados):
-                                            productos_guardados.append(producto_dict)
-                            except (Plato.DoesNotExist, ValueError):
-                                continue
-                else:
-                    # Para otros tipos de productos, usar el método normal
-                    producto_dict = convertir_producto_a_dict(producto_creado, producto['tipo'])
-                    if producto_dict:
-                        productos_guardados.append(producto_dict)
-
-        # NOTA: No se actualiza caja automáticamente aquí
-        # Las ventas solo se suman cuando el pedido se marca como 'completado'
-
-        # Si es edición, devolver cantidades originales antes de restar las nuevas
-        if pedido_id_editar and productos_originales:
-            print(f"=== EDITANDO PEDIDO {pedido_id_editar} ===")
-            print(f"Productos originales: {productos_originales}")
-            actualizar_cantidades_menu(productos_originales, 'sumar')
-            print("✅ Cantidades originales devueltas")
-        
-        # Actualizar cantidades del menú del día
-        print(f"Productos nuevos: {productos_carrito}")
-        actualizar_cantidades_menu(productos_carrito, 'restar')
-        print("✅ Cantidades nuevas restadas")
-
-        # Si es edición, eliminar productos que ya no están en el carrito
-        if pedido_id_editar and not es_agregar_productos:
-            # Solo eliminar productos si NO estamos agregando productos
-            # Encontrar productos que no fueron procesados (eliminados del carrito)
-            productos_a_eliminar = set(productos_existentes.keys()) - productos_procesados
-            print(f"DEBUG: Productos a eliminar: {productos_a_eliminar}")
-            print(f"DEBUG: Productos existentes: {set(productos_existentes.keys())}")
-            print(f"DEBUG: Productos procesados: {productos_procesados}")
-            for producto_key in productos_a_eliminar:
-                producto_existente = productos_existentes[producto_key]['objeto']
-                producto_existente.delete()
-                print(f"DEBUG: Producto eliminado: {producto_key}")
-        
-        # Reconstruir productos desde la BD usando función auxiliar (después de eliminar)
-        productos_reconstruidos = obtener_productos_pedido(pedido)
-        
-        # Recalcular el total real desde la BD
-        total_real = Decimal('0.00')
-        for producto in productos_reconstruidos:
-            total_real += Decimal(str(producto['precio_unitario'])) * Decimal(str(producto['cantidad']))
-        
-        # Actualizar el total del pedido si es diferente
-        if pedido.total != total_real:
-            pedido.total = total_real
-            pedido.save()
+            # Reconstruir productos desde la BD usando función auxiliar (después de eliminar)
+            productos_reconstruidos = obtener_productos_pedido(pedido)
+            
+            # Recalcular el total real desde la BD
+            total_real = Decimal('0.00')
+            for producto in productos_reconstruidos:
+                total_real += Decimal(str(producto['precio_unitario'])) * Decimal(str(producto['cantidad']))
+            
+            # Actualizar el total del pedido si es diferente
+            if pedido.total != total_real:
+                pedido.total = total_real
+                pedido.save()
 
         # Enviar mensaje WebSocket
         try:
@@ -953,20 +957,22 @@ def eliminar_pedido(request):
                 'segundo_id': segundo.segundo.segundo.id  # Plato.id
             })
         
-        # Actualizar cantidades del menú (sumar de vuelta)
-        actualizar_cantidades_menu(productos_pedido, 'sumar')
-        
-        # Enviar mensaje WebSocket antes de eliminar
+        pedido_data_ws = None
         try:
-            pedido_data = serializar_pedido_para_websocket(pedido)
-            if pedido_data:
-                enviar_mensaje_websocket('pedido_eliminado', pedido_data)
+            pedido_data_ws = serializar_pedido_para_websocket(pedido)
+        except Exception as e:
+            print(f"[WEBSOCKET] Error al serializar pedido antes de eliminar: {e}")
+
+        with transaction.atomic():
+            actualizar_cantidades_menu(productos_pedido, 'sumar')
+            pedido.delete()
+
+        try:
+            if pedido_data_ws:
+                enviar_mensaje_websocket('pedido_eliminado', pedido_data_ws)
         except Exception as e:
             print(f"[WEBSOCKET] Error al enviar mensaje: {e}")
-        
-        # Eliminar el pedido
-        pedido.delete()
-        
+
         return JsonResponse({'status': 'ok', 'message': 'Pedido eliminado correctamente'})
         
     except Pedido.DoesNotExist:
