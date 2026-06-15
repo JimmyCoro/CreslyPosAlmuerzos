@@ -43,22 +43,8 @@ def dashboard_caja(request):
         pedidos_transferencia = 0
         
         for pedido in pedidos_hoy:
-            # Calcular el total del pedido sumando todos sus items
-            total_pedido = 0
-            
-            # Sumar almuerzos
-            for almuerzo in pedido.almuerzos.all():
-                total_pedido += almuerzo.precio_unitario * almuerzo.cantidad
-            
-            # Sumar sopas
-            for sopa in pedido.sopas.all():
-                total_pedido += sopa.precio_unitario * sopa.cantidad
-            
-            # Sumar segundos
-            for segundo in pedido.segundos.all():
-                total_pedido += segundo.precio_unitario * segundo.cantidad
-            
-            # Agregar al total según forma de pago
+            total_pedido = pedido.total
+
             if pedido.forma_pago == 'Efectivo':
                 total_efectivo += total_pedido
                 pedidos_efectivo += 1
@@ -159,14 +145,7 @@ def dashboard_caja(request):
             pedidos_dia = Pedido.objects.filter(fecha_creacion__date=fecha_dia, estado='completado')
             
             # Calcular ventas del día
-            ventas_dia = 0
-            for pedido in pedidos_dia:
-                for almuerzo in pedido.almuerzos.all():
-                    ventas_dia += almuerzo.precio_unitario * almuerzo.cantidad
-                for sopa in pedido.sopas.all():
-                    ventas_dia += sopa.precio_unitario * sopa.cantidad
-                for segundo in pedido.segundos.all():
-                    ventas_dia += segundo.precio_unitario * segundo.cantidad
+            ventas_dia = sum(p.total for p in pedidos_dia)
             
             datos_semana.append({
                 'dia': dias_semana[i],
@@ -283,25 +262,10 @@ def cerrar_caja(request):
         total_transferencia = 0
         
         for pedido in pedidos_caja:
-            total_pedido = 0
-            
-            # Sumar almuerzos
-            for almuerzo in pedido.almuerzos.all():
-                total_pedido += almuerzo.precio_unitario * almuerzo.cantidad
-            
-            # Sumar sopas
-            for sopa in pedido.sopas.all():
-                total_pedido += sopa.precio_unitario * sopa.cantidad
-            
-            # Sumar segundos
-            for segundo in pedido.segundos.all():
-                total_pedido += segundo.precio_unitario * segundo.cantidad
-            
-            # Agregar al total según forma de pago
             if pedido.forma_pago == 'Efectivo':
-                total_efectivo += total_pedido
+                total_efectivo += pedido.total
             elif pedido.forma_pago == 'Transferencia':
-                total_transferencia += total_pedido
+                total_transferencia += pedido.total
         
         # Actualizar caja efectivo
         caja_efectivo = caja_abierta.caja_efectivo

@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, transaction
 from menu.models import MenuDiaSopa, MenuDiaSegundo, MenuDiaJugo, Plato
 from django.utils import timezone
 
@@ -36,16 +36,19 @@ class Pedido( models.Model):
         return f"{self.tipo} - {self.forma_pago} - {self.fecha} - {self.estado}"
     
     def save(self, *args, **kwargs):
-        # Si es un nuevo pedido (no tiene ID), asignar el siguiente número del día
         if not self.pk:
             today = timezone.now().date()
-            ultimo_pedido_hoy = Pedido.objects.filter(fecha_creacion__date=today).order_by('-numero_dia').first()
-            
-            if ultimo_pedido_hoy:
-                self.numero_dia = ultimo_pedido_hoy.numero_dia + 1
-            else:
-                self.numero_dia = 1
-        
+            with transaction.atomic():
+                ultimo_pedido_hoy = (
+                    Pedido.objects.select_for_update()
+                    .filter(fecha_creacion__date=today)
+                    .order_by('-numero_dia')
+                    .first()
+                )
+                self.numero_dia = (ultimo_pedido_hoy.numero_dia + 1) if ultimo_pedido_hoy else 1
+                super().save(*args, **kwargs)
+            return
+
         super().save(*args, **kwargs)
     
     @property
