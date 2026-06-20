@@ -34,12 +34,13 @@
     {% endblock %}
 </head>
 <body>
-
-    <header>{% include 'components/navbar.html' %}</header>
-    <div class="contenido">
-        {% block content %}
-        {% endblock %}
+  <div class="app-layout">
+    <aside class="sidebar">{% include 'components/navbar.html' %}</aside>
+    <div class="main-content">
+      {% block content %}
+      {% endblock %}
     </div>
+  </div>
 
 
 

@@ -24,11 +24,64 @@ body {
 /* CONSOLIDADO EN MEDIA QUERIES UNIFICADAS */
 
 .contenedor-principal{
-    height: calc(100vh - 50px);
+    height: 100vh;
     padding: 5px;
     overflow: hidden;
-    margin-top: 50px;
+    margin-top: 0;
     box-sizing: border-box;
+}
+
+/* ===== HEADER DE PÁGINA ===== */
+.page-header {
+    padding-top: 1.25rem;
+    padding-bottom: 0.75rem;
+}
+
+.page-title {
+    font-family: var(--fuente-titulos);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
+    line-height: 1.2;
+}
+
+.page-subtitle {
+    font-family: var(--fuente-principal);
+    font-size: 0.85rem;
+    color: #6b7280;
+    font-weight: 400;
+    margin-top: 2px;
+}
+
+/* Botón nuevo pedido */
+.btn-nuevo-pedido {
+    font-family: var(--fuente-principal);
+    font-size: 0.9rem;
+    font-weight: 600;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.4rem 1rem;
+    transition: background 0.2s ease;
+}
+
+.btn-nuevo-pedido:hover {
+    background-color: var(--primary-color-hover);
+    color: white;
+}
+
+/* ===== BORDES DE COLOR POR TIPO ===== */
+.pedido-tipo-servirse {
+    border-left: 4px solid #3b82f6 !important;
+}
+
+.pedido-tipo-llevar {
+    border-left: 4px solid #f59e0b !important;
+}
+
+.pedido-tipo-reservado {
+    border-left: 4px solid #8b5cf6 !important;
 }
 
 /* CONSOLIDADO EN MEDIA QUERIES UNIFICADAS */
@@ -180,24 +233,24 @@ body {
     border-radius: 12px;
 }
 
-/* Badges específicos como en la imagen */
+/* Badges de los tabs */
 .badge-todos {
-    background-color: #6c757d !important;
+    background-color: #6b7280 !important;
     color: white;
 }
 
 .badge-servirse {
-    background-color: #007bffa9 !important;
+    background-color: #3b82f6 !important;
     color: white;
 }
 
 .badge-llevar {
-    background-color: #24bb75b6 !important;
-    color: #212529;
+    background-color: #f59e0b !important;
+    color: white;
 }
 
 .badge-reservados {
-    background-color: #fd7d14c4 !important;
+    background-color: #8b5cf6 !important;
     color: white;
 }
 
@@ -411,15 +464,18 @@ body {
 }
 
 .pedido-card .badge-servirse {
-    background: linear-gradient(45deg, #007bff, #0056b3);
+    background-color: #3b82f6;
+    color: white;
 }
 
 .pedido-card .badge-llevar {
-    background: linear-gradient(45deg, #28a745, #20c997);
+    background-color: #f59e0b;
+    color: white;
 }
 
 .pedido-card .badge-reservado {
-    background: linear-gradient(45deg, #fd7e14, #e55a00);
+    background-color: #8b5cf6;
+    color: white;
 }
 
 /* Hora */
@@ -715,7 +771,7 @@ body {
   /* Estilos para móviles - mantener diseño de tarjetas */
   .contenedor-principal {
     padding: 5px !important;
-    margin-top: 50px !important;
+    margin-top: 0 !important;
     width: 100% !important;
     max-width: 100% !important;
     overflow-x: hidden !important;
@@ -763,10 +819,10 @@ body {
 
 /* Tablets (601px - 991.98px) */
 @media (min-width: 601px) and (max-width: 991.98px) {
-    
+
   .contenedor-principal {
     padding: 10px !important;
-    margin-top: 70px !important;
+    margin-top: 0 !important;
   }
   
   .pedidos-scroll {
@@ -790,7 +846,7 @@ body {
 @media (min-width: 992px) {
   .contenedor-principal {
     padding: 20px !important;
-    margin-top: 70px !important;
+    margin-top: 0 !important;
   }
   
   .pedidos-scroll {
@@ -813,7 +869,7 @@ body {
 @media (min-width: 1200px) {
   .contenedor-principal {
     padding: 25px !important;
-    margin-top: 60px !important;
+    margin-top: 0 !important;
   }
   
   .pedidos-scroll {

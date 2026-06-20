@@ -2,46 +2,64 @@
 {% load static %}
 {% load math_filters %}
 
-{% block extra_css %}
+{% block styles %}
 <link rel="stylesheet" href="{% static 'CSS/menu.css' %}">
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid contenedor-principal mt-5 pt-5">
+<div class="container-fluid menu-contenedor">
   <div class="row">
     <div class="col-12">
+
       <!-- Header con título -->
-      <div class="d-flex justify-content-between align-items-center px-5 mb-4">
-        <h4 class="mb-0 fw-bold text-dark">
-          <i class="fas fa-utensils me-2"></i>Menú del Día
-        </h4>
-        <div class="d-flex gap-3">
-          <button class="btn btn-configurar-menu btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#menuDiaModal">
-            <i class="fas fa-cogs me-2"></i>Configurar Menú
-          </button>
-          <button class="btn btn-outline-secondary" onclick="window.history.back()">
-            <i class="fas fa-arrow-left me-2"></i>Volver
-          </button>
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h2 class="page-title mb-0">Menú del día</h2>
+          <p class="page-subtitle mb-0">
+            {% now "l, j \d\e F" %}
+          </p>
+        </div>
+        <button class="btn btn-configurar-rojo" data-bs-toggle="modal" data-bs-target="#menuDiaModal">
+          <i class="fas fa-sliders-h me-2"></i>Configurar menú
+        </button>
+      </div>
+
+      <!-- Banner oscuro resumen -->
+      <div class="menu-banner mb-4">
+        <div class="menu-banner-icon">
+          <i class="fas fa-star"></i>
+        </div>
+        <div class="menu-banner-info">
+          <span class="menu-banner-label">ALMUERZO EJECUTIVO</span>
+          <span class="menu-banner-desc">Sopa + Segundo + Jugo</span>
+        </div>
+        <div class="menu-banner-counts">
+          {{ sopas_dia|length }} sopa{% if sopas_dia|length != 1 %}s{% endif %} &middot;
+          {{ segundos_dia|length }} segundo{% if segundos_dia|length != 1 %}s{% endif %} &middot;
+          {{ jugos_dia|length }} jugo{% if jugos_dia|length != 1 %}s{% endif %} disponibles hoy
         </div>
       </div>
 
       <!-- Cards del menú -->
-      <div class="row g-4 px-5">
+      <div class="row g-3 mb-4">
         <!-- Card Sopas -->
         <div class="col-12 col-md-6 col-lg-4">
           <div class="card card-sopas">
-            <div class="card-header card-header-sopas">  
-              <i class="fas fa-mug-hot me-2"></i>Sopas
+            <div class="card-header card-header-sopas d-flex justify-content-between align-items-center">
+              <span><i class="fas fa-mug-hot me-2"></i>Sopas
+                <small class="ms-1 opacity-75">{{ sopas_dia|length }} opciones</small>
+              </span>
             </div>
             <ul class="list-group list-group-flush">
               {% for item in sopas_dia %}
                 <li class="list-group-item" data-sopa-id="{{ item.id }}">
-                <span class="nombre-sopa">{{ item.sopa }}</span> 
-                <span class="cantidad-sopa">
-                  <span class="punto-cantidad{% if item.cantidad_actual == 0 %} sin-productos{% elif item.cantidad_actual <= item.cantidad|add:'-1'|multiply:0.5 %} pocos-productos{% endif %}"></span>
-                  {{ item.cantidad_actual }}
-                </span>
-                </li>{% empty %}
+                  <span class="nombre-sopa">{{ item.sopa }}</span>
+                  <span class="cantidad-sopa">
+                    <span class="punto-cantidad{% if item.cantidad_actual == 0 %} sin-productos{% elif item.cantidad_actual <= item.cantidad|add:'-1'|multiply:0.5 %} pocos-productos{% endif %}"></span>
+                    ×{{ item.cantidad_actual }}
+                  </span>
+                </li>
+              {% empty %}
                 <li class="list-group-item text-muted">No configurado</li>
               {% endfor %}
             </ul>
@@ -51,33 +69,73 @@
         <!-- Card Segundos -->
         <div class="col-12 col-md-6 col-lg-4">
           <div class="card card-segundos">
-            <div class="card-header card-header-segundos">
-                <i class="fas fa-drumstick-bite me-2"></i>Segundos
+            <div class="card-header card-header-segundos d-flex justify-content-between align-items-center">
+              <span><i class="fas fa-drumstick-bite me-2"></i>Segundos
+                <small class="ms-1 opacity-75">{{ segundos_dia|length }} opciones</small>
+              </span>
             </div>
             <ul class="list-group list-group-flush">
-            {% for item in segundos_dia %}
-            <li class="list-group-item" data-segundo-id="{{ item.id }}">
-            <span class="nombre-segundo">{{ item.segundo }}</span> 
-            <span class="cantidad-segundo">
-              <span class="punto-cantidad{% if item.cantidad_actual == 0 %} sin-productos{% elif item.cantidad_actual <= item.cantidad|add:'-1'|multiply:0.5 %} pocos-productos{% endif %}"></span>
-              {{ item.cantidad_actual }}
-            </span>
-            </li>{% empty %}
-            <li class="list-group-item text-muted">No configurado</li>{% endfor %}</ul></div>
+              {% for item in segundos_dia %}
+                <li class="list-group-item" data-segundo-id="{{ item.id }}">
+                  <span class="nombre-segundo">{{ item.segundo }}</span>
+                  <span class="cantidad-segundo">
+                    <span class="punto-cantidad{% if item.cantidad_actual == 0 %} sin-productos{% elif item.cantidad_actual <= item.cantidad|add:'-1'|multiply:0.5 %} pocos-productos{% endif %}"></span>
+                    ×{{ item.cantidad_actual }}
+                  </span>
+                </li>
+              {% empty %}
+                <li class="list-group-item text-muted">No configurado</li>
+              {% endfor %}
+            </ul>
+          </div>
         </div>
 
         <!-- Card Jugos -->
         <div class="col-12 col-md-6 col-lg-4">
           <div class="card card-jugos">
-            <div class="card-header card-header-jugos">
-                <i class="fas fa-glass-whiskey me-2"></i>Jugos
+            <div class="card-header card-header-jugos d-flex justify-content-between align-items-center">
+              <span><i class="fas fa-glass-whiskey me-2"></i>Jugos
+                <small class="ms-1 opacity-75">{{ jugos_dia|length }} opciones</small>
+              </span>
             </div>
             <ul class="list-group list-group-flush">
-            {% for item in jugos_dia %}
-            <li class="list-group-item">{{ item.jugo }}</li>{% empty %}
-            <li class="list-group-item text-muted">No configurado</li>{% endfor %}</ul></div>
+              {% for item in jugos_dia %}
+                <li class="list-group-item">
+                  <span class="punto-cantidad"></span>
+                  {{ item.jugo }}
+                  <span class="ms-auto text-muted small">Disponible</span>
+                </li>
+              {% empty %}
+                <li class="list-group-item text-muted">No configurado</li>
+              {% endfor %}
+            </ul>
+          </div>
         </div>
       </div>
+
+      <!-- Extras y adicionales -->
+      <div class="extras-section">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h5 class="extras-title mb-0">Extras y adicionales</h5>
+            <small class="text-muted">Disponibles para añadir a cualquier pedido</small>
+          </div>
+          <button class="btn btn-agregar-extra" data-bs-toggle="modal" data-bs-target="#menuDiaModal">
+            <i class="fas fa-plus me-1"></i>Añadir extra
+          </button>
+        </div>
+        <div class="extras-chips">
+          {% for item in extras_dia %}
+            <span class="extra-chip">
+              {{ item.extra.nombre_plato }}
+              <span class="extra-chip-price">${{ item.extra.precio }}</span>
+            </span>
+          {% empty %}
+            <span class="text-muted small">No hay extras configurados para hoy</span>
+          {% endfor %}
+        </div>
+      </div>
+
     </div>
   </div>
 </div>

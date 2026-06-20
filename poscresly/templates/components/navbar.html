@@ -1,37 +1,47 @@
 {% load static %}
-<nav class="navbar navbar-expand-lg fixed-top ">
-  <div class="container-fluid" style="max-width: 80%;">
-    <a class="navbar-brand" href="/">
-      <img src="{% static 'IMG/logo.png' %}" alt="Logo" class="logo-navbar">
-    </a>  
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
 
-    <div class="collapse navbar-collapse justify-content-end " id="navbarNav">
-      <ul class="navbar-nav">
-        <li class="nav-item-bar nav-caja">
-          <a class="nav-link" href="{% url 'dashboard_caja' %}">Caja</a>
-        </li>
-        <li class="nav-item-bar nav-mesas">
-          <a class="nav-link" href="{% url 'menu' %}">Menu</a>
-        </li>
+<div class="sidebar-brand">
+  <div class="brand-icon">C</div>
+  <div class="brand-text">
+    <span class="brand-name">Cresly</span>
+    <span class="brand-sub">Punto de venta</span>
+  </div>
+</div>
 
-        {% if user.is_authenticated %}
-          <!-- Mostrar nombre del usuario autenticado -->
+<nav class="sidebar-nav">
+  <span class="sidebar-section-label">OPERACIÓN</span>
 
-          <li class="nav-sesion d-flex align-items-center">
-            <a class="nav-link" href="#"></a>
-          </li>
-        {% else %}
-          <!-- Mostrar el botón para iniciar sesión si no está autenticado
-          <li class="nav-item nav-cuenta d-flex justify-content-end">
-            <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#authModal" data-bs-whatever="@getbootstrap">
-              <i class="bi bi-person-circle"></i>
-            </button>
-          </li> -->
-        {% endif %}
-      </ul>
+  <a href="{% url 'inicio' %}" class="sidebar-link {% if request.path == '/' %}sidebar-active{% endif %}">
+    <i class="fas fa-receipt sidebar-icon"></i>
+    <span>Pedidos</span>
+    {% if request.path == '/' %}<span class="sidebar-active-dot"></span>{% endif %}
+  </a>
+
+  <a href="{% url 'dashboard_caja' %}" class="sidebar-link {% if '/caja/' in request.path %}sidebar-active{% endif %}">
+    <i class="bi bi-cash-stack sidebar-icon"></i>
+    <span>Caja</span>
+    {% if '/caja/' in request.path %}<span class="sidebar-active-dot"></span>{% endif %}
+  </a>
+
+  <a href="{% url 'menu' %}" class="sidebar-link {% if '/menu/' in request.path %}sidebar-active{% endif %}">
+    <i class="fas fa-utensils sidebar-icon"></i>
+    <span>Menú del día</span>
+    {% if '/menu/' in request.path %}<span class="sidebar-active-dot"></span>{% endif %}
+  </a>
+</nav>
+
+<div class="sidebar-footer">
+  <a href="#" class="sidebar-link">
+    <i class="fas fa-cog sidebar-icon"></i>
+    <span>Configuración</span>
+  </a>
+  {% if user.is_authenticated %}
+  <div class="sidebar-user">
+    <div class="user-avatar-icon">A</div>
+    <div class="user-details">
+      <span class="user-name">{{ user.get_full_name|default:user.username }}</span>
+      <span class="user-role">Cresly · Cajero</span>
     </div>
   </div>
-</nav>
+  {% endif %}
+</div>
