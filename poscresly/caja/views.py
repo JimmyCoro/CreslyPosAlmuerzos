@@ -6,7 +6,7 @@ from django.views.decorators.http import require_http_methods
 from django.utils import timezone
 from datetime import date
 from .models import CajaDiaria, CajaEfectivo, CajaTransferencia, Gasto
-from pedidos.models import Pedido, PedidoAlmuerzo, PedidoSopa, PedidoSegundo
+from pedidos.models import Pedido
 from menu.models import MenuDia
 from collections import defaultdict
 
@@ -153,15 +153,37 @@ def dashboard_caja(request):
                 'pedidos': pedidos_dia.count()
             })
        
+    # Datos por hora para el gráfico de evolución
+    total_ventas = total_efectivo + total_transferencia
+    total_gastos = sum(g.monto for g in gastos_hoy)
+    balance_neto = total_ventas - total_gastos
+
+    ventas_por_hora = defaultdict(float)
+    if caja_actual:
+        for pedido in pedidos_hoy:
+            hora = timezone.localtime(pedido.fecha_creacion).hour
+            ventas_por_hora[hora] += float(pedido.total)
+
+    hora_actual = timezone.localtime().hour
+    hora_fin = max(hora_actual, 15)
+    datos_horas = [
+        {'hora': f"{h:02d}:00", 'ventas': round(ventas_por_hora.get(h, 0), 2)}
+        for h in range(8, hora_fin + 1)
+    ]
+
+    total_metodos = pedidos_efectivo + pedidos_transferencia
+    porcentaje_efectivo = round((pedidos_efectivo / total_metodos * 100) if total_metodos > 0 else 0)
+
     context = {
-        'caja_hoy': caja_actual,  # Caja actual (abierta o última del día)
-        'caja_abierta': caja_abierta,  # Caja abierta (si existe)
+        'caja_hoy': caja_actual,
+        'caja_abierta': caja_abierta,
         'pedidos_hoy': pedidos_hoy,
         'gastos_hoy': gastos_hoy,
         'total_efectivo': total_efectivo,
         'total_transferencia': total_transferencia,
-        'total_ventas': total_efectivo + total_transferencia,
-        'total_gastos': sum(g.monto for g in gastos_hoy),
+        'total_ventas': total_ventas,
+        'total_gastos': total_gastos,
+        'balance_neto': balance_neto,
         'monto_inicial_efectivo': monto_inicial_efectivo,
         'monto_inicial_transferencia': monto_inicial_transferencia,
         'monto_final_efectivo': monto_final_efectivo,
@@ -172,6 +194,8 @@ def dashboard_caja(request):
         'productos_vendidos': productos_ordenados,
         'menu_hoy': menu_hoy,
         'datos_semana': datos_semana,
+        'datos_horas': datos_horas,
+        'porcentaje_efectivo': porcentaje_efectivo,
     }
     
     return render(request, 'caja/caja.html', context)
