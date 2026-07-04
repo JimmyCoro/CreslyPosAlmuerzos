@@ -37,7 +37,7 @@ class Pedido( models.Model):
     
     def save(self, *args, **kwargs):
         if not self.pk:
-            today = timezone.now().date()
+            today = timezone.localdate()
             with transaction.atomic():
                 ultimo_pedido_hoy = (
                     Pedido.objects.select_for_update()
