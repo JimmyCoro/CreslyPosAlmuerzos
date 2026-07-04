@@ -34,7 +34,23 @@
   <style>
     /* Sidebar icon-only: tablet horizontal (768px–1439px landscape) */
     @media (min-width: 768px) and (max-width: 1439px) and (orientation: landscape) {
-      .sidebar { width: 72px !important; min-width: 72px !important; padding: 1.25rem 0.4rem; align-items: center; overflow: hidden; }
+      /* Resetear el modo "panel deslizable" de max-width:1023px */
+      .sidebar {
+        position: relative !important;
+        transform: none !important;
+        height: 100vh !important;
+        width: 72px !important;
+        min-width: 72px !important;
+        padding: 1.25rem 0.4rem;
+        align-items: center;
+        overflow: hidden;
+        box-shadow: none !important;
+        z-index: auto !important;
+      }
+      .sidebar-overlay { display: none !important; }
+      .sidebar-close-btn { display: none !important; }
+      .main-content { width: calc(100% - 72px) !important; }
+
       .sidebar-brand .brand-text,
       .sidebar-section-label,
       .sidebar-user .user-details { display: none !important; }
