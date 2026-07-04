@@ -26,6 +26,8 @@ html, body {
   padding: 1.25rem 0.75rem;
   box-sizing: border-box;
   flex-shrink: 0;
+  position: relative;
+  z-index: 1000;
 }
 
 /* Brand */
@@ -187,6 +189,171 @@ html, body {
   font-family: var(--fuente-principal);
 }
 
+/* Botón cerrar sidebar (tablet/móvil) */
+.sidebar-close-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.sidebar-close-btn:hover {
+  color: #f9fafb;
+  background: #1f2937;
+}
+
+/* ===== OVERLAY ===== */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 999;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.sidebar-overlay.active {
+  opacity: 1;
+}
+
+/* ===== TOPBAR ===== */
+.app-topbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0 1.25rem;
+  height: 56px;
+  min-height: 56px;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  flex-shrink: 0;
+}
+
+.sidebar-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: #374151;
+  font-size: 1rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s ease;
+}
+
+.sidebar-toggle:hover {
+  background: #f3f4f6;
+}
+
+.topbar-center {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.topbar-search {
+  flex: 1;
+  position: relative;
+  max-width: 480px;
+}
+
+.topbar-search-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  font-size: 0.8rem;
+  pointer-events: none;
+}
+
+.topbar-search-input {
+  width: 100%;
+  height: 36px;
+  padding: 0 0.75rem 0 2.25rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #f9fafb;
+  font-size: 0.85rem;
+  color: #374151;
+  font-family: var(--fuente-principal);
+  outline: none;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.topbar-search-input::placeholder {
+  color: #9ca3af;
+}
+
+.topbar-search-input:focus {
+  border-color: #d1d5db;
+  background: #ffffff;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.topbar-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  color: #6b7280;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.topbar-icon-btn:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.topbar-datetime {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.2;
+}
+
+.topbar-date {
+  font-size: 0.72rem;
+  color: #6b7280;
+  font-family: var(--fuente-principal);
+  text-transform: capitalize;
+}
+
+.topbar-time {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #111827;
+  font-family: var(--fuente-principal);
+}
+
 /* ===== CONTENIDO PRINCIPAL ===== */
 .main-content {
   flex: 1;
@@ -197,13 +364,81 @@ html, body {
   min-width: 0;
 }
 
-/* ===== RESPONSIVE - MÓVIL ===== */
-@media (max-width: 768px) {
+/* ===== RESPONSIVE — TABLET Y MÓVIL ===== */
+/* Breakpoints:
+   < 768px          → móvil
+   768px – 1023px   → tablet vertical
+   1024px – 1439px  → tablet horizontal (sidebar icon-only)
+   ≥ 1440px         → desktop (sidebar completo)
+*/
+@media (max-width: 1023px) {
+  /* Sidebar se convierte en panel deslizable */
   .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    z-index: 1000;
+  }
+
+  .sidebar.sidebar-open {
+    transform: translateX(0);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.45);
+  }
+
+  /* Overlay visible cuando sidebar está abierto */
+  .sidebar-overlay {
+    display: block;
+    pointer-events: none;
+  }
+
+  .sidebar-overlay.active {
+    pointer-events: auto;
+  }
+
+  /* Mostrar botón de cerrar dentro del sidebar */
+  .sidebar-close-btn {
+    display: flex;
+    align-self: flex-end;
+  }
+
+  /* Mostrar botón hamburguesa en topbar */
+  .sidebar-toggle {
+    display: flex;
+  }
+
+  /* Contenido ocupa todo el ancho */
+  .main-content {
+    width: 100%;
+  }
+
+  /* Reducir búsqueda en tablet */
+  .topbar-search {
+    max-width: 300px;
+  }
+}
+
+/* Sidebar icon-only: ver <style> en base.html (evita caché del service worker) */
+
+@media (max-width: 640px) {
+  /* En móvil, ocultar texto de fecha y reducir búsqueda */
+  .topbar-search {
+    max-width: none;
+    flex: 1;
+  }
+
+  .topbar-date {
     display: none;
   }
 
-  .main-content {
-    width: 100%;
+  .topbar-datetime {
+    align-items: center;
+  }
+
+  .app-topbar {
+    padding: 0 0.75rem;
+    gap: 0.5rem;
   }
 }

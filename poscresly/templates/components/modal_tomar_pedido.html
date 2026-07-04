@@ -4,16 +4,19 @@
   <div class="modal-dialog modal-xl">
     <div class="modal-content">
 
-      <div class="modal-header border-bottom border-3 border-primary bg-white">
-        <h5 class="modal-title"><i class="bi bi-clipboard2-plus me-2"></i>Nuevo Pedido</h5>
+      <div class="modal-header bg-white">
+        <div>
+          <h5 class="modal-title mb-0">Nuevo Pedido<span class="tp-titulo-num" id="tp-titulo-num"></span></h5>
+          <p class="tp-modal-subtitle mb-0">Completa los datos y agrega los productos al pedido.</p>
+        </div>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
 
-      <div class="modal-body">
-        <!-- Unificada: Sección Agregar productos y Resumen del pedido, responsive -->
-        <div class="row g-0">
-          <div class="col-12 col-lg-4">
-            <!-- Card Datos del pedido - Dropdown para móviles -->
+      <div class="modal-body p-3">
+        <div class="row g-3">
+
+          <!-- ===== COLUMNA IZQUIERDA: Datos del pedido ===== -->
+          <div class="col-12 col-lg-5">
             <div class="card shadow-sm rounded p-3 mb-3 mb-lg-0">
               <div class="dropdown-header" onclick="toggleDropdown('datos-pedido')">
                 <h6 class="mb-0 d-flex justify-content-between align-items-center">
@@ -22,24 +25,26 @@
                 </h6>
               </div>
               <div class="dropdown-content" id="datos-pedido-content">
-              <ul class="nav nav-tabs mb-3 d-flex" id="tipoPedidoTabs" role="tablist">
-                <li class="nav-item flex-fill">
-                  <button class="nav-link nav-tipo active" data-bs-toggle="tab" data-bs-target="#servirse" type="button">
-                    <i class="bi bi-people"></i> Servirse
-                  </button>
-                </li>
-                <li class="nav-item nav-tipo flex-fill">
-                  <button class="nav-link" data-bs-toggle="tab" data-bs-target="#llevar" type="button">
-                    <i class="bi bi-bag"></i> Llevar
-                  </button>
-                </li>
-                <li class="nav-item nav-tipo flex-fill">
-                  <button class="nav-link" data-bs-toggle="tab" data-bs-target="#reservado" type="button">
-                    <i class="bi bi-calendar-event"></i> Reservado
-                  </button>
-                </li>
-              </ul>
-              <div class="tab-content mt-3">
+
+                <ul class="nav nav-tabs mb-3 d-flex" id="tipoPedidoTabs" role="tablist">
+                  <li class="nav-item flex-fill">
+                    <button class="nav-link nav-tipo active" data-bs-toggle="tab" data-bs-target="#servirse" type="button">
+                      <i class="bi bi-people"></i> Servirse
+                    </button>
+                  </li>
+                  <li class="nav-item nav-tipo flex-fill">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#llevar" type="button">
+                      <i class="bi bi-bag"></i> Llevar
+                    </button>
+                  </li>
+                  <li class="nav-item nav-tipo flex-fill">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#reservado" type="button">
+                      <i class="bi bi-calendar-event"></i> Reservado
+                    </button>
+                  </li>
+                </ul>
+
+                <div class="tab-content mt-3">
                   <!-- Servirse -->
                   <div class="tab-pane fade show active" id="servirse">
                     <div class="servirse-inputs-container">
@@ -58,13 +63,13 @@
                       </div>
                     </div>
                   </div>
-                <!-- Llevar -->
-                <div class="tab-pane fade" id="llevar">
-                  <div class="mb-3">
-                    <label for="nombre_llevar"><i class="bi bi-person"></i> Nombre o Teléfono</label>
-                    <input type="text" id="nombre_llevar" class="form-control w-100" placeholder="Nombre o Teléfono">
+                  <!-- Llevar -->
+                  <div class="tab-pane fade" id="llevar">
+                    <div class="mb-3">
+                      <label for="nombre_llevar"><i class="bi bi-person"></i> Nombre o Teléfono</label>
+                      <input type="text" id="nombre_llevar" class="form-control w-100" placeholder="Nombre o Teléfono">
+                    </div>
                   </div>
-                </div>
                   <!-- Reservado -->
                   <div class="tab-pane fade" id="reservado">
                     <div class="reservado-inputs-container">
@@ -82,38 +87,40 @@
                       </div>
                     </div>
                   </div>
-              </div>
-              <input type="hidden" name="tipo_pedido" id="tipo_pedido">
-              <div class="observaciones-pago-container">
-                <div class="mb-3">
-                  <label for="observaciones_generales" class="form-label">
-                    <i class="bi bi-chat-text me-1"></i> Observaciones generales
-                  </label>
-                  <input 
-                    type="text" 
-                    id="observaciones_generales" 
-                    class="form-control" 
-                  >
                 </div>
-                <div class="mb-2">
-                  <label class="form-label">Forma de pago</label>
-                  <div class="card-pago d-flex gap-2">
-                    <button type="button" class="btn btn-forma-pago active" data-forma-pago="Efectivo">
-                      <i class="bi bi-cash-stack me-1"></i> Efectivo
-                    </button>
-                    <button type="button" class="btn btn-forma-pago" data-forma-pago="Transferencia">
-                      <i class="bi bi-arrow-left-right me-1"></i> Transferencia
-                    </button>
+
+                <input type="hidden" name="tipo_pedido" id="tipo_pedido">
+
+                <div class="observaciones-pago-container">
+                  <div class="mb-3">
+                    <label for="observaciones_generales" class="form-label">
+                      <i class="bi bi-chat-text me-1"></i> Observaciones generales
+                    </label>
+                    <textarea id="observaciones_generales" class="form-control" rows="3" placeholder="Sin cebolla, entregar a las 2pm, etc."></textarea>
                   </div>
-                  <input type="hidden" name="forma_pago" id="forma_pago">
+                  <div class="mb-2">
+                    <label class="form-label">Forma de pago</label>
+                    <div class="card-pago d-flex gap-2">
+                      <button type="button" class="btn btn-forma-pago active" data-forma-pago="Efectivo">
+                        <i class="bi bi-cash-stack me-1"></i> Efectivo
+                      </button>
+                      <button type="button" class="btn btn-forma-pago" data-forma-pago="Transferencia">
+                        <i class="bi bi-arrow-left-right me-1"></i> Transferencia
+                      </button>
+                    </div>
+                    <input type="hidden" name="forma_pago" id="forma_pago">
+                  </div>
                 </div>
-              </div>
+
               </div>
             </div>
           </div>
-          <div class="col-12 col-lg-8">
-            <!-- Card Agregar productos - Separada en desktop/tablet, combinada en móviles -->
-            <div class="card shadow-sm rounded p-3 bg-light mb-3">
+
+          <!-- ===== COLUMNA DERECHA: Agregar productos + Resumen ===== -->
+          <div class="col-12 col-lg-7">
+
+            <!-- Card Agregar productos -->
+            <div class="card shadow-sm rounded p-3 mb-3">
               <div class="dropdown-header" onclick="toggleDropdown('agregar-productos')">
                 <h6 class="mb-0 d-flex justify-content-between align-items-center">
                   <span><i class="bi bi-plus-circle me-2"></i>Agregar productos</span>
@@ -128,7 +135,7 @@
                     </div>
                     <div class="producto-titulo">Almuerzo</div>
                   </div>
-                  <div class="producto-card sopa" onclick="abrirModalProducto('sopa') ">
+                  <div class="producto-card sopa" onclick="abrirModalProducto('sopa')">
                     <div class="icono-circulo">
                       <span class="material-icons producto-icono">ramen_dining</span>
                     </div>
@@ -147,47 +154,60 @@
                     <div class="producto-titulo">Extra</div>
                   </div>
                 </div>
-                
-                <!-- Resumen del pedido - Solo visible en móviles -->
+
+                <!-- Resumen + total + botones — móvil -->
                 <div class="resumen-movil d-lg-none">
-                  <div class="d-flex justify-content-between align-items-center mb-3">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
                     <h6 class="mb-0"><i class="bi bi-list-check me-2"></i>Resumen del pedido</h6>
                   </div>
-                  <ul id="resumenCarritoMovil" class="list-group"></ul>
-                  <div class="d-flex justify-content-between align-items-center">
+                  <ul id="resumenCarritoMovil" class="list-group mb-2"></ul>
+                  <div class="d-flex justify-content-between align-items-center py-2">
                     <strong>Total:</strong>
                     <span id="total-pedido-movil" class="fs-5 text-success">$0.00</span>
                   </div>
-                  <div class="d-grid gap-2 mt-0">
-                    <button class="btn btn-success btn-lg" onclick="guardarPedidoFrontend()">
-                      <i class="bi bi-check-circle me-1"></i> Confirmar Pedido
+                  <div class="d-flex gap-2 mt-1">
+                    <button class="btn btn-confirmar btn-lg flex-fill" onclick="guardarPedidoFrontend(false)">
+                      <i class="bi bi-check-circle me-1"></i> Confirmar
+                    </button>
+                    <button class="btn btn-confirmar-imprimir btn-lg flex-fill" onclick="guardarPedidoFrontend(true)">
+                      <i class="bi bi-printer me-1"></i> Confirmar e Imprimir
                     </button>
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- Card Resumen del pedido - Solo visible en desktop/tablet -->
-            <div class="card shadow-sm rounded p-3 bg-light d-none d-lg-block">
+            <!-- Card Resumen del pedido — Solo desktop/tablet -->
+            <div class="card shadow-sm rounded p-3 d-none d-lg-flex flex-column tp-resumen-card">
               <div class="dropdown-header" onclick="toggleDropdown('resumen-pedido')">
                 <h6 class="mb-0 d-flex justify-content-between align-items-center">
                   <span><i class="bi bi-list-check me-2"></i>Resumen del pedido</span>
                   <i class="bi bi-chevron-down dropdown-icon" id="resumen-pedido-icon"></i>
                 </h6>
               </div>
-              <div class="dropdown-content" id="resumen-pedido-content">
+              <div class="dropdown-content flex-grow-1" id="resumen-pedido-content">
                 <ul id="resumenCarrito" class="list-group mb-0"></ul>
+                <div class="tp-resumen-empty" id="tp-resumen-empty">
+                  <i class="bi bi-cart3 tp-empty-icon"></i>
+                  <p class="tp-empty-text">Aún no hay productos agregados.</p>
+                </div>
+              </div>
+              <div class="tp-resumen-footer">
                 <div class="d-flex justify-content-between align-items-center py-2">
                   <strong>Total:</strong>
                   <span id="total-pedido" class="fs-4 text-success">$0.00</span>
                 </div>
-                <div class="d-grid gap-2 mt-3">
-                  <button class="btn btn-success btn-lg" onclick="guardarPedidoFrontend()">
-                    <i class="bi bi-check-circle me-1"></i> Confirmar Pedido
+                <div class="d-flex gap-2">
+                  <button class="btn btn-confirmar btn-lg flex-fill" onclick="guardarPedidoFrontend(false)">
+                    <i class="bi bi-check-circle me-1"></i> Confirmar
+                  </button>
+                  <button class="btn btn-confirmar-imprimir btn-lg flex-fill" onclick="guardarPedidoFrontend(true)">
+                    <i class="bi bi-printer me-1"></i> Confirmar e Imprimir
                   </button>
                 </div>
               </div>
             </div>
+
           </div>
         </div>
       </div>

@@ -1,5 +1,10 @@
 {% load static %}
 
+<!-- Botón cerrar (solo visible en tablet/móvil) -->
+<button class="sidebar-close-btn" id="sidebarCloseBtn" aria-label="Cerrar menú">
+  <i class="fas fa-times"></i>
+</button>
+
 <div class="sidebar-brand">
   <div class="brand-icon">C</div>
   <div class="brand-text">
@@ -37,7 +42,7 @@
   </a>
   {% if user.is_authenticated %}
   <div class="sidebar-user">
-    <div class="user-avatar-icon">A</div>
+    <div class="user-avatar-icon">{{ user.get_full_name|default:user.username|slice:":1"|upper }}</div>
     <div class="user-details">
       <span class="user-name">{{ user.get_full_name|default:user.username }}</span>
       <span class="user-role">Cresly · Cajero</span>
@@ -45,3 +50,11 @@
   </div>
   {% endif %}
 </div>
+
+<script>
+  document.getElementById('sidebarCloseBtn').addEventListener('click', function () {
+    document.getElementById('mainSidebar').classList.remove('sidebar-open');
+    document.getElementById('sidebarOverlay').classList.remove('active');
+    document.body.style.overflow = '';
+  });
+</script>

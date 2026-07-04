@@ -7,6 +7,14 @@
 {% endblock %}
 
 {% block content %}
+<div class="app-topbar">
+  <button class="sidebar-toggle" id="sidebarToggle" aria-label="Abrir menú">
+    <i class="fas fa-bars"></i>
+  </button>
+  <div class="topbar-center"></div>
+  {% include 'components/topbar_right.html' %}
+</div>
+
 <div class="container-fluid menu-contenedor">
   <div class="row">
     <div class="col-12">

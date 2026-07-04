@@ -374,6 +374,7 @@ def guardar_pedido(request):
         observaciones_generales = request.POST.get('observaciones_generales')
         pedido_id_editar = request.POST.get('pedido_id')
         es_agregar_productos = request.POST.get('es_agregar_productos') == 'true'
+        imprimir_pedido = request.POST.get('imprimir', 'true') != 'false'
 
         total_pedido = Decimal('0.00')
         productos_carrito = []
@@ -654,6 +655,8 @@ def guardar_pedido(request):
 
         # Imprimir comando para cocina
         try:
+            if not imprimir_pedido:
+                raise StopIteration
             from impresion.impresora import ImpresoraTermica
             from datetime import datetime
             
@@ -767,6 +770,8 @@ def guardar_pedido(request):
                 import traceback
                 traceback.print_exc()
                 
+        except StopIteration:
+            pass
         except Exception as e:
             print(f"[ERROR] Error general al imprimir: {e}")
             import traceback

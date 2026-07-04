@@ -1,4 +1,4 @@
-const CACHE_NAME = "cresly-pos-v2";
+const CACHE_NAME = "cresly-pos-v3";
 const CORE_ASSETS = [
   "/",
   "/static/manifest.json",
@@ -43,11 +43,21 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  // CSS y JS siempre desde red (no cachear para recibir cambios inmediatos)
+  if (request.url.match(/\.(css|js)(\?|$)/)) {
+    event.respondWith(
+      fetch(request).then((response) => {
+        const copy = response.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+        return response;
+      }).catch(() => caches.match(request))
+    );
+    return;
+  }
+
   event.respondWith(
     caches.match(request).then((cached) => {
-      if (cached) {
-        return cached;
-      }
+      if (cached) return cached;
       return fetch(request).then((response) => {
         const copy = response.clone();
         caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));

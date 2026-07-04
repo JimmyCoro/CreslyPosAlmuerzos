@@ -33,9 +33,13 @@ DEBUG = os.getenv('DJANGO_DEBUG', '1') == '1'
 
 ALLOWED_HOSTS = [
     host.strip()
-    for host in os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1,192.168.1.7').split(',')
+    for host in os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1,192.168.1.10').split(',')
     if host.strip()
 ]
+
+# En desarrollo acepta cualquier host de la red local
+if DEBUG and not os.getenv('DJANGO_ALLOWED_HOSTS'):
+    ALLOWED_HOSTS.append('*')
 
 CSRF_TRUSTED_ORIGINS = [
     origin.strip()

@@ -5,22 +5,32 @@
 {% load math_filters %}
 
 {% block content %}
+<div class="app-topbar">
+  <button class="sidebar-toggle" id="sidebarToggle" aria-label="Abrir menú">
+    <i class="fas fa-bars"></i>
+  </button>
+  <div class="topbar-center">
+    <div class="topbar-search">
+      <i class="fas fa-search topbar-search-icon"></i>
+      <input type="text" class="topbar-search-input" id="buscadorPedidos" placeholder="Buscar pedido, mesa o producto...">
+    </div>
+  </div>
+  {% include 'components/topbar_right.html' %}
+</div>
 <div class="container-fluid contenedor-principal">
   <div class="row h-100">
     <div class="col-12 col-inicio d-flex flex-column">
       <!-- Header de página -->
-      <div class="page-header d-flex justify-content-between align-items-center px-4 mb-3">
-        <div>
-          <h2 class="page-title mb-0">Pedidos en curso</h2>
-          <p class="page-subtitle mb-0">{{ pedidos_todos.count }} pedidos activos</p>
-        </div>
+      <div class="page-header d-flex justify-content-center align-items-center px-3 mb-2">
         <div class="d-flex align-items-center gap-2">
           <button type="button" class="btn btn-marcar-todos" id="btn-seleccionar-todos" title="Marcar Todo">
-            <i class="fas fa-square me-1"></i>
-            <span class="d-none d-sm-inline">Marcar todo</span>
+            <i class="fas fa-check-square me-1"></i>
+            <span class="d-sm-none">Todo</span>
+            <span class="d-none d-sm-inline">Marcar todos</span>
           </button>
           <button type="button" class="btn btn-marcar-listos disabled" id="btn-marcar-listos" title="Marcar Listos" disabled>
-            <i class="fas fa-check-circle me-1"></i>
+            <i class="fas fa-check me-1"></i>
+            <span class="d-sm-none">Listos</span>
             <span class="d-none d-sm-inline">Marcar listos</span>
           </button>
           <button class="btn btn-nuevo-pedido" data-bs-toggle="modal" data-bs-target="#tomarPedidoModal">
@@ -31,17 +41,17 @@
       
       <!-- Tabs redondeados -->
       <div class="content-nav-tabs d-flex justify-content-between align-items-center py-1 px-1">
-        <div class="d-flex align-items-center w-100">
-          <button class="nav-link-tab-rounded active flex-fill" id="todos-tab" data-tipo="todos" type="button">
+        <div class="d-flex align-items-center justify-content-evenly w-100 gap-2">
+          <button class="nav-link-tab-rounded active" id="todos-tab" data-tipo="todos" type="button">
             Todos <span class="badge badge-todos ms-1" id="contador-todos">{{ pedidos_todos.count }}</span>
           </button>
-          <button class="nav-link-tab-rounded flex-fill" id="servirse-tab" data-tipo="servirse" type="button">
+          <button class="nav-link-tab-rounded" id="servirse-tab" data-tipo="servirse" type="button">
             Servirse <span class="badge badge-servirse ms-1" id="contador-servirse">{{ pedidos_servirse.count }}</span>
           </button>
-          <button class="nav-link-tab-rounded flex-fill" id="llevar-tab" data-tipo="llevar" type="button">
+          <button class="nav-link-tab-rounded" id="llevar-tab" data-tipo="llevar" type="button">
             Llevar <span class="badge badge-llevar ms-1" id="contador-llevar">{{ pedidos_llevar.count }}</span>
           </button>
-          <button class="nav-link-tab-rounded flex-fill" id="reservados-tab" data-tipo="reservados" type="button">
+          <button class="nav-link-tab-rounded" id="reservados-tab" data-tipo="reservados" type="button">
             Reservados <span class="badge badge-reservados ms-1" id="contador-reservados">{{ pedidos_reservados.count }}</span>
           </button>
         </div>
@@ -49,7 +59,7 @@
       
       <!-- Contenedor único para todos los pedidos -->
       <div class="pedidos-scroll">
-        <div class="row g-2 p-0" id="contenedor-cards-pedidos">
+        <div class="row g-0" id="contenedor-cards-pedidos">
           <!-- Aquí van las cards de los pedidos generadas dinámicamente por JavaScript -->
         </div>
       </div>
@@ -1366,7 +1376,7 @@ function agregarEventosCardPedido(cardNode) {
   });
 }
 
-function guardarPedidoFrontend() {
+function guardarPedidoFrontend(conImpresion = true) {
   if (window._guardandoPedido) {
     return;
   }
@@ -1395,7 +1405,7 @@ function guardarPedidoFrontend() {
   const pedidoId = window.pedidoEditando || esAgregarProductos || '';
   
   window._guardandoPedido = true;
-  const botonesConfirmar = document.querySelectorAll('#tomarPedidoModal .btn-success');
+  const botonesConfirmar = document.querySelectorAll('#tomarPedidoModal .btn-confirmar, #tomarPedidoModal .btn-confirmar-imprimir');
   botonesConfirmar.forEach((btn) => {
     btn.disabled = true;
   });
@@ -1418,7 +1428,8 @@ function guardarPedidoFrontend() {
       observaciones_generales: document.getElementById('observaciones_generales').value,
       productos_carrito: JSON.stringify(productosCarrito),
       pedido_id: pedidoId,
-      es_agregar_productos: esAgregarProductos ? 'true' : 'false'
+      es_agregar_productos: esAgregarProductos ? 'true' : 'false',
+      imprimir: conImpresion ? 'true' : 'false'
     })
   })
   .then(response => {
@@ -1480,7 +1491,7 @@ function guardarPedidoFrontend() {
   })
   .finally(() => {
     window._guardandoPedido = false;
-    document.querySelectorAll('#tomarPedidoModal .btn-success').forEach((btn) => {
+    document.querySelectorAll('#tomarPedidoModal .btn-confirmar, #tomarPedidoModal .btn-confirmar-imprimir').forEach((btn) => {
       btn.disabled = false;
     });
   });
@@ -1506,7 +1517,7 @@ function crearCardPedidoDesdeBD(pedidoData) {
     formaPagoIcono = '<div class="forma-pago-icon efectivo-icon"><i class="bi bi-cash-stack"></i></div>';
     formaPagoColor = 'text-success';
   } else if (pedidoData.forma_pago === 'Transferencia') {
-    formaPagoIcono = '<div class="forma-pago-icon transferencia-icon"><i class="bi bi-arrow-left-right"></i></div>';
+    formaPagoIcono = '<div class="forma-pago-icon transferencia-icon"><i class="bi bi-credit-card-2-front"></i></div>';
     formaPagoColor = 'text-primary';
   }
 
@@ -1526,16 +1537,16 @@ function crearCardPedidoDesdeBD(pedidoData) {
       }
       
       const nuevoHTML = `
-        <div class="d-flex justify-content-between align-items-start mb-2">
-          <div class="d-flex align-items-center">
-            <span class="badge rounded-circle text-dark me-2" style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 12px;">${producto.cantidad}</span>
-            <div>
-              <div class="card-tipo-producto">${producto.tipo}</div>
-              <div class="componentes-producto-card">${producto.componentes ? producto.componentes.filter(Boolean).join(' + ') : ''}</div>
-              ${producto.observacion ? `<div class='text-muted small'><i class="fas fa-sticky-note me-1"></i>${producto.observacion}</div>` : ''}
+        <div class="pc-item">
+          <div class="pc-item-left">
+            <span class="pc-item-qty">${producto.cantidad}</span>
+            <div class="pc-item-info">
+              <span class="pc-item-tipo">${producto.tipo}</span>
+              ${producto.componentes && producto.componentes.filter(Boolean).length > 0 ? `<span class="pc-item-comp">${producto.componentes.filter(Boolean).join(' + ')}</span>` : ''}
+              ${producto.observacion ? `<span class="pc-item-obs"><i class="fas fa-sticky-note"></i> ${producto.observacion}</span>` : ''}
             </div>
           </div>
-          <span class="total-producto-card">$${(producto.cantidad * producto.precio_unitario).toFixed(2)}</span>
+          <span class="pc-item-price">$${(producto.cantidad * producto.precio_unitario).toFixed(2)}</span>
         </div>
       `;
       
@@ -1561,42 +1572,48 @@ function crearCardPedidoDesdeBD(pedidoData) {
   console.log('Condición completa:', pedidoData.tipo === 'reservado' && pedidoData.subtipo_reservado);
 
   // Construir el cardHTML de forma más segura
-  const cardHTML = '<div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2">' +
-  
-    '<div class="card mb-3 pedido-card pedido-tipo-' + pedidoData.tipo.toLowerCase() + '" data-pedido-id="' + pedidoData.id + '">' +
+  const cardHTML = '<div class="col-12 col-md-4 col-xl-3">' +
+    '<div class="card pedido-card pedido-tipo-' + pedidoData.tipo.toLowerCase() + '" data-pedido-id="' + pedidoData.id + '">' +
       '<div class="card-body">' +
-        '<div class="d-flex justify-content-between align-items-center mb-2">' +
-          '<div class="d-flex align-items-center gap-2">' +
-            '<input type="checkbox" class="form-check-input checkbox-pedido" value="' + pedidoData.id + '" style="margin-right: 8px;">' +
-            '<span class="fw-bold">#' + (pedidoData.numero_pedido_completo || pedidoData.numero_dia?.toString().padStart(3, '0') || pedidoData.id.toString().padStart(3, '0')) + '</span>' +
-          '</div>' +
-          '<div class="d-flex align-items-center gap-2">' +
-            '<span class="badge badge-' + pedidoData.tipo.toLowerCase() + '">' + pedidoData.tipo + '</span>' +
-            '<span class="text-muted"><i class="fas fa-clock"></i> ' + horaActual + '</span>' +
-          '</div>' +
-        '</div>' +
-        '<div class="mb-1 text-muted">' + (pedidoData.mesa ? 'Mesa ' + pedidoData.mesa : '') + '</div>' +
-        '<div class="contacto-pedido-card">' + (pedidoData.contacto || '') + '</div>' +
-        (pedidoData.tipo === 'Reservado' && pedidoData.subtipo_reservado ? 
-          '<div class="mb-1 text-info"><small><i class="bi bi-arrow-right"></i> ' + pedidoData.subtipo_reservado.charAt(0).toUpperCase() + pedidoData.subtipo_reservado.slice(1) + '</small></div>' : '') +
-        (pedidoData.observaciones_generales ? 
-          '<div class="mb-2"><small class="text-muted"><i class="fas fa-sticky-note me-1"></i>Obs: ' + pedidoData.observaciones_generales + '</small></div>' : '') +
-        productosHTML +
-        '<div class="d-flex justify-content-between align-items-center mt-3">' +
-          '<span class="total-pedido-card">Total:</span>' +
-          '<span class="text-success fw-bold fs-5">$' + pedidoData.total.toFixed(2) + '</span>' +
-        '</div>' +
-        '<div class="mt-2 d-flex justify-content-between align-items-center">' +
-          '<div class="' + formaPagoColor + '">' +
-            '<small>' + formaPagoIcono + '</small>' +
-          '</div>' +
-          '<div class="d-flex gap-1">' +
-            '<button class="btn btn-primary btn-agregar-producto" title="Agregar productos"><i class="fas fa-plus"></i></button>' +
-            '<button class="btn btn-light btn-editar" title="Editar pedido"><i class="fas fa-pen"></i></button>' +
-            '<button class="btn btn-success btn-guardar" title="Marcar como completado"><i class="fas fa-check"></i></button>' +
-            '<button class="btn btn-danger btn-eliminar" title="Eliminar pedido"><i class="fas fa-trash"></i></button>' +
+
+        '<div class="pc-head">' +
+          '<label class="pc-head-left">' +
+            '<input type="checkbox" class="form-check-input checkbox-pedido" value="' + pedidoData.id + '">' +
+            '<span class="pc-num">#' + (pedidoData.numero_pedido_completo || pedidoData.numero_dia?.toString().padStart(3, '0') || pedidoData.id.toString().padStart(3, '0')) + '</span>' +
+          '</label>' +
+          '<div class="pc-head-right">' +
+            '<span class="pc-badge pc-badge-' + pedidoData.tipo.toLowerCase() + '">' + pedidoData.tipo + '</span>' +
+            '<span class="pc-time"><i class="fas fa-clock"></i> ' + horaActual + '</span>' +
           '</div>' +
         '</div>' +
+
+        '<div class="pc-meta">' +
+          (pedidoData.mesa ? '<span class="pc-mesa">Mesa ' + pedidoData.mesa + '</span>' : '') +
+          (pedidoData.contacto ? '<span class="pc-contacto">' + pedidoData.contacto + '</span>' : '') +
+          (pedidoData.tipo === 'Reservado' && pedidoData.subtipo_reservado ?
+            '<span class="pc-subtipo"><i class="bi bi-arrow-right-short"></i> ' + pedidoData.subtipo_reservado.charAt(0).toUpperCase() + pedidoData.subtipo_reservado.slice(1) + '</span>' : '') +
+          (pedidoData.observaciones_generales ?
+            '<span class="pc-obs"><i class="fas fa-sticky-note"></i> ' + pedidoData.observaciones_generales + '</span>' : '') +
+        '</div>' +
+
+        (productosHTML ? '<div class="pc-productos">' + productosHTML + '</div>' : '') +
+
+        '<div class="pc-bottom">' +
+          '<div class="pc-total">' +
+            '<span class="pc-total-lbl">Total</span>' +
+            '<span class="pc-total-val">$' + pedidoData.total.toFixed(2) + '</span>' +
+          '</div>' +
+          '<div class="pc-footer-row">' +
+            '<div>' + formaPagoIcono + '</div>' +
+            '<div class="d-flex gap-1">' +
+              '<button class="btn btn-primary btn-agregar-producto" title="Agregar productos"><i class="fas fa-plus"></i></button>' +
+              '<button class="btn btn-light btn-editar" title="Editar pedido"><i class="fas fa-pen"></i></button>' +
+              '<button class="btn btn-success btn-guardar" title="Marcar como completado"><i class="fas fa-check"></i></button>' +
+              '<button class="btn btn-danger btn-eliminar" title="Eliminar pedido"><i class="fas fa-trash"></i></button>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+
       '</div>' +
     '</div>' +
   '</div>';
@@ -2017,11 +2034,14 @@ window.actualizarContadoresTabs = async function() {
 };
 
 document.addEventListener('DOMContentLoaded', function() {
-  // Agregar event listeners a todos los botones de confirmar
-  const btnConfirmar = document.querySelectorAll('#tomarPedidoModal .btn-success');
-  btnConfirmar.forEach(btn => {
+  // Agregar event listeners a los botones de confirmar
+  document.querySelectorAll('#tomarPedidoModal .btn-confirmar').forEach(btn => {
     btn.removeAttribute('onclick');
-    btn.addEventListener('click', guardarPedidoFrontend);
+    btn.addEventListener('click', () => guardarPedidoFrontend(false));
+  });
+  document.querySelectorAll('#tomarPedidoModal .btn-confirmar-imprimir').forEach(btn => {
+    btn.removeAttribute('onclick');
+    btn.addEventListener('click', () => guardarPedidoFrontend(true));
   });
   
       // Cargar pedidos existentes desde la base de datos
