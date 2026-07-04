@@ -138,12 +138,14 @@
       const timeEl = document.getElementById('topbarTime');
       if (dateEl) {
         dateEl.textContent = now.toLocaleDateString('es-ES', {
-          weekday: 'long', day: 'numeric', month: 'long'
+          weekday: 'long', day: 'numeric', month: 'long',
+          timeZone: 'America/Guayaquil'
         });
       }
       if (timeEl) {
         timeEl.textContent = now.toLocaleTimeString('es-ES', {
-          hour: '2-digit', minute: '2-digit', hour12: true
+          hour: '2-digit', minute: '2-digit', hour12: true,
+          timeZone: 'America/Guayaquil'
         });
       }
     }

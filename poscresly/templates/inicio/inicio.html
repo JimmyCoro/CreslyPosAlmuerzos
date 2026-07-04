@@ -2034,6 +2034,26 @@ window.actualizarContadoresTabs = async function() {
 };
 
 document.addEventListener('DOMContentLoaded', function() {
+  // ===== BUSCADOR DE PEDIDOS =====
+  const buscador = document.getElementById('buscadorPedidos');
+  if (buscador) {
+    buscador.addEventListener('input', function() {
+      const query = this.value.trim().toLowerCase();
+      const contenedor = document.getElementById('contenedor-cards-pedidos');
+      if (!contenedor) return;
+      contenedor.querySelectorAll('.pedido-card').forEach(card => {
+        const col = card.parentElement;
+        if (!query) { col.style.display = ''; return; }
+        const mesa     = (card.querySelector('.pc-mesa')?.textContent || '').toLowerCase();
+        const contacto = (card.querySelector('.pc-contacto')?.textContent || '').toLowerCase();
+        const num      = (card.querySelector('.pc-num')?.textContent || '').toLowerCase();
+        const obs      = (card.querySelector('.pc-obs')?.textContent || '').toLowerCase();
+        const match = mesa.includes(query) || contacto.includes(query) || num.includes(query) || obs.includes(query);
+        col.style.display = match ? '' : 'none';
+      });
+    });
+  }
+
   // Agregar event listeners a los botones de confirmar
   document.querySelectorAll('#tomarPedidoModal .btn-confirmar').forEach(btn => {
     btn.removeAttribute('onclick');
