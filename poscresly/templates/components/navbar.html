@@ -33,6 +33,12 @@
     <span>Menú del día</span>
     {% if '/menu/' in request.path %}<span class="sidebar-active-dot"></span>{% endif %}
   </a>
+
+  <a href="{% url 'pizzeria_mapa_mesas' %}" class="sidebar-link {% if '/pizzeria/' in request.path %}sidebar-active{% endif %}">
+    <i class="fas fa-pizza-slice sidebar-icon"></i>
+    <span>Pizzería</span>
+    {% if '/pizzeria/' in request.path %}<span class="sidebar-active-dot"></span>{% endif %}
+  </a>
 </nav>
 
 <div class="sidebar-footer">

@@ -1,0 +1,229 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="app-topbar">
+  <button class="sidebar-toggle" id="sidebarToggle" aria-label="Abrir menú">
+    <i class="fas fa-bars"></i>
+  </button>
+  <div class="topbar-center"></div>
+  {% include 'components/topbar_right.html' %}
+</div>
+
+<div class="container-fluid contenedor-principal">
+  <div class="col-12 col-der">
+
+    <div class="dash-header">
+      <div>
+        <h4 class="dash-title">Caja Pizzería</h4>
+        <p class="dash-subtitle">Resumen de ventas de pizzería (separado de la caja de almuerzos)</p>
+      </div>
+    </div>
+
+    {% if caja_hoy and caja_hoy.estado == 'abierta' %}
+    <div class="caja-banner caja-banner-abierta">
+      <div class="caja-banner-left">
+        <span class="caja-dot caja-dot-verde"></span>
+        <strong>Caja Abierta</strong>
+        <span class="caja-banner-info">
+          Apertura {{ caja_hoy.fecha|date:"d/m/Y" }} - {{ caja_hoy.fecha_apertura|time:"H:i" }}
+          &nbsp;·&nbsp; Monto inicial ${{ monto_inicial_efectivo|floatformat:2 }}
+        </span>
+      </div>
+      <button class="btn btn-cerrar-caja" onclick="pzCajaCerrar()">Cerrar caja</button>
+    </div>
+    {% else %}
+    <div class="caja-banner caja-banner-cerrada">
+      <div class="caja-banner-left">
+        <span class="caja-dot caja-dot-gris"></span>
+        <strong>Sin Caja</strong>
+        <span class="caja-banner-info">No hay caja de pizzería abierta</span>
+      </div>
+      <button class="btn btn-abrir-caja" onclick="pzCajaAbrir()">Abrir caja</button>
+    </div>
+    {% endif %}
+
+    <div class="row g-3 mb-3 px-1">
+      <div class="col-6 col-md-3">
+        <div class="dash-metric-card">
+          <div class="dash-metric-info">
+            <div class="dash-metric-label">Ventas</div>
+            <div class="dash-metric-value">${{ total_ventas|floatformat:2 }}</div>
+          </div>
+          <div class="dash-metric-icon dash-icon-red"><i class="fas fa-dollar-sign"></i></div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="dash-metric-card">
+          <div class="dash-metric-info">
+            <div class="dash-metric-label">Pedidos cobrados</div>
+            <div class="dash-metric-value">{{ pedidos_cobrados|length }}</div>
+          </div>
+          <div class="dash-metric-icon dash-icon-gray"><i class="fas fa-bag-shopping"></i></div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="dash-metric-card">
+          <div class="dash-metric-info">
+            <div class="dash-metric-label">Gastos</div>
+            <div class="dash-metric-value">${{ total_gastos|floatformat:2 }}</div>
+          </div>
+          <div class="dash-metric-icon dash-icon-orange"><i class="fas fa-arrow-trend-down"></i></div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="dash-metric-card">
+          <div class="dash-metric-info">
+            <div class="dash-metric-label">Balance Neto</div>
+            <div class="dash-metric-value">${{ balance_neto|floatformat:2 }}</div>
+          </div>
+          <div class="dash-metric-icon dash-icon-green"><i class="fas fa-dollar-sign"></i></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-3 px-1">
+      <div class="col-12 col-lg-6">
+        <div class="dash-metric-card d-block">
+          <h6 class="mb-3">Pedidos cobrados</h6>
+          <div class="table-responsive">
+            <table class="table table-sm">
+              <thead><tr><th>#</th><th>Tipo</th><th>Forma pago</th><th>Total</th></tr></thead>
+              <tbody>
+                {% for p in pedidos_cobrados %}
+                <tr>
+                  <td>{{ p.numero_pedido_completo }}</td>
+                  <td>{{ p.get_tipo_display }}</td>
+                  <td>{{ p.forma_pago }}</td>
+                  <td>${{ p.total|floatformat:2 }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" class="text-muted">Sin pedidos cobrados todavía</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-lg-6">
+        <div class="dash-metric-card d-block">
+          <h6 class="mb-3">Gastos</h6>
+          <div class="table-responsive">
+            <table class="table table-sm">
+              <thead><tr><th>Descripción</th><th>Categoría</th><th>Monto</th></tr></thead>
+              <tbody>
+                {% for g in gastos %}
+                <tr><td>{{ g.descripcion }}</td><td>{{ g.get_categoria_display }}</td><td>${{ g.monto|floatformat:2 }}</td></tr>
+                {% empty %}
+                <tr><td colspan="3" class="text-muted">Sin gastos registrados (agrégalos desde /admin/)</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Modal abrir caja -->
+<div class="modal fade" id="pzModalAbrirCaja" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fas fa-unlock me-2"></i>Abrir Caja Pizzería</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="pzFormAbrirCaja">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Monto Inicial Efectivo</label>
+            <div class="input-group">
+              <span class="input-group-text">$</span>
+              <input type="number" class="form-control" name="monto_inicial_efectivo" step="0.01" min="0" value="0.00" required>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Monto Inicial Transferencia</label>
+            <div class="input-group">
+              <span class="input-group-text">$</span>
+              <input type="number" class="form-control" name="monto_inicial_transferencia" step="0.01" min="0" value="0.00">
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Observaciones</label>
+            <textarea class="form-control" name="observaciones" rows="2"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-success"><i class="fas fa-unlock me-2"></i>Abrir Caja</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal cerrar caja -->
+<div class="modal fade" id="pzModalCerrarCaja" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fas fa-lock me-2"></i>Cerrar Caja Pizzería</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="pzFormCerrarCaja">
+        <div class="modal-body">
+          <div class="alert alert-info">
+            Ventas efectivo: ${{ total_efectivo|floatformat:2 }}<br>
+            Ventas transferencia: ${{ total_transferencia|floatformat:2 }}<br>
+            Total: ${{ total_ventas|floatformat:2 }}
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Monto Final Efectivo</label>
+            <div class="input-group">
+              <span class="input-group-text">$</span>
+              <input type="number" class="form-control" name="monto_final_efectivo" step="0.01" min="0" required>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Monto Final Transferencia</label>
+            <div class="input-group">
+              <span class="input-group-text">$</span>
+              <input type="number" class="form-control" name="monto_final_transferencia" step="0.01" min="0">
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Observaciones de cierre</label>
+            <textarea class="form-control" name="observaciones_cierre" rows="2"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-danger"><i class="fas fa-lock me-2"></i>Cerrar Caja</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+function pzCajaAbrir() { new bootstrap.Modal(document.getElementById('pzModalAbrirCaja')).show(); }
+function pzCajaCerrar() { new bootstrap.Modal(document.getElementById('pzModalCerrarCaja')).show(); }
+
+document.getElementById('pzFormAbrirCaja').addEventListener('submit', async function (e) {
+  e.preventDefault();
+  const res = await fetch('{% url "pizzeria_abrir_caja" %}', { method: 'POST', body: new FormData(this), headers: { 'X-CSRFToken': '{{ csrf_token }}' } });
+  const data = await res.json();
+  if (data.success) { location.reload(); } else { alert('Error: ' + data.message); }
+});
+
+document.getElementById('pzFormCerrarCaja').addEventListener('submit', async function (e) {
+  e.preventDefault();
+  const res = await fetch('{% url "pizzeria_cerrar_caja" %}', { method: 'POST', body: new FormData(this), headers: { 'X-CSRFToken': '{{ csrf_token }}' } });
+  const data = await res.json();
+  if (data.success) { location.reload(); } else { alert('Error: ' + data.message); }
+});
+</script>
+{% endblock %}

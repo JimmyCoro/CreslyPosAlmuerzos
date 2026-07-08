@@ -1,0 +1,125 @@
+.pz-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .75rem;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pz-header-actions {
+  display: flex;
+  gap: .5rem;
+  flex-wrap: wrap;
+}
+
+.btn-pz-primary {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: #fff;
+  font-weight: 600;
+}
+.btn-pz-primary:hover { background: var(--primary-color-hover); border-color: var(--primary-color-hover); color: #fff; }
+
+.btn-pz-outline {
+  background: transparent;
+  border: 1px solid var(--primary-color);
+  color: var(--primary-color);
+  font-weight: 600;
+}
+.btn-pz-outline:hover { background: var(--primary-color); color: #fff; }
+
+.pz-legend {
+  display: flex;
+  gap: 1.25rem;
+  margin: .75rem 0 1rem;
+  font-size: .85rem;
+  color: #4b5563;
+}
+.pz-legend-item { display: flex; align-items: center; gap: .4rem; }
+.pz-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+.pz-dot-libre { background: #22c55e; }
+.pz-dot-ocupada { background: #ef4444; }
+.pz-dot-por_cobrar { background: #f59e0b; }
+
+.pz-floor {
+  position: relative;
+  width: 100%;
+  min-height: 420px;
+  background: #f3f4f6;
+  border-radius: 16px;
+  border: 1px dashed #d1d5db;
+  overflow: hidden;
+}
+
+.pz-mesa {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 84px;
+  height: 84px;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  box-shadow: 0 4px 10px rgba(0,0,0,.15);
+  cursor: pointer;
+  transition: transform .15s ease;
+}
+.pz-mesa:active { transform: translate(-50%, -50%) scale(.95); }
+
+.pz-mesa-cuadrada { border-radius: 12px; }
+.pz-mesa-redonda { border-radius: 50%; }
+
+.pz-mesa-total {
+  font-size: .7rem;
+  font-weight: 600;
+  background: rgba(0,0,0,.2);
+  padding: 1px 6px;
+  border-radius: 8px;
+}
+
+.pz-estado-libre { background: #22c55e; }
+.pz-estado-ocupada { background: #ef4444; }
+.pz-estado-por_cobrar { background: #f59e0b; }
+
+.pz-llevar-section { margin-top: 1.5rem; }
+.pz-section-title { font-weight: 700; margin-bottom: .75rem; }
+.pz-llevar-list { display: flex; flex-wrap: wrap; gap: .6rem; }
+.pz-llevar-card {
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  border-radius: 10px;
+  padding: .6rem .9rem;
+  display: flex;
+  flex-direction: column;
+  min-width: 140px;
+  text-align: left;
+}
+.pz-llevar-numero { font-weight: 700; color: var(--primary-color); }
+.pz-llevar-contacto { font-size: .85rem; color: #4b5563; }
+.pz-llevar-total { font-weight: 600; margin-top: .25rem; }
+
+.pz-items-list { max-height: 320px; overflow-y: auto; }
+.pz-item-row {
+  display: flex;
+  justify-content: space-between;
+  padding: .4rem 0;
+  border-bottom: 1px solid #f1f1f1;
+  font-size: .9rem;
+}
+.pz-total-row {
+  display: flex;
+  justify-content: space-between;
+  padding-top: .6rem;
+  margin-top: .5rem;
+  border-top: 2px solid #e5e7eb;
+  font-size: 1.05rem;
+}
+
+@media (max-width: 576px) {
+  .pz-mesa { width: 68px; height: 68px; font-size: .85rem; }
+}

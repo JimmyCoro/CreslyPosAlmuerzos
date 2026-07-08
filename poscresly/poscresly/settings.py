@@ -62,7 +62,8 @@ INSTALLED_APPS = [
     'inicio',
     'menu',
     'pedidos',
-    'caja'
+    'caja',
+    'pizzeria',
 ]
 
 MIDDLEWARE = [

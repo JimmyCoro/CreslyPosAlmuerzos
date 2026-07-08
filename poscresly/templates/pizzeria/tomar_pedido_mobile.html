@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'CSS/pizzeria-pedido.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="app-topbar">
+  <button class="sidebar-toggle" id="sidebarToggle" aria-label="Abrir menú">
+    <i class="fas fa-bars"></i>
+  </button>
+  <div class="topbar-center"></div>
+  {% include 'components/topbar_right.html' %}
+</div>
+
+<div class="container-fluid contenedor-principal">
+  <div class="col-12 col-der">
+
+    <div class="pz-pedido-header">
+      <a href="{% url 'pizzeria_mapa_mesas' %}" class="btn btn-pz-outline btn-sm">
+        <i class="fas fa-arrow-left"></i>
+      </a>
+      <div>
+        <h4 class="dash-title mb-0">
+          {% if mesa %}Mesa {{ mesa.nombre|default:mesa.numero }}{% else %}Pedido para llevar{% endif %}
+        </h4>
+        {% if pedido_abierto %}
+        <p class="dash-subtitle mb-0">Agregando a pedido #{{ pedido_abierto.numero_pedido_completo }} - Total actual ${{ pedido_abierto.total|floatformat:2 }}</p>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if not mesa %}
+    <div class="mb-3">
+      <label class="form-label">Nombre / Teléfono del cliente</label>
+      <input type="text" id="pzContacto" class="form-control" placeholder="Ej. Juan Pérez - 099...">
+    </div>
+    {% endif %}
+
+    <ul class="nav nav-pills pz-tabs" id="pzTabs">
+      <li class="nav-item"><button class="nav-link active" data-tab="pizza">Pizzas</button></li>
+      <li class="nav-item"><button class="nav-link" data-tab="combo">Combos</button></li>
+      <li class="nav-item"><button class="nav-link" data-tab="producto">Bebidas / Extras</button></li>
+    </ul>
+
+    <!-- TAB: PIZZAS -->
+    <div class="pz-tab-pane" data-pane="pizza">
+      <div class="pz-builder-section">
+        <label class="pz-builder-label">1. Tamaño</label>
+        <div class="pz-grid" id="pzPizzaTamanos"></div>
+      </div>
+      <div class="pz-builder-section">
+        <label class="pz-builder-label">2. Sabor</label>
+        <div class="pz-grid" id="pzPizzaSabor1"></div>
+      </div>
+      <div class="pz-builder-section">
+        <label class="pz-check">
+          <input type="checkbox" id="pzPizzaMitad"> Mitad y mitad (2 sabores)
+        </label>
+        <div class="pz-grid mt-2 d-none" id="pzPizzaSabor2Wrap">
+          <div class="pz-grid" id="pzPizzaSabor2"></div>
+        </div>
+      </div>
+      <div class="pz-builder-footer">
+        <div class="pz-stepper">
+          <button type="button" onclick="pzCambiarCantidad('pizza', -1)">-</button>
+          <span id="pzPizzaCantidad">1</span>
+          <button type="button" onclick="pzCambiarCantidad('pizza', 1)">+</button>
+        </div>
+        <input type="text" id="pzPizzaObs" class="form-control pz-obs-input" placeholder="Observación (opcional)">
+        <div class="pz-precio" id="pzPizzaPrecio">$0.00</div>
+        <button type="button" class="btn btn-pz-primary" onclick="pzAgregarPizza()">Agregar</button>
+      </div>
+    </div>
+
+    <!-- TAB: COMBOS -->
+    <div class="pz-tab-pane d-none" data-pane="combo">
+      <div class="pz-builder-section">
+        <label class="pz-builder-label">1. Combo</label>
+        <div class="pz-grid" id="pzComboLista"></div>
+      </div>
+      <div class="pz-builder-section">
+        <label class="pz-builder-label">2. Tamaño</label>
+        <div class="pz-grid" id="pzComboTamanos"></div>
+      </div>
+      <div class="pz-builder-section" id="pzComboComponentesWrap" style="display:none">
+        <label class="pz-builder-label">Incluye</label>
+        <ul class="pz-componentes-list" id="pzComboComponentes"></ul>
+      </div>
+      <div class="pz-builder-section">
+        <label class="pz-builder-label">3. Sabor de la pizza</label>
+        <div class="pz-grid" id="pzComboSabor1"></div>
+      </div>
+      <div class="pz-builder-section">
+        <label class="pz-check">
+          <input type="checkbox" id="pzComboMitad"> Mitad y mitad (2 sabores)
+        </label>
+        <div class="pz-grid mt-2 d-none" id="pzComboSabor2Wrap">
+          <div class="pz-grid" id="pzComboSabor2"></div>
+        </div>
+      </div>
+      <div class="pz-builder-footer">
+        <div class="pz-stepper">
+          <button type="button" onclick="pzCambiarCantidad('combo', -1)">-</button>
+          <span id="pzComboCantidad">1</span>
+          <button type="button" onclick="pzCambiarCantidad('combo', 1)">+</button>
+        </div>
+        <input type="text" id="pzComboObs" class="form-control pz-obs-input" placeholder="Observación (opcional)">
+        <div class="pz-precio" id="pzComboPrecio">$0.00</div>
+        <button type="button" class="btn btn-pz-primary" onclick="pzAgregarCombo()">Agregar</button>
+      </div>
+    </div>
+
+    <!-- TAB: PRODUCTOS SIMPLES -->
+    <div class="pz-tab-pane d-none" data-pane="producto">
+      <div class="pz-categoria-chips" id="pzCategoriaChips"></div>
+      <div class="pz-grid pz-grid-productos" id="pzProductosLista"></div>
+    </div>
+
+    <!-- CARRITO -->
+    <div class="pz-carrito">
+      <h6 class="pz-section-title">Pedido actual</h6>
+      <div id="pzCarritoItems"><p class="text-muted">Aún no has agregado productos</p></div>
+      <div class="pz-carrito-total">
+        <span>Total a agregar</span>
+        <strong id="pzCarritoTotal">$0.00</strong>
+      </div>
+      <button type="button" class="btn btn-pz-primary w-100 py-2 mt-2" id="pzBtnConfirmar" onclick="pzConfirmarPedido()" disabled>
+        <i class="fas fa-check me-2"></i>Confirmar pedido
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  window.PZ_CATALOGO = {{ catalogo_json|safe }};
+  window.PZ_CONTEXT = {
+    tipo: "{{ tipo }}",
+    mesaId: {% if mesa %}{{ mesa.id }}{% else %}null{% endif %},
+    pedidoId: {% if pedido_abierto %}{{ pedido_abierto.id }}{% else %}null{% endif %},
+  };
+  window.PZ_URLS = {
+    calcularPrecio: "{% url 'pizzeria_calcular_precio' %}",
+    guardarPedido: "{% url 'pizzeria_guardar_pedido' %}",
+    mapaMesas: "{% url 'pizzeria_mapa_mesas' %}",
+  };
+</script>
+<script src="{% static 'JS/pizzeria_pedido.js' %}"></script>
+{% endblock %}

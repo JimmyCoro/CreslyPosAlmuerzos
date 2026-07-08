@@ -16,17 +16,20 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'poscresly.settings')
 django_asgi_app = get_asgi_application()
 
 # Importar routing después de inicializar Django
-from pedidos import routing
+from pedidos import routing as pedidos_routing
+from pizzeria import routing as pizzeria_routing
+
+websocket_urlpatterns = pedidos_routing.websocket_urlpatterns + pizzeria_routing.websocket_urlpatterns
 
 # Configurar ASGI application
 application = ProtocolTypeRouter({
     # Peticiones HTTP normales
     "http": django_asgi_app,
-    
+
     # Peticiones WebSocket
     "websocket": AuthMiddlewareStack(
         URLRouter(
-            routing.websocket_urlpatterns
+            websocket_urlpatterns
         )
     ),
 })
