@@ -961,10 +961,7 @@ body {
     }
 
     .nav-link-tab-rounded.active {
-        color: #000000;
         font-size: 0.85rem;
-        background-color: #ffffff;
-        font-weight: 550;
     }
 
     .nav-link-tab-rounded .badge {
@@ -972,6 +969,22 @@ body {
         font-weight: 5500;
         padding: 0.15rem 0.25rem;
         border-radius: 5px;
+    }
+}
+
+/* Tablets angostas en vertical (ej. Samsung Tab A9 7" ~601px CSS) que quedan
+   dentro del rango "móvil" en px reales de CSS pero son físicamente tablets */
+@media (min-width: 600px) and (max-width: 767px) {
+    #contenedor-cards-pedidos {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    #contenedor-cards-pedidos > div {
+        width: auto;
+        max-width: none;
+        flex: none;
     }
 }
 
@@ -996,6 +1009,22 @@ body {
         height: 32px;
         font-size: 0.85rem;
 
+    }
+}
+
+/* 2 cards por fila solo en vertical (768px–1023px). En horizontal esta misma
+   tablet reporta ~838px de ancho y debe seguir usando col-md-4 (3 por fila). */
+@media (min-width: 768px) and (max-width: 1023px) and (orientation: portrait) {
+    #contenedor-cards-pedidos {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    #contenedor-cards-pedidos > div {
+        width: auto;
+        max-width: none;
+        flex: none;
     }
 }
 

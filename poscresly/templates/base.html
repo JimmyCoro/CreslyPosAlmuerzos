@@ -177,17 +177,6 @@
       });
     }
   </script>
-
-  <!-- DEBUG TEMPORAL viewport -->
-  <div id="debug-vp" style="position:fixed;bottom:10px;right:10px;background:#111;color:#0f0;padding:6px 12px;font-size:13px;z-index:99999;border-radius:6px;font-family:monospace;pointer-events:none"></div>
-  <script>
-    (function(){
-      var el = document.getElementById('debug-vp');
-      function upd(){ el.textContent = window.innerWidth + 'px × ' + window.innerHeight + 'px  DPR:' + window.devicePixelRatio; }
-      upd();
-      window.addEventListener('resize', upd);
-    })();
-  </script>
 </body>
 
 </html>
