@@ -16,23 +16,35 @@
 <nav class="sidebar-nav">
   <span class="sidebar-section-label">OPERACIÓN</span>
 
-  <a href="{% url 'inicio' %}" class="sidebar-link {% if request.path == '/' %}sidebar-active{% endif %}">
-    <i class="fas fa-receipt sidebar-icon"></i>
-    <span>Pedidos</span>
-    {% if request.path == '/' %}<span class="sidebar-active-dot"></span>{% endif %}
-  </a>
-
-  <a href="{% url 'dashboard_caja' %}" class="sidebar-link {% if '/caja/' in request.path %}sidebar-active{% endif %}">
-    <i class="bi bi-cash-stack sidebar-icon"></i>
-    <span>Caja</span>
-    {% if '/caja/' in request.path %}<span class="sidebar-active-dot"></span>{% endif %}
-  </a>
-
-  <a href="{% url 'menu' %}" class="sidebar-link {% if '/menu/' in request.path %}sidebar-active{% endif %}">
+  <button type="button"
+    class="sidebar-link sidebar-group-toggle {% if request.path == '/' or '/caja/' in request.path or '/menu/' in request.path %}sidebar-active sidebar-group-open{% endif %}"
+    data-target="grupo-almuerzos">
     <i class="fas fa-utensils sidebar-icon"></i>
-    <span>Menú del día</span>
-    {% if '/menu/' in request.path %}<span class="sidebar-active-dot"></span>{% endif %}
-  </a>
+    <span>Almuerzos</span>
+    <i class="fas fa-chevron-down sidebar-chevron"></i>
+  </button>
+
+  <div class="sidebar-group" id="grupo-almuerzos"
+    style="display: {% if request.path == '/' or '/caja/' in request.path or '/menu/' in request.path %}flex{% else %}none{% endif %};">
+
+    <a href="{% url 'inicio' %}" class="sidebar-link sidebar-sublink {% if request.path == '/' %}sidebar-active{% endif %}">
+      <i class="fas fa-receipt sidebar-icon"></i>
+      <span>Pedidos</span>
+      {% if request.path == '/' %}<span class="sidebar-active-dot"></span>{% endif %}
+    </a>
+
+    <a href="{% url 'dashboard_caja' %}" class="sidebar-link sidebar-sublink {% if '/caja/' in request.path %}sidebar-active{% endif %}">
+      <i class="bi bi-cash-stack sidebar-icon"></i>
+      <span>Caja</span>
+      {% if '/caja/' in request.path %}<span class="sidebar-active-dot"></span>{% endif %}
+    </a>
+
+    <a href="{% url 'menu' %}" class="sidebar-link sidebar-sublink {% if '/menu/' in request.path %}sidebar-active{% endif %}">
+      <i class="fas fa-clipboard-list sidebar-icon"></i>
+      <span>Menú del día</span>
+      {% if '/menu/' in request.path %}<span class="sidebar-active-dot"></span>{% endif %}
+    </a>
+  </div>
 </nav>
 
 <div class="sidebar-footer">
@@ -56,5 +68,13 @@
     document.getElementById('mainSidebar').classList.remove('sidebar-open');
     document.getElementById('sidebarOverlay').classList.remove('active');
     document.body.style.overflow = '';
+  });
+
+  document.querySelectorAll('.sidebar-group-toggle').forEach(function (toggle) {
+    toggle.addEventListener('click', function () {
+      var group = document.getElementById(toggle.dataset.target);
+      var abierto = toggle.classList.toggle('sidebar-group-open');
+      group.style.display = abierto ? 'flex' : 'none';
+    });
   });
 </script>

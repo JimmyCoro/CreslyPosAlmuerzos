@@ -82,6 +82,14 @@
 
       .sidebar-user { justify-content: center; }
       .sidebar-toggle { display: none !important; }
+
+      /* Grupo "Almuerzos": sin indentación en el rail angosto de 72px;
+         el toggle sigue funcionando igual (icono + label + chevron apilados) */
+      .sidebar-group {
+        margin: 0;
+        padding-left: 0;
+        border-left: none;
+      }
     }
   </style>
 </head>
@@ -98,6 +106,9 @@
     <div class="main-content">
       {% block content %}
       {% endblock %}
+      {% if request.path != '/' %}
+      {% include 'components/bottom_nav.html' with global_nav=True %}
+      {% endif %}
     </div>
   </div>
 
@@ -140,8 +151,9 @@
 
     sidebarOverlay.addEventListener('click', closeSidebar);
 
-    // Cierra el sidebar al navegar en móvil
-    document.querySelectorAll('.sidebar-link').forEach(function (link) {
+    // Cierra el sidebar al navegar en móvil (excepto el toggle de grupos,
+    // que solo expande/colapsa y no debe cerrar el panel deslizable)
+    document.querySelectorAll('.sidebar-link:not(.sidebar-group-toggle)').forEach(function (link) {
       link.addEventListener('click', function () {
         if (window.innerWidth <= 1024) closeSidebar();
       });
@@ -176,6 +188,37 @@
           .catch(err => console.error('SW registration failed', err));
       });
     }
+  </script>
+
+  <script>
+    // En tablet vertical/celulares (≤1023px), el navbar inferior (.page-header)
+    // se mueve al final de <body> para que su position:fixed quede libre de
+    // cualquier overflow:hidden de los contenedores padres y se pegue de
+    // verdad al borde inferior real de la pantalla. Los botones conservan
+    // sus mismos id/listeners, solo cambia dónde vive el nodo en el DOM.
+    // Corre en cualquier página (Pedidos, Caja, Menú del día).
+    (function () {
+      var header = document.querySelector('.page-header');
+      if (!header) return;
+
+      var originalParent = header.parentNode;
+      var originalNextSibling = header.nextSibling;
+      var enBody = false;
+
+      function actualizarPosicion() {
+        var esAngosto = window.innerWidth <= 1023;
+        if (esAngosto && !enBody) {
+          document.body.appendChild(header);
+          enBody = true;
+        } else if (!esAngosto && enBody) {
+          originalParent.insertBefore(header, originalNextSibling);
+          enBody = false;
+        }
+      }
+
+      actualizarPosicion();
+      window.addEventListener('resize', actualizarPosicion);
+    })();
   </script>
 </body>
 

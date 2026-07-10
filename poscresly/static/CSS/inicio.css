@@ -21,6 +21,12 @@ body {
     height: 100vh;
 }
 
+@supports (height: 100dvh) {
+    body {
+        height: 100dvh;
+    }
+}
+
 /* CONSOLIDADO EN MEDIA QUERIES UNIFICADAS */
 
 .contenedor-principal {
@@ -901,6 +907,16 @@ body {
         height: calc(100vh - 185px);
     }
 
+    @supports (height: 100dvh) {
+        .col-inicio {
+            height: calc(100dvh - 56px);
+        }
+
+        .pedidos-scroll {
+            height: calc(100dvh - 185px);
+        }
+    }
+
     .pedido-card .card-body {
         padding: 0.875rem;
     }
@@ -1080,5 +1096,136 @@ body {
         display: flex;
         align-items: center;
         justify-content: center;
+    }
+}
+
+/* ===== NAVBAR INFERIOR: tablet vertical y celulares (≤ 1023px) =====
+   Reusa los mismos botones del header (sin duplicar IDs ni lógica JS),
+   reposicionándolos como una barra fija abajo, con el mismo estilo
+   oscuro que el sidebar izquierdo. */
+@media (max-width: 1023px) {
+    /* Por si el navegador deja un margen de redondeo entre el viewport
+       real y el 100dvh calculado, se pinta el fondo del mismo color oscuro
+       de la barra para que no se note ningún resto de espacio debajo. */
+    html, body {
+        background-color: #111827;
+    }
+
+    /* .page-header se mueve al final de <body> vía JS en este rango,
+       así queda 100% libre del overflow:hidden de sus contenedores
+       originales y position:fixed funciona sin ningún recorte. */
+    .page-header {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 950;
+        margin: 0;
+        padding: 0.35rem 0.5rem calc(0.35rem + env(safe-area-inset-bottom));
+        background-color: #111827;
+        border-top: 1px solid #1f2937;
+        justify-content: center;
+    }
+
+    .page-header-actions {
+        width: 100%;
+        justify-content: space-around;
+        gap: 0;
+    }
+
+    .page-header-actions .btn,
+    .page-header-actions .btn-bottomnav-link {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2px;
+        background: none;
+        border: none;
+        border-radius: 8px;
+        padding: 0.35rem 0.4rem;
+        color: #9ca3af;
+        font-size: 0.62rem;
+        font-weight: 500;
+        text-decoration: none;
+    }
+
+    .page-header-actions .btn i {
+        margin: 0 !important;
+        font-size: 1.1rem;
+    }
+
+    .page-header-actions .btn:hover,
+    .page-header-actions .btn-bottomnav-link:hover {
+        background-color: #1f2937;
+        color: #f9fafb;
+    }
+
+    .page-header-actions .btn-marcar-todos.active {
+        background: none;
+        color: var(--primary-color);
+    }
+
+    .page-header-actions .btn-bottomnav-link.active {
+        color: var(--primary-color);
+    }
+
+    .page-header-actions .btn-marcar-listos.disabled {
+        background: none;
+        opacity: 0.4;
+        color: #6b7280;
+    }
+
+    .page-header-actions .btn-marcar-listos.disabled:hover {
+        background: none;
+        color: #6b7280;
+    }
+
+    .btn-bottomnav-link {
+        display: flex;
+    }
+
+    /* "Nuevo pedido" elevado y circular, al centro */
+    .page-header-actions .btn-nuevo-pedido {
+        width: 54px;
+        height: 54px;
+        border-radius: 50%;
+        position: relative;
+        top: -16px;
+        background-color: var(--primary-color) !important;
+        color: #fff !important;
+        box-shadow: 0 4px 10px rgba(168, 0, 24, 0.45);
+        padding: 0;
+    }
+
+    .page-header-actions .btn-nuevo-pedido i {
+        font-size: 1.3rem;
+    }
+
+    .page-header-actions .btn-nuevo-pedido span {
+        display: none;
+    }
+
+    .pedidos-scroll {
+        padding-bottom: 76px;
+    }
+}
+
+/* En desktop/tablet horizontal los links de Caja/Menú del día del header
+   quedan ocultos: ya viven en el sidebar izquierdo. */
+.btn-bottomnav-link {
+    display: none;
+}
+
+/* Copia del navbar inferior incluida globalmente en base.html (para Caja y
+   Menú del día): oculta en desktop/tablet horizontal, donde esas páginas ya
+   tienen su propio header y navegación por el sidebar. */
+.page-header-global {
+    display: none;
+}
+
+@media (max-width: 1023px) {
+    .page-header-global {
+        display: flex;
     }
 }
