@@ -13,6 +13,15 @@ html, body {
   overflow: hidden;
 }
 
+/* 100vh no coincide con el viewport visible real en navegadores móviles
+   (queda un espacio en blanco al fondo por la barra del navegador/gestos).
+   100dvh sí se ajusta al alto visible actual. */
+@supports (height: 100dvh) {
+  .app-layout {
+    height: 100dvh;
+  }
+}
+
 /* ===== SIDEBAR ===== */
 .sidebar {
   width: 220px;
@@ -136,6 +145,38 @@ html, body {
   background-color: var(--primary-color);
   position: absolute;
   right: 0.75rem;
+}
+
+/* Grupo colapsable (ej. "Almuerzos" con Pedidos/Caja/Menú del día anidados) */
+.sidebar-group-toggle {
+  width: 100%;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sidebar-chevron {
+  font-size: 0.72rem;
+  margin-left: auto;
+  color: #6b7280;
+  transition: transform 0.15s ease;
+}
+
+.sidebar-group-toggle.sidebar-group-open .sidebar-chevron {
+  transform: rotate(180deg);
+}
+
+.sidebar-group {
+  display: flex;
+  flex-direction: column;
+  margin: 2px 0 0 0.5rem;
+  padding-left: 0.5rem;
+  border-left: 1px solid #1f2937;
+}
+
+.sidebar-sublink {
+  font-size: 0.84rem;
 }
 
 /* Footer */

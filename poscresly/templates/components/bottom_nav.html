@@ -1,0 +1,46 @@
+{% load static %}
+<!-- Navbar inferior: tablet vertical y celulares (≤1023px). En la página de
+     Pedidos los 3 primeros botones son interactivos (seleccionar/marcar
+     listos/nuevo pedido); en cualquier otra página son links directos a
+     Pedidos, porque esa lógica solo existe ahí. -->
+<div class="page-header{% if global_nav %} page-header-global{% endif %} d-flex justify-content-center align-items-center px-3">
+  <div class="d-flex align-items-center gap-2 page-header-actions">
+    {% if request.path == '/' %}
+    <button type="button" class="btn btn-marcar-todos" id="btn-seleccionar-todos" title="Marcar Todo">
+      <i class="fas fa-check-square me-1"></i>
+      <span class="d-sm-none">Todo</span>
+      <span class="d-none d-sm-inline">Marcar todos</span>
+    </button>
+    <button type="button" class="btn btn-marcar-listos disabled" id="btn-marcar-listos" title="Marcar Listos" disabled>
+      <i class="fas fa-check me-1"></i>
+      <span class="d-sm-none">Listos</span>
+      <span class="d-none d-sm-inline">Marcar listos</span>
+    </button>
+    <button class="btn btn-nuevo-pedido" data-bs-toggle="modal" data-bs-target="#tomarPedidoModal">
+      <i class="fas fa-plus me-1"></i><span>Nuevo pedido</span>
+    </button>
+    {% else %}
+    <a href="{% url 'inicio' %}" class="btn btn-marcar-todos" title="Marcar Todo">
+      <i class="fas fa-check-square me-1"></i>
+      <span class="d-sm-none">Todo</span>
+      <span class="d-none d-sm-inline">Marcar todos</span>
+    </a>
+    <a href="{% url 'inicio' %}" class="btn btn-marcar-listos" title="Marcar Listos">
+      <i class="fas fa-check me-1"></i>
+      <span class="d-sm-none">Listos</span>
+      <span class="d-none d-sm-inline">Marcar listos</span>
+    </a>
+    <a href="{% url 'inicio' %}" class="btn btn-nuevo-pedido" title="Nuevo pedido">
+      <i class="fas fa-plus me-1"></i><span>Nuevo pedido</span>
+    </a>
+    {% endif %}
+    <a href="{% url 'dashboard_caja' %}" class="btn btn-bottomnav-link {% if '/caja/' in request.path %}active{% endif %}" title="Caja">
+      <i class="bi bi-cash-stack me-1"></i>
+      <span>Caja</span>
+    </a>
+    <a href="{% url 'menu' %}" class="btn btn-bottomnav-link {% if '/menu/' in request.path %}active{% endif %}" title="Menú del día">
+      <i class="fas fa-clipboard-list me-1"></i>
+      <span>Menú</span>
+    </a>
+  </div>
+</div>

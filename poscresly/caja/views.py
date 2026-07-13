@@ -7,6 +7,7 @@ from django.utils import timezone
 from datetime import date
 from .models import CajaDiaria, CajaEfectivo, CajaTransferencia, Gasto
 from pedidos.models import Pedido
+from pedidos.views import obtener_productos_pedido
 from menu.models import MenuDia
 from collections import defaultdict
 
@@ -72,6 +73,12 @@ def dashboard_caja(request):
     
     # Total de pedidos
     total_pedidos_caja = pedidos_efectivo + pedidos_transferencia
+
+    # Resumen por pedido (items, tipo, forma de pago, total) para la tabla del dashboard
+    pedidos_resumen = [
+        {'pedido': pedido, 'items': obtener_productos_pedido(pedido)}
+        for pedido in pedidos_hoy
+    ]
     
     # Análisis de productos vendidos del día (solo si hay caja abierta)
     productos_vendidos = defaultdict(lambda: {'cantidad': 0, 'total_ventas': 0, 'tipo': ''})
@@ -178,6 +185,7 @@ def dashboard_caja(request):
         'caja_hoy': caja_actual,
         'caja_abierta': caja_abierta,
         'pedidos_hoy': pedidos_hoy,
+        'pedidos_resumen': pedidos_resumen,
         'gastos_hoy': gastos_hoy,
         'total_efectivo': total_efectivo,
         'total_transferencia': total_transferencia,

@@ -160,6 +160,59 @@
       </div>
     </div>
 
+    <!-- Pedidos del día -->
+    <div class="row g-3 px-1 mt-1">
+      <div class="col-12">
+        <div class="dash-chart-card">
+          <div class="dash-chart-header">
+            <div>
+              <h6 class="dash-chart-title">Pedidos del día</h6>
+              <p class="dash-chart-subtitle">Detalle de ventas registradas desde la apertura de caja</p>
+            </div>
+          </div>
+          <div class="pedidos-dia-grid">
+            {% for fila in pedidos_resumen %}
+            <div class="prc-card">
+              <div class="prc-top">
+                <div class="prc-id">
+                  <i class="fas fa-user-circle prc-id-icon"></i>
+                  <span class="prc-num">#{{ fila.pedido.numero_pedido_completo }}</span>
+                </div>
+                <span class="prc-total">${{ fila.pedido.total|floatformat:2 }}</span>
+              </div>
+
+              <div class="prc-sub">
+                <span class="pc-badge pc-badge-{{ fila.pedido.tipo|lower }}">{{ fila.pedido.tipo }}</span>
+                {% if fila.pedido.numero_mesa %}
+                <span class="prc-sub-detalle">Mesa {{ fila.pedido.numero_mesa }}</span>
+                {% elif fila.pedido.contacto %}
+                <span class="prc-sub-detalle">{{ fila.pedido.contacto }}</span>
+                {% endif %}
+              </div>
+
+              <div class="prc-items">
+                {% for item in fila.items %}
+                <div class="prc-item"><strong>{{ item.cantidad }}×</strong> {{ item.componentes|join:" + " }}</div>
+                {% endfor %}
+              </div>
+
+              <div class="prc-footer">
+                <span class="prc-pago prc-pago-{{ fila.pedido.forma_pago|lower }}">
+                  <span class="prc-pago-dot"></span>{{ fila.pedido.forma_pago }}
+                </span>
+                <span class="prc-time"><i class="fas fa-clock"></i> {{ fila.pedido.fecha_creacion|date:"d M · h:i A" }}</span>
+              </div>
+            </div>
+            {% empty %}
+            <div class="pedidos-dia-empty">
+              <i class="fas fa-receipt me-2"></i>Sin pedidos registrados todavía
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 

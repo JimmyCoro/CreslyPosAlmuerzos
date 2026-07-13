@@ -226,6 +226,118 @@
   font-family: var(--fuente-principal);
 }
 
+/* ===== CARDS: PEDIDOS DEL DÍA ===== */
+.pedidos-dia-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 0.9rem;
+  font-family: var(--fuente-principal);
+}
+.prc-card {
+  background: white;
+  border: 1px solid #f0f0f1;
+  border-radius: 14px;
+  padding: 1rem 1.1rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+.prc-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+.prc-id {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+}
+.prc-id-icon {
+  color: #9ca3af;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+.prc-num {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: #111827;
+  font-family: var(--fuente-titulos);
+}
+.prc-total {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #111827;
+  font-family: var(--fuente-titulos);
+  white-space: nowrap;
+}
+.prc-sub {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin: 0.5rem 0 0.7rem;
+}
+.prc-sub-detalle {
+  font-size: 0.8rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+.prc-items {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 0.8rem;
+}
+.prc-item {
+  font-size: 0.85rem;
+  color: #374151;
+}
+.prc-item strong {
+  color: #111827;
+}
+.prc-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  padding-top: 0.65rem;
+  border-top: 1px solid #f3f4f6;
+  font-size: 0.78rem;
+  color: #6b7280;
+}
+.prc-pago {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.prc-pago-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.prc-pago-efectivo .prc-pago-dot {
+  background: var(--secondary-color);
+}
+.prc-pago-transferencia .prc-pago-dot {
+  background: var(--primary-color);
+}
+.prc-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  white-space: nowrap;
+}
+.pedidos-dia-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: #9ca3af;
+  padding: 2.5rem 1rem;
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
   .dash-header { flex-direction: column; gap: 0.5rem; }
@@ -233,6 +345,8 @@
   .dash-chart-body { height: 200px; }
   .dash-donut-body { height: 160px; }
   .caja-banner { flex-direction: column; align-items: flex-start; }
+  .pedidos-dia-table td { padding: 0.6rem 0.5rem; }
+  .pedidos-dia-item { font-size: 0.78rem; }
 }
 @media (max-width: 480px) {
   .dash-metric-value { font-size: 1.15rem; }

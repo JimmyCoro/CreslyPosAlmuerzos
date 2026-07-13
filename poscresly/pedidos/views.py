@@ -658,8 +658,8 @@ def guardar_pedido(request):
             if not imprimir_pedido:
                 raise StopIteration
             from impresion.impresora import ImpresoraTermica
-            from datetime import datetime
-            
+            from django.utils import timezone
+
             # Crear comando para cocina
             # Crear línea dinámica según el tipo de pedido
             linea_info = f"{pedido.tipo.upper()}"
@@ -681,11 +681,12 @@ def guardar_pedido(request):
                 linea_info += " " * espacios + f"{pedido.contacto.upper()}{subtipo_texto.upper()}"
             
             # Calcular espacios para la segunda línea
-            espacios_segunda = 45 - len(f"Pedido #{pedido.numero_pedido_completo}") - len(f"Hora: {datetime.now().strftime('%H:%M')}")
-            
+            hora_ticket = timezone.localtime().strftime('%H:%M')
+            espacios_segunda = 45 - len(f"Pedido #{pedido.numero_pedido_completo}") - len(f"Hora: {hora_ticket}")
+
             comando_cocina = [
                 linea_info,
-                f"Pedido #{pedido.numero_pedido_completo}" + " " * espacios_segunda + f"Hora: {datetime.now().strftime('%H:%M')}"
+                f"Pedido #{pedido.numero_pedido_completo}" + " " * espacios_segunda + f"Hora: {hora_ticket}"
             ]
             
             # Agregar observaciones generales si existen
