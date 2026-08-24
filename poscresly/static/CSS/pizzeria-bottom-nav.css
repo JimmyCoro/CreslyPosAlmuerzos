@@ -1,0 +1,82 @@
+/* ===== Navbar inferior flotante — módulo Pizzería (≤1023px) =====
+   Componente propio de Pizzería: no depende de inicio.css ni de sus clases
+   (.page-header, .btn-bottomnav-link, .btn-nuevo-pedido). Pill flotante
+   con iconos sin texto + FAB separado. Acento verde (--secondary-color),
+   la misma convención "verde=Pizzería" que ya usa el ítem activo del
+   sidebar — ver base.css. */
+
+.pzbn {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .pzbn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: fixed;
+    left: 14px;
+    right: 14px;
+    bottom: calc(14px + env(safe-area-inset-bottom));
+    z-index: 950;
+  }
+
+  .pzbn-pill {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    gap: 4px;
+    background: #fff;
+    border-radius: 999px;
+    padding: 8px;
+    box-shadow: 0 10px 28px rgba(20, 24, 29, .16), 0 1px 3px rgba(20, 24, 29, .08);
+  }
+
+  .pzbn-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 999px;
+    color: #9aa2ac;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    transition: background .15s ease, color .15s ease;
+  }
+
+  .pzbn-link:hover {
+    color: #14181d;
+    text-decoration: none;
+  }
+
+  .pzbn-active {
+    background: rgba(0, 131, 59, .12);
+    color: var(--secondary-color);
+  }
+
+  .pzbn-active:hover {
+    color: var(--secondary-color);
+  }
+
+  .pzbn-fab {
+    width: 54px;
+    height: 54px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--secondary-color);
+    color: #fff;
+    font-size: 1.3rem;
+    box-shadow: 0 10px 22px rgba(0, 131, 59, .4);
+    text-decoration: none;
+  }
+
+  .pzbn-fab:hover {
+    background-color: var(--secondary-color-hover);
+    color: #fff;
+  }
+}

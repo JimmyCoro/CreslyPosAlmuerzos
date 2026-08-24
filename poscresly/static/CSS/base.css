@@ -22,78 +22,86 @@ html, body {
   }
 }
 
-/* ===== SIDEBAR ===== */
+/* ===== SIDEBAR =====
+   Paleta y tipografía tomadas de design_handoff_mesas/README.md — el
+   sidebar es un componente único y compartido por toda la app, así que
+   este restyle aplica en todas las páginas, no sólo en Mesas. El acento
+   por color de sección (verde=Pizzería, rojo=Almuerzos) se conserva: es
+   una convención propia del proyecto que el handoff no cubre. */
 .sidebar {
-  width: 220px;
-  min-width: 220px;
-  background-color: #111827;
-  color: #e5e7eb;
+  width: 236px;
+  min-width: 236px;
+  background-color: #14181d;
+  color: #eceef1;
   display: flex;
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
-  padding: 1.25rem 0.75rem;
+  padding: 18px 14px;
   box-sizing: border-box;
   flex-shrink: 0;
   position: relative;
   z-index: 1000;
+  font-family: var(--fuente-jakarta);
 }
 
 /* Brand */
 .sidebar-brand {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.25rem 0.5rem 1.25rem 0.5rem;
-  border-bottom: 1px solid #1f2937;
+  gap: 11px;
+  padding: 4px 6px 20px;
+  border-bottom: 1px solid #262d34;
   margin-bottom: 1rem;
 }
 
 .brand-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  background-color: var(--primary-color);
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  background-color: #c8102e;
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
-  font-size: 1.1rem;
+  font-weight: 800;
+  font-size: 17px;
   flex-shrink: 0;
 }
 
 .brand-text {
   display: flex;
   flex-direction: column;
+  gap: 1px;
 }
 
 .brand-name {
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 15px;
   color: #f9fafb;
   line-height: 1.2;
-  font-family: var(--fuente-titulos);
+  font-family: var(--fuente-jakarta);
+  letter-spacing: -.01em;
 }
 
 .brand-sub {
-  font-size: 0.7rem;
-  color: #6b7280;
+  font-size: 11px;
+  color: #8b939e;
   font-weight: 400;
-  font-family: var(--fuente-principal);
+  font-family: var(--fuente-jakarta);
 }
 
 /* Section label */
 .sidebar-section-label {
   display: block;
-  font-size: 0.66rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  color: #4b5563;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #6f7883;
   text-transform: uppercase;
-  padding: 0 0.5rem 0.35rem 0.5rem;
+  padding: 0 6px 10px;
   margin: 0 0 0.2rem 0;
-  font-family: var(--fuente-principal);
+  font-family: var(--fuente-jakarta);
 }
 
 /* Nav area */
@@ -108,27 +116,42 @@ html, body {
   display: flex;
   align-items: center;
   gap: 0.65rem;
-  padding: 0.5rem 0.75rem;
-  border-radius: 8px;
-  color: #9ca3af;
+  padding: 9px 10px;
+  border-radius: 9px;
+  color: #b9c0c9;
   text-decoration: none;
-  font-size: 0.88rem;
-  font-weight: 500;
+  font-size: 13.5px;
+  font-weight: 600;
   transition: background 0.15s ease, color 0.15s ease;
   margin-bottom: 2px;
   position: relative;
-  font-family: var(--fuente-principal);
+  font-family: var(--fuente-jakarta);
 }
 
 .sidebar-link:hover {
-  background-color: #1f2937;
-  color: #f9fafb;
+  background-color: #1d2329;
+  color: #fff;
   text-decoration: none;
 }
 
 .sidebar-link.sidebar-active {
-  background-color: #1f2937;
-  color: #f9fafb;
+  background-color: #1d2329;
+  color: #fff;
+  font-weight: 700;
+}
+
+/* Ítem activo dentro de una sección: pill sólido con el acento de la
+   sección (verde=Pizzería, rojo=Almuerzos), no sólo un fondo neutro. */
+.sidebar-section-pizzeria .sidebar-sublink.sidebar-active {
+  background-color: var(--secondary-color);
+  color: #fff;
+  font-weight: 700;
+}
+
+.sidebar-section-almuerzos .sidebar-sublink.sidebar-active {
+  background-color: var(--primary-color);
+  color: #fff;
+  font-weight: 700;
 }
 
 .sidebar-icon {
@@ -142,7 +165,8 @@ html, body {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background-color: var(--primary-color);
+  background-color: #fff;
+  opacity: .85;
   position: absolute;
   right: 0.75rem;
 }
@@ -159,7 +183,7 @@ html, body {
 .sidebar-chevron {
   font-size: 0.72rem;
   margin-left: auto;
-  color: #6b7280;
+  color: #6f7883;
   transition: transform 0.15s ease;
 }
 
@@ -170,18 +194,24 @@ html, body {
 .sidebar-group {
   display: flex;
   flex-direction: column;
-  margin: 2px 0 0 0.5rem;
-  padding-left: 0.5rem;
-  border-left: 1px solid #1f2937;
+  gap: 2px;
+  margin: 2px 0 0 5px;
+  padding: 4px 0 4px 8px;
+  border-left: 1px solid #262d34;
 }
 
 .sidebar-sublink {
-  font-size: 0.84rem;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.sidebar-section {
+  margin-bottom: 4px;
 }
 
 /* Footer */
 .sidebar-footer {
-  border-top: 1px solid #1f2937;
+  border-top: 1px solid #262d34;
   padding-top: 0.6rem;
   margin-top: 0.5rem;
 }
@@ -189,16 +219,18 @@ html, body {
 .sidebar-user {
   display: flex;
   align-items: center;
-  gap: 0.55rem;
-  padding: 0.5rem 0.5rem 0;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 11px;
+  background-color: #1d2329;
 }
 
 .user-avatar-icon {
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background-color: #374151;
-  color: #9ca3af;
+  background-color: #2e363e;
+  color: #eceef1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -218,7 +250,7 @@ html, body {
   font-weight: 600;
   color: #f9fafb;
   line-height: 1.2;
-  font-family: var(--fuente-principal);
+  font-family: var(--fuente-jakarta);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -226,8 +258,8 @@ html, body {
 
 .user-role {
   font-size: 0.68rem;
-  color: #6b7280;
-  font-family: var(--fuente-principal);
+  color: #8b939e;
+  font-family: var(--fuente-jakarta);
 }
 
 /* Botón cerrar sidebar (tablet/móvil) */
@@ -239,7 +271,7 @@ html, body {
   height: 32px;
   border: none;
   background: transparent;
-  color: #6b7280;
+  color: #6f7883;
   border-radius: 6px;
   cursor: pointer;
   font-size: 1rem;
@@ -248,8 +280,8 @@ html, body {
 }
 
 .sidebar-close-btn:hover {
-  color: #f9fafb;
-  background: #1f2937;
+  color: #fff;
+  background: #1d2329;
 }
 
 /* ===== OVERLAY ===== */
@@ -305,6 +337,44 @@ html, body {
   display: flex;
   align-items: center;
   min-width: 0;
+}
+
+.topbar-breadcrumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #f3f4f6;
+  border-radius: 10px;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.82rem;
+  flex-wrap: wrap;
+}
+
+.topbar-breadcrumb-home {
+  display: inline-flex;
+  align-items: center;
+  color: #6b7280;
+  font-size: 0.85rem;
+}
+
+.topbar-breadcrumb-home:hover { color: var(--primary-color); }
+
+.topbar-breadcrumb-sep {
+  color: #9ca3af;
+  font-size: 0.65rem;
+}
+
+.topbar-breadcrumb-link {
+  color: #6b7280;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.topbar-breadcrumb-link:hover { color: var(--primary-color); }
+
+.topbar-breadcrumb-actual {
+  font-weight: 700;
+  color: #111827;
 }
 
 .topbar-search {
@@ -458,6 +528,14 @@ html, body {
   /* Reducir búsqueda en tablet */
   .topbar-search {
     max-width: 300px;
+  }
+}
+
+/* Espacio para el navbar inferior del módulo Pizzería (≤1023px), para que el
+   contenido no quede tapado detrás de la barra fija. */
+@media (max-width: 1023px) {
+  body.pizzeria-page .contenedor-principal {
+    padding-bottom: 88px;
   }
 }
 

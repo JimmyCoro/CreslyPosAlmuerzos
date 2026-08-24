@@ -1,0 +1,108 @@
+/* ===== Plano editable (drag & drop) — namespace propio, independiente
+   del diseño hifi de mapa_mesas.html, porque acá el modelo de interacción
+   es espacial (arrastrar x/y) y no la grilla agrupada por zona. ===== */
+.pzg-floor {
+  position: relative;
+  width: 100%;
+  min-height: 460px;
+  background:
+    radial-gradient(circle at 1px 1px, #eef0f2 1.5px, transparent 0) 0 0/28px 28px,
+    #ffffff;
+  border: 1px solid #f0f0f1;
+  border-radius: 20px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .04);
+  overflow: hidden;
+}
+
+.pzg-mesa {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 92px;
+  height: 92px;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  color: #fff;
+  font-family: var(--fuente-jakarta);
+  font-weight: 700;
+  font-size: 1.05rem;
+  box-shadow: 0 8px 18px -6px var(--pzg-mesa-shadow, rgba(0, 0, 0, .25));
+  cursor: grab;
+  touch-action: none;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.pzg-mesa:active { transform: translate(-50%, -50%) scale(.95); }
+
+.pzg-mesa-cuadrada { border-radius: 20px; }
+.pzg-mesa-redonda { border-radius: 50%; }
+
+.pzg-mesa-cap {
+  display: inline-flex;
+  align-items: center;
+  gap: .25rem;
+  font-size: .68rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, .8);
+}
+
+.pzg-estado-libre { background: #23a05f; --pzg-mesa-shadow: rgba(35, 160, 95, .32); }
+.pzg-estado-ocupada { background: #c8102e; --pzg-mesa-shadow: rgba(200, 16, 46, .32); }
+.pzg-estado-por_cobrar { background: #d99000; --pzg-mesa-shadow: rgba(217, 144, 0, .32); }
+
+.pzg-floor-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 1.5rem;
+  color: #9ca3af;
+  font-size: .9rem;
+}
+.pzg-floor-empty i { font-size: 1.6rem; color: #d1d5db; display: block; margin-bottom: .5rem; }
+
+.pzg-dragging {
+  cursor: grabbing;
+  opacity: .85;
+  z-index: 10;
+  transition: none !important;
+  box-shadow: 0 14px 26px -8px rgba(0, 0, 0, .35) !important;
+}
+
+.pzg-mesa-inactiva {
+  filter: grayscale(1);
+  opacity: .5;
+  outline: 2px dashed #9ca3af;
+  outline-offset: 3px;
+}
+
+@media (max-width: 576px) {
+  .pzg-mesa { width: 72px; height: 72px; font-size: .9rem; }
+}
+
+#pzgModalMesa .form-label {
+  font-family: var(--fuente-titulos);
+  font-weight: 600;
+  font-size: .88rem;
+}
+
+#pzgModalMesa .form-control,
+#pzgModalMesa .form-select {
+  border-radius: 10px;
+  border-color: #e5e7eb;
+}
+
+#pzgModalMesa .form-control:focus,
+#pzgModalMesa .form-select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 .2rem rgba(168, 0, 24, .12);
+}
+
+#pzgModalMesa .form-check-input:checked {
+  background-color: var(--secondary-color);
+  border-color: var(--secondary-color);
+}

@@ -5,6 +5,29 @@
   margin-bottom: 1rem;
 }
 
+.pz-pedido-actual {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: .5rem;
+  padding: .65rem .85rem;
+}
+.pz-pedido-actual-titulo {
+  font-weight: 700;
+  font-size: .8rem;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: .02em;
+}
+.pz-pedido-actual-lista {
+  list-style: none;
+  padding-left: 0;
+  font-size: .9rem;
+  color: #374151;
+}
+.pz-pedido-actual-lista li {
+  padding: .15rem 0;
+}
+
 .pz-tabs {
   gap: .5rem;
   margin-bottom: 1rem;
@@ -29,6 +52,110 @@
   font-weight: 700;
   margin-bottom: .5rem;
   color: #374151;
+}
+
+.pz-builder-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: .5rem;
+}
+.pz-builder-header .pz-builder-label { margin-bottom: 0; }
+.pz-req-badge { font-size: .8rem; font-weight: 600; color: #9ca3af; }
+.pz-faltan-badge { font-size: .8rem; font-weight: 700; color: var(--primary-color); }
+.pz-faltan-badge.pz-faltan-ok { color: var(--secondary-color); }
+
+.pz-sabor-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .6rem;
+}
+.pz-sabor-grid .pz-chip {
+  width: 100%;
+  min-width: 0;
+}
+
+.pz-multi-grupo:not(:last-child) {
+  margin-bottom: .9rem;
+}
+.pz-multi-label {
+  font-size: .8rem;
+  font-weight: 700;
+  color: #6b7280;
+  margin-bottom: .4rem;
+}
+
+.pz-radio-row {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  padding: .85rem 1rem;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 14px;
+  margin-bottom: .6rem;
+  background: #fff;
+  font: inherit;
+  text-align: left;
+}
+.pz-radio-row-active { border-color: var(--primary-color); }
+.pz-radio-left { display: flex; align-items: center; gap: .75rem; font-weight: 600; }
+.pz-radio-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid #d1d5db;
+  flex-shrink: 0;
+  position: relative;
+}
+.pz-radio-row-active .pz-radio-dot { border-color: var(--primary-color); }
+.pz-radio-row-active .pz-radio-dot::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: var(--primary-color);
+}
+.pz-radio-precio { color: #6b7280; font-weight: 600; }
+
+.pz-select-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  padding: .75rem 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  margin-bottom: .6rem;
+}
+.pz-select-nombre { font-weight: 600; flex: 1; }
+.pz-alitas-input {
+  width: 64px;
+  height: 40px;
+  border: 1.5px solid #d1d5db;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111827;
+  background: #f9fafb;
+}
+.pz-alitas-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  background: #fff;
+}
+
+.pz-alitas-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .5rem;
+}
+.pz-alitas-grid .pz-select-row { margin-bottom: 0; }
+
+@media (max-width: 420px) {
+  .pz-alitas-grid { grid-template-columns: 1fr; }
 }
 
 .pz-grid {
@@ -59,6 +186,24 @@
 .pz-chip-small { padding: .4rem .8rem; min-width: auto; border-radius: 999px; }
 .pz-chip-producto { min-width: 120px; }
 
+.pz-chip-combo {
+  min-width: 180px;
+  max-width: 220px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+}
+.pz-chip-combo-nombre { font-weight: 700; display: block; }
+.pz-chip-combo-desc {
+  display: block;
+  font-size: .74rem;
+  font-weight: 500;
+  color: #6b7280;
+  line-height: 1.3;
+}
+.pz-chip-active .pz-chip-combo-desc { color: #ffe9e9; }
+
 .pz-badge-premium {
   display: inline-block;
   background: #f59e0b;
@@ -70,9 +215,38 @@
   vertical-align: middle;
 }
 
+.pz-badge-mitad {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.25);
+  color: inherit;
+  font-size: .65rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 6px;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
 .pz-check { display: flex; align-items: center; gap: .5rem; font-weight: 600; }
 
-.pz-componentes-list { padding-left: 1.2rem; color: #4b5563; font-size: .9rem; }
+.pz-tamano-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: .5rem;
+}
+.pz-tamano-grid .pz-radio-row {
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: .35rem;
+  margin-bottom: 0;
+  padding: .65rem .6rem;
+}
+.pz-tamano-grid .pz-radio-precio { font-size: .82rem; }
+
+@media (max-width: 420px) {
+  .pz-tamano-grid { grid-template-columns: 1fr 1fr; }
+}
 
 .pz-builder-footer {
   display: flex;
@@ -104,6 +278,20 @@
 .pz-obs-input { flex: 1; min-width: 150px; }
 .pz-precio { font-weight: 700; font-size: 1.1rem; min-width: 80px; }
 
+.pz-modal-footer { display: flex; align-items: center; gap: .75rem; }
+.pz-btn-agregar {
+  flex: 1;
+  border-radius: 999px;
+  padding: .85rem 1.5rem;
+  font-weight: 700;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .35rem;
+}
+.pz-btn-agregar-sep { opacity: .75; }
+
 .pz-categoria-chips {
   display: flex;
   flex-wrap: wrap;
@@ -124,7 +312,20 @@
   border-bottom: 1px solid #f1f1f1;
   font-size: .9rem;
 }
-.pz-carrito-item span:first-child { flex: 1; }
+.pz-carrito-item-label { flex: 1; }
+.pz-item-qty {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #f3f4f6;
+  color: #374151;
+  font-size: .72rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 .pz-carrito-remove {
   border: none;
   background: none;

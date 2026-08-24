@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'CSS/pizzeria-mapa.css' %}?v=4">
+<link rel="stylesheet" href="{% static 'CSS/pizzeria_gestion_mesas.css' %}?v=2">
+{% endblock %}
+
+{% block content %}
+<div class="app-topbar">
+  <button class="sidebar-toggle" id="sidebarToggle" aria-label="Abrir menú">
+    <i class="fas fa-bars"></i>
+  </button>
+  <div class="topbar-center">
+    {% include 'components/topbar_breadcrumb.html' %}
+  </div>
+  {% include 'components/topbar_right.html' %}
+</div>
+
+<div class="container-fluid contenedor-principal">
+  <div class="col-12 col-der">
+
+    <div class="dash-header pz-header">
+      <div>
+        <h4 class="dash-title">Gestionar mesas</h4>
+        <p class="dash-subtitle">Arrastra una mesa para reposicionarla, o tócala para editar sus datos</p>
+      </div>
+      <div class="pz-header-actions">
+        <button type="button" class="btn btn-pz-primary" onclick="pzgAbrirCrear()">
+          <i class="fas fa-plus me-2"></i>Agregar mesa
+        </button>
+        <a href="{% url 'pizzeria_mapa_mesas' %}" class="btn btn-pz-outline">
+          <i class="fas fa-arrow-left me-2"></i>Volver al mapa
+        </a>
+      </div>
+    </div>
+
+    <div class="pzm-legend mb-3">
+      <span class="pzm-legend-pill pzm-legend-libre"><span class="pzm-dot"></span>Libre</span>
+      <span class="pzm-legend-pill pzm-legend-ocupada"><span class="pzm-dot"></span>Ocupada</span>
+      <span class="pzm-legend-pill pzm-legend-cobrar"><span class="pzm-dot"></span>Por cobrar</span>
+      <span class="pzm-legend-pill pzm-legend-inactiva"><span class="pzm-dot"></span>Inactiva</span>
+    </div>
+
+    <div class="pzg-floor" id="pzFloor">
+      {% for mesa in mesas %}
+      <button
+        type="button"
+        class="pzg-mesa pzg-mesa-{{ mesa.forma }} pzg-estado-{{ mesa.estado }} {% if not mesa.activa %}pzg-mesa-inactiva{% endif %}"
+        style="left: {{ mesa.pos_x }}%; top: {{ mesa.pos_y }}%;"
+        data-mesa-id="{{ mesa.id }}"
+        data-numero="{{ mesa.numero }}"
+        data-nombre="{{ mesa.nombre }}"
+        data-zona="{{ mesa.zona }}"
+        data-forma="{{ mesa.forma }}"
+        data-capacidad="{{ mesa.capacidad }}"
+        data-activa="{{ mesa.activa|yesno:'true,false' }}"
+        data-pos-x="{{ mesa.pos_x }}"
+        data-pos-y="{{ mesa.pos_y }}">
+        <span class="pzg-mesa-numero">{{ mesa.nombre|default:mesa.numero }}</span>
+        <span class="pzg-mesa-cap"><i class="fas fa-user"></i>{{ mesa.capacidad }}</span>
+      </button>
+      {% empty %}
+      <div class="pzg-floor-empty">
+        <div>
+          <i class="fas fa-border-all"></i>
+          No hay mesas todavía.<br>Usa "Agregar mesa" para crear la primera.
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+  </div>
+</div>
+
+<!-- Modal alta/edición de mesa -->
+<div class="modal fade" id="pzgModalMesa" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <form id="pzgFormMesa">
+        <div class="modal-header">
+          <h5 class="modal-title" id="pzgModalTitulo">Nueva mesa</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div id="pzgFormError" class="alert alert-danger d-none"></div>
+          <div class="mb-3">
+            <label class="form-label">Número</label>
+            <input type="number" min="1" class="form-control" id="pzgNumero" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Nombre (opcional)</label>
+            <input type="text" maxlength="50" class="form-control" id="pzgNombre">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Zona (opcional)</label>
+            <input type="text" maxlength="50" class="form-control" id="pzgZona" list="pzgZonasExistentes" placeholder="Ej. Salón principal">
+            <datalist id="pzgZonasExistentes">
+              {% for zona in zonas_existentes %}
+              <option value="{{ zona }}"></option>
+              {% endfor %}
+            </datalist>
+          </div>
+          <div class="row">
+            <div class="col-6 mb-3">
+              <label class="form-label">Forma</label>
+              <select class="form-select" id="pzgForma">
+                {% for valor, etiqueta in formas %}
+                <option value="{{ valor }}">{{ etiqueta }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-6 mb-3">
+              <label class="form-label">Capacidad</label>
+              <input type="number" min="1" class="form-control" id="pzgCapacidad" value="4">
+            </div>
+          </div>
+          <div class="form-check form-switch d-none" id="pzgActivaWrap">
+            <input type="checkbox" role="switch" class="form-check-input" id="pzgActiva" checked>
+            <label class="form-check-label" for="pzgActiva">Mesa activa (visible en el mapa)</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-pz-outline" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-pz-primary">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  window.PZG_URLS = {
+    crearMesa: "{% url 'pizzeria_crear_mesa' %}",
+    actualizarMesa: "{% url 'pizzeria_actualizar_mesa' 0 %}",
+    moverMesa: "{% url 'pizzeria_mover_mesa' 0 %}",
+  };
+</script>
+<script src="{% static 'JS/pizzeria_gestion_mesas.js' %}?v=2"></script>
+{% endblock %}

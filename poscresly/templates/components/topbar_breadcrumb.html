@@ -1,0 +1,13 @@
+<div class="topbar-breadcrumb">
+  <a href="{% url 'pizzeria_inicio' %}" class="topbar-breadcrumb-home" aria-label="Inicio">
+    <i class="fas fa-house"></i>
+  </a>
+  {% for crumb in breadcrumbs %}
+    <i class="fas fa-chevron-right topbar-breadcrumb-sep"></i>
+    {% if crumb.url %}
+      <a href="{{ crumb.url }}" class="topbar-breadcrumb-link">{{ crumb.label }}</a>
+    {% else %}
+      <span class="topbar-breadcrumb-actual">{{ crumb.label }}</span>
+    {% endif %}
+  {% endfor %}
+</div>

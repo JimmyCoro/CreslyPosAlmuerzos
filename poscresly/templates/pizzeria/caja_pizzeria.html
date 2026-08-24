@@ -6,7 +6,9 @@
   <button class="sidebar-toggle" id="sidebarToggle" aria-label="Abrir menú">
     <i class="fas fa-bars"></i>
   </button>
-  <div class="topbar-center"></div>
+  <div class="topbar-center">
+    {% include 'components/topbar_breadcrumb.html' %}
+  </div>
   {% include 'components/topbar_right.html' %}
 </div>
 
@@ -94,7 +96,7 @@
                 <tr>
                   <td>{{ p.numero_pedido_completo }}</td>
                   <td>{{ p.get_tipo_display }}</td>
-                  <td>{{ p.forma_pago }}</td>
+                  <td>{{ p.resumen_forma_pago }}</td>
                   <td>${{ p.total|floatformat:2 }}</td>
                 </tr>
                 {% empty %}
@@ -152,6 +154,13 @@
             </div>
           </div>
           <div class="mb-3">
+            <label class="form-label">Monto Inicial Tarjeta</label>
+            <div class="input-group">
+              <span class="input-group-text">$</span>
+              <input type="number" class="form-control" name="monto_inicial_tarjeta" step="0.01" min="0" value="0.00">
+            </div>
+          </div>
+          <div class="mb-3">
             <label class="form-label">Observaciones</label>
             <textarea class="form-control" name="observaciones" rows="2"></textarea>
           </div>
@@ -178,6 +187,7 @@
           <div class="alert alert-info">
             Ventas efectivo: ${{ total_efectivo|floatformat:2 }}<br>
             Ventas transferencia: ${{ total_transferencia|floatformat:2 }}<br>
+            Ventas tarjeta: ${{ total_tarjeta|floatformat:2 }}<br>
             Total: ${{ total_ventas|floatformat:2 }}
           </div>
           <div class="mb-3">
@@ -192,6 +202,13 @@
             <div class="input-group">
               <span class="input-group-text">$</span>
               <input type="number" class="form-control" name="monto_final_transferencia" step="0.01" min="0">
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Monto Final Tarjeta</label>
+            <div class="input-group">
+              <span class="input-group-text">$</span>
+              <input type="number" class="form-control" name="monto_final_tarjeta" step="0.01" min="0">
             </div>
           </div>
           <div class="mb-3">

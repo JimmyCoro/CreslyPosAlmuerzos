@@ -1,0 +1,243 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'CSS/pizzeria-mapa.css' %}">
+<link rel="stylesheet" href="{% static 'CSS/pizzeria-pedido.css' %}">
+<link rel="stylesheet" href="{% static 'CSS/pizzeria-venta-rapida.css' %}?v=11">
+<link rel="stylesheet" href="{% static 'CSS/pizzeria-cart-bar.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="app-topbar">
+  <button class="sidebar-toggle" id="sidebarToggle" aria-label="Abrir menú">
+    <i class="fas fa-bars"></i>
+  </button>
+  <div class="topbar-center">
+    {% include 'components/topbar_breadcrumb.html' %}
+  </div>
+  {% include 'components/topbar_right.html' %}
+</div>
+
+<div class="container-fluid contenedor-principal vr-page-bg">
+  <div class="col-12 col-der">
+    <div class="vr-layout">
+
+      <div class="vr-main">
+        <div class="dash-header pz-header">
+          <div>
+            {% if pedido_abierto %}
+            <h4 class="dash-title">Agregar a pedido #{{ pedido_abierto.numero_pedido_completo }}</h4>
+            <p class="dash-subtitle mb-0">Total actual ${{ pedido_abierto.total|floatformat:2 }}</p>
+            {% else %}
+            <h4 class="dash-title">Punto de venta</h4>
+            {% endif %}
+          </div>
+        </div>
+
+        <div id="vrToast" class="vr-toast d-none">
+          <i class="fas fa-check-circle me-2"></i><span id="vrToastTexto"></span>
+        </div>
+
+        <div class="vr-search">
+          <i class="fas fa-search vr-search-icon"></i>
+          <input type="text" id="vrBuscador" class="vr-search-input" placeholder="Buscar producto...">
+        </div>
+
+        <div class="vr-categorias" id="vrCategorias"></div>
+
+        <div class="vr-grid-scroll">
+          <div class="vr-grid" id="vrGrid"></div>
+        </div>
+      </div>
+
+      <div class="vr-cart pz-cart-sheet" id="vrCart">
+        <div class="pz-cart-sheet-handle"></div>
+        <div class="vr-cart-header">
+          <h6 class="mb-0"><i class="fas fa-cart-shopping me-2"></i>Carrito <span class="vr-cart-numero" id="vrNumeroOrden">#{% if pedido_abierto %}{{ pedido_abierto.numero_pedido_completo }}{% else %}{{ proximo_numero|stringformat:"03d" }}{% endif %}</span></h6>
+          <div class="d-flex align-items-center gap-2">
+            <button type="button" class="vr-cart-vaciar" id="vrVaciar">Vaciar</button>
+            <button type="button" class="pz-cart-sheet-close" id="vrCartSheetClose" aria-label="Cerrar"><i class="fas fa-chevron-down"></i></button>
+          </div>
+        </div>
+
+        {% if pedido_abierto %}
+        <div class="pz-pedido-actual mb-3">
+          <p class="pz-pedido-actual-titulo mb-1">
+            {% if pedido_abierto.tipo == 'mesa' %}Mesa {{ pedido_abierto.mesa.nombre|default:pedido_abierto.mesa.numero }}
+            {% elif pedido_abierto.tipo == 'delivery' %}Delivery{% if pedido_abierto.contacto %} · {{ pedido_abierto.contacto }}{% endif %}
+            {% else %}Para llevar{% if pedido_abierto.contacto %} · {{ pedido_abierto.contacto }}{% endif %}{% endif %}
+          </p>
+          {% if items_pedido_abierto %}
+          <ul class="pz-pedido-actual-lista mb-0">
+            {% for item in items_pedido_abierto %}
+            <li>{{ item }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+        {% endif %}
+
+        <div class="vr-tipo-tabs{% if pedido_abierto %} d-none{% endif %}" id="vrTipoTabs">
+          <button type="button" class="vr-tipo-tab" data-tipo="mesa">Servirse</button>
+          <button type="button" class="vr-tipo-tab vr-tipo-tab-active" data-tipo="llevar">Llevar</button>
+          <button type="button" class="vr-tipo-tab" data-tipo="delivery">Delivery</button>
+        </div>
+
+        <div class="vr-cliente-datos{% if pedido_abierto %} d-none{% endif %}" id="vrClienteDatos">
+          <div class="vr-cliente-group vr-cliente-group-2col d-none" id="vrGrupoMesa">
+            <div class="vr-select-custom" id="vrMesaSelectWrap">
+              <button type="button" class="vr-cliente-input vr-select-trigger vr-select-trigger-placeholder" id="vrMesaSelectTrigger">
+                <span id="vrMesaSelectTriggerTexto">Mesa *</span>
+                <i class="fas fa-chevron-down vr-select-chevron"></i>
+              </button>
+              <div class="vr-select-dropdown d-none" id="vrMesaSelectDropdown"></div>
+              <select id="vrMesaSelect" class="d-none">
+                <option value="">Mesa *</option>
+              </select>
+            </div>
+            <input type="text" id="vrNombreMesa" class="form-control form-control-sm vr-cliente-input" placeholder="Cliente">
+          </div>
+
+          <div class="vr-cliente-group" id="vrGrupoLlevar">
+            <input type="text" id="vrNombreLlevar" class="form-control form-control-sm vr-cliente-input" placeholder="Cliente">
+          </div>
+
+          <div class="vr-cliente-group d-none" id="vrGrupoDelivery">
+            <div class="vr-entrega-card">
+              <div class="vr-entrega-header">
+                <span class="vr-entrega-label">Datos de entrega</span>
+              </div>
+
+              <div class="vr-cliente-group-2col">
+                <input type="tel" id="vrTelefonoDelivery" class="form-control form-control-sm vr-cliente-input" placeholder="Teléfono">
+                <input type="text" id="vrNombreDelivery" class="form-control form-control-sm vr-cliente-input" placeholder="Cliente">
+              </div>
+              <textarea id="vrNotasDelivery" class="form-control form-control-sm vr-cliente-input vr-entrega-textarea" rows="2" placeholder="Dirección y referencia"></textarea>
+
+              <div class="vr-entrega-costo-label">Costo de envío</div>
+              <div class="vr-entrega-toggle-row vr-entrega-toggle-row-5" id="vrCostoEnvioTabs">
+                <button type="button" class="vr-entrega-toggle" data-valor="2.00">$2.00</button>
+                <button type="button" class="vr-entrega-toggle" data-valor="2.25">$2.25</button>
+                <button type="button" class="vr-entrega-toggle" data-valor="2.50">$2.50</button>
+                <button type="button" class="vr-entrega-toggle" data-valor="2.75">$2.75</button>
+                <button type="button" class="vr-entrega-toggle" data-valor="3.00">$3.00</button>
+                <button type="button" class="vr-entrega-toggle" data-valor="3.25">$3.25</button>
+                <button type="button" class="vr-entrega-toggle" data-valor="3.50">$3.50</button>
+                <button type="button" class="vr-entrega-toggle" data-valor="3.75">$3.75</button>
+                <button type="button" class="vr-entrega-toggle" data-valor="4.00">$4.00</button>
+                <input type="number" id="vrValorMoto" class="vr-entrega-otro-monto" placeholder="Otro" min="0" step="0.01">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="vr-cart-items" id="vrCartItems">
+          <p class="text-muted mb-0">Carrito vacío</p>
+        </div>
+        <div class="vr-cart-totales">
+          <div class="vr-total-row"><span>Subtotal</span><span id="vrSubtotal">$0.00</span></div>
+          <div class="vr-total-row"><span>IVA 15%</span><span id="vrIva">$0.00</span></div>
+          <div class="vr-total-row vr-total-final"><span>Total</span><span id="vrTotal">$0.00</span></div>
+        </div>
+
+        <div class="vr-cart-acciones">
+          <button type="button" class="btn btn-pz-primary py-2" id="vrBtnConfirmarImprimir" disabled onclick="vrGuardarPedido(true)">
+            <i class="fas fa-print me-2"></i>{% if pedido_abierto %}Agregar e Imprimir{% else %}Confirmar e Imprimir{% endif %}
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+{% include 'components/_pz_cart_bar.html' %}
+
+<!-- Modal: seleccionar tamaño/sabor de pizza o combo -->
+<div class="modal fade" id="vrModalSelector" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="vrModalTitulo">Elegir opciones</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="pz-builder-section" id="vrSelectorTamanoWrap">
+          <div class="pz-builder-header">
+            <label class="pz-builder-label">Tamaño</label>
+            <span class="pz-req-badge">Requerido</span>
+          </div>
+          <div class="pz-tamano-grid" id="vrSelectorTamanos"></div>
+        </div>
+        <div class="pz-builder-section" id="vrSelectorMitadWrap">
+          <label class="pz-check">
+            <input type="checkbox" id="vrSelectorMitad"> Mitad y mitad (2 sabores)
+          </label>
+        </div>
+        <div class="pz-builder-section" id="vrSelectorSaborWrap">
+          <div class="pz-builder-header">
+            <label class="pz-builder-label">Sabor</label>
+            <span class="pz-faltan-badge" id="vrSelectorSaborFaltan">Falta 1</span>
+          </div>
+          <div class="pz-sabor-grid" id="vrSelectorSabor1"></div>
+        </div>
+        <div class="pz-builder-section d-none" id="vrSelectorPorcionesWrap">
+          <label class="pz-builder-label">Sabor de cada porción de pizza</label>
+          <div id="vrSelectorPorciones"></div>
+        </div>
+        <div class="pz-builder-section d-none" id="vrSelectorAlitasWrap">
+          <div class="pz-builder-header">
+            <label class="pz-builder-label">Sabor de alitas (hasta 3 sabores)</label>
+            <span class="pz-faltan-badge" id="vrSelectorAlitasTotal">Faltan 0</span>
+          </div>
+          <div class="pz-alitas-grid" id="vrSelectorAlitas"></div>
+        </div>
+        <div class="pz-builder-section d-none" id="vrSelectorBebidaWrap">
+          <label class="pz-builder-label">Sabor de la bebida</label>
+          <div id="vrSelectorBebida"></div>
+        </div>
+        <div class="pz-builder-section d-none" id="vrSelectorMicheladaWrap">
+          <label class="pz-builder-label">Sabor de la michelada</label>
+          <div id="vrSelectorMichelada"></div>
+        </div>
+      </div>
+      <div class="modal-footer pz-modal-footer">
+        <div class="pz-stepper">
+          <button type="button" onclick="vrCambiarCantidad(-1)">-</button>
+          <span id="vrSelectorCantidad">1</span>
+          <button type="button" onclick="vrCambiarCantidad(1)">+</button>
+        </div>
+        <button type="button" class="btn btn-pz-primary pz-btn-agregar" id="vrBtnAgregarSelector">
+          Agregar <span class="pz-btn-agregar-sep">·</span> <span id="vrSelectorPrecio">$0.00</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  window.PZ_CATALOGO = {{ catalogo_json|safe }};
+  window.PZ_PROXIMO_NUMERO = {{ proximo_numero }};
+  window.PZ_PEDIDO_ID = {% if pedido_abierto %}{{ pedido_abierto.id }}{% else %}null{% endif %};
+  window.PZ_URLS = {
+    calcularPrecio: "{% url 'pizzeria_calcular_precio' %}",
+    guardarPedido: "{% url 'pizzeria_guardar_pedido' %}",
+    ordenes: "{% url 'pizzeria_ordenes' %}",
+    {% if pedido_abierto %}detalleOrden: "{% url 'pizzeria_detalle_orden' pedido_abierto.id %}",{% endif %}
+  };
+</script>
+<script src="{% static 'JS/pizzeria_cart_bar.js' %}"></script>
+<script src="{% static 'JS/pizzeria_venta_rapida.js' %}?v=5"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    pzInitCartBar({
+      itemsId: 'vrCartItems',
+      totalId: 'vrTotal',
+      sheetId: 'vrCart',
+      closeId: 'vrCartSheetClose',
+      itemSelector: '.vr-cart-item',
+    });
+  });
+</script>
+{% endblock %}

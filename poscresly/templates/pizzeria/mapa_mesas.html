@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'CSS/pizzeria-mapa.css' %}">
+<link rel="stylesheet" href="{% static 'CSS/pizzeria-mapa.css' %}?v=4">
 {% endblock %}
 
 {% block content %}
@@ -10,69 +10,116 @@
   <button class="sidebar-toggle" id="sidebarToggle" aria-label="Abrir menú">
     <i class="fas fa-bars"></i>
   </button>
-  <div class="topbar-center"></div>
+  <div class="topbar-center">
+    {% include 'components/topbar_breadcrumb.html' %}
+  </div>
   {% include 'components/topbar_right.html' %}
 </div>
 
 <div class="container-fluid contenedor-principal">
-  <div class="col-12 col-der">
+  <div class="col-12 col-der pzm-page">
+    <div class="pzm-stack">
 
-    <div class="dash-header pz-header">
-      <div>
-        <h4 class="dash-title">Mapa de Mesas - Pizzería</h4>
-        <p class="dash-subtitle">Toca una mesa libre para tomar un pedido, u ocupada para ver su cuenta</p>
+      <div class="pzm-head">
+        <div>
+          <h1 class="pzm-title">Mapa de mesas · Pizzería</h1>
+          <p class="pzm-subtitle">Toca una mesa libre para tomar un pedido, u ocupada para ver su cuenta.</p>
+        </div>
+        <div class="pzm-actions">
+          <a href="{% url 'pizzeria_tomar_pedido_llevar' %}" class="pzm-btn pzm-btn-primary">
+            <i class="fas fa-bag-shopping"></i>Para llevar
+          </a>
+          <a href="{% url 'pizzeria_dashboard_caja' %}" class="pzm-btn pzm-btn-outline"><i class="fas fa-cash-register"></i>Caja pizzería</a>
+          <a href="{% url 'pizzeria_gestionar_mesas' %}" class="pzm-btn pzm-btn-outline"><i class="fas fa-sliders"></i>Gestionar mesas</a>
+        </div>
       </div>
-      <div class="pz-header-actions">
-        <a href="{% url 'pizzeria_tomar_pedido_llevar' %}" class="btn btn-pz-primary">
-          <i class="fas fa-bag-shopping me-2"></i>Para llevar
-        </a>
-        <a href="{% url 'pizzeria_dashboard_caja' %}" class="btn btn-pz-outline">
-          <i class="bi bi-cash-stack me-2"></i>Caja pizzería
-        </a>
+
+      <div class="pzm-metrics">
+        <div class="pzm-metric pzm-metric-free">
+          <div class="pzm-metric-label">LIBRES</div>
+          <div class="pzm-metric-value-row">
+            <span class="pzm-metric-value">{{ count_free }}</span>
+            <span class="pzm-metric-sub">de {{ count_all }} mesas</span>
+          </div>
+        </div>
+        <div class="pzm-metric pzm-metric-busy">
+          <div class="pzm-metric-label">OCUPADAS</div>
+          <div class="pzm-metric-value-row">
+            <span class="pzm-metric-value">{{ count_busy }}</span>
+            <span class="pzm-metric-sub">en servicio</span>
+          </div>
+        </div>
+        <div class="pzm-metric pzm-metric-bill">
+          <div class="pzm-metric-label">POR COBRAR</div>
+          <div class="pzm-metric-value-row">
+            <span class="pzm-metric-value">{{ count_bill }}</span>
+            <span class="pzm-metric-sub">esperando pago</span>
+          </div>
+        </div>
+        <div class="pzm-metric pzm-metric-open">
+          <div class="pzm-metric-label">EN CURSO</div>
+          <div class="pzm-metric-value-row">
+            <span class="pzm-metric-value">${{ total_open|floatformat:2 }}</span>
+            <span class="pzm-metric-sub">sin cobrar</span>
+          </div>
+        </div>
       </div>
-    </div>
 
-    <div class="pz-legend">
-      <span class="pz-legend-item"><span class="pz-dot pz-dot-libre"></span> Libre</span>
-      <span class="pz-legend-item"><span class="pz-dot pz-dot-ocupada"></span> Ocupada</span>
-      <span class="pz-legend-item"><span class="pz-dot pz-dot-por_cobrar"></span> Por cobrar</span>
-    </div>
+      <div class="pzm-panel">
+        <div class="pzm-panel-bar">
+          <div class="pzm-legend">
+            <span class="pzm-legend-pill pzm-legend-libre"><span class="pzm-dot"></span>Libre</span>
+            <span class="pzm-legend-pill pzm-legend-reservada"><span class="pzm-dot"></span>Reservada</span>
+            <span class="pzm-legend-pill pzm-legend-ocupada"><span class="pzm-dot"></span>Ocupada</span>
+            <span class="pzm-legend-pill pzm-legend-cobrar"><span class="pzm-dot"></span>Por cobrar</span>
+          </div>
+          <div class="pzm-updated">Actualizado hace un momento</div>
+        </div>
 
-    <div class="pz-floor" id="pzFloor">
-      {% for mesa in mesas %}
-      <button
-        type="button"
-        class="pz-mesa pz-mesa-{{ mesa.forma }} pz-estado-{{ mesa.estado }}"
-        style="left: {{ mesa.pos_x }}%; top: {{ mesa.pos_y }}%;"
-        data-mesa-id="{{ mesa.id }}"
-        data-estado="{{ mesa.estado }}"
-        {% if mesa.pedido_abierto %}data-pedido-id="{{ mesa.pedido_abierto.id }}"{% endif %}
-        onclick="pzMesaClick(this)">
-        <span class="pz-mesa-numero">{{ mesa.nombre|default:mesa.numero }}</span>
-        {% if mesa.pedido_abierto %}
-        <span class="pz-mesa-total">${{ mesa.pedido_abierto.total|floatformat:2 }}</span>
-        {% endif %}
-      </button>
-      {% empty %}
-      <p class="text-muted">No hay mesas configuradas todavía. Créalas desde el admin de Django.</p>
-      {% endfor %}
-    </div>
-
-    {% if pedidos_llevar_abiertos %}
-    <div class="pz-llevar-section">
-      <h5 class="pz-section-title">Pedidos para llevar abiertos</h5>
-      <div class="pz-llevar-list">
-        {% for pedido in pedidos_llevar_abiertos %}
-        <button type="button" class="pz-llevar-card" onclick="pzVerPedido({{ pedido.id }})">
-          <span class="pz-llevar-numero">#{{ pedido.numero_pedido_completo }}</span>
-          <span class="pz-llevar-contacto">{{ pedido.contacto|default:"Sin nombre" }}</span>
-          <span class="pz-llevar-total">${{ pedido.total|floatformat:2 }}</span>
-        </button>
-        {% endfor %}
+        <div class="pzm-body">
+          {% for zona in zonas %}
+          <div class="pzm-zone">
+            <div class="pzm-zone-header">
+              <span class="pzm-zone-name">{{ zona.nombre }}</span>
+              <span class="pzm-zone-meta">{{ zona.total }} mesa{{ zona.total|pluralize }} · {{ zona.libres }} libre{{ zona.libres|pluralize }}</span>
+              <span class="pzm-zone-rule"></span>
+            </div>
+            <div class="pzm-grid">
+              {% for mesa in zona.mesas %}
+              {% include 'pizzeria/_mesa_card.html' %}
+              {% endfor %}
+            </div>
+          </div>
+          {% empty %}
+          <div class="pzm-empty-zone">
+            No hay mesas configuradas todavía. <a href="{% url 'pizzeria_gestionar_mesas' %}">Créalas desde Gestionar mesas</a>.
+          </div>
+          {% endfor %}
+        </div>
       </div>
-    </div>
-    {% endif %}
 
+      {% if pedidos_llevar_abiertos %}
+      <div class="pzm-takeaway">
+        <div class="pzm-takeaway-head">
+          <h2 class="pzm-takeaway-title">Pedidos para llevar abiertos</h2>
+          <span class="pzm-takeaway-meta">{{ pedidos_llevar_abiertos|length }} pedido{{ pedidos_llevar_abiertos|length|pluralize }} · ${{ total_llevar|floatformat:2 }}</span>
+        </div>
+        <div class="pzm-takeaway-grid">
+          {% for pedido in pedidos_llevar_abiertos %}
+          <button type="button" class="pzm-takeaway-card" onclick="pzVerPedido({{ pedido.id }})">
+            <div class="pzm-takeaway-top">
+              <span class="pzm-takeaway-code">#{{ pedido.numero_pedido_completo }}</span>
+              <span class="pzm-takeaway-time">{{ pedido.fecha_creacion|date:"H:i" }}</span>
+            </div>
+            <div class="pzm-takeaway-name">{{ pedido.contacto|default:"Sin nombre" }}</div>
+            <div class="pzm-takeaway-total">${{ pedido.total|floatformat:2 }}</div>
+          </button>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+    </div>
   </div>
 </div>
 
@@ -92,12 +139,52 @@
   </div>
 </div>
 
+<!-- Modal de acciones para una mesa libre / reservada -->
+<div class="modal fade" id="pzModalMesaAcciones" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="pzma-header">
+        <span class="pzma-titulo" id="pzmaTitulo">Mesa</span>
+        <button type="button" class="pzma-close" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div class="pzma-status-row">
+        <span class="pzma-status-dot" id="pzmaStatusDot"></span>
+        <span id="pzmaStatusTexto"></span>
+      </div>
+      <div class="pzma-body">
+        <button type="button" class="pzma-action" id="pzmaTomarOrden">
+          <i class="fas fa-clipboard-list"></i>Tomar orden
+        </button>
+        <button type="button" class="pzma-action pzma-action-reservar" id="pzmaReserva">
+          <i class="fas fa-calendar-check"></i><span id="pzmaReservaTexto">Marcar como reservada</span>
+        </button>
+
+        <div class="pzma-divider"></div>
+
+        <div>
+          <div class="pzma-select-label mb-2">Cambiar estado</div>
+          <div class="pzma-estado-grid">
+            <button type="button" class="pzma-estado-opcion pzma-estado-opcion-ocupada" data-estado="ocupada">
+              <span class="pzma-estado-dot"></span>Ocupada
+            </button>
+            <button type="button" class="pzma-estado-opcion pzma-estado-opcion-libre" data-estado="libre">
+              <span class="pzma-estado-dot"></span>Libre
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
   window.PZ_URLS = {
-    obtenerPedido: "{% url 'pizzeria_obtener_pedido' 0 %}".replace('0', ''),
-    cerrarCobrar: "{% url 'pizzeria_cerrar_cobrar' %}",
-    tomarPedidoMesa: "{% url 'pizzeria_tomar_pedido_mesa' 0 %}".replace('0', ''),
+    obtenerPedido: "{% url 'pizzeria_obtener_pedido' 0 %}",
+    cobrarOrden: "{% url 'pizzeria_cobrar_orden' 0 %}",
+    tomarPedidoMesa: "{% url 'pizzeria_tomar_pedido_mesa' 0 %}",
+    nuevaOrden: "{% url 'pizzeria_nueva_orden' %}",
+    cambiarEstadoMesa: "{% url 'pizzeria_cambiar_estado_mesa' 0 %}",
   };
 </script>
-<script src="{% static 'JS/pizzeria_mapa.js' %}"></script>
+<script src="{% static 'JS/pizzeria_mapa.js' %}?v=5"></script>
 {% endblock %}

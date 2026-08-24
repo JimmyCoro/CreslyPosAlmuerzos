@@ -3,6 +3,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'CSS/pizzeria-pedido.css' %}">
+<link rel="stylesheet" href="{% static 'CSS/pizzeria-cart-bar.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -10,7 +11,9 @@
   <button class="sidebar-toggle" id="sidebarToggle" aria-label="Abrir menú">
     <i class="fas fa-bars"></i>
   </button>
-  <div class="topbar-center"></div>
+  <div class="topbar-center">
+    {% include 'components/topbar_breadcrumb.html' %}
+  </div>
   {% include 'components/topbar_right.html' %}
 </div>
 
@@ -31,10 +34,21 @@
       </div>
     </div>
 
+    {% if pedido_abierto and items_pedido_abierto %}
+    <div class="pz-pedido-actual mb-3">
+      <p class="pz-pedido-actual-titulo mb-1">Ya en el pedido</p>
+      <ul class="pz-pedido-actual-lista mb-0">
+        {% for item in items_pedido_abierto %}
+        <li>{{ item }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
     {% if not mesa %}
     <div class="mb-3">
       <label class="form-label">Nombre / Teléfono del cliente</label>
-      <input type="text" id="pzContacto" class="form-control" placeholder="Ej. Juan Pérez - 099...">
+      <input type="text" id="pzContacto" class="form-control" placeholder="Ej. Juan Pérez - 099..." value="{{ pedido_abierto.contacto|default:'' }}">
     </div>
     {% endif %}
 
@@ -47,20 +61,23 @@
     <!-- TAB: PIZZAS -->
     <div class="pz-tab-pane" data-pane="pizza">
       <div class="pz-builder-section">
-        <label class="pz-builder-label">1. Tamaño</label>
-        <div class="pz-grid" id="pzPizzaTamanos"></div>
-      </div>
-      <div class="pz-builder-section">
-        <label class="pz-builder-label">2. Sabor</label>
-        <div class="pz-grid" id="pzPizzaSabor1"></div>
+        <div class="pz-builder-header">
+          <label class="pz-builder-label">1. Tamaño</label>
+          <span class="pz-req-badge">Requerido</span>
+        </div>
+        <div class="pz-tamano-grid" id="pzPizzaTamanos"></div>
       </div>
       <div class="pz-builder-section">
         <label class="pz-check">
           <input type="checkbox" id="pzPizzaMitad"> Mitad y mitad (2 sabores)
         </label>
-        <div class="pz-grid mt-2 d-none" id="pzPizzaSabor2Wrap">
-          <div class="pz-grid" id="pzPizzaSabor2"></div>
+      </div>
+      <div class="pz-builder-section">
+        <div class="pz-builder-header">
+          <label class="pz-builder-label">2. Sabor</label>
+          <span class="pz-faltan-badge" id="pzPizzaSaborFaltan">Falta 1</span>
         </div>
+        <div class="pz-sabor-grid" id="pzPizzaSabor1"></div>
       </div>
       <div class="pz-builder-footer">
         <div class="pz-stepper">
@@ -69,8 +86,9 @@
           <button type="button" onclick="pzCambiarCantidad('pizza', 1)">+</button>
         </div>
         <input type="text" id="pzPizzaObs" class="form-control pz-obs-input" placeholder="Observación (opcional)">
-        <div class="pz-precio" id="pzPizzaPrecio">$0.00</div>
-        <button type="button" class="btn btn-pz-primary" onclick="pzAgregarPizza()">Agregar</button>
+        <button type="button" class="btn btn-pz-primary pz-btn-agregar" onclick="pzAgregarPizza()">
+          Agregar <span class="pz-btn-agregar-sep">·</span> <span id="pzPizzaPrecio">$0.00</span>
+        </button>
       </div>
     </div>
 
@@ -80,25 +98,43 @@
         <label class="pz-builder-label">1. Combo</label>
         <div class="pz-grid" id="pzComboLista"></div>
       </div>
-      <div class="pz-builder-section">
-        <label class="pz-builder-label">2. Tamaño</label>
-        <div class="pz-grid" id="pzComboTamanos"></div>
+      <div class="pz-builder-section d-none" id="pzComboTamanoWrap">
+        <div class="pz-builder-header">
+          <label class="pz-builder-label">2. Tamaño</label>
+          <span class="pz-req-badge">Requerido</span>
+        </div>
+        <div class="pz-tamano-grid" id="pzComboTamanos"></div>
       </div>
-      <div class="pz-builder-section" id="pzComboComponentesWrap" style="display:none">
-        <label class="pz-builder-label">Incluye</label>
-        <ul class="pz-componentes-list" id="pzComboComponentes"></ul>
-      </div>
-      <div class="pz-builder-section">
-        <label class="pz-builder-label">3. Sabor de la pizza</label>
-        <div class="pz-grid" id="pzComboSabor1"></div>
-      </div>
-      <div class="pz-builder-section">
+      <div class="pz-builder-section d-none" id="pzComboMitadWrap">
         <label class="pz-check">
           <input type="checkbox" id="pzComboMitad"> Mitad y mitad (2 sabores)
         </label>
-        <div class="pz-grid mt-2 d-none" id="pzComboSabor2Wrap">
-          <div class="pz-grid" id="pzComboSabor2"></div>
+      </div>
+      <div class="pz-builder-section d-none" id="pzComboSaborWrap">
+        <div class="pz-builder-header">
+          <label class="pz-builder-label">Sabor de la pizza</label>
+          <span class="pz-faltan-badge" id="pzComboSaborFaltan">Falta 1</span>
         </div>
+        <div class="pz-sabor-grid" id="pzComboSabor1"></div>
+      </div>
+      <div class="pz-builder-section d-none" id="pzComboPorcionesWrap">
+        <label class="pz-builder-label">Sabor de cada porción de pizza</label>
+        <div id="pzComboPorciones"></div>
+      </div>
+      <div class="pz-builder-section d-none" id="pzComboAlitasWrap">
+        <div class="pz-builder-header">
+          <label class="pz-builder-label">Sabor de alitas (hasta 3 sabores)</label>
+          <span class="pz-faltan-badge" id="pzComboAlitasTotal">Faltan 0</span>
+        </div>
+        <div class="pz-alitas-grid" id="pzComboAlitas"></div>
+      </div>
+      <div class="pz-builder-section d-none" id="pzComboBebidaWrap">
+        <label class="pz-builder-label">Sabor de la bebida</label>
+        <div id="pzComboBebida"></div>
+      </div>
+      <div class="pz-builder-section d-none" id="pzComboMicheladaWrap">
+        <label class="pz-builder-label">Sabor de la michelada</label>
+        <div id="pzComboMichelada"></div>
       </div>
       <div class="pz-builder-footer">
         <div class="pz-stepper">
@@ -107,8 +143,9 @@
           <button type="button" onclick="pzCambiarCantidad('combo', 1)">+</button>
         </div>
         <input type="text" id="pzComboObs" class="form-control pz-obs-input" placeholder="Observación (opcional)">
-        <div class="pz-precio" id="pzComboPrecio">$0.00</div>
-        <button type="button" class="btn btn-pz-primary" onclick="pzAgregarCombo()">Agregar</button>
+        <button type="button" class="btn btn-pz-primary pz-btn-agregar" onclick="pzAgregarCombo()">
+          Agregar <span class="pz-btn-agregar-sep">·</span> <span id="pzComboPrecio">$0.00</span>
+        </button>
       </div>
     </div>
 
@@ -119,8 +156,12 @@
     </div>
 
     <!-- CARRITO -->
-    <div class="pz-carrito">
-      <h6 class="pz-section-title">Pedido actual</h6>
+    <div class="pz-carrito pz-cart-sheet" id="pzCarrito">
+      <div class="pz-cart-sheet-handle"></div>
+      <div class="pz-cart-sheet-head">
+        <h6 class="pz-section-title mb-0">Pedido actual</h6>
+        <button type="button" class="pz-cart-sheet-close" id="pzCartSheetClose" aria-label="Cerrar"><i class="fas fa-chevron-down"></i></button>
+      </div>
       <div id="pzCarritoItems"><p class="text-muted">Aún no has agregado productos</p></div>
       <div class="pz-carrito-total">
         <span>Total a agregar</span>
@@ -131,6 +172,95 @@
       </button>
     </div>
 
+  </div>
+</div>
+
+{% include 'components/_pz_cart_bar.html' %}
+
+<!-- Modal: sabor de alitas para producto simple -->
+<div class="modal fade" id="pzModalAlitasProducto" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="pzModalAlitasProductoTitulo">Elegir sabor</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="pz-builder-section">
+          <div class="pz-builder-header">
+            <label class="pz-builder-label">Sabor de alitas (hasta 3 sabores)</label>
+            <span class="pz-faltan-badge" id="pzModalAlitasProductoFaltan">Faltan 0</span>
+          </div>
+          <div class="pz-alitas-grid" id="pzModalAlitasProductoGrid"></div>
+        </div>
+      </div>
+      <div class="modal-footer pz-modal-footer">
+        <div class="pz-stepper">
+          <button type="button" onclick="pzCambiarCantidadProductoAlitas(-1)">-</button>
+          <span id="pzModalAlitasProductoCantidad">1</span>
+          <button type="button" onclick="pzCambiarCantidadProductoAlitas(1)">+</button>
+        </div>
+        <button type="button" class="btn btn-pz-primary pz-btn-agregar" id="pzBtnAgregarAlitasProducto">
+          Agregar <span class="pz-btn-agregar-sep">·</span> <span id="pzModalAlitasProductoPrecio">$0.00</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: sabor de bebida para producto simple (colas) -->
+<div class="modal fade" id="pzModalBebidaProducto" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="pzModalBebidaProductoTitulo">Elegir sabor</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="pz-builder-section">
+          <label class="pz-builder-label">Sabor</label>
+          <div class="pz-sabor-grid" id="pzModalBebidaProductoGrid"></div>
+        </div>
+      </div>
+      <div class="modal-footer pz-modal-footer">
+        <div class="pz-stepper">
+          <button type="button" onclick="pzCambiarCantidadProductoBebida(-1)">-</button>
+          <span id="pzModalBebidaProductoCantidad">1</span>
+          <button type="button" onclick="pzCambiarCantidadProductoBebida(1)">+</button>
+        </div>
+        <button type="button" class="btn btn-pz-primary pz-btn-agregar" id="pzBtnAgregarBebidaProducto">
+          Agregar <span class="pz-btn-agregar-sep">·</span> <span id="pzModalBebidaProductoPrecio">$0.00</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: sabor de michelada para producto simple -->
+<div class="modal fade" id="pzModalMicheladaProducto" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="pzModalMicheladaProductoTitulo">Elegir sabor</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="pz-builder-section">
+          <label class="pz-builder-label">Sabor</label>
+          <div class="pz-sabor-grid" id="pzModalMicheladaProductoGrid"></div>
+        </div>
+      </div>
+      <div class="modal-footer pz-modal-footer">
+        <div class="pz-stepper">
+          <button type="button" onclick="pzCambiarCantidadProductoMichelada(-1)">-</button>
+          <span id="pzModalMicheladaProductoCantidad">1</span>
+          <button type="button" onclick="pzCambiarCantidadProductoMichelada(1)">+</button>
+        </div>
+        <button type="button" class="btn btn-pz-primary pz-btn-agregar" id="pzBtnAgregarMicheladaProducto">
+          Agregar <span class="pz-btn-agregar-sep">·</span> <span id="pzModalMicheladaProductoPrecio">$0.00</span>
+        </button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -147,5 +277,17 @@
     mapaMesas: "{% url 'pizzeria_mapa_mesas' %}",
   };
 </script>
+<script src="{% static 'JS/pizzeria_cart_bar.js' %}"></script>
 <script src="{% static 'JS/pizzeria_pedido.js' %}"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    pzInitCartBar({
+      itemsId: 'pzCarritoItems',
+      totalId: 'pzCarritoTotal',
+      sheetId: 'pzCarrito',
+      closeId: 'pzCartSheetClose',
+      itemSelector: '.pz-carrito-item',
+    });
+  });
+</script>
 {% endblock %}

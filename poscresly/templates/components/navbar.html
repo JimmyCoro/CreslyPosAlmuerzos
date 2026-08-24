@@ -16,41 +16,81 @@
 <nav class="sidebar-nav">
   <span class="sidebar-section-label">OPERACIÓN</span>
 
-  <button type="button"
-    class="sidebar-link sidebar-group-toggle {% if request.path == '/' or '/caja/' in request.path or '/menu/' in request.path %}sidebar-active sidebar-group-open{% endif %}"
-    data-target="grupo-almuerzos">
-    <i class="fas fa-utensils sidebar-icon"></i>
-    <span>Almuerzos</span>
-    <i class="fas fa-chevron-down sidebar-chevron"></i>
-  </button>
+  <div class="sidebar-section sidebar-section-pizzeria {% if '/pizzeria/' in request.path %}sidebar-section-active{% endif %}">
+    <button type="button"
+      class="sidebar-link sidebar-group-toggle {% if '/pizzeria/' in request.path %}sidebar-active sidebar-group-open{% endif %}"
+      data-target="grupo-pizzeria">
+      <i class="fas fa-pizza-slice sidebar-icon"></i>
+      <span>Pizzería</span>
+      <i class="fas fa-chevron-down sidebar-chevron"></i>
+    </button>
 
-  <div class="sidebar-group" id="grupo-almuerzos"
-    style="display: {% if request.path == '/' or '/caja/' in request.path or '/menu/' in request.path %}flex{% else %}none{% endif %};">
+    <div class="sidebar-group" id="grupo-pizzeria"
+      style="display: {% if '/pizzeria/' in request.path %}flex{% else %}none{% endif %};">
 
-    <a href="{% url 'inicio' %}" class="sidebar-link sidebar-sublink {% if request.path == '/' %}sidebar-active{% endif %}">
-      <i class="fas fa-receipt sidebar-icon"></i>
-      <span>Pedidos</span>
-      {% if request.path == '/' %}<span class="sidebar-active-dot"></span>{% endif %}
-    </a>
+      <a href="{% url 'pizzeria_inicio' %}" class="sidebar-link sidebar-sublink {% if request.path == '/pizzeria/' %}sidebar-active{% endif %}">
+        <i class="fas fa-house sidebar-icon"></i>
+        <span>Inicio</span>
+        {% if request.path == '/pizzeria/' %}<span class="sidebar-active-dot"></span>{% endif %}
+      </a>
 
-    <a href="{% url 'dashboard_caja' %}" class="sidebar-link sidebar-sublink {% if '/caja/' in request.path %}sidebar-active{% endif %}">
-      <i class="bi bi-cash-stack sidebar-icon"></i>
-      <span>Caja</span>
-      {% if '/caja/' in request.path %}<span class="sidebar-active-dot"></span>{% endif %}
-    </a>
+      <a href="{% url 'pizzeria_mapa_mesas' %}" class="sidebar-link sidebar-sublink {% if request.path == '/pizzeria/mesas/' %}sidebar-active{% endif %}">
+        <i class="fas fa-border-all sidebar-icon"></i>
+        <span>Mesas</span>
+        {% if request.path == '/pizzeria/mesas/' %}<span class="sidebar-active-dot"></span>{% endif %}
+      </a>
 
-    <a href="{% url 'menu' %}" class="sidebar-link sidebar-sublink {% if '/menu/' in request.path %}sidebar-active{% endif %}">
-      <i class="fas fa-clipboard-list sidebar-icon"></i>
-      <span>Menú del día</span>
-      {% if '/menu/' in request.path %}<span class="sidebar-active-dot"></span>{% endif %}
-    </a>
+      <a href="{% url 'pizzeria_ordenes' %}" class="sidebar-link sidebar-sublink {% if '/pizzeria/ordenes/' in request.path %}sidebar-active{% endif %}">
+        <i class="fas fa-receipt sidebar-icon"></i>
+        <span>Órdenes</span>
+        {% if '/pizzeria/ordenes/' in request.path %}<span class="sidebar-active-dot"></span>{% endif %}
+      </a>
+
+      <a href="{% url 'pizzeria_nueva_orden' %}" class="sidebar-link sidebar-sublink {% if '/pizzeria/nueva-orden/' in request.path %}sidebar-active{% endif %}">
+        <i class="fas fa-plus sidebar-icon"></i>
+        <span>Punto de venta</span>
+        {% if '/pizzeria/nueva-orden/' in request.path %}<span class="sidebar-active-dot"></span>{% endif %}
+      </a>
+
+      <a href="{% url 'pizzeria_delivery' %}" class="sidebar-link sidebar-sublink {% if '/pizzeria/delivery/' in request.path %}sidebar-active{% endif %}">
+        <i class="fas fa-motorcycle sidebar-icon"></i>
+        <span>Delivery</span>
+        {% if '/pizzeria/delivery/' in request.path %}<span class="sidebar-active-dot"></span>{% endif %}
+      </a>
+    </div>
   </div>
 
-  <a href="{% url 'pizzeria_mapa_mesas' %}" class="sidebar-link {% if '/pizzeria/' in request.path %}sidebar-active{% endif %}">
-    <i class="fas fa-pizza-slice sidebar-icon"></i>
-    <span>Pizzería</span>
-    {% if '/pizzeria/' in request.path %}<span class="sidebar-active-dot"></span>{% endif %}
-  </a>
+  <div class="sidebar-section sidebar-section-almuerzos {% if request.path == '/' or '/caja/' in request.path or '/menu/' in request.path %}sidebar-section-active{% endif %}">
+    <button type="button"
+      class="sidebar-link sidebar-group-toggle {% if request.path == '/' or '/caja/' in request.path or '/menu/' in request.path %}sidebar-active sidebar-group-open{% endif %}"
+      data-target="grupo-almuerzos">
+      <i class="fas fa-utensils sidebar-icon"></i>
+      <span>Almuerzos</span>
+      <i class="fas fa-chevron-down sidebar-chevron"></i>
+    </button>
+
+    <div class="sidebar-group" id="grupo-almuerzos"
+      style="display: {% if request.path == '/' or '/caja/' in request.path or '/menu/' in request.path %}flex{% else %}none{% endif %};">
+
+      <a href="{% url 'inicio' %}" class="sidebar-link sidebar-sublink {% if request.path == '/' %}sidebar-active{% endif %}">
+        <i class="fas fa-receipt sidebar-icon"></i>
+        <span>Pedidos</span>
+        {% if request.path == '/' %}<span class="sidebar-active-dot"></span>{% endif %}
+      </a>
+
+      <a href="{% url 'dashboard_caja' %}" class="sidebar-link sidebar-sublink {% if '/caja/' in request.path %}sidebar-active{% endif %}">
+        <i class="bi bi-cash-stack sidebar-icon"></i>
+        <span>Caja</span>
+        {% if '/caja/' in request.path %}<span class="sidebar-active-dot"></span>{% endif %}
+      </a>
+
+      <a href="{% url 'menu' %}" class="sidebar-link sidebar-sublink {% if '/menu/' in request.path %}sidebar-active{% endif %}">
+        <i class="fas fa-clipboard-list sidebar-icon"></i>
+        <span>Menú del día</span>
+        {% if '/menu/' in request.path %}<span class="sidebar-active-dot"></span>{% endif %}
+      </a>
+    </div>
+  </div>
 </nav>
 
 <div class="sidebar-footer">

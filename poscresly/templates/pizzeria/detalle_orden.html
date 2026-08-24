@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'CSS/pizzeria-mapa.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="app-topbar">
+  <button class="sidebar-toggle" id="sidebarToggle" aria-label="Abrir menú">
+    <i class="fas fa-bars"></i>
+  </button>
+  <div class="topbar-center">
+    {% include 'components/topbar_breadcrumb.html' %}
+  </div>
+  {% include 'components/topbar_right.html' %}
+</div>
+
+<div class="container-fluid contenedor-principal">
+  <div class="col-12 col-der">
+
+    <div class="do-page">
+      <a href="{% url 'pizzeria_ordenes' %}" class="do-back"><i class="fas fa-arrow-left"></i> Órdenes</a>
+
+      <div class="do-card do-header-card">
+        <div class="do-header-top">
+          <h2 class="do-title">#{{ pedido.numero_pedido_completo }}</h2>
+          <span class="do-estado-pill do-estado-pill-{{ pedido.estado }}">
+            <span class="oc-status-dot oc-status-dot-{{ pedido.estado }}"></span>
+            {% if pedido.estado == 'por_cobrar' %}Por cobrar{% elif pedido.estado == 'cobrado' %}Cobrado{% elif pedido.estado == 'anulado' %}Anulado{% else %}En cocina{% endif %}
+          </span>
+        </div>
+
+        <div class="do-header-meta">
+          <span class="do-meta-item">
+            {% if pedido.tipo == 'mesa' %}<i class="fas fa-users"></i> Mesa {{ pedido.mesa.nombre|default:pedido.mesa.numero }}
+            {% elif pedido.tipo == 'delivery' %}<i class="fas fa-motorcycle"></i> Delivery{% if pedido.contacto %} · {{ pedido.contacto }}{% endif %}
+            {% else %}<i class="fas fa-bag-shopping"></i> Para llevar{% if pedido.contacto %} · {{ pedido.contacto }}{% endif %}{% endif %}
+          </span>
+          <span class="do-meta-item"><i class="fas fa-receipt"></i> {{ pedido.mesero.get_full_name|default:pedido.mesero.username }}</span>
+          <span class="do-meta-item do-meta-time">Hace {{ pedido.fecha_creacion|timesince }}</span>
+        </div>
+
+        <div class="do-divider"></div>
+
+        <div class="do-total-row">
+          <span class="do-total-label">TOTAL</span>
+          <span class="do-total-valor">${{ pedido.total|floatformat:2 }}</span>
+        </div>
+      </div>
+
+      <div class="do-section-title-row">
+        <h6 class="do-section-title">Cocina</h6>
+        {% if total_items %}<span class="do-count-pill">{{ total_items }} platillo{{ total_items|pluralize }}</span>{% endif %}
+      </div>
+
+      {% if bloques %}
+        {% for bloque in bloques %}
+          {% if bloque.grupo %}
+          <div class="do-card do-item-card do-item-group">
+            <div class="do-group-header">{{ bloque.grupo }}</div>
+            {% for item in bloque.items %}
+            <div class="do-item-top do-item-sub" role="button" tabindex="0" data-item-id="{{ item.id }}" onclick="doAbrirModalItem(this)">
+              <span class="do-item-qty">{{ item.cantidad }}</span>
+              <span class="do-item-nombre">{{ item.descripcion }}</span>
+              <span class="do-pill-estado do-pill-{{ item.estado }}">{{ item.get_estado_display }}</span>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+            {% for item in bloque.items %}
+            <div class="do-card do-item-card">
+              <div class="do-item-top" role="button" tabindex="0" data-item-id="{{ item.id }}" onclick="doAbrirModalItem(this)">
+                <span class="do-item-qty">{{ item.cantidad }}</span>
+                <span class="do-item-nombre">{{ item.descripcion }}</span>
+                <span class="do-pill-estado do-pill-{{ item.estado }}">{{ item.get_estado_display }}</span>
+              </div>
+            </div>
+            {% endfor %}
+          {% endif %}
+        {% endfor %}
+        <p class="do-hint">Toca un platillo para gestionarlo</p>
+      {% else %}
+        {% for item in items %}
+        <div class="do-card do-item-card">
+          <div class="do-item-top">
+            <span class="do-item-nombre">{{ item }}</span>
+          </div>
+        </div>
+        {% empty %}
+        <p class="text-muted">Sin productos todavía</p>
+        {% endfor %}
+      {% endif %}
+
+    </div>
+
+    {% if pedido.estado == 'abierto' or pedido.estado == 'por_cobrar' %}
+    <div class="do-footer-bar">
+      <a href="{% url 'pizzeria_nueva_orden' %}?pedido_id={{ pedido.id }}" class="do-btn-agregar">
+        <i class="fas fa-plus me-1"></i> Agregar
+      </a>
+      <div class="do-cobrar-wrap" id="doCobrarWrap">
+        <a href="{% url 'pizzeria_cobrar_orden' pedido.id %}" class="do-btn-cobrar">
+          <i class="fas fa-credit-card me-2"></i>Cobrar ${{ pedido.total|floatformat:2 }}
+        </a>
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+
+<div class="modal fade" id="doModalItem" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content di-modal">
+      <div class="modal-header di-modal-header">
+        <h5 class="modal-title di-modal-titulo" id="diModalTitulo">Platillo</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body di-modal-body" id="diModalBody">
+        <div class="text-center py-4"><i class="fas fa-spinner fa-spin"></i></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  window.PZ_URLS = {
+    avanzarItemPreparacion: "{% url 'pizzeria_avanzar_item_preparacion' 0 %}",
+    establecerEstadoItemPreparacion: "{% url 'pizzeria_establecer_estado_item_preparacion' 0 %}",
+    detalleItemPreparacion: "{% url 'pizzeria_detalle_item_preparacion' 0 %}",
+    editarItemPreparacion: "{% url 'pizzeria_editar_item_preparacion' 0 %}",
+    duplicarItemPreparacion: "{% url 'pizzeria_duplicar_item_preparacion' 0 %}",
+    reimprimirItemPreparacion: "{% url 'pizzeria_reimprimir_item_preparacion' 0 %}",
+    quitarItemPreparacion: "{% url 'pizzeria_quitar_item_preparacion' 0 %}",
+    ordenes: "{% url 'pizzeria_ordenes' %}",
+  };
+  window.DO_PEDIDO_ID = {{ pedido.id }};
+</script>
+<script src="{% static 'JS/pizzeria_detalle_orden.js' %}"></script>
+{% endblock %}

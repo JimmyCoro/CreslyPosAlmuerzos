@@ -1,0 +1,15 @@
+<!-- Barra de carrito flotante (tablet vertical y móvil, ≤1023px).
+     Siempre visible sobre el navbar inferior mientras haya productos
+     agregados; al tocarla sube la hoja con el detalle del pedido.
+     Requiere pzInitCartBar() — ver JS/pizzeria_cart_bar.js. -->
+<div class="pz-cartbar" id="pzCartBar">
+  <button type="button" class="pz-cartbar-btn" id="pzCartBarBtn">
+    <span class="pz-cartbar-info">
+      <i class="fas fa-cart-shopping"></i>
+      <span id="pzCartBarCount">0 items</span>
+    </span>
+    <span class="pz-cartbar-total" id="pzCartBarTotal">$0.00</span>
+    <span class="pz-cartbar-cta">Ver pedido <i class="fas fa-chevron-up"></i></span>
+  </button>
+</div>
+<div class="pz-sheet-backdrop" id="pzSheetBackdrop"></div>

@@ -7,7 +7,12 @@ def generar_comanda_pizza(pedido, lineas_items):
     `lineas_items` son las líneas ya formateadas de los productos nuevos agregados en
     esta operación de guardado (no se reimprime el historial completo del pedido).
     """
-    encabezado = f"MESA {pedido.mesa.numero}" if pedido.mesa else f"LLEVAR - {pedido.contacto or ''}"
+    if pedido.mesa:
+        encabezado = f"MESA {pedido.mesa.numero}"
+    elif pedido.tipo == 'delivery':
+        encabezado = f"DELIVERY - {pedido.contacto or ''}"
+    else:
+        encabezado = f"LLEVAR - {pedido.contacto or ''}"
     hora = pedido.fecha_creacion.strftime('%H:%M')
 
     lineas = [
@@ -19,5 +24,8 @@ def generar_comanda_pizza(pedido, lineas_items):
         "-" * 32,
     ]
     lineas.extend(lineas_items)
+    if pedido.tipo == 'delivery' and pedido.valor_moto:
+        lineas.append("-" * 32)
+        lineas.append(f"Valor moto: ${pedido.valor_moto:.2f}")
     lineas.append("=" * 32)
     return lineas

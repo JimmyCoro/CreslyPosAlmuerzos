@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'CSS/pizzeria-mapa.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="app-topbar">
+  <button class="sidebar-toggle" id="sidebarToggle" aria-label="Abrir menú">
+    <i class="fas fa-bars"></i>
+  </button>
+  <div class="topbar-center">
+    {% include 'components/topbar_breadcrumb.html' %}
+  </div>
+  {% include 'components/topbar_right.html' %}
+</div>
+
+<div class="container-fluid contenedor-principal">
+  <div class="col-12 col-der">
+
+    <div class="dash-header pz-header">
+      <div>
+        {% if es_delivery %}
+        <h4 class="dash-title">Delivery - Pizzería</h4>
+        <p class="dash-subtitle">Pedidos a domicilio que siguen abiertos</p>
+        {% else %}
+        <h4 class="dash-title">Órdenes en curso - Pizzería</h4>
+        <p class="dash-subtitle">Todos los pedidos de mesa y para llevar que siguen abiertos</p>
+        {% endif %}
+      </div>
+      <div class="pz-header-actions">
+        <a href="{% url 'pizzeria_mapa_mesas' %}" class="btn btn-pz-outline">
+          <i class="fas fa-border-all me-2"></i>Mapa de mesas
+        </a>
+        <a href="{% url 'pizzeria_tomar_pedido_llevar' %}" class="btn btn-pz-primary">
+          <i class="fas fa-bag-shopping me-2"></i>Para llevar
+        </a>
+      </div>
+    </div>
+
+    <div class="pedidos-dia-grid oc-grid">
+      {% for orden in ordenes %}
+      <div class="oc-card" role="button" tabindex="0" onclick="window.location.href='{% url 'pizzeria_detalle_orden' orden.pedido.id %}'">
+
+        <div class="oc-top">
+          <div class="oc-top-left">
+            <div class="oc-avatar">
+              {% if orden.pedido.tipo == 'mesa' %}M{{ orden.pedido.mesa.numero|default:orden.pedido.mesa.nombre|default:"-" }}
+              {% elif orden.pedido.tipo == 'delivery' %}<i class="fas fa-motorcycle"></i>
+              {% else %}<i class="fas fa-bag-shopping"></i>{% endif %}
+            </div>
+            <span class="oc-codigo">#{{ orden.pedido.numero_pedido_completo }}</span>
+          </div>
+          <span class="oc-precio">${{ orden.pedido.total|floatformat:2 }}</span>
+        </div>
+
+        <div class="oc-mesa">
+          {% if orden.pedido.tipo == 'mesa' and orden.pedido.mesa %}Mesa {{ orden.pedido.mesa.nombre|default:orden.pedido.mesa.numero }}
+          {% elif orden.pedido.contacto %}{{ orden.pedido.contacto }}
+          {% elif orden.pedido.tipo == 'delivery' %}Delivery
+          {% else %}Para llevar{% endif %}
+        </div>
+
+        <div class="oc-items-simple">
+          {% if orden.bloques %}
+            {% for bloque in orden.bloques %}
+              {% if bloque.grupo %}<div class="oc-item-grupo">{{ bloque.grupo }}</div>{% endif %}
+              {% for item in bloque.items %}
+              <div class="oc-item-simple oc-item-estado-{{ item.estado }}{% if bloque.grupo %} oc-item-simple-sub{% endif %}" title="{{ item.get_estado_display }}">
+                <span class="oc-item-qty">{{ item.cantidad }}</span>
+                <span class="oc-item-nombre">{{ item.descripcion }}</span>
+              </div>
+              {% endfor %}
+            {% endfor %}
+          {% else %}
+            {% for item in orden.items %}
+            <div class="oc-item-simple">{{ item }}</div>
+            {% empty %}
+            <div class="oc-item-simple text-muted">Sin productos todavía</div>
+            {% endfor %}
+          {% endif %}
+        </div>
+
+        <div class="oc-bottom">
+          <span class="oc-status-simple">
+            <span class="oc-status-dot oc-status-dot-{{ orden.pedido.estado }}"></span>
+            {% if orden.pedido.estado == 'por_cobrar' %}Por cobrar{% else %}En cocina{% endif %}
+          </span>
+          <span class="oc-meta"><i class="fas fa-user-tie"></i> {{ orden.pedido.fecha_creacion|date:"d M · h:i A" }}</span>
+        </div>
+      </div>
+      {% empty %}
+      <div class="pedidos-dia-empty">
+        {% if es_delivery %}
+        <i class="fas fa-motorcycle me-2"></i>No hay pedidos delivery en curso ahora mismo
+        {% else %}
+        <i class="fas fa-receipt me-2"></i>No hay órdenes en curso ahora mismo
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}

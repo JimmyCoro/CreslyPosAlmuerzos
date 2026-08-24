@@ -1,0 +1,60 @@
+{% load static %}
+<!-- Navbar inferior flotante del módulo Pizzería (≤1023px). Componente
+     independiente: no reutiliza clases ni colores del navbar de Almuerzos.
+     Estilo "pill" flotante con iconos sin texto + FAB separado, con el
+     acento verde (--secondary-color) del sidebar de Pizzería. -->
+<div class="pzbn" id="pzBottomNav">
+  <div class="pzbn-pill">
+    <a href="{% url 'pizzeria_inicio' %}" class="pzbn-link {% if request.path == '/pizzeria/' %}pzbn-active{% endif %}" title="Inicio" aria-label="Inicio">
+      <i class="fas fa-house"></i>
+    </a>
+    <a href="{% url 'pizzeria_mapa_mesas' %}" class="pzbn-link {% if request.path == '/pizzeria/mesas/' %}pzbn-active{% endif %}" title="Mesas" aria-label="Mesas">
+      <i class="fas fa-border-all"></i>
+    </a>
+    <a href="{% url 'pizzeria_ordenes' %}" class="pzbn-link {% if '/pizzeria/ordenes/' in request.path %}pzbn-active{% endif %}" title="Órdenes" aria-label="Órdenes">
+      <i class="fas fa-receipt"></i>
+    </a>
+    <a href="{% url 'pizzeria_delivery' %}" class="pzbn-link {% if '/pizzeria/delivery/' in request.path %}pzbn-active{% endif %}" title="Delivery" aria-label="Delivery">
+      <i class="fas fa-motorcycle"></i>
+    </a>
+  </div>
+  <a href="{% url 'pizzeria_nueva_orden' %}" class="pzbn-fab" title="Nueva orden" aria-label="Nueva orden">
+    <i class="fas fa-plus"></i>
+  </a>
+</div>
+
+<script>
+  // El navbar vive dentro de .main-content (overflow:hidden). En varios
+  // navegadores móviles, position:fixed dentro de un contenedor con
+  // overflow queda recortado o se desplaza con el scroll en vez de
+  // quedarse fijo — por eso se mueve al final de <body> en ese rango.
+  (function () {
+    var nav = document.getElementById('pzBottomNav');
+    if (!nav) return;
+    var originalParent = nav.parentNode;
+    var originalNext = nav.nextSibling;
+    var enBody = false;
+
+    function actualizarPosicion() {
+      var esAngosto = window.innerWidth <= 1023;
+      if (esAngosto && !enBody) {
+        document.body.appendChild(nav);
+        enBody = true;
+      } else if (!esAngosto && enBody) {
+        originalParent.insertBefore(nav, originalNext);
+        enBody = false;
+      }
+      if (esAngosto) {
+        // Distancia real desde el borde inferior del viewport hasta la
+        // parte de arriba del navbar (incluye su propio margen flotante),
+        // que es el espacio que el carrito/contenido debe respetar.
+        var rect = nav.getBoundingClientRect();
+        var espacio = window.innerHeight - rect.top;
+        document.documentElement.style.setProperty('--pz-bottomnav-h', espacio + 'px');
+      }
+    }
+
+    actualizarPosicion();
+    window.addEventListener('resize', actualizarPosicion);
+  })();
+</script>

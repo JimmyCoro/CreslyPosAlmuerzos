@@ -108,6 +108,12 @@ body {
     border-color: #ffdf87;
 }
 
+.pc-badge-delivery {
+    background-color: #dbeafe;
+    color: #1d4ed8;
+    border-color: #bfdbfe;
+}
+
 /* CONSOLIDADO EN MEDIA QUERIES UNIFICADAS */
 
 .col-inicio {

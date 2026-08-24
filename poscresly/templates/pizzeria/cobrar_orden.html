@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'CSS/pizzeria-mapa.css' %}">
+<link rel="stylesheet" href="{% static 'CSS/pizzeria-cobrar.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="app-topbar">
+  <button class="sidebar-toggle" id="sidebarToggle" aria-label="Abrir menú">
+    <i class="fas fa-bars"></i>
+  </button>
+  <div class="topbar-center">
+    {% include 'components/topbar_breadcrumb.html' %}
+  </div>
+  {% include 'components/topbar_right.html' %}
+</div>
+
+<div class="container-fluid contenedor-principal">
+  <div class="col-12 col-der">
+
+    <div class="do-page cb-page">
+      <a href="{% url 'pizzeria_detalle_orden' pedido.id %}" class="do-back"><i class="fas fa-arrow-left"></i> Pedido #{{ pedido.numero_pedido_completo }}</a>
+
+      <div class="cb-header-row">
+        <div>
+          <h1 class="cb-title">Cobrar</h1>
+          <p class="cb-subtitle">{{ total_items }} platillo{{ total_items|pluralize }}</p>
+        </div>
+        <div class="cb-header-actions">
+          <button type="button" class="cb-header-btn" id="cbModoDividirBtn" onclick="cbToggleDividir()">
+            <i class="fas fa-users"></i><span>Dividir cuenta</span>
+          </button>
+          <button type="button" class="cb-header-btn" onclick="cbImprimir()">
+            <i class="fas fa-print"></i><span>Imprimir precuenta</span>
+          </button>
+          <button type="button" class="cb-header-btn cb-header-btn-peligro" onclick="cbCancelarPedido()">
+            <i class="fas fa-times-circle"></i><span>Cancelar pedido</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="cb-layout">
+        <div class="cb-col-izq">
+
+          <div id="cbSeccionCompleto">
+            <h6 class="cb-section-title">Detalle</h6>
+            <div class="cb-items-lista" id="cbItemsListaCompleto"></div>
+          </div>
+
+          <div id="cbSeccionDividir" style="display:none;">
+            <h6 class="cb-section-title">Personas</h6>
+            <div class="cb-personas-cards" id="cbPersonasCards"></div>
+            <h6 class="cb-section-title cb-section-title-mt" id="cbDividirDetalleTitle">Detalle</h6>
+            <div class="cb-items-lista" id="cbItemsListaDividir"></div>
+            <div class="cb-restante-row" id="cbResumenGlobal"></div>
+          </div>
+
+        </div>
+
+        <div class="cb-col-der">
+          <div class="cb-total-box">
+            <div class="cb-total-row"><span>Subtotal</span><span id="cbSubtotalValor"></span></div>
+            <div class="cb-total-row cb-total-row-grande"><span>Total a pagar</span><span id="cbTotalValor"></span></div>
+          </div>
+
+          <div class="cb-metodo-header">
+            <h6 class="cb-section-title cb-section-title-flush">Método de pago</h6>
+            <button type="button" class="cb-mixto-toggle" id="cbMixtoToggle" onclick="cbToggleMixto()">
+              <i class="fas fa-layer-group"></i> Pago mixto
+            </button>
+          </div>
+          <div class="cb-metodo-cards" id="cbMetodoCards"></div>
+          <div class="cb-pagos-mixto" id="cbPagosMixto"></div>
+
+          <div class="cb-efectivo-box" id="cbEfectivoBox" style="display:none;">
+            <label class="cb-label">Monto recibido</label>
+            <div class="cb-input-monto-wrap cb-input-monto-grande">
+              <span>$</span>
+              <input type="number" step="0.01" min="0" class="cb-input-monto" id="cbMontoRecibido" placeholder="0.00" oninput="cbCambiarMontoRecibido(this.value)">
+            </div>
+            <div class="cb-quick-amounts" id="cbQuickAmounts"></div>
+            <div class="cb-vuelto-row" id="cbVueltoRow"></div>
+          </div>
+
+          <div class="cb-restante-row" id="cbRestanteGeneral"></div>
+
+          <button type="button" class="cb-btn-confirmar" id="cbBtnConfirmar" onclick="cbAccionPrincipal()" disabled>
+            <i class="fas fa-check me-2"></i><span id="cbBtnConfirmarTexto">Confirmar &middot; ${{ pedido.total|floatformat:2 }}</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  window.PZ_ITEMS_COBRO = {{ items_cobro_json|safe }};
+  window.PZ_PEDIDO = {{ pedido.id }};
+  window.PZ_TOTAL_PEDIDO = {{ pedido.total }};
+  window.PZ_URLS = {
+    procesarCobro: "{% url 'pizzeria_procesar_cobro' pedido.id %}",
+    cancelarPedido: "{% url 'pizzeria_cancelar_pedido' pedido.id %}",
+    ordenes: "{% url 'pizzeria_ordenes' %}",
+  };
+</script>
+<script src="{% static 'JS/pizzeria_cobrar_orden.js' %}"></script>
+{% endblock %}

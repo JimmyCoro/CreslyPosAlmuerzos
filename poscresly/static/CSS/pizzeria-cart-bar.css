@@ -1,0 +1,163 @@
+/* ===== Carrito flotante — módulo Pizzería =====
+   Barra "Ver pedido" fija sobre el navbar inferior + hoja deslizable con el
+   detalle del carrito. Solo activo en tablet vertical y móvil (≤1023px); en
+   desktop cada pantalla conserva su carrito propio (panel lateral o bloque
+   en línea) sin cambios. Cargar después de pizzeria-pedido.css /
+   pizzeria-venta-rapida.css para que estas reglas ganen la cascada. */
+
+:root {
+  --pz-bottomnav-h: 84px;
+}
+
+.pz-cartbar,
+.pz-sheet-backdrop {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .pz-cartbar.pz-cartbar-visible {
+    display: block;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: var(--pz-bottomnav-h);
+    z-index: 1030;
+    padding: 0 .75rem;
+  }
+
+  .pz-cartbar-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    background: #14181d;
+    color: #fff;
+    border: none;
+    border-radius: 14px 14px 0 0;
+    padding: .65rem .9rem;
+    box-shadow: 0 -6px 18px rgba(20, 24, 29, .22);
+  }
+
+  .pz-cartbar-info {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    font-size: .8rem;
+    font-weight: 600;
+    color: #b9c0c9;
+    white-space: nowrap;
+  }
+
+  .pz-cartbar-info i {
+    color: var(--primary-color);
+    font-size: .95rem;
+  }
+
+  .pz-cartbar-total {
+    font-size: 1rem;
+    font-weight: 800;
+    margin-left: .1rem;
+    margin-right: auto;
+  }
+
+  .pz-cartbar-cta {
+    display: flex;
+    align-items: center;
+    gap: .35rem;
+    font-size: .82rem;
+    font-weight: 700;
+    color: #fff;
+    background: var(--primary-color);
+    border-radius: 999px;
+    padding: .4rem .8rem;
+    white-space: nowrap;
+  }
+
+  .pz-sheet-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 18, 22, .45);
+    z-index: 1020;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s ease;
+  }
+
+  .pz-sheet-backdrop.active {
+    display: block;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .pz-cart-sheet {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: auto;
+    bottom: 0;
+    width: auto;
+    max-height: 78vh;
+    margin: 0;
+    border-top: none;
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -14px 34px rgba(20, 24, 29, .22);
+    z-index: 1035;
+    /* translateY(100%) es siempre relativo a la altura propia del elemento,
+       así que oculta la hoja por completo sin importar cuánto contenido
+       tenga (a diferencia de combinar bottom:navH con un % > 100). */
+    transform: translateY(100%);
+    transition: transform .28s ease;
+    overflow-y: auto;
+    background: #fff;
+    padding: .5rem 1.1rem calc(1rem + env(safe-area-inset-bottom));
+  }
+
+  .pz-cart-sheet.pz-cart-sheet-open {
+    /* Sube justo lo suficiente para despejar el navbar inferior. */
+    transform: translateY(calc(-1 * var(--pz-bottomnav-h)));
+  }
+
+  .pz-cart-sheet-handle {
+    width: 40px;
+    height: 4px;
+    border-radius: 999px;
+    background: #e5e7eb;
+    margin: .5rem auto .25rem;
+  }
+
+  .pz-cart-sheet-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .pz-cart-sheet-close {
+    border: none;
+    background: #f3f4f6;
+    color: #6b7280;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .pz-cart-sheet .vr-cart-items {
+    flex: 1;
+    max-height: none;
+    overflow-y: auto;
+  }
+
+  .pz-cart-sheet.vr-cart {
+    position: fixed;
+  }
+}
+
+@media (min-width: 1024px) {
+  .pz-cart-sheet-handle,
+  .pz-cart-sheet-close {
+    display: none;
+  }
+}

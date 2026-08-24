@@ -1,0 +1,26 @@
+<button
+  type="button"
+  class="pzm-table pzm-table-{{ mesa.estado }}{% if mesa.forma == 'redonda' %} pzm-table-round{% endif %}"
+  data-mesa-id="{{ mesa.id }}"
+  data-estado="{{ mesa.estado }}"
+  data-capacidad="{{ mesa.capacidad }}"
+  {% if mesa.pedido_abierto %}data-pedido-id="{{ mesa.pedido_abierto.id }}"{% endif %}
+  onclick="pzMesaClick(this)">
+  <div class="pzm-table-top">
+    <span class="pzm-table-num">{{ mesa.nombre|default:mesa.numero }}</span>
+    <span class="pzm-table-dot"></span>
+  </div>
+  <div class="pzm-table-bottom">
+    <span class="pzm-table-status">
+      {% if mesa.estado == 'libre' %}Libre{% elif mesa.estado == 'reservada' %}Reservada{% elif mesa.estado == 'ocupada' %}Ocupada{% else %}Por cobrar{% endif %}
+    </span>
+    <div class="pzm-table-amount-row">
+      <span class="pzm-table-amount">
+        {% if mesa.pedido_abierto %}${{ mesa.pedido_abierto.total|floatformat:2 }}{% elif mesa.estado == 'libre' %}Disponible{% elif mesa.estado == 'reservada' %}Reservada{% else %}En cuenta{% endif %}
+      </span>
+      <span class="pzm-table-sub">
+        {% if mesa.tiempo_transcurrido %}{{ mesa.tiempo_transcurrido }} · {{ mesa.capacidad }}p{% else %}{{ mesa.capacidad }} persona{{ mesa.capacidad|pluralize }}{% endif %}
+      </span>
+    </div>
+  </div>
+</button>

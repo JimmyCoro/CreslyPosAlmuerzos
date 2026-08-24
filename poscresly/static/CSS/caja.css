@@ -1,14 +1,27 @@
 @import './variables.css';
 
-/* ===== SCROLL ===== */
+/* ===== SCROLL =====
+   .col-der es el contenedor con scroll de TODAS las páginas de la app
+   (compartido, no sólo pizzería). El scrollbar nativo se renderiza dentro
+   del padding-right, así que sin compensar, el margen derecho visual queda
+   más ancho que el izquierdo (padding + ancho del scrollbar) en cualquier
+   página con contenido scrolleable. Se angosta el scrollbar y se resta su
+   ancho aproximado del padding-right para que quede simétrico con el
+   izquierdo. */
 .col-der {
-  padding-top: 20px;
-  padding-right: 20px;
+  padding: 20px 12px 20px 20px;
   height: calc(100vh - 70px);
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db transparent;
 }
+.col-der::-webkit-scrollbar { width: 8px; }
+.col-der::-webkit-scrollbar-track { background: transparent; }
+.col-der::-webkit-scrollbar-thumb { background-color: #d1d5db; border-radius: 8px; }
+.col-der::-webkit-scrollbar-thumb:hover { background-color: #9ca3af; }
+
 @media (max-width: 767.98px) {
-  .col-der { height: calc(100vh - 90px); padding-top: 5px; padding-right: 10px; }
+  .col-der { height: calc(100vh - 90px); padding: 5px 10px 5px 10px; }
 }
 
 /* ===== HEADER ===== */

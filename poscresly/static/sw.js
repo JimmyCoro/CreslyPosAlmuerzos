@@ -1,4 +1,4 @@
-const CACHE_NAME = "cresly-pos-v3";
+const CACHE_NAME = "cresly-pos-v29";
 const CORE_ASSETS = [
   "/",
   "/static/manifest.json",
@@ -29,6 +29,14 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   const request = event.request;
+
+  // Peticiones que mutan datos (POST/PUT/DELETE, ej. los ajax de la pizzería)
+  // van siempre directo a la red: la Cache API no soporta guardar respuestas
+  // de métodos distintos a GET y eso puede tumbar el fetch() de la página.
+  if (request.method !== "GET") {
+    event.respondWith(fetch(request));
+    return;
+  }
 
   if (request.mode === "navigate") {
     event.respondWith(

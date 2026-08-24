@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'CSS/pizzeria-mapa.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="app-topbar">
+  <button class="sidebar-toggle" id="sidebarToggle" aria-label="Abrir menú">
+    <i class="fas fa-bars"></i>
+  </button>
+  <div class="topbar-center">
+    {% include 'components/topbar_breadcrumb.html' %}
+  </div>
+  {% include 'components/topbar_right.html' %}
+</div>
+
+<div class="container-fluid contenedor-principal">
+  <div class="col-12 col-der">
+
+    <div class="dash-header">
+      <div>
+        <h4 class="dash-title">Inicio</h4>
+        <p class="dash-subtitle">Resumen de la pizzería</p>
+      </div>
+    </div>
+
+    <div class="row g-3 mb-3 px-1">
+      <div class="col-6 col-md-3">
+        <div class="dash-metric-card">
+          <div class="dash-metric-info">
+            <div class="dash-metric-label">Pedidos abiertos</div>
+            <div class="dash-metric-value">{{ total_pedidos_abiertos }}</div>
+          </div>
+          <div class="dash-metric-icon dash-icon-gray"><i class="fas fa-receipt"></i></div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="dash-metric-card">
+          <div class="dash-metric-info">
+            <div class="dash-metric-label">Delivery en curso</div>
+            <div class="dash-metric-value">{{ total_delivery_abiertos }}</div>
+          </div>
+          <div class="dash-metric-icon dash-icon-orange"><i class="fas fa-motorcycle"></i></div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="dash-metric-card">
+          <div class="dash-metric-info">
+            <div class="dash-metric-label">Mesas ocupadas</div>
+            <div class="dash-metric-value">{{ total_mesas_ocupadas }}</div>
+          </div>
+          <div class="dash-metric-icon dash-icon-red"><i class="fas fa-border-all"></i></div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="dash-metric-card">
+          <div class="dash-metric-info">
+            <div class="dash-metric-label">Ventas de hoy</div>
+            <div class="dash-metric-value">${{ ventas_hoy|floatformat:2 }}</div>
+          </div>
+          <div class="dash-metric-icon dash-icon-green"><i class="fas fa-dollar-sign"></i></div>
+        </div>
+      </div>
+    </div>
+
+    <h6 class="do-section-title px-1">Accesos rápidos</h6>
+    <div class="pz-header-actions px-1">
+      <a href="{% url 'pizzeria_mapa_mesas' %}" class="btn btn-pz-outline">
+        <i class="fas fa-border-all me-2"></i>Mapa de mesas
+      </a>
+      <a href="{% url 'pizzeria_nueva_orden' %}" class="btn btn-pz-primary">
+        <i class="fas fa-plus me-2"></i>Punto de venta
+      </a>
+      <a href="{% url 'pizzeria_ordenes' %}" class="btn btn-pz-outline">
+        <i class="fas fa-receipt me-2"></i>Órdenes
+      </a>
+      <a href="{% url 'pizzeria_delivery' %}" class="btn btn-pz-outline">
+        <i class="fas fa-motorcycle me-2"></i>Delivery
+      </a>
+      <a href="{% url 'pizzeria_dashboard_caja' %}" class="btn btn-pz-outline">
+        <i class="fas fa-cash-register me-2"></i>Caja
+      </a>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
