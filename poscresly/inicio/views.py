@@ -17,7 +17,8 @@ def asegurar_jugo_agua(menu):
         tipo='jugo',
         defaults={'precio': Decimal('0.00')}
     )
-    MenuDiaJugo.objects.get_or_create(menu=menu, jugo=agua_plato)
+    if not MenuDiaJugo.objects.filter(menu=menu, jugo=agua_plato).exists():
+        MenuDiaJugo.objects.create(menu=menu, jugo=agua_plato)
     return agua_plato
 
 def crear_formularios_menu(menu, data=None):
