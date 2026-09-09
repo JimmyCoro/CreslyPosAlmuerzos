@@ -1,0 +1,34 @@
+<!-- Hoja de acciones (⋯) — handoff_hoja_acciones. Reutiliza .pz-cart-sheet /
+     .pz-sheet-backdrop (pizzeria-cart-bar.css), mismo mecanismo que la hoja
+     del platillo: se desliza desde abajo y respeta la bottom nav. -->
+<div class="pz-sheet-backdrop" id="accSheetBackdrop"></div>
+<div class="pz-cart-sheet acc-hoja" id="accHoja">
+  <div class="pz-cart-sheet-handle"></div>
+
+  <div class="acc-header">
+    <div class="acc-header-info">
+      <span class="acc-header-titulo">Pedido #{{ pedido.numero_pedido_completo }}</span>
+      <span class="acc-header-sub">
+        {% if pedido.tipo == 'mesa' %}Mesa {{ pedido.mesa.nombre|default:pedido.mesa.numero }}
+        {% elif pedido.tipo == 'delivery' %}Delivery{% if entrega.nombre %} · {{ entrega.nombre }}{% endif %}
+        {% else %}Llevar{% if entrega.nombre %} · {{ entrega.nombre }}{% endif %}{% endif %}
+        · {{ total_items }} platillo{{ total_items|pluralize }} · ${{ pedido.total|floatformat:2 }}
+      </span>
+    </div>
+    <span class="acc-header-pill acc-header-pill-{{ estado_pill_tono }}">
+      <span class="acc-header-pill-dot"></span>{{ pedido.get_estado_display }}
+    </span>
+  </div>
+
+  {% for grupo in grupos_acciones %}
+    {% if grupo.titulo == 'ZONA DE RIESGO' %}<div class="acc-divider"></div>{% endif %}
+    <div class="acc-grupo{% if grupo.titulo == 'ZONA DE RIESGO' %} acc-grupo-riesgo{% endif %}">
+      <span class="acc-grupo-titulo">{{ grupo.titulo }}</span>
+      <div class="acc-filas">
+        {% for fila in grupo.filas %}
+          {% include 'pizzeria/_fila_accion.html' %}
+        {% endfor %}
+      </div>
+    </div>
+  {% endfor %}
+</div>

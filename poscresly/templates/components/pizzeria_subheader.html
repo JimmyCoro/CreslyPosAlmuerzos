@@ -1,0 +1,72 @@
+<!-- Subheader dinámico · handoff_header. Un solo partial parametrizado por
+     el dict `subheader` que arma cada vista — no dupliques markup por
+     módulo. Ver pizzeria/handoff_header/README.md para el shape exacto. -->
+<div class="pzsh">
+  <div class="pzsh-row{% if subheader.segunda %} pzsh-row-tall{% endif %}">
+    {% if subheader.back %}
+    <a href="{{ subheader.back.url }}" class="pzsh-back" aria-label="{% if subheader.back.tipo == 'cerrar' %}Cerrar{% else %}Volver{% endif %}">
+      <i class="bi {% if subheader.back.tipo == 'cerrar' %}bi-x-lg{% else %}bi-chevron-left{% endif %}"></i>
+    </a>
+    {% endif %}
+
+    <div class="pzsh-main">
+      <div class="pzsh-title-row">
+        <span class="pzsh-title{% if subheader.back %} pzsh-title-sm{% endif %}">{{ subheader.titulo }}</span>
+        {% if subheader.pill %}
+        <span class="pzsh-pill pzsh-pill-tono-{{ subheader.pill.tono|default:'neutro' }}"{% if subheader.pill.id %} id="{{ subheader.pill.id }}"{% endif %}>
+          {% if subheader.pill.dot %}<span class="pzsh-pill-dot" style="background:{{ subheader.pill.dot }}"></span>{% endif %}<span class="pzsh-pill-label">{{ subheader.pill.texto }}</span>
+        </span>
+        {% endif %}
+      </div>
+      {% if subheader.sub_hi or subheader.sub_pre %}
+      <span class="pzsh-sub"{% if subheader.sub_id %} id="{{ subheader.sub_id }}"{% endif %}>{{ subheader.sub_pre }}<strong class="pzsh-hl-{{ subheader.sub_hi_tono|default:'neutro' }}">{{ subheader.sub_hi }}</strong>{{ subheader.sub_post }}</span>
+      {% endif %}
+    </div>
+
+    {% if subheader.accion or subheader.acciones %}
+    <div class="pzsh-actions">
+      {% for accion in subheader.acciones %}
+      {% if accion.url %}
+      <a href="{{ accion.url }}" class="pzsh-action-icon"{% if accion.id %} id="{{ accion.id }}"{% endif %} aria-label="{{ accion.label }}">
+        <i class="bi {{ accion.glifo }}"></i>
+      </a>
+      {% else %}
+      <button type="button" class="pzsh-action-icon"{% if accion.id %} id="{{ accion.id }}"{% endif %} aria-label="{{ accion.label }}">
+        <i class="bi {{ accion.glifo }}"></i>
+      </button>
+      {% endif %}
+      {% endfor %}
+      {% if subheader.accion.tipo == 'icono' %}
+      <button type="button" class="pzsh-action-icon"{% if subheader.accion.id %} id="{{ subheader.accion.id }}"{% endif %} aria-label="{{ subheader.accion.label }}">
+        <i class="bi {{ subheader.accion.glifo }}"></i>
+      </button>
+      {% elif subheader.accion %}
+      <a href="{{ subheader.accion.url|default:'#' }}" class="pzsh-action-text" style="color:{{ subheader.accion.color|default:'#5b6673' }}">{{ subheader.accion.label }}</a>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+
+  {% if subheader.segunda.tipo == 'chips' or subheader.segunda.tipo == 'estado' %}
+  <div class="pzsh-second"{% if subheader.segunda.chip_group_id %} id="{{ subheader.segunda.chip_group_id }}"{% endif %}>
+    {% for chip in subheader.segunda.chips %}
+      {% if subheader.segunda.tipo == 'estado' %}
+      <span class="pzsh-chip pzsh-chip-estado pzsh-chip-{{ chip.tono }}">
+        <span class="pzsh-chip-dot"></span>{{ chip.label }}
+      </span>
+      {% else %}
+      <button type="button" class="pzsh-chip{% if chip.active %} pzsh-chip-active{% endif %}" data-filtro="{{ chip.value }}">{{ chip.label }}</button>
+      {% endif %}
+    {% endfor %}
+  </div>
+  {% elif subheader.segunda.tipo == 'busqueda' %}
+  <div class="pzsh-search">
+    <div class="pzsh-search-box">
+      <i class="bi bi-search"></i>
+      <input type="text" placeholder="{{ subheader.segunda.placeholder }}"{% if subheader.segunda.input_id %} id="{{ subheader.segunda.input_id }}"{% endif %}>
+    </div>
+  </div>
+  {% elif subheader.segunda.tipo == 'progreso' %}
+  <div class="pzsh-progress"><div class="pzsh-progress-bar" style="width:{{ subheader.segunda.pct }}%"></div></div>
+  {% endif %}
+</div>

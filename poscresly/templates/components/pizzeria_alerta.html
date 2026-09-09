@@ -1,0 +1,19 @@
+<!-- Cinta de alerta · handoff_header. Se inserta entre header y subheader.
+     No hay nada hoy que la dispare de verdad (no monitoreamos impresora ni
+     conexión en vivo) — el partial queda listo para cuando se conecte a
+     una señal real; por ahora ninguna vista pasa `alerta`. -->
+{% if alerta %}
+<div class="pzal pzal-{{ alerta.tipo }}">
+  <div class="pzal-left">
+    <i class="bi {% if alerta.tipo == 'impresora' %}bi-printer{% elif alerta.tipo == 'conexion' %}bi-arrow-down-up{% else %}bi-house{% endif %}"></i>
+    <span class="pzal-msg">{{ alerta.mensaje }}</span>
+  </div>
+  {% if alerta.accion %}
+    {% if alerta.accion.tipo == 'nota' %}
+    <span class="pzal-note">{{ alerta.accion.label }}</span>
+    {% else %}
+    <button type="button" class="pzal-btn">{{ alerta.accion.label }}</button>
+    {% endif %}
+  {% endif %}
+</div>
+{% endif %}

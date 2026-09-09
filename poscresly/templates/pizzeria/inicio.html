@@ -2,10 +2,21 @@
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'CSS/pizzeria-mapa.css' %}">
+<link rel="stylesheet" href="{% static 'CSS/pizzeria-mapa.css' %}?v=13">
 {% endblock %}
 
 {% block content %}
+<script>
+  // En celular (mismo umbral "móvil" < 768px que usa el resto de la app),
+  // Inicio es la pantalla dedicada de handoff_inicio_movil, no este Inicio
+  // responsive. Se revisa el ancho real del viewport, no el User-Agent:
+  // muchas tablets (iPadOS, Android) mandan un UA que las confundiría con
+  // un teléfono. Va antes que el resto del contenido para que la redirección
+  // ocurra lo antes posible, sin esperar a que cargue todo el layout.
+  if (window.innerWidth < 768) {
+    window.location.replace("{% url 'pizzeria_inicio_movil' %}");
+  }
+</script>
 <div class="app-topbar">
   <button class="sidebar-toggle" id="sidebarToggle" aria-label="Abrir menú">
     <i class="fas fa-bars"></i>
@@ -17,73 +28,55 @@
 </div>
 
 <div class="container-fluid contenedor-principal">
-  <div class="col-12 col-der">
+  <div class="col-12 col-der pzm-page">
+    <div class="pzm-stack">
 
-    <div class="dash-header">
-      <div>
-        <h4 class="dash-title">Inicio</h4>
-        <p class="dash-subtitle">Resumen de la pizzería</p>
+      <div class="pzm-head">
+        <div>
+          <h1 class="pzm-title">Inicio</h1>
+          <p class="pzm-subtitle">Resumen de la pizzería en este momento.</p>
+        </div>
       </div>
+
+      <div class="pzm-metrics">
+        <div class="pzm-metric pzm-metric-tone-green">
+          <div class="pzm-metric-label">VENTAS DE HOY</div>
+          <div class="pzm-metric-value-row">
+            <span class="pzm-metric-value">${{ ventas_hoy|floatformat:2 }}</span>
+            <span class="pzm-metric-sub">cobrado</span>
+          </div>
+        </div>
+        <div class="pzm-metric pzm-metric-tone-amber">
+          <div class="pzm-metric-label">POR COBRAR</div>
+          <div class="pzm-metric-value-row">
+            <span class="pzm-metric-value">${{ total_por_cobrar|floatformat:2 }}</span>
+            <span class="pzm-metric-sub">en pedidos activos</span>
+          </div>
+        </div>
+        <div class="pzm-metric pzm-metric-tone-ink">
+          <div class="pzm-metric-label">PEDIDOS ABIERTOS</div>
+          <div class="pzm-metric-value-row">
+            <span class="pzm-metric-value">{{ total_pedidos_abiertos }}</span>
+            <span class="pzm-metric-sub">en curso</span>
+          </div>
+        </div>
+        <div class="pzm-metric pzm-metric-tone-red">
+          <div class="pzm-metric-label">MESAS OCUPADAS</div>
+          <div class="pzm-metric-value-row">
+            <span class="pzm-metric-value">{{ total_mesas_ocupadas }}</span>
+            <span class="pzm-metric-sub">de {{ mesas_total }} mesas</span>
+          </div>
+        </div>
+        <div class="pzm-metric pzm-metric-span-full">
+          <div class="pzm-metric-label">TICKET PROMEDIO</div>
+          <div class="pzm-metric-value-row">
+            <span class="pzm-metric-value">${{ ticket_promedio|floatformat:2 }}</span>
+            <span class="pzm-metric-sub">{{ pedidos_cobrados_hoy }} pedido{{ pedidos_cobrados_hoy|pluralize }} cobrado{{ pedidos_cobrados_hoy|pluralize }} hoy</span>
+          </div>
+        </div>
+      </div>
+
     </div>
-
-    <div class="row g-3 mb-3 px-1">
-      <div class="col-6 col-md-3">
-        <div class="dash-metric-card">
-          <div class="dash-metric-info">
-            <div class="dash-metric-label">Pedidos abiertos</div>
-            <div class="dash-metric-value">{{ total_pedidos_abiertos }}</div>
-          </div>
-          <div class="dash-metric-icon dash-icon-gray"><i class="fas fa-receipt"></i></div>
-        </div>
-      </div>
-      <div class="col-6 col-md-3">
-        <div class="dash-metric-card">
-          <div class="dash-metric-info">
-            <div class="dash-metric-label">Delivery en curso</div>
-            <div class="dash-metric-value">{{ total_delivery_abiertos }}</div>
-          </div>
-          <div class="dash-metric-icon dash-icon-orange"><i class="fas fa-motorcycle"></i></div>
-        </div>
-      </div>
-      <div class="col-6 col-md-3">
-        <div class="dash-metric-card">
-          <div class="dash-metric-info">
-            <div class="dash-metric-label">Mesas ocupadas</div>
-            <div class="dash-metric-value">{{ total_mesas_ocupadas }}</div>
-          </div>
-          <div class="dash-metric-icon dash-icon-red"><i class="fas fa-border-all"></i></div>
-        </div>
-      </div>
-      <div class="col-6 col-md-3">
-        <div class="dash-metric-card">
-          <div class="dash-metric-info">
-            <div class="dash-metric-label">Ventas de hoy</div>
-            <div class="dash-metric-value">${{ ventas_hoy|floatformat:2 }}</div>
-          </div>
-          <div class="dash-metric-icon dash-icon-green"><i class="fas fa-dollar-sign"></i></div>
-        </div>
-      </div>
-    </div>
-
-    <h6 class="do-section-title px-1">Accesos rápidos</h6>
-    <div class="pz-header-actions px-1">
-      <a href="{% url 'pizzeria_mapa_mesas' %}" class="btn btn-pz-outline">
-        <i class="fas fa-border-all me-2"></i>Mapa de mesas
-      </a>
-      <a href="{% url 'pizzeria_nueva_orden' %}" class="btn btn-pz-primary">
-        <i class="fas fa-plus me-2"></i>Punto de venta
-      </a>
-      <a href="{% url 'pizzeria_ordenes' %}" class="btn btn-pz-outline">
-        <i class="fas fa-receipt me-2"></i>Órdenes
-      </a>
-      <a href="{% url 'pizzeria_delivery' %}" class="btn btn-pz-outline">
-        <i class="fas fa-motorcycle me-2"></i>Delivery
-      </a>
-      <a href="{% url 'pizzeria_dashboard_caja' %}" class="btn btn-pz-outline">
-        <i class="fas fa-cash-register me-2"></i>Caja
-      </a>
-    </div>
-
   </div>
 </div>
 {% endblock %}

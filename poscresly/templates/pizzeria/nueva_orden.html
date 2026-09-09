@@ -2,9 +2,10 @@
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'CSS/pizzeria-mapa.css' %}">
+<link rel="stylesheet" href="{% static 'CSS/pizzeria-mapa.css' %}?v=13">
 <link rel="stylesheet" href="{% static 'CSS/pizzeria-pedido.css' %}">
-<link rel="stylesheet" href="{% static 'CSS/pizzeria-venta-rapida.css' %}?v=11">
+<link rel="stylesheet" href="{% static 'CSS/pizzeria-venta-rapida.css' %}?v=20">
+<link rel="stylesheet" href="{% static 'CSS/pizzeria-combo.css' %}?v=1">
 <link rel="stylesheet" href="{% static 'CSS/pizzeria-cart-bar.css' %}">
 {% endblock %}
 
@@ -18,13 +19,16 @@
   </div>
   {% include 'components/topbar_right.html' %}
 </div>
+{% include 'components/pizzeria_header.html' %}
+{% include 'components/pizzeria_alerta.html' %}
+{% include 'components/pizzeria_subheader.html' %}
 
 <div class="container-fluid contenedor-principal vr-page-bg">
   <div class="col-12 col-der">
     <div class="vr-layout">
 
       <div class="vr-main">
-        <div class="dash-header pz-header">
+        <div class="dash-header pz-header pzsh-superseded">
           <div>
             {% if pedido_abierto %}
             <h4 class="dash-title">Agregar a pedido #{{ pedido_abierto.numero_pedido_completo }}</h4>
@@ -54,11 +58,12 @@
       <div class="vr-cart pz-cart-sheet" id="vrCart">
         <div class="pz-cart-sheet-handle"></div>
         <div class="vr-cart-header">
-          <h6 class="mb-0"><i class="fas fa-cart-shopping me-2"></i>Carrito <span class="vr-cart-numero" id="vrNumeroOrden">#{% if pedido_abierto %}{{ pedido_abierto.numero_pedido_completo }}{% else %}{{ proximo_numero|stringformat:"03d" }}{% endif %}</span></h6>
-          <div class="d-flex align-items-center gap-2">
-            <button type="button" class="vr-cart-vaciar" id="vrVaciar">Vaciar</button>
-            <button type="button" class="pz-cart-sheet-close" id="vrCartSheetClose" aria-label="Cerrar"><i class="fas fa-chevron-down"></i></button>
+          <div class="vr-cart-header-info">
+            <span class="vr-cart-titulo">Pedido</span>
+            <span class="vr-cart-numero" id="vrNumeroOrden">#{% if pedido_abierto %}{{ pedido_abierto.numero_pedido_completo }}{% else %}{{ proximo_numero|stringformat:"03d" }}{% endif %}</span>
+            {% if not pedido_abierto %}<span class="vr-cart-tipo-pill" id="vrCartTipoPill">Llevar <i class="fas fa-chevron-down"></i></span>{% endif %}
           </div>
+          <button type="button" class="vr-cart-vaciar" id="vrVaciar">Vaciar</button>
         </div>
 
         {% if pedido_abierto %}
@@ -78,55 +83,84 @@
         </div>
         {% endif %}
 
-        <div class="vr-tipo-tabs{% if pedido_abierto %} d-none{% endif %}" id="vrTipoTabs">
-          <button type="button" class="vr-tipo-tab" data-tipo="mesa">Servirse</button>
-          <button type="button" class="vr-tipo-tab vr-tipo-tab-active" data-tipo="llevar">Llevar</button>
-          <button type="button" class="vr-tipo-tab" data-tipo="delivery">Delivery</button>
-        </div>
+        <div id="vrTipoYDatos">
+          <div class="vr-modo-tabs{% if pedido_abierto %} d-none{% endif %}" id="vrTipoTabs">
+            <button type="button" class="vr-modo-tab" data-tipo="mesa">Servirse</button>
+            <button type="button" class="vr-modo-tab vr-modo-tab-active" data-tipo="llevar">Llevar</button>
+            <button type="button" class="vr-modo-tab" data-tipo="delivery">Delivery</button>
+          </div>
 
-        <div class="vr-cliente-datos{% if pedido_abierto %} d-none{% endif %}" id="vrClienteDatos">
-          <div class="vr-cliente-group vr-cliente-group-2col d-none" id="vrGrupoMesa">
-            <div class="vr-select-custom" id="vrMesaSelectWrap">
-              <button type="button" class="vr-cliente-input vr-select-trigger vr-select-trigger-placeholder" id="vrMesaSelectTrigger">
-                <span id="vrMesaSelectTriggerTexto">Mesa *</span>
-                <i class="fas fa-chevron-down vr-select-chevron"></i>
-              </button>
-              <div class="vr-select-dropdown d-none" id="vrMesaSelectDropdown"></div>
-              <select id="vrMesaSelect" class="d-none">
-                <option value="">Mesa *</option>
-              </select>
+          <div class="vr-modo-divider{% if pedido_abierto %} d-none{% endif %}"></div>
+
+          <div class="vr-cliente-datos{% if pedido_abierto %} d-none{% endif %}" id="vrClienteDatos">
+            <div class="vr-modo-group d-none" id="vrGrupoMesa">
+              <div class="vr-modo-label-row">
+                <span class="vr-modo-label">MESA</span>
+                <span class="vr-modo-libres" id="vrMesasLibresCount"></span>
+              </div>
+              <div class="vr-mesa-grid" id="vrMesaGrid"></div>
+              <input type="hidden" id="vrMesaSelect" value="">
+
+              <div class="vr-modo-label-row vr-modo-label-mt">
+                <span class="vr-modo-label mb-0">PERSONAS</span>
+                <span class="vr-modo-help-inline" id="vrPersonasHint"></span>
+              </div>
+              <div class="vr-personas-row">
+                <button type="button" class="vr-personas-btn" id="vrPersonasMenos" aria-label="Quitar una persona">&minus;</button>
+                <div class="vr-personas-valor" aria-live="polite">
+                  <span class="vr-personas-num" id="vrPersonasNum">1</span>
+                  <span class="vr-personas-txt" id="vrPersonasTexto">personas</span>
+                </div>
+                <button type="button" class="vr-personas-btn" id="vrPersonasMas" aria-label="Agregar una persona">+</button>
+              </div>
+
+              <span class="vr-modo-label vr-modo-label-mt">CLIENTE</span>
+              <input type="text" id="vrNombreMesa" class="vr-modo-input" placeholder="Nombre del cliente">
             </div>
-            <input type="text" id="vrNombreMesa" class="form-control form-control-sm vr-cliente-input" placeholder="Cliente">
-          </div>
 
-          <div class="vr-cliente-group" id="vrGrupoLlevar">
-            <input type="text" id="vrNombreLlevar" class="form-control form-control-sm vr-cliente-input" placeholder="Cliente">
-          </div>
+            <div class="vr-modo-group" id="vrGrupoLlevar">
+              <span class="vr-modo-label">NOMBRE DEL CLIENTE</span>
+              <input type="text" id="vrNombreLlevar" class="vr-modo-input vr-modo-input-lg" placeholder="Ej. Ana R." autocomplete="off">
+              <span class="vr-modo-help">Se imprime en el ticket para llamar al cliente.</span>
 
-          <div class="vr-cliente-group d-none" id="vrGrupoDelivery">
-            <div class="vr-entrega-card">
-              <div class="vr-entrega-header">
-                <span class="vr-entrega-label">Datos de entrega</span>
+              <span class="vr-modo-label vr-modo-label-mt">RECIENTES</span>
+              <div class="vr-modo-chips" id="vrClientesRecientes"></div>
+            </div>
+
+            <div class="vr-modo-group d-none" id="vrGrupoDelivery">
+              <div class="vr-modo-row-2col">
+                <div>
+                  <span class="vr-modo-label">TELÉFONO</span>
+                  <input type="tel" id="vrTelefonoDelivery" class="vr-modo-input vr-modo-input-tel" placeholder="09XX-XXXXXX" inputmode="tel">
+                </div>
+                <div>
+                  <span class="vr-modo-label">NOMBRE</span>
+                  <input type="text" id="vrNombreDelivery" class="vr-modo-input" placeholder="Nombre del cliente">
+                </div>
               </div>
 
-              <div class="vr-cliente-group-2col">
-                <input type="tel" id="vrTelefonoDelivery" class="form-control form-control-sm vr-cliente-input" placeholder="Teléfono">
-                <input type="text" id="vrNombreDelivery" class="form-control form-control-sm vr-cliente-input" placeholder="Cliente">
-              </div>
-              <textarea id="vrNotasDelivery" class="form-control form-control-sm vr-cliente-input vr-entrega-textarea" rows="2" placeholder="Dirección y referencia"></textarea>
+              <span class="vr-modo-label vr-modo-label-mt">DIRECCIÓN Y REFERENCIA</span>
+              <textarea id="vrNotasDelivery" class="vr-modo-input vr-modo-textarea" rows="2" placeholder="Dirección y puntos de referencia"></textarea>
 
-              <div class="vr-entrega-costo-label">Costo de envío</div>
-              <div class="vr-entrega-toggle-row vr-entrega-toggle-row-5" id="vrCostoEnvioTabs">
-                <button type="button" class="vr-entrega-toggle" data-valor="2.00">$2.00</button>
-                <button type="button" class="vr-entrega-toggle" data-valor="2.25">$2.25</button>
-                <button type="button" class="vr-entrega-toggle" data-valor="2.50">$2.50</button>
-                <button type="button" class="vr-entrega-toggle" data-valor="2.75">$2.75</button>
-                <button type="button" class="vr-entrega-toggle" data-valor="3.00">$3.00</button>
-                <button type="button" class="vr-entrega-toggle" data-valor="3.25">$3.25</button>
-                <button type="button" class="vr-entrega-toggle" data-valor="3.50">$3.50</button>
-                <button type="button" class="vr-entrega-toggle" data-valor="3.75">$3.75</button>
-                <button type="button" class="vr-entrega-toggle" data-valor="4.00">$4.00</button>
-                <input type="number" id="vrValorMoto" class="vr-entrega-otro-monto" placeholder="Otro" min="0" step="0.01">
+              <span class="vr-modo-label vr-modo-label-mt">FORMA DE PAGO</span>
+              <div class="vr-modo-pago" id="vrPagoDeliveryTabs">
+                <button type="button" class="vr-modo-pago-btn" data-valor="efectivo">Efectivo</button>
+                <button type="button" class="vr-modo-pago-btn" data-valor="transferencia">Transferencia</button>
+              </div>
+
+              <div class="vr-modo-label-row vr-modo-label-mt">
+                <span class="vr-modo-label">VALOR DE LA MOTO</span>
+                <span class="vr-modo-help-inline">se suma al total</span>
+              </div>
+              <div class="vr-modo-envio" id="vrCostoEnvioTabs">
+                <button type="button" class="vr-modo-envio-btn" data-valor="2.00">$2.00</button>
+                <button type="button" class="vr-modo-envio-btn" data-valor="2.25">$2.25</button>
+                <button type="button" class="vr-modo-envio-btn" data-valor="2.50">$2.50</button>
+                <button type="button" class="vr-modo-envio-btn" data-valor="2.75">$2.75</button>
+                <button type="button" class="vr-modo-envio-btn" data-valor="3.00">$3.00</button>
+                <button type="button" class="vr-modo-envio-btn" data-valor="3.25">$3.25</button>
+                <button type="button" class="vr-modo-envio-btn" data-valor="3.50">$3.50</button>
+                <input type="number" id="vrValorMoto" class="vr-modo-envio-otro" placeholder="Otro" min="0" step="0.01">
               </div>
             </div>
           </div>
@@ -142,9 +176,10 @@
         </div>
 
         <div class="vr-cart-acciones">
-          <button type="button" class="btn btn-pz-primary py-2" id="vrBtnConfirmarImprimir" disabled onclick="vrGuardarPedido(true)">
-            <i class="fas fa-print me-2"></i>{% if pedido_abierto %}Agregar e Imprimir{% else %}Confirmar e Imprimir{% endif %}
+          <button type="button" class="vr-cart-btn-confirmar" id="vrBtnConfirmarImprimir" disabled onclick="vrGuardarPedido(true)">
+            <i class="fas fa-print"></i>{% if pedido_abierto %}Agregar e Imprimir{% else %}Confirmar e Imprimir{% endif %}
           </button>
+          <span class="vr-cart-btn-nota">Imprime la comanda para cocina</span>
         </div>
       </div>
 
@@ -154,7 +189,58 @@
 
 {% include 'components/_pz_cart_bar.html' %}
 
-<!-- Modal: seleccionar tamaño/sabor de pizza o combo -->
+<!-- Hoja de "Modo de la orden" (solo mobile/tablet, ≤1023px). En desktop
+     #vrTipoYDatos vive inline dentro de #vrCart (barra lateral siempre
+     visible) — este shell queda vacío y oculto. El botón "⋯" del subheader
+     (#pzshMasOpciones) es quien la abre; ver pizzeria_venta_rapida.js.
+     Sin fila de cierre aparte: se cierra tocando el overlay, Esc o el botón
+     "Continuar" — igual que en handoff_pos_movil/README.md. -->
+<div class="pz-sheet-backdrop" id="vrTipoSheetBackdrop"></div>
+<div class="pz-cart-sheet vr-modo-sheet" id="vrTipoSheet">
+  <div class="pz-cart-sheet-handle"></div>
+  <span class="vr-modo-titulo">Modo de la orden</span>
+  <div id="vrTipoSheetBody"></div>
+  <button type="button" class="vr-modo-continuar" id="vrTipoSheetListo">Continuar</button>
+</div>
+
+<!-- Hoja del configurador de combos (handoff_combo/README.md).
+     Tres zonas: cabecera fija (nombre + progreso + precio en vivo), pasos con
+     scroll, y pie fijo (cantidad + Agregar). Los pasos se generan desde los
+     componentes reales del combo, no hay markup por combo concreto. -->
+<div class="cmb-overlay" id="cmbOverlay"></div>
+<div class="cmb-hoja" id="cmbHoja" role="dialog" aria-modal="true" aria-labelledby="cmbNombre">
+  <div class="cmb-cabecera">
+    <div class="cmb-asa"></div>
+    <div class="cmb-cabecera-fila">
+      <div class="cmb-cabecera-info">
+        <span class="cmb-nombre" id="cmbNombre"></span>
+        <span class="cmb-estado" id="cmbEstado"></span>
+      </div>
+      <span class="cmb-precio" id="cmbPrecio">$0.00</span>
+    </div>
+    <div class="cmb-progreso" id="cmbProgreso"></div>
+  </div>
+
+  <div class="cmb-pasos" id="cmbPasos"></div>
+
+  <div class="cmb-pie">
+    <div class="cmb-pie-fila">
+      <div class="cmb-stepper">
+        <button type="button" class="cmb-stepper-btn" id="cmbCantMenos" aria-label="Quitar uno">
+          <i class="fas fa-minus"></i>
+        </button>
+        <span class="cmb-stepper-num" id="cmbCantidad">1</span>
+        <button type="button" class="cmb-stepper-btn" id="cmbCantMas" aria-label="Agregar uno">
+          <i class="fas fa-plus"></i>
+        </button>
+      </div>
+      <button type="button" class="cmb-agregar" id="cmbAgregar"></button>
+    </div>
+    <span class="cmb-motivo" id="cmbMotivo"></span>
+  </div>
+</div>
+
+<!-- Modal: seleccionar tamaño/sabor de pizza (los combos usan #cmbHoja) -->
 <div class="modal fade" id="vrModalSelector" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
@@ -220,15 +306,19 @@
   window.PZ_CATALOGO = {{ catalogo_json|safe }};
   window.PZ_PROXIMO_NUMERO = {{ proximo_numero }};
   window.PZ_PEDIDO_ID = {% if pedido_abierto %}{{ pedido_abierto.id }}{% else %}null{% endif %};
+  window.PZ_NUMERO_STR = "{{ numero_str }}";
+  window.PZ_MESERO_NOMBRE = "{{ mesero_nombre|escapejs }}";
   window.PZ_URLS = {
     calcularPrecio: "{% url 'pizzeria_calcular_precio' %}",
     guardarPedido: "{% url 'pizzeria_guardar_pedido' %}",
     ordenes: "{% url 'pizzeria_ordenes' %}",
+    mapaMesas: "{% url 'pizzeria_mapa_mesas' %}",
     {% if pedido_abierto %}detalleOrden: "{% url 'pizzeria_detalle_orden' pedido_abierto.id %}",{% endif %}
   };
 </script>
 <script src="{% static 'JS/pizzeria_cart_bar.js' %}"></script>
-<script src="{% static 'JS/pizzeria_venta_rapida.js' %}?v=5"></script>
+<script src="{% static 'JS/pizzeria_combo.js' %}?v=1"></script>
+<script src="{% static 'JS/pizzeria_venta_rapida.js' %}?v=15"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     pzInitCartBar({

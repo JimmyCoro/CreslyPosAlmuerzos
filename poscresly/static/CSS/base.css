@@ -532,10 +532,33 @@ html, body {
 }
 
 /* Espacio para el navbar inferior del módulo Pizzería (≤1023px), para que el
-   contenido no quede tapado detrás de la barra fija. */
+   contenido no quede tapado detrás de la barra fija.
+   Ojo: el que de verdad scrollea es .col-der (overflow-y:auto, ver
+   caja.css) — .contenedor-principal es su contenedor PADRE, no scrollea,
+   así que un padding-bottom ahí nunca se vuelve alcanzable con scroll.
+   Por eso el padding va en .col-der, y con --pz-bottomnav-h (lo calcula
+   en runtime components/pizzeria_bottom_nav.html, mismo valor real que ya
+   usa pizzeria-cart-bar.css) en vez de un número fijo, para no
+   desincronizarse si cambia el alto real de la barra (p. ej. al variar
+   env(safe-area-inset-bottom) según el dispositivo). Especificidad
+   (0,2,1) a propósito: gana incluso sobre .vr-page-bg .col-der
+   (pizzeria-venta-rapida.css, 0,2,0), que se carga después. */
 @media (max-width: 1023px) {
-  body.pizzeria-page .contenedor-principal {
-    padding-bottom: 88px;
+  body.pizzeria-page .col-der {
+    padding-bottom: calc(16px + var(--pz-bottomnav-h, 88px));
+  }
+
+  /* Refuerzo: el padding-bottom de un contenedor con overflow-y:auto no
+     siempre queda "alcanzable" al hacer scroll en todos los navegadores
+     (es una inconsistencia real de CSS, más aún cuando algún hijo directo
+     usa flex/grid, como .pzm-stack o .oc-grid). Un ::after con altura
+     explícita SÍ cuenta siempre como contenido real dentro del scroll,
+     así que garantiza el espacio sin importar el layout interno. */
+  body.pizzeria-page .col-der::after {
+    content: "";
+    display: block;
+    height: var(--pz-bottomnav-h, 88px);
+    flex-shrink: 0;
   }
 }
 

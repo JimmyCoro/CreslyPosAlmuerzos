@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  html, body { margin:0; padding:0; background:#f4f5f7; }
+  * { box-sizing:border-box; }
+  a { color:#c8102e; text-decoration:none; }
+  a:hover { color:#9c0c23; }
+  input, textarea { font-family:inherit; }
+  input:focus, textarea:focus { outline:none; border-color:#14181d; }
+  input::placeholder, textarea::placeholder { color:#b6bcc4; }
+</style>
+</helmet>
+<div style="display:flex;min-height:100vh;font-family:'Plus Jakarta Sans',Helvetica,Arial,sans-serif;color:#14181d;background:#f4f5f7;font-feature-settings:'tnum' 1">
+
+  <aside style="width:236px;flex:0 0 236px;background:#14181d;color:#eceef1;display:flex;flex-direction:column;padding:18px 14px">
+    <div style="display:flex;gap:11px;align-items:center;padding:4px 6px 20px">
+      <div style="width:38px;height:38px;border-radius:11px;background:#c8102e;color:#fff;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800">C</div>
+      <div style="display:flex;flex-direction:column;gap:1px">
+        <div style="font-size:15px;font-weight:700;letter-spacing:-.01em">Cresly</div>
+        <div style="font-size:11px;color:#8b939e">Punto de venta</div>
+      </div>
+    </div>
+    <div style="font-size:10px;letter-spacing:.14em;color:#6f7883;font-weight:700;padding:0 6px 10px">OPERACIÓN</div>
+    <div style="display:flex;flex-direction:column;gap:2px">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 10px;border-radius:9px;font-size:13.5px;font-weight:700;color:#fff;background:#1d2329;cursor:pointer">
+        <span>Pizzería</span><span style="font-size:10px;color:#8b939e">▲</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:2px;padding:4px 0 4px 8px;margin-left:5px;border-left:1px solid #262d34">
+        <div style="padding:8px 10px;border-radius:8px;font-size:13px;color:#b9c0c9;cursor:pointer" style-hover="background:#1d2329;color:#fff">Inicio</div>
+        <div style="padding:8px 10px;border-radius:8px;font-size:13px;color:#b9c0c9;cursor:pointer" style-hover="background:#1d2329;color:#fff">Mesas</div>
+        <div style="padding:8px 10px;border-radius:8px;font-size:13px;color:#b9c0c9;cursor:pointer" style-hover="background:#1d2329;color:#fff">Órdenes</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:8px;font-size:13px;font-weight:700;color:#fff;background:#c8102e;cursor:pointer">
+          <span>Nueva orden</span><span style="width:6px;height:6px;border-radius:50%;background:#fff;opacity:.85"></span>
+        </div>
+        <div style="padding:8px 10px;border-radius:8px;font-size:13px;color:#b9c0c9;cursor:pointer" style-hover="background:#1d2329;color:#fff">Delivery</div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 10px;border-radius:9px;font-size:13.5px;font-weight:600;color:#b9c0c9;cursor:pointer;margin-top:6px" style-hover="background:#1d2329;color:#fff">
+        <span>Almuerzos</span><span style="font-size:10px;color:#6f7883">▼</span>
+      </div>
+    </div>
+    <div style="margin-top:auto;display:flex;flex-direction:column;gap:6px;padding-top:18px">
+      <div style="padding:9px 10px;border-radius:9px;font-size:13px;color:#b9c0c9;cursor:pointer" style-hover="background:#1d2329;color:#fff">Configuración</div>
+      <div style="display:flex;gap:10px;align-items:center;padding:10px;border-radius:11px;background:#1d2329">
+        <div style="width:30px;height:30px;border-radius:50%;background:#2e363e;color:#eceef1;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">M</div>
+        <div style="display:flex;flex-direction:column;gap:1px">
+          <div style="font-size:12.5px;font-weight:700">mesero1</div>
+          <div style="font-size:10.5px;color:#8b939e">Cresly · Cajero</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main style="flex:1;min-width:0;display:flex;flex-direction:column">
+    <header style="display:flex;align-items:center;justify-content:space-between;gap:24px;padding:14px 32px;background:#fff;border-bottom:1px solid #e6e8ec">
+      <div style="display:flex;align-items:center;gap:9px;font-size:13px;color:#8a929c">
+        <span>Inicio</span><span style="color:#c3c8ce">/</span><span style="color:#14181d;font-weight:700">Punto de venta</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:20px">
+        <div style="width:34px;height:34px;border-radius:10px;border:1px solid #e6e8ec;display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer" style-hover="background:#f4f5f7">
+          <span style="font-size:14px">◔</span>
+          <span style="position:absolute;top:7px;right:7px;width:7px;height:7px;border-radius:50%;background:#c8102e;border:2px solid #fff"></span>
+        </div>
+        <div style="text-align:right;line-height:1.35">
+          <div style="font-size:11.5px;color:#8a929c">Viernes, 14 de agosto</div>
+          <div style="font-size:15px;font-weight:800;letter-spacing:-.01em">12:45 a. m.</div>
+        </div>
+      </div>
+    </header>
+
+    <div style="padding:22px 32px 30px;display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;min-width:0">
+
+      <div style="flex:2 1 420px;min-width:min(100%,340px);display:flex;flex-direction:column;gap:14px">
+        <h1 style="margin:0;font-size:26px;font-weight:800;letter-spacing:-.025em">Punto de venta</h1>
+
+        <div style="display:flex;align-items:center;gap:10px;padding:12px 15px;border-radius:12px;border:1px solid #e6e8ec;background:#fff">
+          <span style="font-size:14px;color:#a8afb8">⌕</span>
+          <input value="{{ query }}" onChange="{{ onQuery }}" placeholder="Buscar producto..." style="flex:1;min-width:0;border:none;padding:0;font-size:14px;font-weight:500;background:transparent;color:#14181d" />
+          <sc-if value="{{ hasQuery }}" hint-placeholder-val="{{ false }}">
+            <span onClick="{{ clearQuery }}" style="font-size:12px;font-weight:700;color:#8a929c;cursor:pointer">Limpiar</span>
+          </sc-if>
+        </div>
+
+        <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:4px">
+          <sc-for list="{{ cats }}" as="c" hint-placeholder-count="6">
+            <div onClick="{{ c.onClick }}" style="flex:0 0 auto;display:flex;align-items:center;gap:11px;padding:12px 16px 12px 13px;border-radius:14px;cursor:pointer;background:#fff;border:1.5px solid {{ c.border }};box-shadow:{{ c.shadow }}" style-hover="border-color:#14181d">
+              <div style="width:34px;height:34px;border-radius:10px;background:{{ c.iconBg }};color:{{ c.iconFg }};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex:0 0 auto">{{ c.initial }}</div>
+              <div style="display:flex;flex-direction:column;gap:1px">
+                <span style="font-size:13.5px;font-weight:700;letter-spacing:-.01em;white-space:nowrap">{{ c.label }}</span>
+                <span style="font-size:11.5px;color:#98a1ab;font-weight:600;white-space:nowrap">{{ c.count }} productos</span>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px">
+          <sc-for list="{{ products }}" as="p" hint-placeholder-count="9">
+            <div onClick="{{ p.onClick }}" style="background:#fff;border:1px solid #e6e8ec;border-radius:14px;padding:15px 16px;display:flex;flex-direction:column;gap:9px;min-height:132px;cursor:pointer;transition:transform .12s ease,box-shadow .12s ease" style-hover="transform:translateY(-2px);box-shadow:0 10px 22px rgba(20,24,29,.10)">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+                <span style="font-size:10.5px;font-weight:800;letter-spacing:.09em;color:#98a1ab">{{ p.cat }}</span>
+                <sc-if value="{{ p.inCart }}" hint-placeholder-val="{{ false }}">
+                  <span style="padding:2px 8px;border-radius:999px;background:#fdecef;color:#a90d27;font-size:11px;font-weight:800">{{ p.qty }} en carrito</span>
+                </sc-if>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:3px;min-width:0">
+                <span style="font-size:14.5px;font-weight:700;letter-spacing:-.015em;line-height:1.3;text-wrap:pretty">{{ p.name }}</span>
+                <span style="font-size:11.5px;color:#98a1ab;font-weight:500;line-height:1.4;text-wrap:pretty">{{ p.desc }}</span>
+              </div>
+              <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-top:auto">
+                <span style="font-size:17px;font-weight:800;letter-spacing:-.025em;color:#c8102e">{{ p.price }}</span>
+                <div style="width:32px;height:32px;border-radius:9px;border:1px solid #e6e8ec;background:#fafbfc;display:flex;align-items:center;justify-content:center;font-size:13px;color:#5b6673;flex:0 0 auto" style-hover="border-color:#14181d">⚙</div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+
+        <sc-if value="{{ noResults }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:44px 16px;text-align:center;background:#fff;border:1px solid #e6e8ec;border-radius:14px;display:flex;flex-direction:column;gap:4px">
+            <span style="font-size:13.5px;font-weight:700;color:#8a929c">Sin resultados para “{{ query }}”</span>
+            <span style="font-size:12.5px;color:#b6bcc4">Prueba con otro nombre o cambia de categoría</span>
+          </div>
+        </sc-if>
+      </div>
+
+      <div style="flex:1 1 340px;min-width:min(100%,320px);max-width:392px;display:flex;flex-direction:column;background:#fff;border:1px solid #e6e8ec;border-radius:18px;overflow:hidden;position:sticky;top:18px">
+
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:15px 17px;border-bottom:1px solid #eef0f3">
+          <div style="display:flex;align-items:center;gap:9px">
+            <span style="font-size:16px;font-weight:800;letter-spacing:-.02em">Carrito</span>
+            <span style="padding:3px 9px;border-radius:999px;background:#eef0f3;color:#4a545f;font-size:11.5px;font-weight:800">#001</span>
+          </div>
+          <span onClick="{{ clearCart }}" style="font-size:12.5px;font-weight:700;color:{{ clearFg }};cursor:pointer">Vaciar</span>
+        </div>
+
+        <div style="padding:13px 17px;display:flex;flex-direction:column;gap:11px;border-bottom:1px solid #eef0f3">
+          <div style="display:flex;padding:4px;gap:4px;border-radius:12px;background:#e9ebef">
+            <sc-for list="{{ modes }}" as="m" hint-placeholder-count="3">
+              <div onClick="{{ m.onClick }}" style="flex:1;text-align:center;padding:9px 6px;border-radius:9px;font-size:12.5px;font-weight:700;cursor:pointer;background:{{ m.bg }};color:{{ m.fg }};box-shadow:{{ m.shadow }}">{{ m.label }}</div>
+            </sc-for>
+          </div>
+
+          <input value="{{ customer }}" onChange="{{ onCustomer }}" placeholder="Cliente" style="padding:11px 13px;border-radius:10px;border:1px solid #dfe2e7;font-size:13.5px;font-weight:600;background:#fff;color:#14181d" />
+
+          <sc-if value="{{ isDelivery }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:11px;padding:13px;border-radius:12px;background:#fafbfc;border:1px solid #eef0f3">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+                <span style="font-size:10.5px;font-weight:800;letter-spacing:.09em;color:#8a929c">DATOS DE ENTREGA</span>
+                <span style="font-size:11px;font-weight:700;color:{{ srcFg }}">{{ srcLabel }}</span>
+              </div>
+
+              <div style="display:flex;gap:7px">
+                <sc-for list="{{ sources }}" as="s" hint-placeholder-count="2">
+                  <div onClick="{{ s.onClick }}" style="flex:1;text-align:center;padding:8px 6px;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;background:{{ s.bg }};color:{{ s.fg }};border:1px solid {{ s.border }}">{{ s.label }}</div>
+                </sc-for>
+              </div>
+
+              <input value="{{ phone }}" onChange="{{ onPhone }}" placeholder="Teléfono" inputmode="tel" style="padding:11px 13px;border-radius:10px;border:1px solid #dfe2e7;font-size:15px;font-weight:700;letter-spacing:.02em;background:#fff;color:#14181d" />
+
+              <sc-if value="{{ showSuggestion }}" hint-placeholder-val="{{ false }}">
+                <div onClick="{{ useSuggestion }}" style="display:flex;gap:10px;align-items:flex-start;padding:11px 12px;border-radius:11px;background:#f4fbf7;border:1px solid #cfeadb;cursor:pointer" style-hover="border-color:#23a05f">
+                  <span style="width:8px;height:8px;border-radius:50%;background:#23a05f;margin-top:5px;flex:0 0 auto"></span>
+                  <div style="display:flex;flex-direction:column;gap:2px;min-width:0">
+                    <span style="font-size:12px;font-weight:800;color:#1c7a4a">Cliente recurrente</span>
+                    <span style="font-size:12.5px;font-weight:600">{{ sugName }}</span>
+                    <span style="font-size:11.5px;color:#5f8a72;line-height:1.4">{{ sugAddress }}</span>
+                    <span style="font-size:11px;font-weight:700;color:#1c7a4a;padding-top:2px">Usar estos datos</span>
+                  </div>
+                </div>
+              </sc-if>
+
+              <textarea value="{{ address }}" onChange="{{ onAddress }}" rows="2" placeholder="Dirección y referencia" style="padding:11px 13px;border-radius:10px;border:1px solid #dfe2e7;font-size:13px;font-weight:600;line-height:1.45;resize:vertical;background:#fff;color:#14181d"></textarea>
+
+              <div style="display:flex;flex-direction:column;gap:6px">
+                <span style="font-size:11px;font-weight:700;color:#5b6673">Costo de envío</span>
+                <div style="display:flex;gap:6px">
+                  <sc-for list="{{ feeOptions }}" as="f" hint-placeholder-count="3">
+                    <div onClick="{{ f.onClick }}" style="flex:1;text-align:center;padding:9px 6px;border-radius:9px;font-size:12.5px;font-weight:700;cursor:pointer;background:{{ f.bg }};color:{{ f.fg }};border:1px solid {{ f.border }}">{{ f.label }}</div>
+                  </sc-for>
+                </div>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+
+        <div style="padding:6px 17px 2px;display:flex;flex-direction:column">
+          <sc-for list="{{ cart }}" as="c" hint-placeholder-count="0">
+            <div style="display:flex;gap:11px;align-items:flex-start;padding:12px 0;border-bottom:1px solid #f2f4f6">
+              <div style="display:flex;flex-direction:column;gap:2px;min-width:0;flex:1">
+                <span style="font-size:13.5px;font-weight:700;line-height:1.35;text-wrap:pretty">{{ c.name }}</span>
+                <span style="font-size:11.5px;color:#98a1ab;font-weight:600">{{ c.unit }} c/u</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:3px;flex:0 0 auto">
+                <div onClick="{{ c.dec }}" style="width:26px;height:26px;border-radius:8px;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#5b6673;cursor:pointer;line-height:1" style-hover="border-color:#14181d">−</div>
+                <span style="min-width:22px;text-align:center;font-size:13.5px;font-weight:800">{{ c.qty }}</span>
+                <div onClick="{{ c.inc }}" style="width:26px;height:26px;border-radius:8px;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#5b6673;cursor:pointer;line-height:1" style-hover="border-color:#14181d">+</div>
+              </div>
+              <span style="flex:0 0 60px;text-align:right;font-size:13.5px;font-weight:800;letter-spacing:-.02em">{{ c.line }}</span>
+            </div>
+          </sc-for>
+
+          <sc-if value="{{ cartEmpty }}" hint-placeholder-val="{{ true }}">
+            <div style="padding:40px 16px;display:flex;flex-direction:column;align-items:center;gap:9px;text-align:center">
+              <div style="width:66px;height:66px;border-radius:50%;background:#fdecef;color:#c8102e;display:flex;align-items:center;justify-content:center;font-size:26px">⌾</div>
+              <span style="font-size:14px;font-weight:800;letter-spacing:-.015em">Tu orden está vacía</span>
+              <span style="font-size:12.5px;color:#98a1ab;max-width:230px;line-height:1.45">Toca un platillo para empezar a armarla.</span>
+            </div>
+          </sc-if>
+        </div>
+
+        <div style="padding:14px 17px;display:flex;flex-direction:column;gap:12px;background:#fafbfc;border-top:1px dashed #dfe2e7;margin-top:auto">
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div style="display:flex;justify-content:space-between;font-size:12.5px;color:#767e88"><span>Subtotal</span><span style="font-weight:700;color:#14181d">{{ subtotal }}</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:12.5px;color:#767e88"><span>IVA 15%</span><span style="font-weight:700;color:#14181d">{{ tax }}</span></div>
+            <sc-if value="{{ isDelivery }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;justify-content:space-between;font-size:12.5px;color:#767e88"><span>Costo de envío</span><span style="font-weight:700;color:#14181d">{{ fee }}</span></div>
+            </sc-if>
+            <div style="display:flex;justify-content:space-between;align-items:baseline;padding-top:9px;border-top:1px solid #e6e8ec">
+              <span style="font-size:14px;font-weight:800;letter-spacing:-.015em">Total</span>
+              <span style="font-size:24px;font-weight:800;letter-spacing:-.03em">{{ total }}</span>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:7px">
+            <div style="display:flex;align-items:center;justify-content:center;gap:9px;padding:13px 16px;border-radius:11px;font-size:14px;font-weight:800;letter-spacing:-.01em;cursor:{{ ctaCursor }};background:{{ ctaBg }};color:{{ ctaFg }};box-shadow:{{ ctaShadow }}">
+              <span style="font-size:14px">⎙</span><span>Confirmar e Imprimir</span>
+            </div>
+            <div style="text-align:center;font-size:11.5px;color:#98a1ab;font-weight:600">{{ ctaHint }}</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:980},&quot;taxRate&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:15,&quot;min&quot;:0,&quot;max&quot;:25,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Venta&quot;}}">
+const CATS = [
+  { label: "Todas", count: 44, initial: "T", iconBg: "#fdecef", iconFg: "#c8102e" },
+  { label: "Pizzas", count: 4, initial: "P", iconBg: "#fdecef", iconFg: "#c8102e" },
+  { label: "Combos", count: 13, initial: "C", iconBg: "#f0edfb", iconFg: "#5b46b8" },
+  { label: "Alitas", count: 5, initial: "A", iconBg: "#fdf3e2", iconFg: "#8a5800" },
+  { label: "Bebida", count: 11, initial: "B", iconBg: "#e9f1fb", iconFg: "#1d5a9e" },
+  { label: "Hamburguesa", count: 3, initial: "H", iconBg: "#fdf3e2", iconFg: "#8a5800" }
+];
+
+const PRODUCTS = [
+  { cat: "PIZZA", name: "Pequeña", desc: "", price: 8.0 },
+  { cat: "PIZZA", name: "Mediana", desc: "", price: 12.0 },
+  { cat: "PIZZA", name: "Familiar", desc: "", price: 15.0 },
+  { cat: "PIZZA", name: "Porción individual", desc: "", price: 2.75 },
+  { cat: "COMBO", name: "Combo Completo", desc: "porción de pizza + papas + bebida pequeña", price: 4.0 },
+  { cat: "COMBO", name: "Combo Cresly", desc: "2 hamburguesas clásicas + 10 alitas + papas + bebida grande", price: 18.0 },
+  { cat: "COMBO", name: "Combo Cumpleañero", desc: "pizza familiar + 10 alitas + papas + bebida grande + helado", price: 28.5 },
+  { cat: "COMBO", name: "Combo Duo", desc: "2 porciones de pizza + 4 alitas + 2 bebidas pequeñas", price: 11.0 },
+  { cat: "COMBO", name: "Combo MicheBurguer", desc: "2 hamburguesas clásicas + 2 micheladas + papas", price: 13.0 },
+  { cat: "ALITAS", name: "5 alitas", desc: "", price: 5.5 },
+  { cat: "ALITAS", name: "10 alitas", desc: "", price: 9.5 },
+  { cat: "HAMBURGUESA", name: "Hamburguesa clásica", desc: "", price: 6.0 },
+  { cat: "BEBIDA", name: "Bebida pequeña", desc: "", price: 1.25 },
+  { cat: "BEBIDA", name: "Bebida grande", desc: "", price: 2.5 },
+  { cat: "BEBIDA", name: "Michelada", desc: "", price: 3.5 }
+];
+
+const CAT_MAP = { "Pizzas": "PIZZA", "Combos": "COMBO", "Alitas": "ALITAS", "Bebida": "BEBIDA", "Hamburguesa": "HAMBURGUESA" };
+const FEES = [2.0, 2.5, 3.0];
+const KNOWN = { "7433-7781": { name: "Ana R.", address: "Col. Miramonte, pasaje 7, casa 15" } };
+
+const money = (n) => "$" + n.toFixed(2);
+const norm = (s) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+class Component extends DCLogic {
+  state = {
+    cat: "Todas", query: "", mode: "Llevar", customer: "",
+    src: "Teléfono", phone: "", address: "", fee: 2.5, used: false,
+    cart: []
+  };
+
+  chip(active) {
+    return active
+      ? { bg: "#14181d", fg: "#fff", border: "#14181d" }
+      : { bg: "#fff", fg: "#5b6673", border: "#dfe2e7" };
+  }
+
+  add(p) {
+    this.setState((s) => {
+      const hit = s.cart.find((c) => c.name === p.name);
+      return {
+        cart: hit
+          ? s.cart.map((c) => (c.name === p.name ? { ...c, qty: c.qty + 1 } : c))
+          : s.cart.concat({ name: p.name, unit: p.price, qty: 1 })
+      };
+    });
+  }
+
+  bump(name, d) {
+    this.setState((s) => ({
+      cart: s.cart.map((c) => (c.name === name ? { ...c, qty: c.qty + d } : c)).filter((c) => c.qty > 0)
+    }));
+  }
+
+  renderVals() {
+    const s = this.state;
+    const taxRate = this.props.taxRate ?? 15;
+    const activeTab = { bg: "#fff", fg: "#14181d", shadow: "0 1px 3px rgba(20,24,29,.12)" };
+    const idleTab = { bg: "transparent", fg: "#6d7681", shadow: "none" };
+
+    const q = norm(s.query.trim());
+    const filtered = PRODUCTS.filter((p) => {
+      const inCat = s.cat === "Todas" || p.cat === CAT_MAP[s.cat];
+      const inQ = !q || norm(p.name).includes(q) || norm(p.desc).includes(q);
+      return inCat && inQ;
+    });
+
+    const qtyOf = (name) => {
+      const hit = s.cart.find((c) => c.name === name);
+      return hit ? hit.qty : 0;
+    };
+
+    const subtotal = s.cart.reduce((a, c) => a + c.unit * c.qty, 0);
+    const tax = subtotal * (taxRate / 100);
+    const isDelivery = s.mode === "Delivery";
+    const total = subtotal + tax + (isDelivery ? s.fee : 0);
+    const known = KNOWN[s.phone.trim()];
+    const ready = s.cart.length > 0 && (!isDelivery || (s.address.trim().length > 3 && s.phone.trim().length > 6));
+
+    return {
+      query: s.query,
+      hasQuery: s.query.length > 0,
+      onQuery: (e) => this.setState({ query: e.target.value }),
+      clearQuery: () => this.setState({ query: "" }),
+
+      cats: CATS.map((c) => {
+        const active = s.cat === c.label;
+        return {
+          label: c.label, count: c.count, initial: c.initial,
+          iconBg: c.iconBg, iconFg: c.iconFg,
+          border: active ? "#c8102e" : "#e6e8ec",
+          shadow: active ? "0 6px 14px rgba(200,16,46,.12)" : "none",
+          onClick: () => this.setState({ cat: c.label })
+        };
+      }),
+
+      products: filtered.map((p) => ({
+        cat: p.cat, name: p.name, desc: p.desc, price: money(p.price),
+        qty: qtyOf(p.name), inCart: qtyOf(p.name) > 0,
+        onClick: () => this.add(p)
+      })),
+      noResults: filtered.length === 0,
+
+      modes: ["Servirse", "Llevar", "Delivery"].map((m) => {
+        const t = s.mode === m ? activeTab : idleTab;
+        return { label: m, bg: t.bg, fg: t.fg, shadow: t.shadow, onClick: () => this.setState({ mode: m }) };
+      }),
+      isDelivery,
+
+      customer: s.customer,
+      onCustomer: (e) => this.setState({ customer: e.target.value }),
+
+      sources: ["Teléfono", "WhatsApp"].map((x) => ({
+        label: x, ...this.chip(s.src === x), onClick: () => this.setState({ src: x })
+      })),
+      srcLabel: "Tomado por " + s.src.toLowerCase(),
+      srcFg: "#98a1ab",
+
+      phone: s.phone, address: s.address,
+      onPhone: (e) => this.setState({ phone: e.target.value, used: false }),
+      onAddress: (e) => this.setState({ address: e.target.value }),
+      showSuggestion: !!known && !s.used,
+      sugName: known ? known.name : "",
+      sugAddress: known ? known.address : "",
+      useSuggestion: () => known && this.setState({ customer: known.name, address: known.address, used: true }),
+
+      feeOptions: FEES.map((f) => ({
+        label: money(f), ...this.chip(s.fee === f), onClick: () => this.setState({ fee: f })
+      })),
+
+      cart: s.cart.map((c) => ({
+        name: c.name, qty: c.qty, unit: money(c.unit), line: money(c.unit * c.qty),
+        inc: () => this.bump(c.name, 1),
+        dec: () => this.bump(c.name, -1)
+      })),
+      cartEmpty: s.cart.length === 0,
+      clearCart: () => this.setState({ cart: [] }),
+      clearFg: s.cart.length ? "#c8102e" : "#c3c8ce",
+
+      subtotal: money(subtotal), tax: money(tax), fee: money(s.fee), total: money(total),
+      ctaBg: ready ? "#c8102e" : "#e9ebef",
+      ctaFg: ready ? "#fff" : "#a8afb8",
+      ctaShadow: ready ? "0 6px 16px rgba(200,16,46,.24)" : "none",
+      ctaCursor: ready ? "pointer" : "not-allowed",
+      ctaHint: !s.cart.length
+        ? "Agrega al menos un producto"
+        : isDelivery && !ready
+          ? "Falta teléfono y dirección de entrega"
+          : isDelivery
+            ? "Imprime comanda y ticket con la dirección"
+            : "Imprime la comanda para cocina"
+    };
+  }
+}
+</script>
+</body>
+</html>

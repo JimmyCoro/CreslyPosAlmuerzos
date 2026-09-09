@@ -1,0 +1,70 @@
+{% extends 'movil/base_movil.html' %}
+{% load static %}
+
+{% block title %}Inicio · Cresly POS{% endblock %}
+
+{% block content %}
+<div class="im-shell">
+
+  {% include 'components/pizzeria_header.html' %}
+  {% include 'components/pizzeria_alerta.html' %}
+  {% include 'components/pizzeria_subheader.html' %}
+
+  <main class="im-content">
+
+    <div class="im-card-venta">
+      <div class="im-venta-top">
+        <div class="im-venta-info">
+          <span class="im-venta-label">VENTA DEL TURNO</span>
+          <span class="im-venta-monto">${{ ventas_turno_total|floatformat:2 }}</span>
+        </div>
+      </div>
+      <div class="im-venta-footer">
+        <div class="im-venta-stat">
+          <span class="im-venta-stat-value">{{ ordenes_cobradas_turno }}</span>
+          <span class="im-venta-stat-label">órdenes cobradas</span>
+        </div>
+        <div class="im-venta-stat">
+          <span class="im-venta-stat-value">${{ ticket_promedio_turno|floatformat:2 }}</span>
+          <span class="im-venta-stat-label">ticket promedio</span>
+        </div>
+      </div>
+    </div>
+
+    <a href="{% url 'pizzeria_ordenes' %}" class="im-card-cobrar">
+      <div class="im-cobrar-info">
+        <span class="im-cobrar-label">POR COBRAR</span>
+        <span class="im-cobrar-monto">${{ total_por_cobrar|floatformat:2 }}</span>
+        <span class="im-cobrar-sub">{{ ordenes_abiertas }} {% if ordenes_abiertas == 1 %}orden abierta{% else %}órdenes abiertas{% endif %} · {{ mesas_ocupadas }} mesa{{ mesas_ocupadas|pluralize }}</span>
+      </div>
+      <span class="im-cobrar-chevron"><i class="bi bi-chevron-right"></i></span>
+    </a>
+
+    <div class="im-card-caja">
+      <div class="im-caja-header">
+        <div class="im-caja-header-info">
+          <span class="im-caja-label">DINERO EN CAJA</span>
+          <span class="im-caja-total">${{ ventas_turno_total|floatformat:2 }}</span>
+        </div>
+        <a href="{% url 'pizzeria_dashboard_caja' %}" class="im-caja-link">Ver corte</a>
+      </div>
+
+      {% include 'movil/_caja_barra.html' %}
+
+      <div class="im-gaveta">
+        <div class="im-gaveta-info">
+          <span class="im-gaveta-label">EFECTIVO EN GAVETA</span>
+          <span class="im-gaveta-sub">Fondo inicial ${{ fondo_inicial_efectivo|floatformat:2 }}</span>
+        </div>
+        <span class="im-gaveta-monto">${{ efectivo_en_gaveta|floatformat:2 }}</span>
+      </div>
+    </div>
+
+    {% include 'movil/_accesos_rapidos.html' %}
+
+  </main>
+
+  {% include 'components/pizzeria_bottom_nav.html' %}
+
+</div>
+{% endblock %}

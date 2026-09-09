@@ -1,6 +1,13 @@
 (function () {
   const ITEMS = window.PZ_ITEMS_COBRO || [];
   const TOTAL_PEDIDO = window.PZ_TOTAL_PEDIDO || 0;
+  // El backend valida (y registra en caja) los pagos con IVA incluido —
+  // ver procesar_cobro_pedido / handoff_cobrar. TOTAL_PEDIDO ya viene con
+  // IVA desde el template; el subtotal por persona al dividir cuenta se
+  // calcula acá desde precio_unitario (sin IVA), así que hay que aplicarlo
+  // también acá para que la suma de pagos por persona cuadre con el
+  // servidor.
+  const IVA_TASA = window.PZ_IVA_TASA || 0;
   const METODOS = ['Efectivo', 'Tarjeta', 'Transferencia'];
   const ICONOS_METODO = { Efectivo: 'fa-money-bill-wave', Tarjeta: 'fa-credit-card', Transferencia: 'fa-right-left' };
   const BILLETES_USD = [5, 10, 20, 50, 100];
@@ -39,7 +46,7 @@
       const cant = persona.asignaciones[claveItem(item)] || 0;
       total += cant * item.precio_unitario;
     });
-    return total;
+    return Math.round(total * (1 + IVA_TASA) * 100) / 100;
   }
 
   // ---------- Contexto de pago activo (pedido completo o persona activa) ----------

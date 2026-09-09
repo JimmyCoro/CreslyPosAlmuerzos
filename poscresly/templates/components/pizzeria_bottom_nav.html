@@ -1,27 +1,31 @@
 {% load static %}
-<!-- Navbar inferior flotante del módulo Pizzería (≤1023px). Componente
-     independiente: no reutiliza clases ni colores del navbar de Almuerzos.
-     Estilo "pill" flotante con iconos sin texto + FAB separado, con el
-     acento verde (--secondary-color) del sidebar de Pizzería. -->
-<div class="pzbn" id="pzBottomNav">
-  <div class="pzbn-pill">
-    <a href="{% url 'pizzeria_inicio' %}" class="pzbn-link {% if request.path == '/pizzeria/' %}pzbn-active{% endif %}" title="Inicio" aria-label="Inicio">
-      <i class="fas fa-house"></i>
-    </a>
-    <a href="{% url 'pizzeria_mapa_mesas' %}" class="pzbn-link {% if request.path == '/pizzeria/mesas/' %}pzbn-active{% endif %}" title="Mesas" aria-label="Mesas">
-      <i class="fas fa-border-all"></i>
-    </a>
-    <a href="{% url 'pizzeria_ordenes' %}" class="pzbn-link {% if '/pizzeria/ordenes/' in request.path %}pzbn-active{% endif %}" title="Órdenes" aria-label="Órdenes">
-      <i class="fas fa-receipt"></i>
-    </a>
-    <a href="{% url 'pizzeria_delivery' %}" class="pzbn-link {% if '/pizzeria/delivery/' in request.path %}pzbn-active{% endif %}" title="Delivery" aria-label="Delivery">
-      <i class="fas fa-motorcycle"></i>
-    </a>
-  </div>
-  <a href="{% url 'pizzeria_nueva_orden' %}" class="pzbn-fab" title="Nueva orden" aria-label="Nueva orden">
-    <i class="fas fa-plus"></i>
+<!-- Navbar inferior del módulo Pizzería (≤1023px). Único partial para
+     toda la app — Inicio móvil (templates/movil/inicio.html) lo incluye
+     igual que Mesas/Órdenes/Delivery, ya no tiene su propia copia. Barra
+     blanca de ancho completo, tabs con ícono+texto, FAB circular elevado
+     y centrado para "Nueva orden". -->
+<nav class="pzbn" id="pzBottomNav" aria-label="Navegación principal">
+  <a href="{% url 'pizzeria_inicio' %}" class="pzbn-tab{% if request.path == '/pizzeria/' or request.path == '/pizzeria/movil/' %} pzbn-tab-active{% endif %}"{% if request.path == '/pizzeria/' or request.path == '/pizzeria/movil/' %} aria-current="page"{% endif %}>
+    <i class="bi bi-house"></i>
+    <span class="pzbn-tab-label">Inicio</span>
   </a>
-</div>
+  <a href="{% url 'pizzeria_mapa_mesas' %}" class="pzbn-tab{% if request.path == '/pizzeria/mesas/' %} pzbn-tab-active{% endif %}"{% if request.path == '/pizzeria/mesas/' %} aria-current="page"{% endif %}>
+    <i class="bi bi-grid-3x3-gap"></i>
+    <span class="pzbn-tab-label">Mesas</span>
+  </a>
+  <a href="{% url 'pizzeria_nueva_orden' %}" class="pzbn-fab" title="Nueva orden" aria-label="Nueva orden">
+    <i class="bi bi-plus-lg"></i>
+  </a>
+  <a href="{% url 'pizzeria_ordenes' %}" class="pzbn-tab{% if '/pizzeria/ordenes/' in request.path %} pzbn-tab-active{% endif %}"{% if '/pizzeria/ordenes/' in request.path %} aria-current="page"{% endif %}>
+    <i class="bi bi-list-ul"></i>
+    <span class="pzbn-tab-label">Órdenes</span>
+    {% if pz_ordenes_abiertas %}<span class="pzbn-tab-badge">{{ pz_ordenes_abiertas }}</span>{% endif %}
+  </a>
+  <a href="{% url 'pizzeria_delivery' %}" class="pzbn-tab{% if '/pizzeria/delivery/' in request.path %} pzbn-tab-active{% endif %}"{% if '/pizzeria/delivery/' in request.path %} aria-current="page"{% endif %}>
+    <i class="bi bi-scooter"></i>
+    <span class="pzbn-tab-label">Delivery</span>
+  </a>
+</nav>
 
 <script>
   // El navbar vive dentro de .main-content (overflow:hidden). En varios
@@ -46,8 +50,8 @@
       }
       if (esAngosto) {
         // Distancia real desde el borde inferior del viewport hasta la
-        // parte de arriba del navbar (incluye su propio margen flotante),
-        // que es el espacio que el carrito/contenido debe respetar.
+        // parte de arriba del navbar, que es el espacio que el
+        // carrito/contenido debe respetar (ver --pz-bottomnav-h).
         var rect = nav.getBoundingClientRect();
         var espacio = window.innerHeight - rect.top;
         document.documentElement.style.setProperty('--pz-bottomnav-h', espacio + 'px');

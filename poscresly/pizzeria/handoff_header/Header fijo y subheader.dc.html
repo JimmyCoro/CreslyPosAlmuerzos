@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  html, body { margin:0; padding:0; background:#eceef1; }
+  * { box-sizing:border-box; }
+  a { color:#c8102e; text-decoration:none; }
+  a:hover { color:#9c0c23; }
+</style>
+</helmet>
+
+<section style="padding:40px;display:flex;flex-direction:column;gap:34px;font-family:'Plus Jakarta Sans',Helvetica,Arial,sans-serif;color:#14181d;font-feature-settings:'tnum' 1">
+
+  <div style="display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap">
+    <span style="padding:5px 11px;border-radius:999px;background:#14181d;color:#fff;font-size:12px;font-weight:800;letter-spacing:.04em">3</span>
+    <div style="display:flex;flex-direction:column;gap:5px">
+      <h1 style="margin:0;font-size:28px;font-weight:800;letter-spacing:-.025em">Header fijo + subheader dinámico</h1>
+      <p style="margin:0;font-size:14px;color:#4a545f;max-width:790px;text-wrap:pretty">Dos piezas independientes. El header (52 px) es idéntico en todas las pantallas y nunca cambia. El subheader lo define cada módulo: 56 px base, 92 px con segunda línea de chips, 104 px con campo de búsqueda.</p>
+    </div>
+  </div>
+
+  <!-- ============ HEADER FIJO ============ -->
+  <div style="display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start">
+
+    <div style="display:flex;flex-direction:column;gap:11px">
+      <div style="display:flex;flex-direction:column;gap:2px">
+        <span style="font-size:15px;font-weight:800;letter-spacing:-.015em">Header fijo · 52 px</span>
+        <span style="font-size:12px;color:#4a545f">Cuatro elementos, siempre en el mismo lugar.</span>
+      </div>
+
+      <div style="width:390px;display:flex;flex-direction:column;gap:16px">
+        <div>
+          <span style="display:block;font-size:11px;font-weight:800;letter-spacing:.07em;color:#5b6673;padding-bottom:6px">TEMA CLARO</span>
+          <div style="display:flex;align-items:center;gap:8px;height:52px;padding:0 12px;background:#fff;border:1px solid #d6dae0;border-radius:12px">
+            <div style="width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;cursor:pointer" style-hover="background:#f4f5f7">
+              <span style="font-size:17px;color:#14181d">☰</span>
+            </div>
+            <div style="flex:1;min-width:0;display:flex;align-items:center;gap:9px">
+              <div style="width:30px;height:30px;border-radius:9px;background:#c8102e;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex:0 0 auto">C</div>
+              <div style="min-width:0;display:flex;flex-direction:column;gap:0">
+                <span style="font-size:13.5px;font-weight:800;letter-spacing:-.015em;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Cresly Pizzería</span>
+                <span style="font-size:10.5px;color:#8a929c;font-weight:600;line-height:1.2">Suc. Centro</span>
+              </div>
+            </div>
+            <div style="width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;cursor:pointer" style-hover="background:#f4f5f7">
+              <span style="font-size:16px;color:#5b6673">☾</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:7px;padding:4px 8px 4px 4px;border-radius:11px;flex:0 0 auto;cursor:pointer" style-hover="background:#f4f5f7">
+              <div style="width:34px;height:34px;border-radius:50%;background:#14181d;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800">M</div>
+              <span style="font-size:8px;color:#8a929c">▼</span>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <span style="display:block;font-size:11px;font-weight:800;letter-spacing:.07em;color:#5b6673;padding-bottom:6px">TEMA OSCURO</span>
+          <div style="display:flex;align-items:center;gap:8px;height:52px;padding:0 12px;background:#1a1f25;border:1px solid #2b333b;border-radius:12px">
+            <div style="width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:0 0 auto">
+              <span style="font-size:17px;color:#eceef1">☰</span>
+            </div>
+            <div style="flex:1;min-width:0;display:flex;align-items:center;gap:9px">
+              <div style="width:30px;height:30px;border-radius:9px;background:#e02040;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex:0 0 auto">C</div>
+              <div style="min-width:0;display:flex;flex-direction:column;gap:0">
+                <span style="font-size:13.5px;font-weight:800;letter-spacing:-.015em;line-height:1.2;color:#f2f4f6">Cresly Pizzería</span>
+                <span style="font-size:10.5px;color:#8d97a2;font-weight:600;line-height:1.2">Suc. Centro</span>
+              </div>
+            </div>
+            <div style="width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;background:#242b33">
+              <span style="font-size:16px;color:#ffd479">☀</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:7px;padding:4px 8px 4px 4px;border-radius:11px;flex:0 0 auto">
+              <div style="width:34px;height:34px;border-radius:50%;background:#333c45;color:#f2f4f6;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800">M</div>
+              <span style="font-size:8px;color:#8d97a2">▼</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="flex:1;min-width:300px;max-width:480px;display:flex;flex-direction:column;gap:11px">
+      <span style="font-size:15px;font-weight:800;letter-spacing:-.015em">Los cuatro elementos</span>
+      <div style="background:#fff;border:1px solid #d6dae0;border-radius:14px;overflow:hidden">
+        <div style="display:grid;grid-template-columns:32px 96px minmax(0,1fr);padding:11px 15px;background:#fafbfc;border-bottom:1px solid #eef0f3;font-size:10px;font-weight:800;letter-spacing:.08em;color:#8a929c">
+          <div></div><div>ELEMENTO</div><div>NOTA</div>
+        </div>
+        <div style="display:grid;grid-template-columns:32px 96px minmax(0,1fr);padding:12px 15px;border-bottom:1px solid #f2f4f6;font-size:12.5px;align-items:baseline">
+          <div style="font-size:15px">☰</div>
+          <div style="font-weight:800">Menú</div>
+          <div style="color:#4a545f;line-height:1.5">Abre el panel lateral. 44 px, siempre a la izquierda.</div>
+        </div>
+        <div style="display:grid;grid-template-columns:32px 96px minmax(0,1fr);padding:12px 15px;border-bottom:1px solid #f2f4f6;font-size:12.5px;align-items:baseline">
+          <div style="font-size:15px">◧</div>
+          <div style="font-weight:800">Logo</div>
+          <div style="color:#4a545f;line-height:1.5">Marca 30 px + nombre y sucursal. Toca para cambiar de sucursal.</div>
+        </div>
+        <div style="display:grid;grid-template-columns:32px 96px minmax(0,1fr);padding:12px 15px;border-bottom:1px solid #f2f4f6;font-size:12.5px;align-items:baseline">
+          <div style="font-size:15px">☾</div>
+          <div style="font-weight:800">Tema</div>
+          <div style="color:#4a545f;line-height:1.5">☾ en claro, ☀ en oscuro. Cambio inmediato, se guarda por usuario.</div>
+        </div>
+        <div style="display:grid;grid-template-columns:32px 96px minmax(0,1fr);padding:12px 15px;font-size:12.5px;align-items:baseline">
+          <div style="font-size:15px">◕</div>
+          <div style="font-weight:800">Usuario</div>
+          <div style="color:#4a545f;line-height:1.5">Avatar 34 px. Abre perfil, cambiar usuario y cerrar sesión.</div>
+        </div>
+      </div>
+      <div style="background:#fff;border:1px solid #d6dae0;border-radius:14px;padding:15px 17px;display:flex;flex-direction:column;gap:5px">
+        <span style="font-size:11px;font-weight:800;letter-spacing:.09em;color:#8a929c">DÓNDE QUEDÓ EL ESTADO</span>
+        <span style="font-size:12.5px;color:#4a545f;line-height:1.55">Turno, impresora y conexión ya no viven en el header: pasan al subheader de Inicio, y si algo falla aparecen como cinta de alerta bajo el header en cualquier pantalla.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SUBHEADERS ============ -->
+  <div style="display:flex;flex-direction:column;gap:15px">
+    <div style="display:flex;flex-direction:column;gap:3px">
+      <span style="font-size:16px;font-weight:800;letter-spacing:-.02em">Subheader por pantalla</span>
+      <span style="font-size:12.5px;color:#4a545f">Cada módulo define el suyo. El header de arriba es el mismo en los diez casos.</span>
+    </div>
+
+    <div style="display:flex;flex-wrap:wrap;gap:16px">
+
+      <sc-for list="{{ screens }}" as="s" hint-placeholder-count="8">
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <span style="font-size:11.5px;font-weight:800;color:#5b6673;letter-spacing:.04em">{{ s.label }}</span>
+          <div style="width:390px;background:#fff;border:1px solid #d6dae0;border-radius:14px;overflow:hidden">
+
+            <div style="display:flex;align-items:center;gap:8px;height:52px;padding:0 12px;border-bottom:1px solid #eef0f3">
+              <div style="width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:0 0 auto"><span style="font-size:17px;color:#14181d">☰</span></div>
+              <div style="flex:1;min-width:0;display:flex;align-items:center;gap:9px">
+                <div style="width:30px;height:30px;border-radius:9px;background:#c8102e;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex:0 0 auto">C</div>
+                <div style="min-width:0;display:flex;flex-direction:column;gap:0">
+                  <span style="font-size:13.5px;font-weight:800;letter-spacing:-.015em;line-height:1.2">Cresly Pizzería</span>
+                  <span style="font-size:10.5px;color:#8a929c;font-weight:600;line-height:1.2">Suc. Centro</span>
+                </div>
+              </div>
+              <div style="width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:0 0 auto"><span style="font-size:16px;color:#5b6673">☾</span></div>
+              <div style="display:flex;align-items:center;gap:7px;padding:4px 8px 4px 4px;border-radius:11px;flex:0 0 auto">
+                <div style="width:34px;height:34px;border-radius:50%;background:#14181d;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800">M</div>
+                <span style="font-size:8px;color:#8a929c">▼</span>
+              </div>
+            </div>
+
+            <div style="background:#fafbfc">
+              <div style="display:flex;align-items:center;gap:10px;min-height:{{ s.rowHeight }};padding:{{ s.rowPad }}">
+                <sc-if value="{{ s.hasBack }}" hint-placeholder-val="{{ false }}">
+                  <div style="width:38px;height:38px;border-radius:11px;border:1px solid #e6e8ec;background:#fff;display:flex;align-items:center;justify-content:center;flex:0 0 auto"><span style="font-size:15px;color:#5b6673">{{ s.backGlyph }}</span></div>
+                </sc-if>
+                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                  <div style="display:flex;align-items:center;gap:8px;min-width:0">
+                    <span style="font-size:{{ s.titleSize }};font-weight:800;letter-spacing:-.02em;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ s.title }}</span>
+                    <sc-if value="{{ s.hasPill }}" hint-placeholder-val="{{ false }}">
+                      <span style="display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:999px;background:{{ s.pillBg }};color:{{ s.pillFg }};font-size:10.5px;font-weight:800;flex:0 0 auto">
+                        <span style="width:5px;height:5px;border-radius:50%;background:{{ s.pillDot }}"></span>{{ s.pill }}
+                      </span>
+                    </sc-if>
+                  </div>
+                  <sc-if value="{{ s.hasSub }}" hint-placeholder-val="{{ true }}">
+                    <span style="font-size:11px;color:#8a929c;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ s.subPre }}<strong style="font-weight:800;color:{{ s.hiColor }}">{{ s.subHi }}</strong>{{ s.subPost }}</span>
+                  </sc-if>
+                </div>
+                <sc-if value="{{ s.hasAction }}" hint-placeholder-val="{{ false }}">
+                  <div style="flex:0 0 auto;display:flex;align-items:center;gap:6px">
+                    <sc-for list="{{ s.actions }}" as="a" hint-placeholder-count="1">
+                      <div style="min-height:38px;display:flex;align-items:center;justify-content:center;padding:{{ a.pad }};border-radius:11px;background:{{ a.bg }};border:1px solid {{ a.border }};color:{{ a.fg }};font-size:{{ a.size }};font-weight:{{ a.weight }};white-space:nowrap">{{ a.label }}</div>
+                    </sc-for>
+                  </div>
+                </sc-if>
+              </div>
+
+              <sc-if value="{{ s.hasChips }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;align-items:center;gap:7px;padding:0 14px 11px;overflow:hidden">
+                  <sc-for list="{{ s.chips }}" as="c" hint-placeholder-count="4">
+                    <span style="flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:{{ c.bg }};border:1px solid {{ c.border }};color:{{ c.fg }};font-size:11.5px;font-weight:{{ c.weight }}">
+                      <sc-if value="{{ c.hasDot }}" hint-placeholder-val="{{ false }}">
+                        <span style="width:6px;height:6px;border-radius:50%;background:{{ c.dot }}"></span>
+                      </sc-if>{{ c.label }}
+                    </span>
+                  </sc-for>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ s.hasSearch }}" hint-placeholder-val="{{ false }}">
+                <div style="padding:0 14px 11px">
+                  <div style="display:flex;align-items:center;gap:9px;padding:11px 13px;border-radius:11px;background:#fff;border:1px solid #e6e8ec">
+                    <span style="font-size:13px;color:#a8afb8">⌕</span>
+                    <span style="font-size:13.5px;color:#a8afb8;font-weight:500">{{ s.searchText }}</span>
+                  </div>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ s.hasProgress }}" hint-placeholder-val="{{ false }}">
+                <div style="height:3px;background:#eef0f3">
+                  <div style="height:100%;width:50%;background:#c8102e"></div>
+                </div>
+              </sc-if>
+            </div>
+          </div>
+          <span style="font-size:11.5px;color:#4a545f;width:390px;line-height:1.5">{{ s.note }}</span>
+        </div>
+      </sc-for>
+
+    </div>
+  </div>
+
+  <!-- ============ ALERTA ============ -->
+  <div style="display:flex;flex-direction:column;gap:15px">
+    <div style="display:flex;flex-direction:column;gap:3px">
+      <span style="font-size:16px;font-weight:800;letter-spacing:-.02em">Cinta de alerta</span>
+      <span style="font-size:12.5px;color:#4a545f">Se inserta entre header y subheader, en cualquier pantalla. Es la única pieza que puede aparecer sin aviso.</span>
+    </div>
+
+    <div style="display:flex;flex-wrap:wrap;gap:16px">
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <span style="font-size:11.5px;font-weight:800;color:#5b6673;letter-spacing:.04em">IMPRESORA CAÍDA</span>
+        <div style="width:390px;background:#fff;border:1px solid #d6dae0;border-radius:14px;overflow:hidden">
+          <div style="display:flex;align-items:center;gap:8px;height:52px;padding:0 12px">
+            <div style="width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:0 0 auto"><span style="font-size:17px">☰</span></div>
+            <div style="flex:1;min-width:0;display:flex;align-items:center;gap:9px">
+              <div style="width:30px;height:30px;border-radius:9px;background:#c8102e;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex:0 0 auto">C</div>
+              <div style="min-width:0;display:flex;flex-direction:column;gap:0">
+                <span style="font-size:13.5px;font-weight:800;letter-spacing:-.015em;line-height:1.2">Cresly Pizzería</span>
+                <span style="font-size:10.5px;color:#8a929c;font-weight:600;line-height:1.2">Suc. Centro</span>
+              </div>
+            </div>
+            <div style="width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:0 0 auto"><span style="font-size:16px;color:#5b6673">☾</span></div>
+            <div style="display:flex;align-items:center;gap:7px;padding:4px 8px 4px 4px;border-radius:11px;flex:0 0 auto">
+              <div style="width:34px;height:34px;border-radius:50%;background:#14181d;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800">M</div>
+              <span style="font-size:8px;color:#8a929c">▼</span>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 14px;background:#fdecef;border-top:1px solid #f4d3d9">
+            <div style="display:flex;align-items:center;gap:8px;min-width:0">
+              <span style="font-size:12px;color:#a90d27">⎙</span>
+              <span style="font-size:11.5px;font-weight:800;color:#a90d27;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Impresora de cocina sin responder</span>
+            </div>
+            <span style="padding:5px 11px;border-radius:8px;background:#c8102e;color:#fff;font-size:11px;font-weight:800;white-space:nowrap;flex:0 0 auto">Reintentar</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;min-height:52px;padding:8px 14px;background:#fafbfc;border-top:1px solid #eef0f3">
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+              <span style="font-size:17px;font-weight:800;letter-spacing:-.02em;line-height:1.2">Órdenes</span>
+              <span style="font-size:11px;color:#8a929c;font-weight:600">6 abiertas · <strong style="font-weight:800;color:#c8102e">$145.30</strong> sin cobrar</span>
+            </div>
+            <div style="width:38px;height:38px;border-radius:11px;background:#fff;border:1px solid #e6e8ec;display:flex;align-items:center;justify-content:center;flex:0 0 auto"><span style="font-size:15px;color:#5b6673">⌕</span></div>
+          </div>
+        </div>
+        <span style="font-size:11.5px;color:#4a545f;width:390px;line-height:1.5">La cinta empuja el subheader hacia abajo, no lo reemplaza: el título del módulo nunca desaparece.</span>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <span style="font-size:11.5px;font-weight:800;color:#5b6673;letter-spacing:.04em">SIN CONEXIÓN</span>
+        <div style="width:390px;background:#fff;border:1px solid #d6dae0;border-radius:14px;overflow:hidden">
+          <div style="display:flex;align-items:center;gap:8px;height:52px;padding:0 12px">
+            <div style="width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:0 0 auto"><span style="font-size:17px">☰</span></div>
+            <div style="flex:1;min-width:0;display:flex;align-items:center;gap:9px">
+              <div style="width:30px;height:30px;border-radius:9px;background:#c8102e;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex:0 0 auto">C</div>
+              <div style="min-width:0;display:flex;flex-direction:column;gap:0">
+                <span style="font-size:13.5px;font-weight:800;letter-spacing:-.015em;line-height:1.2">Cresly Pizzería</span>
+                <span style="font-size:10.5px;color:#8a929c;font-weight:600;line-height:1.2">Suc. Centro</span>
+              </div>
+            </div>
+            <div style="width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:0 0 auto"><span style="font-size:16px;color:#5b6673">☾</span></div>
+            <div style="display:flex;align-items:center;gap:7px;padding:4px 8px 4px 4px;border-radius:11px;flex:0 0 auto">
+              <div style="width:34px;height:34px;border-radius:50%;background:#14181d;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800">M</div>
+              <span style="font-size:8px;color:#8a929c">▼</span>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 14px;background:#fdf3e2;border-top:1px solid #f2e0bd">
+            <div style="display:flex;align-items:center;gap:8px;min-width:0">
+              <span style="font-size:12px;color:#8a5800">⇅</span>
+              <span style="font-size:11.5px;font-weight:800;color:#8a5800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Sin conexión · 4 órdenes por enviar</span>
+            </div>
+            <span style="font-size:11px;font-weight:800;color:#8a5800;white-space:nowrap;flex:0 0 auto">Se guardan aquí</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;min-height:52px;padding:8px 14px;background:#fafbfc;border-top:1px solid #eef0f3">
+            <div style="width:38px;height:38px;border-radius:11px;border:1px solid #e6e8ec;background:#fff;display:flex;align-items:center;justify-content:center;flex:0 0 auto"><span style="font-size:15px;color:#5b6673">‹</span></div>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+              <span style="font-size:17px;font-weight:800;letter-spacing:-.02em;line-height:1.2">Mesa 6 · Salón</span>
+              <span style="font-size:11px;color:#8a929c;font-weight:600">Orden nueva · <strong style="font-weight:800;color:#4a545f">2 personas</strong></span>
+            </div>
+          </div>
+        </div>
+        <span style="font-size:11.5px;color:#4a545f;width:390px;line-height:1.5">Máximo una cinta a la vez. Si coinciden dos fallos, gana el que bloquea cobrar.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ RESUMEN ============ -->
+  <div style="display:flex;flex-direction:column;gap:11px">
+    <span style="font-size:16px;font-weight:800;letter-spacing:-.02em">Resumen del subheader</span>
+    <div style="max-width:1080px;background:#fff;border:1px solid #d6dae0;border-radius:14px;overflow:hidden">
+      <div style="display:grid;grid-template-columns:150px 60px minmax(0,1.4fr) 106px minmax(0,.9fr);padding:11px 16px;background:#fafbfc;border-bottom:1px solid #eef0f3;font-size:10px;font-weight:800;letter-spacing:.08em;color:#8a929c">
+        <div>PANTALLA</div><div>ATRÁS</div><div>TÍTULO / SUB-LÍNEA</div><div>ACCIÓN</div><div>SEGUNDA LÍNEA</div>
+      </div>
+      <sc-for list="{{ rows }}" as="r" hint-placeholder-count="8">
+        <div style="display:grid;grid-template-columns:150px 60px minmax(0,1.4fr) 106px minmax(0,.9fr);padding:11px 16px;border-bottom:1px solid #f2f4f6;font-size:12px;align-items:center">
+          <div style="font-weight:800;min-width:0">{{ r.screen }}</div>
+          <div style="font-weight:700;color:#c8102e">{{ r.back }}</div>
+          <div style="color:#4a545f;min-width:0;padding-right:12px">{{ r.title }}</div>
+          <div style="font-weight:700;color:#8a5800;min-width:0">{{ r.action }}</div>
+          <div style="color:#4a545f;min-width:0">{{ r.second }}</div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const chip = (label, active) => ({
+  label,
+  bg: active ? "#14181d" : "#fff",
+  fg: active ? "#fff" : "#5b6673",
+  border: active ? "#14181d" : "#dfe2e7",
+  weight: 700,
+  hasDot: false,
+  dot: "transparent"
+});
+
+const statusChip = (label, tone) => {
+  const t = {
+    ok:   { bg: "#eaf6ef", fg: "#1c7a4a", border: "#cfeadb", dot: "#23a05f" },
+    idle: { bg: "#fff",    fg: "#4a545f", border: "#dfe2e7", dot: "#23a05f" }
+  }[tone];
+  return { label, bg: t.bg, fg: t.fg, border: t.border, weight: 800, hasDot: true, dot: t.dot };
+};
+
+const ghost = (label) => ({ label, pad: "0 12px", bg: "#fff", border: "#e6e8ec", fg: "#5b6673", size: "15px", weight: 700 });
+const text = (label, color) => ({ label, pad: "0 10px", bg: "transparent", border: "transparent", fg: color, size: "12.5px", weight: 700 });
+
+const SCREENS = [
+  {
+    label: "INICIO", title: "Inicio", titleSize: "18px",
+    subPre: "", subHi: "Turno abierto", hiColor: "#1c7a4a", subPost: " desde las 11:00",
+    rowHeight: "52px", rowPad: "8px 14px 6px",
+    chips: [statusChip("Turno 11:00", "ok"), statusChip("Cocina", "idle"), statusChip("En línea", "idle")],
+    note: "Aquí vive el estado operativo: turno, impresora y conexión. Es la pantalla donde se revisa antes de empezar."
+  },
+  {
+    label: "MESAS", title: "Mesas", titleSize: "18px",
+    subPre: "", subHi: "8 libres", hiColor: "#1c7a4a", subPost: " de 13 · 4 en servicio",
+    rowHeight: "52px", rowPad: "8px 14px 6px",
+    actions: [ghost("⌕")],
+    chips: [chip("Todas", true), chip("Salón"), chip("Centro"), chip("Terraza"), chip("Barra")],
+    note: "Segunda línea con zonas: con 13 mesas, filtrar por zona se usa más que buscar."
+  },
+  {
+    label: "ÓRDENES", title: "Órdenes", titleSize: "18px",
+    subPre: "6 abiertas · ", subHi: "$145.30", hiColor: "#c8102e", subPost: " sin cobrar",
+    rowHeight: "52px", rowPad: "8px 14px 6px",
+    actions: [ghost("⌕")],
+    chips: [chip("Todas", true), chip("En cocina"), chip("Servidas"), chip("Pagadas")],
+    note: "El dato de apoyo es el dinero pendiente, que es la razón por la que se entra."
+  },
+  {
+    label: "DELIVERY", title: "Delivery", titleSize: "18px",
+    subPre: "5 en curso · ", subHi: "2 fuera de tiempo", hiColor: "#c8102e", subPost: "",
+    rowHeight: "52px", rowPad: "8px 14px 6px",
+    actions: [ghost("⌕")],
+    chips: [chip("En curso", true), chip("En cocina"), chip("En ruta"), chip("Entregado")],
+    note: "Los pedidos fuera de tiempo van en la sub-línea: es la única alerta propia del módulo."
+  },
+  {
+    label: "VENDER", hasBack: true, backGlyph: "‹", title: "Mesa 6 · Salón", titleSize: "17px",
+    subPre: "Orden nueva · ", subHi: "2 personas", hiColor: "#4a545f", subPost: "",
+    rowHeight: "52px", rowPad: "8px 14px 6px",
+    actions: [ghost("⋯")],
+    hasSearch: true, searchText: "Buscar producto…",
+    note: "El buscador es campo real, no icono: se usa constantemente. ⋯ abre asignar mesa, comensales y descuento."
+  },
+  {
+    label: "ORDEN (CARRITO)", hasBack: true, backGlyph: "✕", title: "Orden · Mesa 6", titleSize: "17px",
+    subPre: "", subHi: "3 productos", hiColor: "#4a545f", subPost: " · mesero1",
+    rowHeight: "56px", rowPad: "9px 14px",
+    actions: [text("Vaciar", "#c8102e")],
+    note: "✕ porque es un paso modal sobre Vender. “Vaciar” es texto: una acción destructiva debe leerse."
+  },
+  {
+    label: "COBRAR", hasBack: true, backGlyph: "‹", title: "Cobrar · Mesa 6", titleSize: "17px",
+    subPre: "Orden ", subHi: "#0154", hiColor: "#c8102e", subPost: " · 3 productos",
+    rowHeight: "56px", rowPad: "9px 14px",
+    note: "Sin acciones a la derecha. Dividir cuenta y descuento están en el cuerpo, donde se leen."
+  },
+  {
+    label: "DETALLE DE ORDEN", hasBack: true, backGlyph: "‹", title: "#0149", titleSize: "17px",
+    subPre: "Mesa 7 · Centro · ", subHi: "22 min", hiColor: "#8a5800", subPost: "",
+    rowHeight: "56px", rowPad: "9px 14px",
+    pill: "En cocina", pillBg: "#fdf3e2", pillFg: "#8a5800", pillDot: "#d99000",
+    actions: [ghost("⋯")],
+    note: "El estado va como pill junto al número: es el dato que se consulta al abrir."
+  },
+  {
+    label: "NUEVO PEDIDO DELIVERY", hasBack: true, backGlyph: "‹", title: "Nuevo pedido", titleSize: "17px",
+    subPre: "", subHi: "Paso 1 de 2", hiColor: "#c8102e", subPost: " · datos del cliente",
+    rowHeight: "56px", rowPad: "9px 14px",
+    actions: [text("Cancelar", "#8a929c")],
+    hasProgress: true,
+    note: "Único caso con barra de progreso: 3 px al borde inferior del subheader."
+  },
+  {
+    label: "CORTE DE CAJA", hasBack: true, backGlyph: "‹", title: "Corte de caja", titleSize: "17px",
+    subPre: "Turno ", subHi: "11:00 – 12:45", hiColor: "#4a545f", subPost: " · mesero1",
+    rowHeight: "56px", rowPad: "9px 14px",
+    actions: [ghost("⎙")],
+    note: "La acción derecha es imprimir, la única secundaria real de esta pantalla."
+  }
+];
+
+const ROWS = [
+  ["Inicio", "—", "Inicio / turno abierto", "—", "Chips de estado"],
+  ["Mesas", "—", "Mesas / libres de total", "⌕", "Filtro de zonas"],
+  ["Órdenes", "—", "Órdenes / pendiente por cobrar", "⌕", "Filtro de estado"],
+  ["Delivery", "—", "Delivery / en curso y demorados", "⌕", "Filtro de estado"],
+  ["Vender", "‹", "Mesa / orden y comensales", "⋯", "Campo de búsqueda"],
+  ["Orden (carrito)", "✕", "Orden · mesa / productos", "Vaciar", "—"],
+  ["Cobrar", "‹", "Cobrar · mesa / nº de orden", "—", "—"],
+  ["Detalle de orden", "‹", "Nº + pill / mesa y tiempo", "⋯", "—"],
+  ["Nuevo delivery", "‹", "Nuevo pedido / paso", "Cancelar", "Progreso 3 px"],
+  ["Corte de caja", "‹", "Corte / rango y usuario", "⎙", "—"]
+];
+
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      screens: SCREENS.map((s) => ({
+        label: s.label,
+        title: s.title,
+        titleSize: s.titleSize,
+        subPre: s.subPre || "",
+        subHi: s.subHi || "",
+        subPost: s.subPost || "",
+        hiColor: s.hiColor || "#4a545f",
+        hasSub: !!s.subHi,
+        rowHeight: s.rowHeight,
+        rowPad: s.rowPad,
+        hasBack: !!s.hasBack,
+        backGlyph: s.backGlyph || "",
+        hasPill: !!s.pill,
+        pill: s.pill || "",
+        pillBg: s.pillBg || "transparent",
+        pillFg: s.pillFg || "#14181d",
+        pillDot: s.pillDot || "transparent",
+        hasAction: !!(s.actions && s.actions.length),
+        actions: s.actions || [],
+        hasChips: !!(s.chips && s.chips.length),
+        chips: s.chips || [],
+        hasSearch: !!s.hasSearch,
+        searchText: s.searchText || "",
+        hasProgress: !!s.hasProgress,
+        note: s.note
+      })),
+      rows: ROWS.map((r) => ({ screen: r[0], back: r[1], title: r[2], action: r[3], second: r[4] }))
+    };
+  }
+}
+</script>
+</body>
+</html>

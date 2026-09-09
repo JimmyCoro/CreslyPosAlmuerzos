@@ -1,0 +1,16 @@
+<div class="do-linea" role="button" tabindex="0" data-item-id="{{ item.id }}" onclick="doAbrirHojaItem(this)">
+  <span class="do-linea-badge">{{ item.cantidad }}</span>
+  <div class="do-linea-info">
+    <span class="do-linea-nombre">{{ item.nombre_corto }}</span>
+    {% if item.modificadores %}<span class="do-linea-mods">{{ item.modificadores }}</span>{% endif %}
+  </div>
+  <button
+    type="button"
+    class="do-linea-estado do-linea-estado-{{ item.estado }}"
+    data-item-id="{{ item.id }}"
+    {% if item.estado == 'completo' %}disabled{% endif %}
+    onclick="doAvanzarItem(event, this)">
+    <span class="do-linea-estado-dot"></span>
+    <span class="do-linea-estado-label">{{ item.get_estado_display }}</span>
+  </button>
+</div>

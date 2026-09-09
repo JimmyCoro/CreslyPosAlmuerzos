@@ -29,6 +29,9 @@ wheels/
 *.sqlite3
 *.db
 
+# Estáticos generados por collectstatic (Railway los regenera en cada deploy)
+staticfiles/
+
 # Archivos de configuración local
 .env.local
 .env.development.local

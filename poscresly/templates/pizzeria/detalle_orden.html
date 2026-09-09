@@ -2,7 +2,8 @@
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'CSS/pizzeria-mapa.css' %}">
+<link rel="stylesheet" href="{% static 'CSS/pizzeria-cart-bar.css' %}">
+<link rel="stylesheet" href="{% static 'CSS/pizzeria-detalle-orden.css' %}?v=2">
 {% endblock %}
 
 {% block content %}
@@ -15,116 +16,117 @@
   </div>
   {% include 'components/topbar_right.html' %}
 </div>
+{% include 'components/pizzeria_header.html' %}
+{% include 'components/pizzeria_alerta.html' %}
+{% include 'components/pizzeria_subheader.html' %}
 
 <div class="container-fluid contenedor-principal">
   <div class="col-12 col-der">
 
     <div class="do-page">
-      <a href="{% url 'pizzeria_ordenes' %}" class="do-back"><i class="fas fa-arrow-left"></i> Órdenes</a>
 
-      <div class="do-card do-header-card">
-        <div class="do-header-top">
-          <h2 class="do-title">#{{ pedido.numero_pedido_completo }}</h2>
-          <span class="do-estado-pill do-estado-pill-{{ pedido.estado }}">
-            <span class="oc-status-dot oc-status-dot-{{ pedido.estado }}"></span>
-            {% if pedido.estado == 'por_cobrar' %}Por cobrar{% elif pedido.estado == 'cobrado' %}Cobrado{% elif pedido.estado == 'anulado' %}Anulado{% else %}En cocina{% endif %}
-          </span>
-        </div>
-
-        <div class="do-header-meta">
-          <span class="do-meta-item">
-            {% if pedido.tipo == 'mesa' %}<i class="fas fa-users"></i> Mesa {{ pedido.mesa.nombre|default:pedido.mesa.numero }}
-            {% elif pedido.tipo == 'delivery' %}<i class="fas fa-motorcycle"></i> Delivery{% if pedido.contacto %} · {{ pedido.contacto }}{% endif %}
-            {% else %}<i class="fas fa-bag-shopping"></i> Para llevar{% if pedido.contacto %} · {{ pedido.contacto }}{% endif %}{% endif %}
-          </span>
-          <span class="do-meta-item"><i class="fas fa-receipt"></i> {{ pedido.mesero.get_full_name|default:pedido.mesero.username }}</span>
-          <span class="do-meta-item do-meta-time">Hace {{ pedido.fecha_creacion|timesince }}</span>
-        </div>
-
-        <div class="do-divider"></div>
-
-        <div class="do-total-row">
-          <span class="do-total-label">TOTAL</span>
-          <span class="do-total-valor">${{ pedido.total|floatformat:2 }}</span>
-        </div>
-      </div>
-
-      <div class="do-section-title-row">
-        <h6 class="do-section-title">Cocina</h6>
-        {% if total_items %}<span class="do-count-pill">{{ total_items }} platillo{{ total_items|pluralize }}</span>{% endif %}
-      </div>
-
-      {% if bloques %}
-        {% for bloque in bloques %}
-          {% if bloque.grupo %}
-          <div class="do-card do-item-card do-item-group">
-            <div class="do-group-header">{{ bloque.grupo }}</div>
-            {% for item in bloque.items %}
-            <div class="do-item-top do-item-sub" role="button" tabindex="0" data-item-id="{{ item.id }}" onclick="doAbrirModalItem(this)">
-              <span class="do-item-qty">{{ item.cantidad }}</span>
-              <span class="do-item-nombre">{{ item.descripcion }}</span>
-              <span class="do-pill-estado do-pill-{{ item.estado }}">{{ item.get_estado_display }}</span>
-            </div>
-            {% endfor %}
+      <div class="do-entrega">
+        <div class="do-entrega-top">
+          <div class="do-entrega-info">
+            <span class="do-entrega-label">ENTREGA</span>
+            {% if entrega.tipo == 'delivery' %}
+            <span class="do-entrega-nombre">{{ entrega.nombre }}{% if entrega.zona %} · {{ entrega.zona }}{% endif %}</span>
+            <span class="do-entrega-sub">{{ entrega.telefono }}{% if entrega.costo_envio %} · envío ${{ entrega.costo_envio|floatformat:2 }}{% endif %}</span>
+            {% elif entrega.tipo == 'llevar' %}
+            <span class="do-entrega-nombre">{{ entrega.nombre }}</span>
+            <span class="do-entrega-sub">Para llevar</span>
+            {% else %}
+            <span class="do-entrega-nombre">Mesa {{ entrega.mesa_nombre }}{% if entrega.mesa_zona %} · {{ entrega.mesa_zona }}{% endif %}</span>
+            {% if entrega.mesa_capacidad %}<span class="do-entrega-sub">{{ entrega.mesa_capacidad }} persona{{ entrega.mesa_capacidad|pluralize }}</span>{% endif %}
+            {% endif %}
           </div>
-          {% else %}
-            {% for item in bloque.items %}
-            <div class="do-card do-item-card">
-              <div class="do-item-top" role="button" tabindex="0" data-item-id="{{ item.id }}" onclick="doAbrirModalItem(this)">
-                <span class="do-item-qty">{{ item.cantidad }}</span>
-                <span class="do-item-nombre">{{ item.descripcion }}</span>
-                <span class="do-pill-estado do-pill-{{ item.estado }}">{{ item.get_estado_display }}</span>
-              </div>
-            </div>
-            {% endfor %}
+          {% if entrega.telefono %}
+          <a href="tel:{{ entrega.telefono }}" class="do-entrega-llamar" aria-label="Llamar a {{ entrega.nombre }}">
+            <i class="bi bi-telephone"></i>
+          </a>
           {% endif %}
-        {% endfor %}
-        <p class="do-hint">Toca un platillo para gestionarlo</p>
-      {% else %}
-        {% for item in items %}
-        <div class="do-card do-item-card">
-          <div class="do-item-top">
-            <span class="do-item-nombre">{{ item }}</span>
-          </div>
         </div>
-        {% empty %}
-        <p class="text-muted">Sin productos todavía</p>
-        {% endfor %}
+        <div class="do-entrega-pie">
+          <span class="do-entrega-total-label">TOTAL</span>
+          <span class="do-entrega-total-valor">${{ pedido.total|floatformat:2 }}</span>
+        </div>
+      </div>
+
+      {% if total_items %}
+      <div class="do-progreso">
+        <span class="do-progreso-label">COCINA</span>
+        <span class="do-progreso-conteo">{{ listos }} de {{ total_items }} listos</span>
+        <div class="do-progreso-track"><div class="do-progreso-fill" style="width: {{ progreso_pct }}%"></div></div>
+      </div>
       {% endif %}
 
-    </div>
-
-    {% if pedido.estado == 'abierto' or pedido.estado == 'por_cobrar' %}
-    <div class="do-footer-bar">
-      <a href="{% url 'pizzeria_nueva_orden' %}?pedido_id={{ pedido.id }}" class="do-btn-agregar">
-        <i class="fas fa-plus me-1"></i> Agregar
-      </a>
-      <div class="do-cobrar-wrap" id="doCobrarWrap">
-        <a href="{% url 'pizzeria_cobrar_orden' pedido.id %}" class="do-btn-cobrar">
-          <i class="fas fa-credit-card me-2"></i>Cobrar ${{ pedido.total|floatformat:2 }}
-        </a>
+      <div class="do-lineas">
+        {% if bloques %}
+          {% for bloque in bloques %}
+            {% if bloque.grupo %}
+            <div class="do-grupo">
+              <div class="do-grupo-header">{{ bloque.grupo }}</div>
+              {% for item in bloque.items %}
+                {% include 'pizzeria/_linea_platillo.html' %}
+              {% endfor %}
+            </div>
+            {% else %}
+              {% for item in bloque.items %}
+                {% include 'pizzeria/_linea_platillo.html' %}
+              {% endfor %}
+            {% endif %}
+          {% endfor %}
+        {% else %}
+          {% for item in items %}
+          <div class="do-linea">
+            <div class="do-linea-info"><span class="do-linea-nombre">{{ item }}</span></div>
+          </div>
+          {% empty %}
+          <p class="do-vacio">Sin productos todavía</p>
+          {% endfor %}
+        {% endif %}
       </div>
+
     </div>
-    {% endif %}
 
   </div>
 </div>
 
-<div class="modal fade" id="doModalItem" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content di-modal">
-      <div class="modal-header di-modal-header">
-        <h5 class="modal-title di-modal-titulo" id="diModalTitulo">Platillo</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body di-modal-body" id="diModalBody">
-        <div class="text-center py-4"><i class="fas fa-spinner fa-spin"></i></div>
-      </div>
-    </div>
+{% if pedido.estado == 'abierto' or pedido.estado == 'por_cobrar' %}
+<div class="do-barra-acciones" id="diBarraAcciones">
+  <a href="{% url 'pizzeria_nueva_orden' %}?pedido_id={{ pedido.id }}" class="do-btn-agregar" aria-label="Agregar platillos">
+    <i class="bi bi-plus-lg"></i>
+  </a>
+  {% if total_items %}
+  <a href="{% url 'pizzeria_cobrar_orden' pedido.id %}" class="do-btn-cobrar">
+    <i class="bi bi-credit-card"></i><span>Cobrar ${{ pedido.total|floatformat:2 }}</span>
+  </a>
+  {% else %}
+  <span class="do-btn-cobrar do-btn-cobrar-disabled">
+    <i class="bi bi-credit-card"></i><span>Cobrar ${{ pedido.total|floatformat:2 }}</span>
+  </span>
+  {% endif %}
+</div>
+{% endif %}
+
+<!-- Hoja del platillo — reutiliza el mecanismo de .pz-cart-sheet /
+     .pz-sheet-backdrop (pizzeria-cart-bar.css), igual que el carrito de
+     Punto de venta: se desliza desde abajo y se detiene justo encima de
+     la bottom nav (no la tapa). El contenido lo arma pizzeria_detalle_orden.js
+     a partir de la respuesta de detalleItemPreparacion. -->
+<div class="pz-sheet-backdrop" id="diSheetBackdrop"></div>
+<div class="pz-cart-sheet do-hoja" id="diHoja">
+  <div class="pz-cart-sheet-handle"></div>
+  <div id="diHojaBody">
+    <div class="text-center py-4"><i class="fas fa-spinner fa-spin"></i></div>
   </div>
 </div>
+
+{% include 'pizzeria/_hoja_acciones_orden.html' %}
+{% include 'pizzeria/_hoja_confirmar_anulacion.html' %}
 
 <script>
+  window.CSRF_TOKEN = "{{ csrf_token }}";
   window.PZ_URLS = {
     avanzarItemPreparacion: "{% url 'pizzeria_avanzar_item_preparacion' 0 %}",
     establecerEstadoItemPreparacion: "{% url 'pizzeria_establecer_estado_item_preparacion' 0 %}",
@@ -133,9 +135,12 @@
     duplicarItemPreparacion: "{% url 'pizzeria_duplicar_item_preparacion' 0 %}",
     reimprimirItemPreparacion: "{% url 'pizzeria_reimprimir_item_preparacion' 0 %}",
     quitarItemPreparacion: "{% url 'pizzeria_quitar_item_preparacion' 0 %}",
+    cancelarPedido: "{% url 'pizzeria_cancelar_pedido' pedido.id %}",
     ordenes: "{% url 'pizzeria_ordenes' %}",
   };
   window.DO_PEDIDO_ID = {{ pedido.id }};
 </script>
-<script src="{% static 'JS/pizzeria_detalle_orden.js' %}"></script>
+<script src="{% static 'JS/pizzeria_cart_bar.js' %}"></script>
+<script src="{% static 'JS/pizzeria_detalle_orden.js' %}?v=2"></script>
+<script src="{% static 'JS/pizzeria_hoja_acciones.js' %}"></script>
 {% endblock %}

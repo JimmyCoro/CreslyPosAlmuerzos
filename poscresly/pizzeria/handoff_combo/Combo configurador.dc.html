@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  html, body { margin:0; padding:0; background:#eceef1; }
+  * { box-sizing:border-box; }
+  a { color:#c8102e; text-decoration:none; }
+  a:hover { color:#9c0c23; }
+</style>
+</helmet>
+
+<section style="padding:40px;display:flex;flex-direction:column;gap:32px;font-family:'Plus Jakarta Sans',Helvetica,Arial,sans-serif;color:#14181d;font-feature-settings:'tnum' 1">
+
+  <div style="display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap">
+    <span style="padding:5px 11px;border-radius:999px;background:#14181d;color:#fff;font-size:12px;font-weight:800;letter-spacing:.04em">10</span>
+    <div style="display:flex;flex-direction:column;gap:5px">
+      <h1 style="margin:0;font-size:28px;font-weight:800;letter-spacing:-.025em">Configurador de combo</h1>
+      <p style="margin:0;font-size:14px;color:#4a545f;max-width:880px;text-wrap:pretty">Un combo son cuatro decisiones seguidas. Hoy están todas abiertas a la vez y hay que recorrer 30 botones sin saber cuánto falta. Aquí cada paso se cierra al resolverse y deja su respuesta a la vista.</p>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-wrap:wrap;gap:18px;align-items:flex-start">
+
+    <!-- ============ A · PASO ACTIVO: SABOR ============ -->
+    <div style="display:flex;flex-direction:column;gap:9px">
+      <span style="font-size:11.5px;font-weight:800;color:#5b6673;letter-spacing:.04em">PASO 2 DE 4 · SABOR DE PIZZA</span>
+      <div style="position:relative;width:390px;height:812px;border-radius:24px;overflow:hidden;border:1px solid #d6dae0;box-shadow:0 16px 40px rgba(20,24,29,.12);background:#f4f5f7">
+
+        <div style="position:absolute;inset:0;background:rgba(20,24,29,.42)"></div>
+
+        <div style="position:absolute;left:0;right:0;top:40px;bottom:0;background:#fff;border-radius:22px 22px 0 0;display:flex;flex-direction:column;overflow:hidden">
+
+          <div style="flex:0 0 auto;padding:12px 16px 11px;border-bottom:1px solid #eef0f3;display:flex;flex-direction:column;gap:10px">
+            <div style="width:38px;height:4px;border-radius:999px;background:#dfe2e7;margin:0 auto"></div>
+            <div style="display:flex;align-items:center;gap:11px">
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                <span style="font-size:17px;font-weight:800;letter-spacing:-.02em;line-height:1.2">Mega Combo 1</span>
+                <span style="font-size:11.5px;color:#8a929c;font-weight:600">Mediana · <strong style="font-weight:800;color:#c8102e">2 de 4 pasos</strong></span>
+              </div>
+              <span style="font-size:19px;font-weight:800;letter-spacing:-.03em;flex:0 0 auto">$20.50</span>
+            </div>
+            <div style="display:flex;gap:4px">
+              <div style="flex:1;height:4px;border-radius:999px;background:#23a05f"></div>
+              <div style="flex:1;height:4px;border-radius:999px;background:#c8102e"></div>
+              <div style="flex:1;height:4px;border-radius:999px;background:#eef0f3"></div>
+              <div style="flex:1;height:4px;border-radius:999px;background:#eef0f3"></div>
+            </div>
+          </div>
+
+          <div style="flex:1;min-height:0;overflow:hidden;padding:12px 16px;display:flex;flex-direction:column;gap:9px;justify-content:flex-start">
+
+            <div style="flex:0 0 auto;display:flex;align-items:center;gap:11px;padding:11px 13px;border-radius:13px;background:#f4fbf7;border:1px solid #cfeadb">
+              <span style="width:22px;height:22px;border-radius:50%;background:#23a05f;color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;flex:0 0 auto">✓</span>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+                <span style="font-size:11px;font-weight:800;letter-spacing:.07em;color:#1c7a4a">TAMAÑO</span>
+                <span style="font-size:13.5px;font-weight:700;color:#14181d">Mediana · $20.50</span>
+              </div>
+              <span style="font-size:12px;font-weight:800;color:#1c7a4a;flex:0 0 auto">Cambiar</span>
+            </div>
+
+            <div style="flex:0 0 auto;border:1.5px solid #14181d;border-radius:14px;overflow:hidden">
+              <div style="padding:12px 13px;display:flex;align-items:center;gap:11px;background:#fafbfc;border-bottom:1px solid #eef0f3">
+                <span style="width:22px;height:22px;border-radius:50%;background:#14181d;color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex:0 0 auto">2</span>
+                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+                  <span style="font-size:13.5px;font-weight:800;letter-spacing:-.01em">Sabor de la pizza</span>
+                  <span style="font-size:11px;color:#8a929c;font-weight:600">Mitad y mitad · <strong style="font-weight:800;color:#c8102e">falta la mitad 2</strong></span>
+                </div>
+              </div>
+
+              <div style="padding:12px 13px;display:flex;flex-direction:column;gap:11px">
+                <div style="display:flex;gap:7px">
+                  <div style="flex:1;text-align:center;padding:10px 6px;border-radius:11px;background:#fff;border:1px solid #dfe2e7;font-size:12.5px;font-weight:700;color:#5b6673">Un solo sabor</div>
+                  <div style="flex:1;text-align:center;padding:10px 6px;border-radius:11px;background:#14181d;border:1px solid #14181d;font-size:12.5px;font-weight:800;color:#fff">Mitad y mitad</div>
+                </div>
+
+                <div style="display:flex;gap:8px">
+                  <div style="flex:1;min-width:0;padding:11px 12px;border-radius:12px;background:#f4fbf7;border:1px solid #cfeadb;display:flex;flex-direction:column;gap:2px">
+                    <span style="font-size:10px;font-weight:800;letter-spacing:.08em;color:#1c7a4a">MITAD 1</span>
+                    <span style="font-size:13px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Peperoni</span>
+                  </div>
+                  <div style="flex:1;min-width:0;padding:11px 12px;border-radius:12px;background:#fff;border:1.5px dashed #c8102e;display:flex;flex-direction:column;gap:2px">
+                    <span style="font-size:10px;font-weight:800;letter-spacing:.08em;color:#c8102e">MITAD 2</span>
+                    <span style="font-size:13px;font-weight:700;color:#a8afb8">Elige abajo</span>
+                  </div>
+                </div>
+
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px">
+                  <div style="display:flex;align-items:center;justify-content:center;gap:6px;padding:12px 10px;border-radius:11px;border:1px solid #dfe2e7;background:#fff;font-size:13px;font-weight:700">
+                    <span>Chorizo</span>
+                    <span style="padding:1px 6px;border-radius:999px;background:#fdf3e2;color:#8a5800;font-size:9.5px;font-weight:800;flex:0 0 auto">+$1</span>
+                  </div>
+                  <div style="display:flex;align-items:center;justify-content:center;gap:6px;padding:12px 10px;border-radius:11px;border:1px solid #dfe2e7;background:#fff;font-size:13px;font-weight:700">
+                    <span>Ranchera</span>
+                    <span style="padding:1px 6px;border-radius:999px;background:#fdf3e2;color:#8a5800;font-size:9.5px;font-weight:800;flex:0 0 auto">+$1</span>
+                  </div>
+                  <div style="display:flex;align-items:center;justify-content:center;gap:6px;padding:12px 10px;border-radius:11px;border:1px solid #dfe2e7;background:#fff;font-size:13px;font-weight:700">
+                    <span>Suprema</span>
+                    <span style="padding:1px 6px;border-radius:999px;background:#fdf3e2;color:#8a5800;font-size:9.5px;font-weight:800;flex:0 0 auto">+$1</span>
+                  </div>
+                  <div style="display:flex;align-items:center;justify-content:center;padding:12px 10px;border-radius:11px;border:1.5px solid #14181d;background:#14181d;color:#fff;font-size:13px;font-weight:800">Peperoni ✓</div>
+                  <div style="display:flex;align-items:center;justify-content:center;padding:12px 10px;border-radius:11px;border:1px solid #dfe2e7;background:#fff;font-size:13px;font-weight:700">3 Quesos</div>
+                </div>
+                <span style="font-size:10.5px;color:#98a1ab;font-weight:600">+7 sabores más al desplazar</span>
+              </div>
+            </div>
+
+            <div style="flex:0 0 auto;display:flex;align-items:center;gap:11px;padding:12px 13px;border-radius:13px;background:#fff;border:1px solid #e6e8ec">
+              <span style="width:22px;height:22px;border-radius:50%;background:#eef0f3;color:#8a929c;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex:0 0 auto">3</span>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+                <span style="font-size:13.5px;font-weight:700;color:#5b6673">14 alitas</span>
+                <span style="font-size:11px;color:#98a1ab;font-weight:600">Hasta 3 sabores</span>
+              </div>
+              <span style="font-size:14px;color:#c3c8ce;flex:0 0 auto">›</span>
+            </div>
+
+            <div style="flex:0 0 auto;display:flex;align-items:center;gap:11px;padding:12px 13px;border-radius:13px;background:#fff;border:1px solid #e6e8ec">
+              <span style="width:22px;height:22px;border-radius:50%;background:#eef0f3;color:#8a929c;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex:0 0 auto">4</span>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+                <span style="font-size:13.5px;font-weight:700;color:#5b6673">Bebida</span>
+                <span style="font-size:11px;color:#98a1ab;font-weight:600">Sabor y temperatura</span>
+              </div>
+              <span style="font-size:14px;color:#c3c8ce;flex:0 0 auto">›</span>
+            </div>
+          </div>
+
+          <div style="flex:0 0 auto;padding:12px 16px 20px;border-top:1px solid #e6e8ec;display:flex;gap:9px;box-shadow:0 -8px 22px rgba(20,24,29,.06)">
+            <div style="flex:0 0 auto;display:flex;align-items:center;gap:2px">
+              <div style="width:40px;height:50px;border-radius:12px;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#c3c8ce;line-height:1">−</div>
+              <span style="min-width:26px;text-align:center;font-size:16px;font-weight:800">1</span>
+              <div style="width:40px;height:50px;border-radius:12px;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#5b6673;line-height:1">＋</div>
+            </div>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
+              <div style="display:flex;align-items:center;justify-content:center;height:50px;border-radius:13px;background:#e9ebef;color:#8a929c;font-size:14.5px;font-weight:800">Agregar · $20.50</div>
+              <span style="text-align:center;font-size:10.5px;font-weight:700;color:#c8102e">Elige la mitad 2 para continuar</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <span style="font-size:11.5px;color:#4a545f;width:390px;line-height:1.5">Solo el paso activo está abierto. Los resueltos se colapsan a una fila verde con su respuesta y un “Cambiar”; los siguientes quedan en gris con su número.</span>
+    </div>
+
+    <!-- ============ B · ALITAS ============ -->
+    <div style="display:flex;flex-direction:column;gap:9px">
+      <span style="font-size:11.5px;font-weight:800;color:#5b6673;letter-spacing:.04em">PASO 3 · 14 ALITAS ENTRE 3 SABORES</span>
+      <div style="position:relative;width:390px;height:812px;border-radius:24px;overflow:hidden;border:1px solid #d6dae0;box-shadow:0 16px 40px rgba(20,24,29,.12);background:#f4f5f7">
+
+        <div style="position:absolute;inset:0;background:rgba(20,24,29,.42)"></div>
+
+        <div style="position:absolute;left:0;right:0;top:40px;bottom:0;background:#fff;border-radius:22px 22px 0 0;display:flex;flex-direction:column;overflow:hidden">
+
+          <div style="flex:0 0 auto;padding:12px 16px 11px;border-bottom:1px solid #eef0f3;display:flex;flex-direction:column;gap:10px">
+            <div style="width:38px;height:4px;border-radius:999px;background:#dfe2e7;margin:0 auto"></div>
+            <div style="display:flex;align-items:center;gap:11px">
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                <span style="font-size:17px;font-weight:800;letter-spacing:-.02em;line-height:1.2">Mega Combo 1</span>
+                <span style="font-size:11.5px;color:#8a929c;font-weight:600">Mediana · <strong style="font-weight:800;color:#c8102e">3 de 4 pasos</strong></span>
+              </div>
+              <span style="font-size:19px;font-weight:800;letter-spacing:-.03em;flex:0 0 auto">$21.50</span>
+            </div>
+            <div style="display:flex;gap:4px">
+              <div style="flex:1;height:4px;border-radius:999px;background:#23a05f"></div>
+              <div style="flex:1;height:4px;border-radius:999px;background:#23a05f"></div>
+              <div style="flex:1;height:4px;border-radius:999px;background:#c8102e"></div>
+              <div style="flex:1;height:4px;border-radius:999px;background:#eef0f3"></div>
+            </div>
+          </div>
+
+          <div style="flex:1;min-height:0;overflow:hidden;padding:12px 16px;display:flex;flex-direction:column;gap:9px;justify-content:flex-start">
+
+            <div style="flex:0 0 auto;display:flex;align-items:center;gap:11px;padding:10px 13px;border-radius:13px;background:#f4fbf7;border:1px solid #cfeadb">
+              <span style="width:22px;height:22px;border-radius:50%;background:#23a05f;color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;flex:0 0 auto">✓</span>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+                <span style="font-size:11px;font-weight:800;letter-spacing:.07em;color:#1c7a4a">TAMAÑO Y SABOR</span>
+                <span style="font-size:12.5px;font-weight:700;color:#14181d;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Mediana · Peperoni / Chorizo</span>
+              </div>
+              <span style="font-size:12px;font-weight:800;color:#1c7a4a;flex:0 0 auto">Cambiar</span>
+            </div>
+
+            <div style="flex:1 1 auto;border:1.5px solid #14181d;border-radius:14px;overflow:hidden;display:flex;flex-direction:column;min-height:0">
+              <div style="flex:0 0 auto;padding:12px 13px;background:#fafbfc;border-bottom:1px solid #eef0f3;display:flex;align-items:center;gap:11px">
+                <span style="width:22px;height:22px;border-radius:50%;background:#14181d;color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex:0 0 auto">3</span>
+                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+                  <span style="font-size:13.5px;font-weight:800;letter-spacing:-.01em">14 alitas · hasta 3 sabores</span>
+                  <span style="font-size:11px;color:#8a929c;font-weight:600"><strong style="font-weight:800;color:#c8102e">Faltan 6</strong> por repartir</span>
+                </div>
+              </div>
+
+              <div style="flex:0 0 auto;padding:11px 13px;border-bottom:1px solid #eef0f3;display:flex;flex-direction:column;gap:9px">
+                <div style="display:flex;align-items:center;gap:8px">
+                  <div style="flex:1;height:9px;border-radius:999px;background:#eef0f3;overflow:hidden;display:flex">
+                    <div style="width:43%;background:#d99000"></div>
+                    <div style="width:14%;background:#8a5800"></div>
+                  </div>
+                  <span style="font-size:12px;font-weight:800;flex:0 0 auto">8<span style="color:#98a1ab">/14</span></span>
+                </div>
+                <div style="display:flex;gap:6px">
+                  <div style="flex:1;text-align:center;padding:8px 5px;border-radius:9px;background:#14181d;color:#fff;font-size:11.5px;font-weight:800">Todas iguales</div>
+                  <div style="flex:1;text-align:center;padding:8px 5px;border-radius:9px;background:#fff;border:1px solid #dfe2e7;color:#5b6673;font-size:11.5px;font-weight:700">Mitad y mitad</div>
+                  <div style="flex:1;text-align:center;padding:8px 5px;border-radius:9px;background:#fff;border:1px solid #dfe2e7;color:#5b6673;font-size:11.5px;font-weight:700">Limpiar</div>
+                </div>
+              </div>
+
+              <div style="flex:1;min-height:0;overflow:hidden;padding:11px 13px;display:flex;flex-direction:column;gap:7px">
+
+                <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:12px;border:1.5px solid #14181d;background:#fff">
+                  <span style="width:8px;height:8px;border-radius:50%;background:#d99000;flex:0 0 auto"></span>
+                  <span style="flex:1;min-width:0;font-size:13.5px;font-weight:700">BBQ</span>
+                  <div style="display:flex;align-items:center;gap:2px;flex:0 0 auto">
+                    <div style="width:34px;height:38px;border-radius:10px;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#5b6673;line-height:1">−</div>
+                    <span style="min-width:26px;text-align:center;font-size:16px;font-weight:800">6</span>
+                    <div style="width:34px;height:38px;border-radius:10px;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#5b6673;line-height:1">＋</div>
+                  </div>
+                </div>
+
+                <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:12px;border:1.5px solid #14181d;background:#fff">
+                  <span style="width:8px;height:8px;border-radius:50%;background:#8a5800;flex:0 0 auto"></span>
+                  <span style="flex:1;min-width:0;font-size:13.5px;font-weight:700">Maracuyá</span>
+                  <div style="display:flex;align-items:center;gap:2px;flex:0 0 auto">
+                    <div style="width:34px;height:38px;border-radius:10px;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#5b6673;line-height:1">−</div>
+                    <span style="min-width:26px;text-align:center;font-size:16px;font-weight:800">2</span>
+                    <div style="width:34px;height:38px;border-radius:10px;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#5b6673;line-height:1">＋</div>
+                  </div>
+                </div>
+
+                <div style="height:1px;background:#eef0f3;margin:2px 0"></div>
+
+                <div style="display:flex;flex-wrap:wrap;gap:6px">
+                  <span style="display:inline-flex;align-items:center;gap:6px;padding:9px 12px;border-radius:999px;background:#fff;border:1px solid #dfe2e7;font-size:12.5px;font-weight:700;color:#4a545f">Broster<span style="font-size:14px;color:#8a929c">＋</span></span>
+                  <span style="display:inline-flex;align-items:center;gap:6px;padding:9px 12px;border-radius:999px;background:#fff;border:1px solid #dfe2e7;font-size:12.5px;font-weight:700;color:#4a545f">Miel y Mostaza<span style="font-size:14px;color:#8a929c">＋</span></span>
+                  <span style="display:inline-flex;align-items:center;gap:6px;padding:9px 12px;border-radius:999px;background:#fff;border:1px solid #dfe2e7;font-size:12.5px;font-weight:700;color:#4a545f">Picantes<span style="font-size:14px;color:#8a929c">＋</span></span>
+                  <span style="display:inline-flex;align-items:center;gap:6px;padding:9px 12px;border-radius:999px;background:#fff;border:1px solid #dfe2e7;font-size:12.5px;font-weight:700;color:#4a545f">Piña<span style="font-size:14px;color:#8a929c">＋</span></span>
+                  <span style="display:inline-flex;align-items:center;gap:6px;padding:9px 12px;border-radius:999px;background:#f4f5f7;font-size:12.5px;font-weight:700;color:#a8afb8">Teriyaki<span style="font-size:14px">＋</span></span>
+                </div>
+                <span style="font-size:10.5px;color:#98a1ab;font-weight:600">Toca un sabor para sumarlo. Con 3 elegidos el resto se atenúa.</span>
+              </div>
+            </div>
+
+            <div style="flex:0 0 auto;display:flex;align-items:center;gap:11px;padding:12px 13px;border-radius:13px;background:#fff;border:1px solid #e6e8ec">
+              <span style="width:22px;height:22px;border-radius:50%;background:#eef0f3;color:#8a929c;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex:0 0 auto">4</span>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+                <span style="font-size:13.5px;font-weight:700;color:#5b6673">Bebida</span>
+                <span style="font-size:11px;color:#98a1ab;font-weight:600">Sabor y temperatura</span>
+              </div>
+              <span style="font-size:14px;color:#c3c8ce;flex:0 0 auto">›</span>
+            </div>
+          </div>
+
+          <div style="flex:0 0 auto;padding:12px 16px 20px;border-top:1px solid #e6e8ec;display:flex;gap:9px;box-shadow:0 -8px 22px rgba(20,24,29,.06)">
+            <div style="flex:0 0 auto;display:flex;align-items:center;gap:2px">
+              <div style="width:40px;height:50px;border-radius:12px;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#c3c8ce;line-height:1">−</div>
+              <span style="min-width:26px;text-align:center;font-size:16px;font-weight:800">1</span>
+              <div style="width:40px;height:50px;border-radius:12px;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#5b6673;line-height:1">＋</div>
+            </div>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
+              <div style="display:flex;align-items:center;justify-content:center;height:50px;border-radius:13px;background:#e9ebef;color:#8a929c;font-size:14.5px;font-weight:800">Agregar · $21.50</div>
+              <span style="text-align:center;font-size:10.5px;font-weight:700;color:#c8102e">Reparte las 6 alitas restantes</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <span style="font-size:11.5px;color:#4a545f;width:390px;line-height:1.5">Solo los sabores elegidos tienen contador; el resto son chips que se suman al tocarlos. La barra segmentada muestra el reparto y “Todas iguales” resuelve el caso más común de un toque.</span>
+    </div>
+
+    <!-- ============ C · BEBIDA + RESUMEN ============ -->
+    <div style="display:flex;flex-direction:column;gap:9px">
+      <span style="font-size:11.5px;font-weight:800;color:#5b6673;letter-spacing:.04em">PASO 4 · BEBIDA · COMBO COMPLETO</span>
+      <div style="position:relative;width:390px;height:812px;border-radius:24px;overflow:hidden;border:1px solid #d6dae0;box-shadow:0 16px 40px rgba(20,24,29,.12);background:#f4f5f7">
+
+        <div style="position:absolute;inset:0;background:rgba(20,24,29,.42)"></div>
+
+        <div style="position:absolute;left:0;right:0;top:40px;bottom:0;background:#fff;border-radius:22px 22px 0 0;display:flex;flex-direction:column;overflow:hidden">
+
+          <div style="flex:0 0 auto;padding:12px 16px 11px;border-bottom:1px solid #eef0f3;display:flex;flex-direction:column;gap:10px">
+            <div style="width:38px;height:4px;border-radius:999px;background:#dfe2e7;margin:0 auto"></div>
+            <div style="display:flex;align-items:center;gap:11px">
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                <span style="font-size:17px;font-weight:800;letter-spacing:-.02em;line-height:1.2">Mega Combo 1</span>
+                <span style="font-size:11.5px;color:#8a929c;font-weight:600">Mediana · <strong style="font-weight:800;color:#1c7a4a">completo</strong></span>
+              </div>
+              <span style="font-size:19px;font-weight:800;letter-spacing:-.03em;flex:0 0 auto">$21.50</span>
+            </div>
+            <div style="display:flex;gap:4px">
+              <div style="flex:1;height:4px;border-radius:999px;background:#23a05f"></div>
+              <div style="flex:1;height:4px;border-radius:999px;background:#23a05f"></div>
+              <div style="flex:1;height:4px;border-radius:999px;background:#23a05f"></div>
+              <div style="flex:1;height:4px;border-radius:999px;background:#23a05f"></div>
+            </div>
+          </div>
+
+          <div style="flex:1;min-height:0;overflow:hidden;padding:12px 16px;display:flex;flex-direction:column;gap:9px;justify-content:flex-start">
+
+            <div style="flex:0 0 auto;border:1.5px solid #14181d;border-radius:14px;overflow:hidden">
+              <div style="padding:12px 13px;background:#fafbfc;border-bottom:1px solid #eef0f3;display:flex;align-items:center;gap:11px">
+                <span style="width:22px;height:22px;border-radius:50%;background:#14181d;color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex:0 0 auto">4</span>
+                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+                  <span style="font-size:13.5px;font-weight:800;letter-spacing:-.01em">Bebida</span>
+                  <span style="font-size:11px;color:#8a929c;font-weight:600">Coca-Cola · helada</span>
+                </div>
+              </div>
+              <div style="padding:12px 13px;display:flex;flex-direction:column;gap:12px">
+                <div style="display:flex;flex-direction:column;gap:7px">
+                  <span style="font-size:10.5px;font-weight:800;letter-spacing:.08em;color:#8a929c">SABOR</span>
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px">
+                    <div style="display:flex;align-items:center;justify-content:center;padding:12px 10px;border-radius:11px;border:1.5px solid #14181d;background:#14181d;color:#fff;font-size:13px;font-weight:800">Coca-Cola ✓</div>
+                    <div style="display:flex;align-items:center;justify-content:center;padding:12px 10px;border-radius:11px;border:1px solid #dfe2e7;background:#fff;font-size:13px;font-weight:700">Fanta</div>
+                    <div style="display:flex;align-items:center;justify-content:center;padding:12px 10px;border-radius:11px;border:1px solid #dfe2e7;background:#fff;font-size:13px;font-weight:700">Fioravanti</div>
+                    <div style="display:flex;align-items:center;justify-content:center;padding:12px 10px;border-radius:11px;border:1px solid #dfe2e7;background:#fff;font-size:13px;font-weight:700">Inca Kola</div>
+                    <div style="display:flex;align-items:center;justify-content:center;padding:12px 10px;border-radius:11px;border:1px solid #dfe2e7;background:#fff;font-size:13px;font-weight:700">Pepsi</div>
+                    <div style="display:flex;align-items:center;justify-content:center;padding:12px 10px;border-radius:11px;border:1px solid #dfe2e7;background:#fff;font-size:13px;font-weight:700">Sprite</div>
+                  </div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:7px">
+                  <span style="font-size:10.5px;font-weight:800;letter-spacing:.08em;color:#8a929c">TEMPERATURA</span>
+                  <div style="display:flex;gap:7px">
+                    <div style="flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:12px 8px;border-radius:11px;border:1.5px solid #1d5a9e;background:#e9f1fb;color:#1d5a9e;font-size:13px;font-weight:800">
+                      <span style="font-size:13px">❄</span><span>Helada</span>
+                    </div>
+                    <div style="flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:12px 8px;border-radius:11px;border:1px solid #dfe2e7;background:#fff;color:#5b6673;font-size:13px;font-weight:700">
+                      <span style="font-size:13px">☀</span><span>Al ambiente</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div style="flex:0 0 auto;background:#fafbfc;border:1px solid #eef0f3;border-radius:14px;padding:12px 13px;display:flex;flex-direction:column;gap:9px">
+              <span style="font-size:10.5px;font-weight:800;letter-spacing:.08em;color:#8a929c">RESUMEN DEL COMBO</span>
+              <div style="display:flex;flex-direction:column;gap:7px">
+                <div style="display:flex;align-items:baseline;gap:9px">
+                  <span style="width:52px;flex:0 0 auto;font-size:10.5px;font-weight:800;color:#98a1ab;letter-spacing:.05em">TAMAÑO</span>
+                  <span style="flex:1;min-width:0;font-size:12.5px;font-weight:700">Mediana</span>
+                  <span style="font-size:12px;font-weight:700;color:#8a929c;flex:0 0 auto">$20.50</span>
+                </div>
+                <div style="display:flex;align-items:baseline;gap:9px">
+                  <span style="width:52px;flex:0 0 auto;font-size:10.5px;font-weight:800;color:#98a1ab;letter-spacing:.05em">PIZZA</span>
+                  <span style="flex:1;min-width:0;font-size:12.5px;font-weight:700;line-height:1.35">½ Peperoni · ½ Chorizo</span>
+                  <span style="font-size:12px;font-weight:700;color:#8a5800;flex:0 0 auto">+$1.00</span>
+                </div>
+                <div style="display:flex;align-items:baseline;gap:9px">
+                  <span style="width:52px;flex:0 0 auto;font-size:10.5px;font-weight:800;color:#98a1ab;letter-spacing:.05em">ALITAS</span>
+                  <span style="flex:1;min-width:0;font-size:12.5px;font-weight:700;line-height:1.35">8 BBQ · 6 Maracuyá</span>
+                </div>
+                <div style="display:flex;align-items:baseline;gap:9px">
+                  <span style="width:52px;flex:0 0 auto;font-size:10.5px;font-weight:800;color:#98a1ab;letter-spacing:.05em">BEBIDA</span>
+                  <span style="flex:1;min-width:0;font-size:12.5px;font-weight:700">Coca-Cola · helada</span>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:9px;padding-top:9px;border-top:1px solid #e6e8ec">
+                <span style="flex:1;min-width:0;font-size:12.5px;color:#a8afb8;font-weight:600">Nota para cocina (opcional)</span>
+                <span style="font-size:12px;font-weight:700;color:#5b6673;flex:0 0 auto">Agregar</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="flex:0 0 auto;padding:12px 16px 20px;border-top:1px solid #e6e8ec;display:flex;gap:9px;box-shadow:0 -8px 22px rgba(20,24,29,.06)">
+            <div style="flex:0 0 auto;display:flex;align-items:center;gap:2px">
+              <div style="width:40px;height:50px;border-radius:12px;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#c3c8ce;line-height:1">−</div>
+              <span style="min-width:26px;text-align:center;font-size:16px;font-weight:800">1</span>
+              <div style="width:40px;height:50px;border-radius:12px;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#5b6673;line-height:1">＋</div>
+            </div>
+            <div style="flex:1;min-width:0;display:flex;align-items:center;justify-content:center;gap:8px;height:50px;border-radius:13px;background:#c8102e;color:#fff;font-size:15px;font-weight:800;box-shadow:0 8px 18px rgba(200,16,46,.26)">
+              <span style="font-size:13px">✓</span><span>Agregar · $21.50</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <span style="font-size:11.5px;color:#4a545f;width:390px;line-height:1.5">La bebida pide sabor y temperatura en el mismo paso. Al completarse aparece el resumen del combo con el desglose de recargos, para leerlo al cliente antes de agregar.</span>
+    </div>
+
+    <!-- ============ NOTAS ============ -->
+    <div style="flex:1;min-width:300px;max-width:430px;display:flex;flex-direction:column;gap:12px">
+      <span style="font-size:15px;font-weight:800;letter-spacing:-.015em">Qué cambió y por qué</span>
+      <sc-for list="{{ notes }}" as="n" hint-placeholder-count="9">
+        <div style="background:#fff;border:1px solid #d6dae0;border-radius:14px;padding:15px 17px;display:flex;flex-direction:column;gap:5px">
+          <span style="font-size:11px;font-weight:800;letter-spacing:.09em;color:#8a929c">{{ n.title }}</span>
+          <span style="font-size:12.5px;color:#4a545f;line-height:1.55">{{ n.body }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- ============ ANATOMÍA DEL PASO ============ -->
+  <div style="display:flex;flex-direction:column;gap:14px">
+    <div style="display:flex;flex-direction:column;gap:3px">
+      <span style="font-size:16px;font-weight:800;letter-spacing:-.02em">Los tres estados de un paso</span>
+      <span style="font-size:12.5px;color:#4a545f">Sirven para cualquier combo, con dos grupos o con seis.</span>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:14px">
+      <sc-for list="{{ steps }}" as="s" hint-placeholder-count="3">
+        <div style="display:flex;flex-direction:column;gap:8px;width:358px">
+          <span style="font-size:11px;font-weight:800;color:#5b6673;letter-spacing:.04em">{{ s.label }}</span>
+          <div style="display:flex;align-items:center;gap:11px;padding:12px 13px;border-radius:13px;background:{{ s.bg }};border:{{ s.border }}">
+            <span style="width:22px;height:22px;border-radius:50%;background:{{ s.badgeBg }};color:{{ s.badgeFg }};font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex:0 0 auto">{{ s.badge }}</span>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+              <span style="font-size:{{ s.titleSize }};font-weight:{{ s.titleWeight }};color:{{ s.titleColor }};letter-spacing:-.01em">{{ s.title }}</span>
+              <span style="font-size:11px;font-weight:600;color:{{ s.subColor }}">{{ s.sub }}</span>
+            </div>
+            <span style="font-size:{{ s.actionSize }};font-weight:800;color:{{ s.actionColor }};flex:0 0 auto">{{ s.action }}</span>
+          </div>
+          <span style="font-size:11.5px;color:#4a545f;line-height:1.5">{{ s.note }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const NOTES = [
+  { title: "UN PASO ABIERTO A LA VEZ", body: "Hoy los cuatro grupos están abiertos y la hoja mide más de tres pantallas: hay que recorrer 30 botones sin saber cuánto falta. Cada paso se abre solo cuando llega su turno, y al resolverse se colapsa a una fila con su respuesta." },
+  { title: "LOS RESUELTOS QUEDAN A LA VISTA", body: "Fila verde con check, la etiqueta del grupo y la respuesta elegida (“Mediana · $20.50”), más un “Cambiar”. El cajero puede leerle al cliente lo que ya lleva sin desarmar nada." },
+  { title: "PROGRESO EN LA CABECERA", body: "“3 de 4 pasos” y cuatro segmentos de 4 px. La cabecera es fija y muestra el precio ya actualizado: hoy el total dice $0.00 hasta el final, aunque el tamaño ya esté elegido." },
+  { title: "MITAD Y MITAD SON DOS RANURAS", body: "El checkbox “Mitad y mitad (2 sabores)” no dice qué mitad se está eligiendo. Al activarlo aparecen dos ranuras —MITAD 1 y MITAD 2— y el sabor tocado cae en la que está pendiente, marcada con borde rojo punteado." },
+  { title: "LOS SABORES PREMIUM DICEN CUÁNTO", body: "El pill naranja “Premium” no dice el recargo. Pasa a “+$1” en el mismo pill ámbar, y el recargo aparece luego en el resumen." },
+  { title: "ALITAS: CONTADOR SOLO PARA LO ELEGIDO", body: "Ocho filas con un “0” cada una obligan a leerlas todas para encontrar las que tienen algo. Los sabores elegidos suben arriba con su contador − / ＋; el resto son chips que se suman al tocarlos." },
+  { title: "LA BARRA DICE EL REPARTO", body: "Barra segmentada de 9 px con el color de cada sabor y “8/14” al lado. Reemplaza el “Faltan 6” en rojo, que aparecía lejos de los contadores." },
+  { title: "ATAJOS PARA EL CASO COMÚN", body: "“Todas iguales” pone las 14 en el primer sabor de un toque; “Mitad y mitad” las reparte entre dos. Casi ningún cliente pide tres sabores con números exactos." },
+  { title: "LA BEBIDA PIDE TEMPERATURA", body: "Hoy falta y se pregunta de viva voz. Va en el mismo paso, dos botones con glifo: ❄ Helada en azul, ☀ Al ambiente. La temperatura viaja en la comanda." },
+  { title: "RESUMEN ANTES DE AGREGAR", body: "Al completar los pasos aparece el desglose con etiquetas de grupo, lo elegido y los recargos, más una nota opcional para cocina. Es la última lectura antes de sumar al pedido." },
+  { title: "EL BOTÓN DICE QUÉ FALTA", body: "El “Agregar · $0.00” rojo de hoy está activo aunque no se haya elegido nada. Ahora se deshabilita y debajo aparece “Elige la mitad 2 para continuar” o “Reparte las 6 alitas restantes”." }
+];
+
+const STEPS = [
+  {
+    label: "RESUELTO", badge: "✓", badgeBg: "#23a05f", badgeFg: "#fff",
+    bg: "#f4fbf7", border: "1px solid #cfeadb",
+    title: "TAMAÑO", titleSize: "11px", titleWeight: 800, titleColor: "#1c7a4a",
+    sub: "Mediana · $20.50", subColor: "#14181d",
+    action: "Cambiar", actionSize: "12px", actionColor: "#1c7a4a",
+    note: "La etiqueta del grupo arriba en verde y la respuesta abajo en negro: se lee la respuesta primero."
+  },
+  {
+    label: "ACTIVO", badge: "3", badgeBg: "#14181d", badgeFg: "#fff",
+    bg: "#fafbfc", border: "1.5px solid #14181d",
+    title: "14 alitas · hasta 3 sabores", titleSize: "13.5px", titleWeight: 800, titleColor: "#14181d",
+    sub: "Faltan 6 por repartir", subColor: "#8a929c",
+    action: "", actionSize: "12px", actionColor: "#8a929c",
+    note: "Borde de 1.5 px, cabecera gris y el contenido desplegado debajo. Solo uno puede estar activo."
+  },
+  {
+    label: "PENDIENTE", badge: "4", badgeBg: "#eef0f3", badgeFg: "#8a929c",
+    bg: "#fff", border: "1px solid #e6e8ec",
+    title: "Bebida", titleSize: "13.5px", titleWeight: 700, titleColor: "#5b6673",
+    sub: "Sabor y temperatura", subColor: "#98a1ab",
+    action: "›", actionSize: "14px", actionColor: "#c3c8ce",
+    note: "Número en gris y un chevron. Se puede tocar para saltar adelante, aunque el orden sugerido es el natural."
+  }
+];
+
+class Component extends DCLogic {
+  renderVals() { return { notes: NOTES, steps: STEPS }; }
+}
+</script>
+</body>
+</html>

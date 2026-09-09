@@ -27,6 +27,11 @@
   // La altura real del navbar inferior (--pz-bottomnav-h) la fija
   // components/pizzeria_bottom_nav.html, que es quien conoce ese elemento.
 
+  // Expuesto para que otras hojas deslizables (ver #vrTipoSheet en
+  // pizzeria_venta_rapida.js) puedan escapar del mismo overflow:hidden de
+  // contenedores padres sin duplicar esta lógica.
+  window.pzMoverAlBodyEnMobile = moverAlBodyEnMobile;
+
   window.pzInitCartBar = function (config) {
     var itemsEl = document.getElementById(config.itemsId);
     var totalEl = document.getElementById(config.totalId);

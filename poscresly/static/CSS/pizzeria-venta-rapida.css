@@ -54,24 +54,26 @@
 
 .vr-search-icon {
   position: absolute;
-  left: 0.85rem;
+  left: 0.95rem;
   top: 50%;
   transform: translateY(-50%);
-  color: #9ca3af;
-  font-size: 0.85rem;
+  color: #a8afb8;
+  font-size: 0.8rem;
 }
 
 .vr-search-input {
   width: 100%;
-  height: 42px;
-  padding: 0 0.9rem 0 2.4rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
+  height: 46px;
+  padding: 0 0.9rem 0 2.5rem;
+  border: 1px solid #e6e8ec;
+  border-radius: 14px;
   background: #fff;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-family: var(--fuente-principal);
   outline: none;
 }
+
+.vr-search-input::placeholder { color: #a8afb8; }
 
 .vr-search-input:focus {
   border-color: var(--primary-color);
@@ -81,76 +83,55 @@
   display: flex;
   flex-wrap: nowrap;
   overflow-x: auto;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
   padding-bottom: 0.25rem;
+  scrollbar-width: none;
 }
+.vr-categorias::-webkit-scrollbar { display: none; }
 
-.vr-cat-card {
+.vr-cat-chip {
   flex-shrink: 0;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 0.65rem;
   background: #fff;
-  border: 1.5px solid #eceef1;
-  border-radius: 16px;
-  padding: 0.7rem 1rem;
-  min-width: 150px;
-  text-align: left;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-}
-
-.vr-cat-card:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-}
-
-.vr-cat-card-active {
-  border: 2px solid var(--primary-color);
-  padding: calc(0.7rem - 0.5px) calc(1rem - 0.5px);
-}
-
-.vr-cat-icon {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.vr-cat-icon i {
-  font-size: 1.15rem;
-  color: var(--cat-color);
-}
-
-.vr-cat-info {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  min-width: 0;
-}
-
-.vr-cat-nombre {
+  color: #14181d;
+  border: 1px solid #e6e8ec;
+  border-radius: 999px;
+  padding: 0.6rem 1.1rem;
   font-size: 0.85rem;
-  font-weight: 700;
-  color: #111827;
+  font-weight: 800;
   white-space: nowrap;
-  line-height: 1.2;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 
-.vr-cat-count {
-  font-size: 0.75rem;
-  color: #9ca3af;
+.vr-cat-chip:hover { border-color: #c8cdd4; }
+
+.vr-cat-chip-active {
+  background: #14181d;
+  color: #fff;
+  border-color: #14181d;
 }
+.vr-cat-chip-active:hover { border-color: #14181d; }
 
 .vr-grid-scroll {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
   padding-right: 0.4rem;
+}
+
+/* En 768–1023px (tablet vertical) .vr-layout sigue en fila y quien
+   realmente scrollea es .vr-grid-scroll, no .col-der (ese pasa a scrollear
+   recién en ≤900px, ver el media query de abajo). Mismo refuerzo que
+   .col-der::after en base.css: un ::after con altura real, no solo
+   padding-bottom, para que el navbar inferior no tape la última fila de
+   productos al llegar al fondo. */
+@media (max-width: 1023px) {
+  .vr-grid-scroll::after {
+    content: "";
+    display: block;
+    height: var(--pz-bottomnav-h, 88px);
+    flex-shrink: 0;
+  }
 }
 
 .vr-grid {
@@ -330,270 +311,381 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: .5rem;
   margin-bottom: 1.1rem;
 }
 
-.vr-tipo-tabs {
+.vr-cart-header-info {
   display: flex;
-  gap: 0.25rem;
-  background: #f3f4f1;
-  border-radius: 999px;
-  padding: 0.2rem;
-  margin-bottom: 0.6rem;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-width: 0;
 }
 
-.vr-tipo-tab {
-  flex: 1;
-  border: none;
-  background: transparent;
-  border-radius: 999px;
-  padding: 0.38rem 0.4rem;
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: #6b7280;
-  white-space: nowrap;
-  transition: background 0.15s ease, color 0.15s ease;
-}
-
-.vr-tipo-tab:hover {
-  color: var(--primary-color-hover);
-}
-
-.vr-tipo-tab-active {
-  background: var(--primary-color-hover);
-  color: #fff;
-  box-shadow: 0 2px 6px rgba(95, 12, 25, 0.25);
-}
-
-.vr-tipo-tab-active:hover {
-  color: #fff;
-}
-
-.vr-cart-header h6 {
+.vr-cart-titulo {
   font-size: 1.05rem;
+  font-weight: 800;
+  color: #111827;
+  letter-spacing: -.01em;
+}
+
+/* Pill informativo (Llevar/Servirse/Delivery) — no es clickeable a
+   propósito, mismo criterio que el pill del subheader (ver
+   pizzeria_venta_rapida.js, "PILL DE TIPO DE PEDIDO"): quien abre la hoja
+   de modo es el botón "⋯", no este badge. El chevron es solo visual, para
+   que se lea como "esto describe el pedido", igual que en el mock. */
+.vr-cart-tipo-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: #14181d;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+}
+.vr-cart-tipo-pill i { font-size: 9px; opacity: .75; }
+.vr-cart-tipo-pill-delivery { background: var(--primary-color); }
+
+/* ===== Selector de modo (Servirse/Llevar/Delivery) · handoff_pos_movil =====
+   Segmentado de 3, arriba de la hoja/panel de datos. Activo Servirse/Llevar
+   en negro; activo Delivery en rojo (es el modo con requisitos extra). */
+.vr-modo-tabs {
+  display: flex;
+  gap: 7px;
+  margin-bottom: 0.15rem;
+}
+
+.vr-modo-tab {
+  flex: 1;
+  text-align: center;
+  padding: 12px 6px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid #dfe2e7;
+  color: #5b6673;
+  font-size: 13px;
   font-weight: 700;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.vr-modo-tab-active {
+  background: #14181d;
+  border-color: #14181d;
+  color: #fff;
+  font-weight: 800;
+}
+
+.vr-modo-tab-active[data-tipo="delivery"] {
+  background: #c8102e;
+  border-color: #c8102e;
+}
+
+.vr-modo-divider {
+  height: 1px;
+  background: #eef0f3;
+  margin: 0.6rem 0;
+}
+
+/* ===== Hoja "Tipo de pedido" (solo mobile/tablet, ver #vrTipoSheet) =====
+   En desktop #vrTipoYDatos vuelve a vivir inline dentro de #vrCart (JS la
+   reubica, ver pizzeria_venta_rapida.js), así que esta hoja se oculta del
+   todo para no dejar su cascarón (handle/título/botón Listo) flotando. */
+@media (min-width: 1024px) {
+  #vrTipoSheet,
+  #vrTipoSheetBackdrop {
+    display: none !important;
+  }
 }
 
 .vr-cart-numero {
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   font-weight: 700;
-  color: var(--primary-color-hover);
-  background: rgba(95, 12, 25, 0.1);
+  color: #6b7280;
+  background: #f3f4f6;
   border-radius: 999px;
-  padding: 0.15rem 0.55rem;
-  margin-left: 0.15rem;
-  vertical-align: middle;
+  padding: 0.2rem 0.6rem;
 }
 
 .vr-cart-vaciar {
   background: none;
   border: none;
-  color: #9ca3af;
-  font-size: 0.8rem;
-  font-weight: 600;
+  color: var(--primary-color);
+  font-size: 0.85rem;
+  font-weight: 700;
+  flex-shrink: 0;
 }
 
 .vr-cart-vaciar:hover {
   color: var(--primary-color);
 }
 
+/* ===== Datos del modo (mesa/llevar/delivery) · handoff_pos_movil ===== */
 .vr-cliente-datos {
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
   margin-bottom: 0.6rem;
 }
 
-.vr-cliente-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-}
+.vr-modo-group { display: flex; flex-direction: column; }
+.vr-modo-group.d-none { display: none; }
 
-.vr-cliente-group-2col {
+.vr-modo-row-2col {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.5rem;
+  gap: 10px;
 }
 
-.vr-cliente-input {
-  font-size: 0.85rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  padding: 0.55rem 0.7rem;
-  min-height: 0;
-  color: #111827;
-  background: #fff;
-}
-
-.vr-cliente-input::placeholder { color: #9ca3af; }
-
-.vr-cliente-input:focus {
-  border-color: var(--primary-color-hover);
-  box-shadow: 0 0 0 0.15rem rgba(95, 12, 25, 0.12);
-}
-
-/* ===== Dropdown propio (reemplaza el <select> nativo) ===== */
-.vr-select-custom { position: relative; }
-
-.vr-select-trigger {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  text-align: left;
-  cursor: pointer;
-}
-
-.vr-select-trigger-placeholder { color: #9ca3af; }
-
-.vr-select-chevron {
-  font-size: 0.6rem;
-  color: #9ca3af;
-  flex-shrink: 0;
-  transition: transform 0.15s ease;
-}
-
-.vr-select-trigger-open {
-  border-color: var(--primary-color-hover);
-  box-shadow: 0 0 0 0.15rem rgba(95, 12, 25, 0.12);
-}
-
-.vr-select-trigger-open .vr-select-chevron { transform: rotate(180deg); }
-
-.vr-select-dropdown {
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 0;
-  right: 0;
-  background: #fff;
-  border: 1px solid #eceef1;
-  border-radius: 12px;
-  box-shadow: 0 12px 28px rgba(17, 24, 39, 0.14);
-  padding: 0.35rem;
-  max-height: 260px;
-  overflow-y: auto;
-  z-index: 40;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.vr-select-dropdown-empty {
-  padding: 0.6rem;
-  font-size: 0.8rem;
-  color: #9ca3af;
-  text-align: center;
-}
-
-.vr-select-opcion {
-  border: none;
-  background: transparent;
-  text-align: left;
-  padding: 0.5rem 0.6rem;
-  border-radius: 8px;
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: #374151;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-}
-
-.vr-select-opcion:hover { background: #f9fafb; }
-
-.vr-select-opcion-active {
-  background: rgba(95, 12, 25, 0.08);
-  color: var(--primary-color-hover);
-}
-
-.vr-select-check {
-  font-size: 0.68rem;
-  color: var(--primary-color-hover);
-  opacity: 0;
-}
-
-.vr-select-opcion-active .vr-select-check { opacity: 1; }
-
-.vr-entrega-textarea { resize: vertical; }
-
-/* ===== Datos de entrega (Delivery) ===== */
-.vr-entrega-card {
-  background: #f8f9fa;
-  border: 1px solid #eceef1;
-  border-radius: 16px;
-  padding: 0.85rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.55rem;
-}
-
-.vr-entrega-header {
+.vr-modo-label-row {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 0.5rem;
+  gap: 10px;
+  margin-bottom: 8px;
 }
 
-.vr-entrega-label {
-  font-size: 0.7rem;
+.vr-modo-label {
+  font-size: 11px;
   font-weight: 800;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.09em;
+  color: #8a929c;
   text-transform: uppercase;
-  color: #111827;
+  margin-bottom: 7px;
+  display: block;
 }
+.vr-modo-label-mt { margin-top: 12px; }
 
-.vr-entrega-costo-label {
-  font-size: 0.78rem;
+.vr-modo-libres { font-size: 11px; font-weight: 700; color: #1c7a4a; }
+
+.vr-modo-input {
+  width: 100%;
+  font-size: 14px;
   font-weight: 600;
-  color: #6b7280;
+  border: 1px solid #dfe2e7;
+  border-radius: 11px;
+  padding: 13px;
+  color: #14181d;
+  background: #fff;
+}
+.vr-modo-input::placeholder { color: #98a1ab; font-weight: 500; }
+.vr-modo-input:focus {
+  outline: none;
+  border: 1.5px solid #14181d;
+  padding: 12.5px;
 }
 
-.vr-entrega-toggle-row { display: grid; gap: 0.4rem; }
-.vr-entrega-toggle-row-5 { grid-template-columns: repeat(5, 1fr); }
+.vr-modo-input-lg { font-size: 15px; font-weight: 700; padding: 14px 13px; }
+.vr-modo-input-tel { font-size: 16px; font-weight: 700; letter-spacing: 0.03em; }
+.vr-modo-textarea { resize: vertical; line-height: 1.45; font-size: 13.5px; }
 
-.vr-entrega-toggle {
-  border: 1px solid #e5e7eb;
+.vr-modo-help {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #98a1ab;
+  margin-top: 7px;
+}
+.vr-modo-help-inline { font-size: 11px; font-weight: 700; color: #98a1ab; }
+
+/* ===== Teclado de mesas ===== */
+.vr-mesa-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 7px;
+}
+
+.vr-mesa-celda {
+  height: 46px;
+  border-radius: 11px;
+  border: 1px solid #dfe2e7;
   background: #fff;
-  border-radius: 9px;
-  padding: 0.38rem 0.3rem;
-  font-size: 0.72rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 800;
+  color: #14181d;
+}
+
+.vr-mesa-celda-ocupada {
+  border-color: #f4d3d9;
+  background: #fef6f7;
+  color: #a90d27;
+  cursor: not-allowed;
+}
+
+.vr-mesa-celda-activa {
+  border: 1.5px solid #14181d;
+  background: #14181d;
+  color: #fff;
+}
+
+.vr-mesa-celda-ver {
+  font-size: 13px;
   font-weight: 700;
-  color: #374151;
-  white-space: nowrap;
+  color: #5b6673;
+}
+
+/* ===== Stepper de personas (modo Servirse) =====
+   Se precarga con la capacidad de la mesa elegida y alimenta el "Dividir
+   cuenta" del cobro. Botones de 48px: mínimo táctil de Android. */
+.vr-personas-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.vr-personas-btn {
+  flex: 0 0 auto;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  border: 1px solid #dfe2e7;
+  background: #fff;
+  color: #14181d;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.vr-personas-btn:disabled {
+  color: #c2c8cf;
+  background: #f7f8f9;
+  cursor: not-allowed;
+}
+
+.vr-personas-valor {
+  flex: 1;
+  min-width: 0;
+  height: 48px;
+  border: 1.5px solid #14181d;
+  border-radius: 12px;
+  background: #fff;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px;
+}
+
+.vr-personas-num {
+  font-size: 18px;
+  font-weight: 800;
+  color: #14181d;
+}
+
+.vr-personas-txt {
+  font-size: 13px;
+  font-weight: 600;
+  color: #8a929c;
+}
+
+/* ===== Chips de "Recientes" (Llevar) ===== */
+.vr-modo-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+
+.vr-modo-chip {
+  padding: 9px 13px;
+  border-radius: 999px;
+  border: 1px solid #dfe2e7;
+  background: #fff;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #4a545f;
+}
+
+.vr-modo-chip-sinnombre {
+  border-color: transparent;
+  background: #f4f5f7;
+  color: #8a929c;
+}
+
+/* ===== Forma de pago (Delivery) ===== */
+.vr-modo-pago { display: flex; gap: 7px; }
+
+.vr-modo-pago-btn {
+  flex: 1;
+  text-align: center;
+  padding: 12px 6px;
+  border-radius: 12px;
+  border: 1px solid #dfe2e7;
+  background: #fff;
+  color: #5b6673;
+  font-size: 13px;
+  font-weight: 700;
   transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 
-.vr-entrega-toggle:hover { border-color: #9ca3af; }
+.vr-modo-pago-btn-active {
+  background: #14181d;
+  border-color: #14181d;
+  color: #fff;
+  font-weight: 800;
+}
 
-.vr-entrega-toggle-active {
+/* ===== Valor de la moto (Delivery) ===== */
+.vr-modo-envio {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 7px;
+}
+
+.vr-modo-envio-btn {
+  text-align: center;
+  padding: 12px 6px;
+  border-radius: 11px;
+  border: 1px solid #dfe2e7;
+  background: #fff;
+  color: #5b6673;
+  font-size: 14px;
+  font-weight: 800;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.vr-modo-envio-btn-active {
   background: #14181d;
   border-color: #14181d;
   color: #fff;
 }
-.vr-entrega-toggle-active:hover { border-color: #14181d; }
 
-.vr-entrega-otro-monto {
-  min-width: 0;
+.vr-modo-envio-otro {
   width: 100%;
-  border: 1px solid #e5e7eb;
-  border-radius: 9px;
-  padding: 0.38rem 0.3rem;
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: #111827;
   text-align: center;
+  padding: 12px 4px;
+  border-radius: 11px;
+  border: 1px solid #dfe2e7;
   background: #fff;
+  color: #5b6673;
+  font-size: 13px;
+  font-weight: 700;
+}
+.vr-modo-envio-otro::placeholder { color: #98a1ab; font-weight: 600; }
+.vr-modo-envio-otro:focus { outline: none; border-color: #14181d; color: #14181d; }
+
+/* ===== Chrome de la hoja "Modo de la orden" (mobile, #vrTipoSheet) ===== */
+.vr-modo-sheet { display: flex; flex-direction: column; gap: 14px; }
+
+.vr-modo-titulo {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #14181d;
 }
 
-.vr-entrega-otro-monto::placeholder { color: #9ca3af; font-weight: 600; }
-
-.vr-entrega-otro-monto:focus {
-  outline: none;
-  border-color: var(--primary-color-hover);
-  box-shadow: 0 0 0 0.15rem rgba(95, 12, 25, 0.12);
+.vr-modo-continuar {
+  width: 100%;
+  border: none;
+  padding: 16px;
+  border-radius: 13px;
+  background: #c8102e;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+  box-shadow: 0 8px 20px rgba(200, 16, 46, 0.26);
 }
 
 .vr-cart-items {
@@ -608,15 +700,15 @@
 .vr-cart-item {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
-  padding: 0.75rem 0.1rem;
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid #ececec;
+  gap: 0.55rem;
+  padding: 0.7rem 0.75rem;
+  background: #fff;
+  border: 1px solid #eceef1;
+  border-radius: 14px;
 }
 
-.vr-cart-item:last-child {
-  border-bottom: none;
+.vr-cart-item + .vr-cart-item {
+  margin-top: 0.5rem;
 }
 
 .vr-cart-empty {
@@ -663,15 +755,32 @@
   gap: 0.5rem;
 }
 
+.vr-cart-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
 .vr-cart-item-nombre {
-  font-size: 0.86rem;
+  font-size: 0.92rem;
   font-weight: 700;
   color: #111827;
-  line-height: 1.2;
+  line-height: 1.25;
+}
+
+/* Modificadores en ámbar, igual criterio que el resto de la app (Detalle
+   de orden, Dividir cuenta): distinguen el detalle del nombre sin competir
+   con el precio o el rojo de marca. */
+.vr-cart-item-mods {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #8a5800;
+  line-height: 1.3;
 }
 
 .vr-cart-item-precio {
-  font-size: 0.88rem;
+  font-size: 0.9rem;
   font-weight: 700;
   color: #111827;
   white-space: nowrap;
@@ -697,17 +806,18 @@
 .vr-cart-item-stepper {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.45rem;
+  flex-shrink: 0;
 }
 
 .vr-cart-item-step {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  border: none;
-  background: #f2f3f5;
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
   color: #6b7280;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 700;
   line-height: 1;
   display: flex;
@@ -717,61 +827,67 @@
 }
 
 .vr-cart-item-step:hover {
-  background: #e5e7eb;
+  background: #f9fafb;
+  border-color: #d1d5db;
 }
 
 .vr-cart-item-step-plus {
   background: var(--primary-color);
+  border-color: var(--primary-color);
   color: #fff;
 }
 
 .vr-cart-item-step-plus:hover {
   background: var(--primary-color-hover);
+  border-color: var(--primary-color-hover);
   color: #fff;
 }
 
 .vr-cart-item-qty {
-  font-size: 0.85rem;
-  font-weight: 700;
+  font-size: 0.9rem;
+  font-weight: 800;
   color: #111827;
-  min-width: 14px;
+  min-width: 16px;
   text-align: center;
 }
 
+/* Pill con texto en vez del icono suelto de antes — más legible y con más
+   superficie táctil. */
 .vr-cart-item-editar {
   flex-shrink: 0;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  border: none;
-  background: #f2f3f5;
-  color: #6b7280;
-  font-size: 0.8rem;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
+  gap: 5px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  color: #6b7280;
+  font-size: 0.78rem;
+  font-weight: 700;
   transition: all .15s ease;
 }
 
+.vr-cart-item-editar i { font-size: 0.72rem; }
+
 .vr-cart-item-editar:hover {
-  background: var(--primary-color-hover);
-  color: #fff;
+  background: #f9fafb;
+  border-color: #d1d5db;
+  color: #374151;
 }
 
 .vr-cart-totales {
-  border-top: 1px dashed #d1d5db;
+  border-top: 1px solid #eceef1;
   padding-top: 0.75rem;
 }
 
 .vr-cart-acciones {
   display: flex;
-  gap: 0.6rem;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
   margin-top: 1rem;
-}
-
-.vr-cart-acciones .btn {
-  flex: 1;
-  font-size: 0.85rem;
 }
 
 .vr-total-row {
@@ -783,10 +899,43 @@
 }
 
 .vr-total-final {
-  font-size: 1.1rem;
-  font-weight: 700;
+  font-size: 1.3rem;
+  font-weight: 800;
   color: #111827;
-  padding-top: 0.4rem;
+  padding-top: 0.5rem;
+  margin-top: 0.3rem;
+  border-top: 1px solid #eceef1;
+}
+
+/* Botón de confirmar — radio/sombra propios, no el .btn-pz-primary
+   genérico compartido con el resto de la app, para no arrastrar el
+   cambio a otras pantallas. */
+.vr-cart-btn-confirmar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 50px;
+  border: none;
+  border-radius: 14px;
+  background: var(--primary-color);
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 800;
+  box-shadow: 0 8px 18px rgba(168, 0, 24, .26);
+}
+.vr-cart-btn-confirmar:hover { background: var(--primary-color-hover); color: #fff; }
+.vr-cart-btn-confirmar:disabled {
+  background: #e9ebef;
+  color: #9ca3af;
+  box-shadow: none;
+}
+
+.vr-cart-btn-nota {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  font-weight: 500;
 }
 
 @media (max-width: 900px) {

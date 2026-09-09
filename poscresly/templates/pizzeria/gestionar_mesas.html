@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'CSS/pizzeria-mapa.css' %}?v=4">
+<link rel="stylesheet" href="{% static 'CSS/pizzeria-mapa.css' %}?v=13">
 <link rel="stylesheet" href="{% static 'CSS/pizzeria_gestion_mesas.css' %}?v=2">
 {% endblock %}
 
@@ -26,11 +26,11 @@
         <p class="dash-subtitle">Arrastra una mesa para reposicionarla, o tócala para editar sus datos</p>
       </div>
       <div class="pz-header-actions">
-        <button type="button" class="btn btn-pz-primary" onclick="pzgAbrirCrear()">
-          <i class="fas fa-plus me-2"></i>Agregar mesa
+        <button type="button" class="pzm-btn pzm-btn-primary" onclick="pzgAbrirCrear()">
+          <i class="fas fa-plus"></i>Agregar mesa
         </button>
-        <a href="{% url 'pizzeria_mapa_mesas' %}" class="btn btn-pz-outline">
-          <i class="fas fa-arrow-left me-2"></i>Volver al mapa
+        <a href="{% url 'pizzeria_mapa_mesas' %}" class="pzm-btn pzm-btn-outline">
+          <i class="fas fa-arrow-left"></i>Volver al mapa
         </a>
       </div>
     </div>

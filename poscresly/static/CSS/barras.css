@@ -1,0 +1,328 @@
+/* =====================================================================
+   Sistema de barras · Pizzería móvil (poscresly/pizzeria/handoff_header)
+   Dos piezas independientes:
+   - .pzh-header  → header fijo (52px), idéntico en toda la app.
+   - .pzsh        → subheader dinámico, lo define cada pantalla.
+   - .pzal        → cinta de alerta opcional, entre las dos.
+   Solo tema claro por ahora: el botón de tema (.pzh-theme-btn) se
+   construye por fidelidad al diseño pero no tiene lógica todavía — el
+   modo oscuro completo (con paleta para cada pantalla, no solo estas
+   barras) queda como iniciativa aparte.
+   ===================================================================== */
+
+/* ===== Header fijo ===== */
+.pzh-header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  height: 52px;
+  background: #fff;
+  border-bottom: 1px solid #e6e8ec;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Plus Jakarta Sans', Helvetica, Arial, sans-serif;
+  font-feature-settings: 'tnum' 1;
+}
+
+.pzh-menu-btn,
+.pzh-theme-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+.pzh-menu-btn { color: #14181d; font-size: 17px; }
+.pzh-theme-btn { color: #5b6673; font-size: 16px; }
+.pzh-menu-btn:hover,
+.pzh-theme-btn:hover { background: #f4f5f7; }
+
+.pzh-brand {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  text-decoration: none;
+  color: inherit;
+}
+.pzh-brand-mark {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: var(--primary-color, #A80018);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  flex: 0 0 auto;
+}
+.pzh-brand-text { min-width: 0; display: flex; flex-direction: column; }
+.pzh-brand-name {
+  font-size: 13.5px;
+  font-weight: 800;
+  letter-spacing: -.015em;
+  line-height: 1.2;
+  color: #14181d;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pzh-user {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 8px 4px 4px;
+  border-radius: 11px;
+  flex: 0 0 auto;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+.pzh-user:hover { background: #f4f5f7; }
+.pzh-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #14181d;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+.pzh-caret { font-size: 8px; color: #8a929c; }
+
+/* ===== Subheader dinámico ===== */
+.pzsh {
+  position: sticky;
+  top: 52px;
+  z-index: 29;
+  background: #fafbfc;
+  border-bottom: 1px solid #eef0f3;
+  font-family: 'Plus Jakarta Sans', Helvetica, Arial, sans-serif;
+  font-feature-settings: 'tnum' 1;
+}
+
+.pzsh-row { display: flex; align-items: center; gap: 10px; padding: 9px 14px; }
+.pzsh-row.pzsh-row-tall { padding: 8px 14px 6px; }
+
+.pzsh-back {
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  background: #fff;
+  border: 1px solid #e6e8ec;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  color: #5b6673;
+  font-size: 15px;
+  text-decoration: none;
+}
+.pzsh-back:hover { color: #14181d; }
+
+.pzsh-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.pzsh-title-row { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.pzsh-title {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -.02em;
+  line-height: 1.2;
+  color: #14181d;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pzsh-title-sm { font-size: 17px; }
+
+.pzsh-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 800;
+  flex: 0 0 auto;
+}
+.pzsh-pill-dot { width: 5px; height: 5px; border-radius: 50%; }
+
+.pzsh-pill-tono-neutro { background: #f4f5f7; color: #4a545f; }
+.pzsh-pill-tono-oscuro { background: #14181d; color: #fff; }
+.pzsh-pill-tono-delivery { background: #fdecef; color: #a90d27; border: 1px solid #f4d3d9; }
+/* rojo/verde: mismos tokens que --pzm-red-soft-*/--pzm-green-soft-* de
+   pizzeria-mapa.css (Mesas) — para pills de estado de pedido (por cobrar/
+   cobrado) con el mismo código de color que ya usa el resto de la app. */
+.pzsh-pill-tono-rojo { background: #fdecef; color: #a90d27; }
+.pzsh-pill-tono-verde { background: #eaf6ef; color: #1c7a4a; }
+
+.pzsh-sub {
+  font-size: 11px;
+  color: #8a929c;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pzsh-sub strong { font-weight: 800; }
+.pzsh-hl-verde { color: #1c7a4a; }
+.pzsh-hl-rojo { color: #c8102e; }
+.pzsh-hl-ambar { color: #8a5800; }
+.pzsh-hl-neutro { color: #4a545f; }
+
+.pzsh-actions { flex: 0 0 auto; display: flex; align-items: center; gap: 6px; }
+.pzsh-action-icon {
+  min-width: 38px;
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 11px;
+  border-radius: 11px;
+  background: #fff;
+  border: 1px solid #e6e8ec;
+  color: #5b6673;
+  font-size: 15px;
+  text-decoration: none;
+  cursor: pointer;
+}
+.pzsh-action-icon:hover { color: #14181d; }
+.pzsh-action-text {
+  padding: 0 10px;
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  background: transparent;
+  border: none;
+  font-size: 12.5px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.pzsh-second {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 14px 11px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.pzsh-second::-webkit-scrollbar { display: none; }
+
+.pzsh-chip {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  background: #fff;
+  color: #5b6673;
+  border: 1px solid #dfe2e7;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.pzsh-chip.pzsh-chip-active { background: #14181d; color: #fff; border-color: #14181d; }
+
+.pzsh-chip-estado { font-weight: 800; }
+.pzsh-chip-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.pzsh-chip-estado.pzsh-chip-ok { background: #eaf6ef; color: #1c7a4a; border-color: #cfeadb; }
+.pzsh-chip-estado.pzsh-chip-ok .pzsh-chip-dot { background: #23a05f; }
+.pzsh-chip-estado.pzsh-chip-idle { background: #fff; color: #4a545f; border-color: #dfe2e7; }
+.pzsh-chip-estado.pzsh-chip-idle .pzsh-chip-dot { background: #23a05f; }
+
+.pzsh-search { padding: 0 14px 11px; }
+.pzsh-search-box {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 11px 13px;
+  border-radius: 11px;
+  background: #fff;
+  border: 1px solid #e6e8ec;
+}
+.pzsh-search-box i { font-size: 13px; color: #a8afb8; }
+.pzsh-search-box input {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #14181d;
+  flex: 1;
+  min-width: 0;
+}
+.pzsh-search-box input::placeholder { color: #a8afb8; }
+
+.pzsh-progress { height: 3px; background: #eef0f3; }
+.pzsh-progress-bar { height: 100%; background: var(--primary-color, #A80018); }
+
+/* ===== Cinta de alerta ===== */
+.pzal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 14px;
+  border-top: 1px solid;
+  font-family: 'Plus Jakarta Sans', Helvetica, Arial, sans-serif;
+}
+.pzal-left { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.pzal-msg { font-size: 11.5px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pzal-btn {
+  padding: 5px 11px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+  text-decoration: none;
+  flex-shrink: 0;
+  border: none;
+  cursor: pointer;
+}
+.pzal-note { font-size: 11px; font-weight: 800; white-space: nowrap; flex-shrink: 0; }
+
+.pzal-impresora { background: #fdecef; border-color: #f4d3d9; }
+.pzal-impresora .pzal-msg, .pzal-impresora i { color: #a90d27; }
+.pzal-impresora .pzal-btn { background: var(--primary-color, #A80018); color: #fff; }
+
+.pzal-conexion { background: #fdf3e2; border-color: #f2e0bd; }
+.pzal-conexion .pzal-msg, .pzal-conexion i, .pzal-conexion .pzal-note { color: #8a5800; }
+
+.pzal-turno { background: #f4f5f7; border-color: #e6e8ec; }
+.pzal-turno .pzal-msg { color: #4a545f; }
+.pzal-turno .pzal-btn { background: #14181d; color: #fff; }
+
+/* ===== Integración en páginas que comparten base.html con escritorio
+   (Mesas, Órdenes, Delivery) =====
+   El header/subheader nuevo convive en el DOM con el .app-topbar viejo y
+   con el título propio de cada página (marcado con .pzsh-superseded);
+   el breakpoint decide cuál se ve — mismo patrón que ya usa .pzbn para
+   el navbar inferior. En movil/base_movil.html (sin body.pizzeria-page)
+   no aplica nada de esto: el header/subheader nuevo se ve siempre. */
+@media (min-width: 1024px) {
+  body.pizzeria-page .pzh-header,
+  body.pizzeria-page .pzsh { display: none; }
+}
+
+@media (max-width: 1023px) {
+  body.pizzeria-page .app-topbar,
+  body.pizzeria-page .pzsh-superseded { display: none; }
+}

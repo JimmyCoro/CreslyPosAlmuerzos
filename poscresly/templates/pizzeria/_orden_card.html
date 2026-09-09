@@ -1,0 +1,55 @@
+<div class="oc-card" data-estado="{{ orden.pedido.estado }}" role="button" tabindex="0" onclick="window.location.href='{% url 'pizzeria_detalle_orden' orden.pedido.id %}'">
+
+  <div class="oc-top">
+    <div class="oc-top-left">
+      <div class="oc-avatar">
+        {% if orden.pedido.tipo == 'mesa' %}M{{ orden.pedido.mesa.numero|default:orden.pedido.mesa.nombre|default:"-" }}
+        {% elif orden.pedido.tipo == 'delivery' %}<i class="fas fa-motorcycle"></i>
+        {% else %}<i class="fas fa-bag-shopping"></i>{% endif %}
+      </div>
+      <span class="oc-codigo">#{{ orden.pedido.numero_pedido_completo }}</span>
+    </div>
+    <span class="oc-precio">${{ orden.pedido.total|floatformat:2 }}</span>
+  </div>
+
+  <div class="oc-mesa">
+    {% if orden.pedido.tipo == 'mesa' and orden.pedido.mesa %}Mesa {{ orden.pedido.mesa.nombre|default:orden.pedido.mesa.numero }}
+    {% elif orden.pedido.contacto %}{{ orden.pedido.contacto }}
+    {% elif orden.pedido.tipo == 'delivery' %}Delivery
+    {% else %}Para llevar{% endif %}
+    {% if orden.pedido.tipo == 'delivery' and orden.pedido.pago_delivery %}
+    <span class="oc-pago-badge oc-pago-{{ orden.pedido.pago_delivery }}">
+      <i class="fas {% if orden.pedido.pago_delivery == 'efectivo' %}fa-money-bill-wave{% else %}fa-right-left{% endif %}"></i>
+      {{ orden.pedido.get_pago_delivery_display }}
+    </span>
+    {% endif %}
+  </div>
+
+  <div class="oc-items-simple">
+    {% if orden.bloques %}
+      {% for bloque in orden.bloques %}
+        {% if bloque.grupo %}<div class="oc-item-grupo">{{ bloque.grupo }}</div>{% endif %}
+        {% for item in bloque.items %}
+        <div class="oc-item-simple oc-item-estado-{{ item.estado }}{% if bloque.grupo %} oc-item-simple-sub{% endif %}" title="{{ item.get_estado_display }}">
+          <span class="oc-item-qty">{{ item.cantidad }}</span>
+          <span class="oc-item-nombre">{{ item.descripcion }}</span>
+        </div>
+        {% endfor %}
+      {% endfor %}
+    {% else %}
+      {% for item in orden.items %}
+      <div class="oc-item-simple">{{ item }}</div>
+      {% empty %}
+      <div class="oc-item-simple text-muted">Sin productos todavía</div>
+      {% endfor %}
+    {% endif %}
+  </div>
+
+  <div class="oc-bottom">
+    <span class="oc-status-simple">
+      <span class="oc-status-dot oc-status-dot-{{ orden.pedido.estado }}"></span>
+      {% if orden.pedido.estado == 'abierto' %}En cocina{% else %}{{ orden.pedido.get_estado_display }}{% endif %}
+    </span>
+    <span class="oc-meta"><i class="fas fa-user-tie"></i> {{ orden.pedido.fecha_creacion|date:"d M · h:i A" }}</span>
+  </div>
+</div>

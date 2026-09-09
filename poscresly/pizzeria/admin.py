@@ -83,7 +83,7 @@ class PagoPedidoInline(admin.TabularInline):
 @admin.register(PedidoPizzeria)
 class PedidoPizzeriaAdmin(admin.ModelAdmin):
     list_display = ('numero_pedido_completo', 'tipo', 'mesa', 'mesero', 'estado', 'total', 'fecha_creacion')
-    list_filter = ('tipo', 'estado', 'forma_pago')
+    list_filter = ('tipo', 'estado', 'forma_pago', 'pago_delivery')
     inlines = [ItemPreparacionInline, PagoPedidoInline]
 
 

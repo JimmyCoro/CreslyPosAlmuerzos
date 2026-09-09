@@ -62,12 +62,35 @@
     });
   }
 
+  // La "Porción" es una sola porción de pizza: no admite mitad y mitad
+  // (no tiene sentido partir una porción individual en dos sabores).
+  function tamanoPermiteMitad(tamanoId) {
+    const t = catalogo.tamanos.find(t => t.id === tamanoId);
+    return !t || t.nombre !== 'Porción';
+  }
+
+  function actualizarDisponibilidadMitadPizza() {
+    const permite = tamanoPermiteMitad(pizza.tamanoId);
+    document.getElementById('pzPizzaMitadWrap').style.display = permite ? '' : 'none';
+    if (!permite && pizza.mitad) {
+      pizza.mitad = false;
+      pizza.sabor2Id = null;
+      document.getElementById('pzPizzaMitad').checked = false;
+    }
+  }
+
   function renderPizzaTamanos() {
     renderTamanoRadio(
       document.getElementById('pzPizzaTamanos'),
       catalogo.tamanos.map(t => ({ id: t.id, nombre: t.nombre, precio: t.precio_base })),
       pizza.tamanoId,
-      id => { pizza.tamanoId = id; renderPizzaTamanos(); actualizarPrecioPizza(); },
+      id => {
+        pizza.tamanoId = id;
+        renderPizzaTamanos();
+        actualizarDisponibilidadMitadPizza();
+        renderPizzaSabores();
+        actualizarPrecioPizza();
+      },
     );
   }
 
@@ -885,20 +908,28 @@
   };
 
   // ===== INIT =====
-  modalAlitasProducto = new bootstrap.Modal(document.getElementById('pzModalAlitasProducto'));
-  modalBebidaProducto = new bootstrap.Modal(document.getElementById('pzModalBebidaProducto'));
-  modalMicheladaProducto = new bootstrap.Modal(document.getElementById('pzModalMicheladaProducto'));
-  renderPizzaTamanos();
-  renderPizzaSabores();
-  renderCombos();
-  renderComboTamanos();
-  renderComboSabores();
-  renderComboAlitas();
-  renderComboBebida();
-  renderComboMichelada();
-  renderComboPorciones();
-  actualizarVisibilidadCombo();
-  renderCategoriaChips();
-  renderProductos();
-  renderCarrito();
+  // Este script se carga antes que bootstrap.min.js (el <script> de esta
+  // pantalla vive dentro de {% block content %}, y Bootstrap se agrega
+  // recién más abajo en base.html), así que hay que esperar a
+  // DOMContentLoaded antes de instanciar bootstrap.Modal — si no,
+  // "bootstrap" todavía no existe y el resto de esta función nunca corre.
+  document.addEventListener('DOMContentLoaded', function () {
+    modalAlitasProducto = new bootstrap.Modal(document.getElementById('pzModalAlitasProducto'));
+    modalBebidaProducto = new bootstrap.Modal(document.getElementById('pzModalBebidaProducto'));
+    modalMicheladaProducto = new bootstrap.Modal(document.getElementById('pzModalMicheladaProducto'));
+    renderPizzaTamanos();
+    renderPizzaSabores();
+    actualizarDisponibilidadMitadPizza();
+    renderCombos();
+    renderComboTamanos();
+    renderComboSabores();
+    renderComboAlitas();
+    renderComboBebida();
+    renderComboMichelada();
+    renderComboPorciones();
+    actualizarVisibilidadCombo();
+    renderCategoriaChips();
+    renderProductos();
+    renderCarrito();
+  });
 })();

@@ -1,0 +1,372 @@
+/* =====================================================================
+   Cobrar · móvil (poscresly/pizzeria/handoff_cobrar)
+   Solo ≤1023px — el flujo de escritorio (.cb-*, pizzeria-cobrar.css)
+   sigue intacto en pizzeria/cobrar_orden.html para ≥1024px, igual que ya
+   se hizo con Detalle de orden. Mismo patrón de tokens --do-* que
+   pizzeria-detalle-orden.css (valores casi idénticos en el handoff), acá
+   redefinidos localmente para que este archivo no dependa de cargarse
+   junto a aquel.
+   ===================================================================== */
+:root {
+  --do-ink: #14181d;
+  --do-text-2: #4a545f;
+  --do-text-3: #5b6673;
+  --do-muted: #767e88;
+  --do-muted-2: #8a929c;
+  --do-muted-3: #98a1ab;
+  --do-faint: #a8afb8;
+  --do-faint-2: #c3c8ce;
+  --do-surface: #ffffff;
+  --do-page: #f4f5f7;
+  --do-surface-2: #fafbfc;
+  --do-segmented-bg: #e9ebef;
+  --do-border: #e6e8ec;
+  --do-border-soft: #eef0f3;
+  --do-border-input: #dfe2e7;
+  --do-brand: #c8102e;
+  --do-brand-dark: #a90d27;
+  --do-brand-tint-bg: #fdecef;
+  --do-brand-tint-border: #f4d3d9;
+  --do-brand-muted: #a9707c;
+  --do-green: #23a05f;
+  --do-green-dark: #1c7a4a;
+  --do-green-mid: #5f8a72;
+  --do-green-tint: #eaf6ef;
+  --do-green-tint-2: #f4fbf7;
+  --do-green-tint-border: #cfeadb;
+  --do-blue: #1d5a9e;
+  --do-blue-tint: #e9f1fb;
+  --do-amber-dark: #8a5800;
+  --do-amber-tint-bg: #fdf3e2;
+  --do-amber-tint-border: #f2e0bd;
+}
+
+/* Gating entre el flujo de escritorio existente (.cb-*) y este, igual que
+   .pzsh-superseded / pizzeria_header en el resto de la app. */
+@media (max-width: 1023px) {
+  body.pizzeria-page .cbm-solo-desktop { display: none; }
+}
+@media (min-width: 1024px) {
+  body.pizzeria-page .cbm-solo-movil { display: none; }
+}
+
+.cbm-page {
+  max-width: 640px;
+  margin: 0 auto;
+  font-family: var(--fuente-jakarta);
+  font-feature-settings: 'tnum' 1;
+  color: var(--do-ink);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 16px;
+}
+
+/* ===== Fila de detalle colapsada ===== */
+.cbm-detalle {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid var(--do-border);
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+}
+.cbm-detalle-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.cbm-detalle-label { font-size: 10.5px; font-weight: 800; letter-spacing: .09em; color: var(--do-muted-2); }
+.cbm-detalle-resumen {
+  font-size: 12.5px;
+  color: var(--do-text-2);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cbm-detalle-ver { display: flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; color: var(--do-text-3); flex: 0 0 auto; }
+.cbm-detalle-ver i { font-size: 13px; color: var(--do-faint-2); transition: transform .12s ease; }
+.cbm-detalle-abierto .cbm-detalle-ver i { transform: rotate(180deg); }
+
+.cbm-detalle-lista { display: none; flex-direction: column; gap: 8px; padding: 2px 2px 0; }
+.cbm-detalle-lista.cbm-visible { display: flex; }
+.cbm-detalle-item {
+  display: flex; align-items: center; gap: 11px; padding: 10px 12px;
+  border-radius: 12px; background: #fff; border: 1px solid var(--do-border-soft);
+}
+.cbm-detalle-item-badge {
+  width: 24px; height: 24px; border-radius: 8px; background: var(--do-brand-tint-bg); color: var(--do-brand-dark);
+  font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex: 0 0 auto;
+}
+.cbm-detalle-item-nombre { flex: 1; min-width: 0; font-size: 12.5px; font-weight: 700; }
+.cbm-detalle-item-precio { flex: 0 0 auto; font-size: 12.5px; font-weight: 700; color: var(--do-muted); }
+
+/* ===== Tarjeta de pago ===== */
+.cbm-tarjeta { background: #fff; border: 1px solid var(--do-border); border-radius: 16px; padding: 15px; display: flex; flex-direction: column; gap: 14px; }
+.cbm-divisor { height: 1px; background: var(--do-border-soft); }
+
+.cbm-totales { display: flex; flex-direction: column; gap: 6px; }
+.cbm-total-fila { display: flex; align-items: baseline; justify-content: space-between; font-size: 12.5px; }
+.cbm-total-fila span:first-child { color: var(--do-muted); font-weight: 600; }
+.cbm-total-fila span:last-child { font-weight: 700; color: var(--do-ink); }
+.cbm-total-final {
+  display: flex; align-items: baseline; justify-content: space-between;
+  border-top: 1px solid var(--do-border-soft); padding-top: 10px;
+}
+.cbm-total-final-label { font-size: 13.5px; font-weight: 800; }
+.cbm-total-final-valor { font-size: 28px; font-weight: 800; letter-spacing: -.03em; line-height: 1; }
+
+.cbm-metodo-label { font-size: 10.5px; font-weight: 800; letter-spacing: .09em; color: var(--do-muted-2); margin-bottom: 8px; display: block; }
+.cbm-metodos { display: flex; gap: 6px; }
+.cbm-metodo {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px;
+  padding: 11px 4px; border-radius: 12px; background: #fff; border: 1px solid var(--do-border-input);
+  font-family: inherit; cursor: pointer; touch-action: manipulation;
+}
+.cbm-metodo i { font-size: 15px; color: var(--do-text-3); }
+.cbm-metodo span { font-size: 11px; font-weight: 700; color: var(--do-text-3); }
+.cbm-metodo-activo { background: var(--do-ink); border-color: var(--do-ink); }
+.cbm-metodo-activo i,
+.cbm-metodo-activo span { color: #fff; font-weight: 800; }
+
+/* ===== Monto recibido ===== */
+.cbm-recibido-header { display: flex; align-items: baseline; justify-content: space-between; }
+.cbm-recibido-nota { font-size: 11px; font-weight: 700; }
+.cbm-recibido-nota-ok { color: var(--do-green-dark); }
+.cbm-recibido-nota-falta { color: var(--do-brand); }
+
+.cbm-recibido-input-wrap {
+  display: flex; align-items: center; gap: 4px; padding: 14px 15px; border-radius: 12px;
+  border: 1.5px solid var(--do-ink); margin-top: 8px;
+}
+.cbm-recibido-input-wrap span { font-size: 17px; font-weight: 700; color: var(--do-muted-2); }
+.cbm-recibido-input {
+  border: none; outline: none; flex: 1; min-width: 0; font-size: 26px; font-weight: 800;
+  letter-spacing: -.03em; color: var(--do-ink); font-family: inherit; background: transparent;
+}
+
+.cbm-atajos { display: flex; gap: 6px; margin-top: 8px; }
+.cbm-atajo {
+  flex: 1; padding: 10px 4px; border-radius: 10px; font-size: 12.5px; font-weight: 700;
+  background: #fff; border: 1px solid var(--do-border-input); color: var(--do-text-3);
+  font-family: inherit; text-align: center;
+}
+.cbm-atajo-exacto { background: var(--do-green-tint); border-color: var(--do-green-tint-border); color: var(--do-green-dark); font-weight: 800; }
+.cbm-atajo-activo { background: var(--do-ink); border-color: var(--do-ink); color: #fff; }
+
+/* ===== Tarjeta de resultado (vuelto / faltante / sobrante) — una pieza,
+   tres tonos, reutilizada por cobro simple, mixto y cobrar-persona. ===== */
+.cbm-resultado {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 13px 15px; border-radius: 13px; margin-top: 10px;
+}
+.cbm-resultado-info { display: flex; flex-direction: column; gap: 2px; }
+.cbm-resultado-label { font-size: 10.5px; font-weight: 800; letter-spacing: .09em; }
+.cbm-resultado-sub { font-size: 11px; font-weight: 600; }
+.cbm-resultado-valor { font-size: 27px; font-weight: 800; letter-spacing: -.03em; }
+
+.cbm-resultado-ok { background: var(--do-green-tint); border: 1px solid var(--do-green-tint-border); }
+.cbm-resultado-ok .cbm-resultado-label,
+.cbm-resultado-ok .cbm-resultado-valor { color: var(--do-green-dark); }
+.cbm-resultado-ok .cbm-resultado-sub { color: var(--do-green-mid); }
+
+.cbm-resultado-falta { background: var(--do-brand-tint-bg); border: 1px solid var(--do-brand-tint-border); }
+.cbm-resultado-falta .cbm-resultado-label,
+.cbm-resultado-falta .cbm-resultado-valor { color: var(--do-brand); }
+.cbm-resultado-falta .cbm-resultado-sub { color: var(--do-brand-muted); }
+
+.cbm-resultado-sobra { background: var(--do-amber-tint-bg); border: 1px solid var(--do-amber-tint-border); }
+.cbm-resultado-sobra .cbm-resultado-label,
+.cbm-resultado-sobra .cbm-resultado-valor { color: var(--do-amber-dark); }
+.cbm-resultado-sobra .cbm-resultado-sub { color: var(--do-amber-dark); }
+
+/* ===== Pago mixto ===== */
+.cbm-mixto-header { display: flex; align-items: center; justify-content: space-between; }
+.cbm-mixto-contador { font-size: 11px; font-weight: 700; color: var(--do-muted-3); }
+
+.cbm-mixto-lineas { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.cbm-mixto-linea {
+  display: flex; align-items: center; gap: 9px; padding: 10px 12px; border-radius: 12px;
+  background: #fff; border: 1px solid var(--do-border-input);
+}
+.cbm-mixto-linea-activa { border: 1.5px solid var(--do-ink); }
+.cbm-mixto-icono { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex: 0 0 auto; }
+.cbm-mixto-icono-efectivo { background: var(--do-brand-tint-bg); color: var(--do-brand-dark); }
+.cbm-mixto-icono-transferencia { background: var(--do-blue-tint); color: var(--do-blue); }
+.cbm-mixto-icono-tarjeta { background: var(--do-amber-tint-bg); color: var(--do-amber-dark); }
+.cbm-mixto-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.cbm-mixto-nombre { font-size: 11px; font-weight: 700; color: var(--do-muted-2); }
+.cbm-mixto-input {
+  border: none; outline: none; font-size: 19px; font-weight: 800; letter-spacing: -.025em;
+  color: var(--do-ink); font-family: inherit; background: transparent; width: 100%; padding: 0;
+}
+.cbm-mixto-resto {
+  flex: 0 0 auto; padding: 7px 10px; border-radius: 9px; font-size: 11px; font-weight: 800;
+  background: var(--do-page); color: var(--do-text-3); border: none; font-family: inherit;
+}
+.cbm-mixto-linea-activa .cbm-mixto-resto { background: var(--do-ink); color: #fff; }
+
+.cbm-mixto-agregar {
+  display: flex; align-items: center; gap: 9px; padding: 10px 12px; border-radius: 12px;
+  background: var(--do-surface-2); border: 1px dashed var(--do-border-input); font-family: inherit; width: 100%;
+}
+.cbm-mixto-agregar-icono {
+  width: 34px; height: 34px; border-radius: 10px; background: #fff; border: 1px solid var(--do-border-input);
+  display: flex; align-items: center; justify-content: center; flex: 0 0 auto; color: var(--do-muted-2);
+}
+.cbm-mixto-agregar span { flex: 1; text-align: left; font-size: 12.5px; font-weight: 700; color: var(--do-muted-2); }
+.cbm-mixto-agregar i.bi-plus-lg { color: var(--do-faint-2); font-size: 17px; }
+
+/* ===== Barra de confirmar (fija, sobre la bottom nav) ===== */
+/* A pedido del usuario: parte del flujo normal de la página, no fija —
+   scrollea con el resto del contenido en vez de flotar sobre la bottom
+   nav. Mismo look (fondo, borde, sombra hacia arriba) pero en el lugar
+   donde cae dentro de .cbm-page. */
+.cbm-barra-confirmar {
+  background: #fff;
+  border: 1px solid var(--do-border);
+  border-radius: 14px;
+  padding: 12px 14px;
+  box-shadow: 0 -8px 22px rgba(20, 24, 29, .07);
+}
+
+.cbm-btn-confirmar {
+  width: 100%; height: 52px; border-radius: 14px; border: none; font-size: 15px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit;
+}
+.cbm-btn-confirmar-on { background: var(--do-brand); color: #fff; box-shadow: 0 8px 18px rgba(200, 16, 46, .26); }
+.cbm-btn-confirmar-off { background: var(--do-segmented-bg); color: var(--do-muted-2); }
+.cbm-btn-confirmar:disabled { cursor: not-allowed; }
+.cbm-linea-bloqueo { display: block; text-align: center; font-size: 11px; font-weight: 700; color: var(--do-brand); margin-top: 8px; }
+.cbm-linea-bloqueo-sub { font-size: 11px; font-weight: 600; color: var(--do-muted-3); margin-top: 6px; }
+
+/* ===== Dividir cuenta: tarjetas de persona ===== */
+.cbm-personas-scroll { display: flex; gap: 9px; overflow-x: auto; padding: 2px 2px 4px; scrollbar-width: none; }
+.cbm-personas-scroll::-webkit-scrollbar { display: none; }
+
+.cbm-persona-card {
+  flex: 0 0 auto; width: 128px; border-radius: 14px; padding: 12px 13px; display: flex; flex-direction: column; gap: 3px;
+  background: #fff; border: 1px solid var(--do-border-input); text-align: left; font-family: inherit;
+}
+.cbm-persona-nombre { font-size: 12px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cbm-persona-monto { font-size: 20px; font-weight: 800; letter-spacing: -.03em; color: var(--do-muted-2); }
+.cbm-persona-conteo { font-size: 10.5px; font-weight: 600; color: var(--do-muted-3); }
+
+.cbm-persona-activa { background: var(--do-ink); border-color: var(--do-ink); }
+.cbm-persona-activa .cbm-persona-nombre,
+.cbm-persona-activa .cbm-persona-monto { color: #fff; }
+.cbm-persona-activa .cbm-persona-conteo { color: rgba(255, 255, 255, .7); }
+
+.cbm-persona-pagada { background: var(--do-green-tint-2); border-color: var(--do-green-tint-border); }
+.cbm-persona-pagada .cbm-persona-nombre,
+.cbm-persona-pagada .cbm-persona-monto { color: var(--do-green-dark); }
+.cbm-persona-pagada .cbm-persona-conteo { color: var(--do-green-mid); }
+.cbm-persona-check { color: var(--do-green); font-size: 15px; margin-right: 4px; }
+
+.cbm-persona-agregar {
+  flex: 0 0 auto; width: 104px; border-radius: 14px; border: 1px dashed var(--do-faint-2); background: var(--do-surface-2);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 12px;
+}
+.cbm-persona-agregar i { font-size: 17px; color: var(--do-muted-2); }
+.cbm-persona-agregar span { font-size: 11px; font-weight: 700; color: var(--do-text-3); }
+
+/* ===== Barra de asignación ===== */
+.cbm-asignar-bar { display: flex; align-items: center; gap: 9px; }
+.cbm-asignar-label { font-size: 10.5px; font-weight: 800; letter-spacing: .1em; color: var(--do-muted-2); white-space: nowrap; }
+.cbm-asignar-track { flex: 1; height: 4px; border-radius: 999px; background: var(--do-border-soft); overflow: hidden; }
+.cbm-asignar-fill { height: 100%; background: var(--do-brand); }
+.cbm-asignar-conteo { font-size: 11px; font-weight: 800; color: var(--do-brand); white-space: nowrap; }
+
+/* ===== Filas de platillo (dividir) ===== */
+.cbm-lineas { display: flex; flex-direction: column; gap: 8px; }
+.cbm-linea {
+  display: flex; align-items: center; gap: 11px; padding: 11px 12px; border-radius: 14px;
+  background: #fff; border: 1px solid var(--do-border);
+}
+.cbm-linea-asignada { border: 1.5px solid var(--do-brand); box-shadow: 0 6px 14px rgba(200, 16, 46, .10); }
+.cbm-linea-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.cbm-linea-nombre { font-size: 13.5px; font-weight: 700; line-height: 1.3; }
+.cbm-linea-mods { font-size: 11.5px; font-weight: 700; color: var(--do-amber-dark); }
+.cbm-linea-stepper { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; }
+.cbm-linea-stepper form { display: contents; }
+.cbm-linea-stepper-btn {
+  width: 36px; height: 40px; border-radius: 10px; border: 1px solid var(--do-border-input); background: #fff;
+  font-size: 17px; font-weight: 700; color: var(--do-text-3); display: flex; align-items: center; justify-content: center;
+}
+.cbm-linea-stepper-btn:disabled { color: var(--do-faint-2); }
+.cbm-linea-conteo { text-align: center; min-width: 34px; }
+.cbm-linea-conteo-asignado { font-size: 14px; font-weight: 800; }
+.cbm-linea-conteo-total { font-size: 11px; font-weight: 700; color: var(--do-muted-3); }
+
+/* ===== Barra inferior de dividir (Repartir igual / Cobrar Pn) ===== */
+.cbm-barra-dividir { display: flex; gap: 9px; align-items: stretch; }
+.cbm-barra-dividir form { flex: 1; display: flex; }
+.cbm-btn-repartir {
+  flex: 0 0 auto; padding: 0 15px; min-height: 52px; border-radius: 14px; border: 1px solid var(--do-border-input);
+  background: #fff; font-size: 13px; font-weight: 700; color: var(--do-text-3); font-family: inherit;
+  white-space: nowrap;
+}
+/* .cbm-btn-cobrar-persona es un <a> (o un <span> cuando está deshabilitado) —
+   min-height + padding en vez de height fija, para que si el texto no
+   entra en una línea (nombre largo + monto) el botón crezca en vez de
+   que el contenido se desborde; text-decoration:none porque los <a> lo
+   traen subrayado por defecto. */
+.cbm-btn-cobrar-persona {
+  flex: 1;
+  min-height: 52px;
+  padding: 8px 14px;
+  border-radius: 14px;
+  border: none;
+  background: var(--do-brand);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.25;
+  text-align: center;
+  text-decoration: none;
+  box-shadow: 0 8px 18px rgba(200, 16, 46, .26);
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.cbm-btn-cobrar-persona:hover,
+.cbm-btn-cobrar-persona:focus,
+.cbm-btn-cobrar-persona:active { color: #fff; text-decoration: none; }
+.cbm-btn-cobrar-persona i { flex-shrink: 0; }
+.cbm-btn-cobrar-persona:disabled { background: var(--do-segmented-bg); color: var(--do-muted-2); box-shadow: none; }
+
+.cbm-progreso-cobrado {
+  display: flex; align-items: center; gap: 10px; padding: 4px 2px;
+}
+.cbm-progreso-cobrado-label { font-size: 10.5px; font-weight: 800; letter-spacing: .09em; color: var(--do-muted-2); flex: 0 0 auto; }
+.cbm-progreso-cobrado-track { flex: 1; height: 4px; border-radius: 999px; background: var(--do-border-soft); overflow: hidden; }
+.cbm-progreso-cobrado-fill { height: 100%; background: var(--do-green); }
+.cbm-progreso-cobrado-monto { font-size: 11px; font-weight: 800; color: var(--do-green-dark); white-space: nowrap; }
+
+/* ===== Cobrar a una persona ===== */
+.cbm-personas-mini { display: flex; gap: 8px; }
+.cbm-persona-mini {
+  flex: 1; border-radius: 13px; padding: 11px 13px; background: #fff; border: 1px solid var(--do-border-input);
+  display: flex; flex-direction: column; gap: 2px;
+}
+.cbm-persona-mini-activa { background: var(--do-ink); border-color: var(--do-ink); }
+.cbm-persona-mini-activa .cbm-persona-mini-nombre,
+.cbm-persona-mini-activa .cbm-persona-mini-estado { color: #fff; }
+.cbm-persona-mini-nombre { font-size: 12.5px; font-weight: 800; }
+.cbm-persona-mini-estado { font-size: 11px; font-weight: 600; color: var(--do-muted-3); }
+
+.cbm-su-parte { display: flex; align-items: baseline; justify-content: space-between; }
+.cbm-su-parte-label { font-size: 12.5px; font-weight: 700; color: var(--do-muted); }
+.cbm-su-parte-valor { font-size: 28px; font-weight: 800; letter-spacing: -.03em; }
+
+.cbm-metodo-nota { font-size: 11px; color: var(--do-muted-3); font-weight: 600; margin-top: 6px; }
+
+.cbm-referencia-input {
+  width: 100%; padding: 13px 14px; border-radius: 12px; border: 1.5px solid var(--do-ink);
+  font-size: 16px; font-weight: 700; letter-spacing: .02em; font-family: inherit; color: var(--do-ink); outline: none;
+}
+
+.cbm-siguiente-nota { text-align: center; font-size: 11px; color: var(--do-muted-3); font-weight: 600; margin-top: 8px; }

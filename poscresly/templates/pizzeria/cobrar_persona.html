@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'CSS/pizzeria-cobrar-movil.css' %}?v=3">
+{% endblock %}
+
+{% block content %}
+{% include 'components/pizzeria_header.html' %}
+{% include 'components/pizzeria_alerta.html' %}
+{% include 'components/pizzeria_subheader.html' %}
+
+<div class="container-fluid contenedor-principal">
+<div class="col-12 col-der">
+<div class="cbm-page">
+
+  <div class="cbm-personas-mini">
+    {% for p in otras_personas %}
+    <div class="cbm-persona-mini{% if p.activa %} cbm-persona-mini-activa{% endif %}">
+      <span class="cbm-persona-mini-nombre">{{ p.nombre }}</span>
+      <span class="cbm-persona-mini-estado">{% if p.activa %}cobrando ahora{% elif p.confirmada %}Pagado · {{ p.metodo_usado|lower }}{% else %}pendiente{% endif %}</span>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="cbm-tarjeta">
+    <div class="cbm-totales">
+      {% for linea in lineas_persona %}
+      <div class="cbm-total-fila"><span>{{ linea.cantidad }}x {{ linea.nombre }}</span><span>${{ linea.importe|floatformat:2 }}</span></div>
+      {% endfor %}
+      <div class="cbm-total-final">
+        <span class="cbm-total-final-label">Su parte</span>
+        <span class="cbm-total-final-valor">${{ total_con_iva|floatformat:2 }}</span>
+      </div>
+    </div>
+
+    <div class="cbm-divisor"></div>
+
+    <div>
+      <span class="cbm-metodo-label">CÓMO PAGA {{ nombre_persona|upper }}</span>
+      <div class="cbm-metodos" id="cbmMetodos">
+        <button type="button" class="cbm-metodo" data-metodo="Efectivo"><i class="bi bi-cash"></i><span>Efectivo</span></button>
+        <button type="button" class="cbm-metodo" data-metodo="Transferencia"><i class="bi bi-arrow-left-right"></i><span>Transf.</span></button>
+        <button type="button" class="cbm-metodo" data-metodo="Tarjeta"><i class="bi bi-credit-card"></i><span>Tarjeta</span></button>
+        <button type="button" class="cbm-metodo" data-metodo="Mixto"><i class="bi bi-layers"></i><span>Mixto</span></button>
+      </div>
+      <p class="cbm-metodo-nota">Cada persona elige su propio método. Las demás pueden pagar distinto.</p>
+    </div>
+
+    <div id="cbmBloqueMetodo"></div>
+  </div>
+
+  <div class="cbm-barra-confirmar" id="cbmBarraConfirmar">
+    <button type="button" class="cbm-btn-confirmar cbm-btn-confirmar-off" id="cbmBtnConfirmar" disabled>
+      <span id="cbmBtnConfirmarTexto">Cobrar {{ nombre_persona }}</span>
+    </button>
+    <span class="cbm-linea-bloqueo" id="cbmLineaBloqueo" hidden></span>
+    {% if siguiente_persona %}
+    <span class="cbm-siguiente-nota">Después sigue {{ siguiente_persona.nombre }}</span>
+    {% endif %}
+  </div>
+
+</div>
+</div>
+</div>
+
+<form method="post" id="cbpForm" style="display:none">
+  {% csrf_token %}
+  <input type="hidden" name="pagos_json" id="cbpPagosJson">
+</form>
+
+<script>
+  window.CSRF_TOKEN = "{{ csrf_token }}";
+</script>
+<script src="{% static 'JS/pizzeria_cobrar_movil.js' %}?v=2"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const widget = crearWidgetPagoCobro({
+      objetivo: {{ total_con_iva }},
+      textoConfirmar: 'Cobrar {{ nombre_persona|escapejs }}',
+    });
+    document.getElementById('cbmBtnConfirmar').addEventListener('click', function () {
+      const r = widget.puedeConfirmar();
+      if (!r.ok) return;
+      document.getElementById('cbpPagosJson').value = JSON.stringify(widget.obtenerPagos());
+      document.getElementById('cbpForm').submit();
+    });
+  });
+</script>
+{% endblock %}

@@ -5,7 +5,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#14181d">
@@ -15,14 +15,15 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
   <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-  <link rel="stylesheet" href="{% static 'CSS/base.css' %}?v=2">
+  <link rel="stylesheet" href="{% static 'CSS/base.css' %}?v=4">
   <link rel="stylesheet" href="{% static 'CSS/inicio.css' %}">
   <link rel="stylesheet" href="{% static 'CSS/menu-conf.css' %}">
   <link rel="stylesheet" href="{% static 'CSS/tomar-pedido.css' %}">
   <link rel="stylesheet" href="{% static 'CSS/caja.css' %}">
   <link rel="stylesheet" href="{% static 'CSS/agregar-producto.css' %}">
   {% if '/pizzeria/' in request.path %}
-  <link rel="stylesheet" href="{% static 'CSS/pizzeria-bottom-nav.css' %}">
+  <link rel="stylesheet" href="{% static 'CSS/pizzeria-bottom-nav.css' %}?v=5">
+  <link rel="stylesheet" href="{% static 'CSS/barras.css' %}?v=5">
   {% endif %}
   <link rel="manifest" href="{% static 'manifest.json' %}">
   <link rel="icon" href="{% static 'icons/icon-192.png' %}">
@@ -35,9 +36,76 @@
   {% endblock %}
 
   <style>
-    /* Sidebar icon-only: tablet horizontal (768px–1439px landscape) */
-    @media (min-width: 768px) and (max-width: 1439px) and (orientation: landscape) {
-      /* Resetear el modo "panel deslizable" de max-width:1023px */
+    /* Sidebar icon-only: tablet horizontal (768px–1439px landscape).
+       Excluido de body.pizzeria-page en el tramo 768–1023px porque ahí
+       Pizzería ya tiene su propia navegación mobile-first (.pzbn, la
+       bottom nav) — mostrar además este riel de iconos duplicaba la
+       navegación (riel a la izquierda + tabs abajo a la vez). En
+       ≥1024px no hay conflicto: .pzbn ya se oculta ahí, así que ese
+       tramo se repite sin excluir a Pizzería más abajo. */
+    @media (min-width: 768px) and (max-width: 1023px) and (orientation: landscape) {
+      body:not(.pizzeria-page) .sidebar {
+        position: relative !important;
+        transform: none !important;
+        height: 100vh !important;
+        width: 72px !important;
+        min-width: 72px !important;
+        padding: 1.25rem 0.4rem;
+        align-items: center;
+        overflow: hidden;
+        box-shadow: none !important;
+        z-index: auto !important;
+      }
+      body:not(.pizzeria-page) .sidebar-overlay { display: none !important; }
+      body:not(.pizzeria-page) .sidebar-close-btn { display: none !important; }
+      body:not(.pizzeria-page) .main-content { width: calc(100% - 72px) !important; }
+
+      body:not(.pizzeria-page) .sidebar-brand .brand-text,
+      body:not(.pizzeria-page) .sidebar-section-label,
+      body:not(.pizzeria-page) .sidebar-user .user-details { display: none !important; }
+      body:not(.pizzeria-page) .sidebar-brand { justify-content: center; margin-bottom: 1.25rem; }
+
+      /* Link en columna: icono + label */
+      body:not(.pizzeria-page) .sidebar-link {
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        padding: 0.5rem 0.2rem !important;
+        gap: 2px !important;
+      }
+      body:not(.pizzeria-page) .sidebar-icon { font-size: 1.2rem; margin: 0; }
+
+      /* Label pequeño debajo del icono */
+      body:not(.pizzeria-page) .sidebar-link span:not(.sidebar-active-dot) {
+        display: block !important;
+        font-size: 0.62rem !important;
+        line-height: 1.1;
+        text-align: center;
+        width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        color: #b9c0c9;
+      }
+      body:not(.pizzeria-page) .sidebar-link.sidebar-active span:not(.sidebar-active-dot) { color: #fff; }
+
+      body:not(.pizzeria-page) .sidebar-user { justify-content: center; }
+      body:not(.pizzeria-page) .sidebar-toggle { display: none !important; }
+
+      /* Grupo "Almuerzos": sin indentación en el rail angosto de 72px;
+         el toggle sigue funcionando igual (icono + label + chevron apilados) */
+      body:not(.pizzeria-page) .sidebar-group {
+        margin: 0;
+        padding: 0;
+        border-left: none;
+      }
+    }
+
+    /* Mismo riel de iconos, repetido sin exclusión para 1024–1439px
+       landscape: ahí .pzbn ya está oculta (ver pizzeria-bottom-nav.css),
+       así que Pizzería también usa el riel de escritorio como el resto
+       de la app. */
+    @media (min-width: 1024px) and (max-width: 1439px) and (orientation: landscape) {
       .sidebar {
         position: relative !important;
         transform: none !important;
@@ -59,7 +127,6 @@
       .sidebar-user .user-details { display: none !important; }
       .sidebar-brand { justify-content: center; margin-bottom: 1.25rem; }
 
-      /* Link en columna: icono + label */
       .sidebar-link {
         flex-direction: column !important;
         justify-content: center !important;
@@ -69,7 +136,6 @@
       }
       .sidebar-icon { font-size: 1.2rem; margin: 0; }
 
-      /* Label pequeño debajo del icono */
       .sidebar-link span:not(.sidebar-active-dot) {
         display: block !important;
         font-size: 0.62rem !important;
@@ -86,8 +152,6 @@
       .sidebar-user { justify-content: center; }
       .sidebar-toggle { display: none !important; }
 
-      /* Grupo "Almuerzos": sin indentación en el rail angosto de 72px;
-         el toggle sigue funcionando igual (icono + label + chevron apilados) */
       .sidebar-group {
         margin: 0;
         padding: 0;
@@ -130,40 +194,9 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="{% static 'JS/inicio.js' %}"></script>
 
+  <script src="{% static 'JS/sidebar.js' %}"></script>
+
   <script>
-    // ===== SIDEBAR RESPONSIVE =====
-    const sidebarToggle = document.getElementById('sidebarToggle');
-    const mainSidebar = document.getElementById('mainSidebar');
-    const sidebarOverlay = document.getElementById('sidebarOverlay');
-
-    function openSidebar() {
-      mainSidebar.classList.add('sidebar-open');
-      sidebarOverlay.classList.add('active');
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeSidebar() {
-      mainSidebar.classList.remove('sidebar-open');
-      sidebarOverlay.classList.remove('active');
-      document.body.style.overflow = '';
-    }
-
-    if (sidebarToggle) {
-      sidebarToggle.addEventListener('click', function () {
-        mainSidebar.classList.contains('sidebar-open') ? closeSidebar() : openSidebar();
-      });
-    }
-
-    sidebarOverlay.addEventListener('click', closeSidebar);
-
-    // Cierra el sidebar al navegar en móvil (excepto el toggle de grupos,
-    // que solo expande/colapsa y no debe cerrar el panel deslizable)
-    document.querySelectorAll('.sidebar-link:not(.sidebar-group-toggle)').forEach(function (link) {
-      link.addEventListener('click', function () {
-        if (window.innerWidth <= 1024) closeSidebar();
-      });
-    });
-
     // ===== FECHA Y HORA EN TOPBAR =====
     function updateDateTime() {
       const now = new Date();

@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'CSS/pizzeria-cart-bar.css' %}">
+<link rel="stylesheet" href="{% static 'CSS/pizzeria-cobrar-movil.css' %}?v=3">
+{% endblock %}
+
+{% block content %}
+{% include 'components/pizzeria_header.html' %}
+{% include 'components/pizzeria_alerta.html' %}
+{% include 'components/pizzeria_subheader.html' %}
+
+<div class="container-fluid contenedor-principal">
+<div class="col-12 col-der">
+<div class="cbm-page">
+
+  <div class="cbm-personas-scroll">
+    {% for persona in personas %}
+    <form method="post" action="{% url 'pizzeria_cobrar_dividir_activar' pedido.id persona.indice %}" style="display:contents">
+      {% csrf_token %}
+      {% if persona.confirmada %}
+      <div class="cbm-persona-card cbm-persona-pagada">
+        <span class="cbm-persona-nombre"><i class="bi bi-check-circle-fill cbm-persona-check"></i>{{ persona.nombre }}</span>
+        <span class="cbm-persona-monto">${{ persona.monto|floatformat:2 }}</span>
+        <span class="cbm-persona-conteo">Pagado · {{ persona.metodo_usado|default:"—"|lower }}</span>
+      </div>
+      {% else %}
+      <button type="submit" class="cbm-persona-card{% if persona.activa %} cbm-persona-activa{% endif %}">
+        <span class="cbm-persona-nombre">{{ persona.nombre }}</span>
+        <span class="cbm-persona-monto">${{ persona.monto|floatformat:2 }}</span>
+        <span class="cbm-persona-conteo">{{ persona.n_platillos }} platillo{{ persona.n_platillos|pluralize }}</span>
+      </button>
+      {% endif %}
+    </form>
+    {% endfor %}
+    <form method="post" action="{% url 'pizzeria_cobrar_dividir_agregar' pedido.id %}" style="display:contents">
+      {% csrf_token %}
+      <button type="submit" class="cbm-persona-agregar">
+        <i class="bi bi-plus-lg"></i>
+        <span>Agregar</span>
+      </button>
+    </form>
+  </div>
+
+  {% if persona_activa %}
+  <div class="cbm-asignar-bar">
+    <span class="cbm-asignar-label">ASIGNAR A {{ persona_activa.nombre|upper }}</span>
+    <div class="cbm-asignar-track"><div class="cbm-asignar-fill" style="width: {% widthratio persona_activa.n_platillos total_items 100 %}%"></div></div>
+    <span class="cbm-asignar-conteo">{{ persona_activa.n_platillos }}/{{ total_items }}</span>
+  </div>
+  {% endif %}
+
+  <div class="cbm-lineas">
+    {% for linea in lineas %}
+    <div class="cbm-linea{% if linea.asignado_persona_activa %} cbm-linea-asignada{% endif %}">
+      <div class="cbm-linea-info">
+        <span class="cbm-linea-nombre">{{ linea.nombre }}</span>
+      </div>
+      <div class="cbm-linea-stepper">
+        <form method="post" action="{% url 'pizzeria_cobrar_dividir_asignar' pedido.id %}">
+          {% csrf_token %}
+          <input type="hidden" name="clave" value="{{ linea.clave }}">
+          <input type="hidden" name="accion" value="restar">
+          <button type="submit" class="cbm-linea-stepper-btn"{% if not linea.asignado_persona_activa %} disabled{% endif %}>−</button>
+        </form>
+        <span class="cbm-linea-conteo">
+          <span class="cbm-linea-conteo-asignado">{{ linea.asignado_persona_activa }}</span><span class="cbm-linea-conteo-total">/{{ linea.cantidad_total }}</span>
+        </span>
+        <form method="post" action="{% url 'pizzeria_cobrar_dividir_asignar' pedido.id %}">
+          {% csrf_token %}
+          <input type="hidden" name="clave" value="{{ linea.clave }}">
+          <input type="hidden" name="accion" value="sumar">
+          <button type="submit" class="cbm-linea-stepper-btn"{% if not linea.puede_sumar %} disabled{% endif %}>＋</button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="cbm-barra-confirmar" id="cbmBarraDividir">
+    <div class="cbm-barra-dividir">
+      <form method="post" action="{% url 'pizzeria_cobrar_dividir_repartir_igual' pedido.id %}">
+        {% csrf_token %}
+        <button type="submit" class="cbm-btn-repartir">Repartir igual</button>
+      </form>
+      {% if persona_activa and persona_activa.n_platillos %}
+      <a href="{% url 'pizzeria_cobrar_persona' pedido.id persona_activa.numero %}" class="cbm-btn-cobrar-persona">
+        <i class="bi bi-credit-card"></i><span>Cobrar {{ persona_activa.nombre }} · ${{ persona_activa.monto|floatformat:2 }}</span>
+      </a>
+      {% else %}
+      <span class="cbm-btn-cobrar-persona" style="opacity:.5;pointer-events:none">Asigna platillos primero</span>
+      {% endif %}
+    </div>
+    {% if not puede_confirmar %}
+    <span class="cbm-linea-bloqueo-sub" style="display:block;text-align:center">{{ motivo_bloqueo }}</span>
+    {% endif %}
+  </div>
+
+</div>
+</div>
+</div>
+
+{% include 'pizzeria/_hoja_acciones_orden.html' %}
+{% include 'pizzeria/_hoja_confirmar_anulacion.html' %}
+
+<script>
+  window.CSRF_TOKEN = "{{ csrf_token }}";
+  window.PZ_URLS = { cancelarPedido: "{% url 'pizzeria_cancelar_pedido' pedido.id %}" };
+  window.DO_PEDIDO_ID = {{ pedido.id }};
+</script>
+<script src="{% static 'JS/pizzeria_cart_bar.js' %}"></script>
+<script src="{% static 'JS/pizzeria_hoja_acciones.js' %}"></script>
+{% if puede_confirmar %}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const div = document.getElementById('cbmBarraDividir');
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'cbm-btn-confirmar cbm-btn-confirmar-on';
+    btn.style.marginTop = '9px';
+    btn.innerHTML = '<i class="bi bi-check-lg"></i> Confirmar cobro · ${{ total_con_iva|floatformat:2 }}';
+    btn.addEventListener('click', function () {
+      btn.disabled = true;
+      fetch("{% url 'pizzeria_procesar_cobro' pedido.id %}", {
+        method: 'POST',
+        headers: { 'X-CSRFToken': window.CSRF_TOKEN, 'Content-Type': 'application/json' },
+        body: JSON.stringify({{ payload_dividir_json|safe }}),
+      })
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.status !== 'ok') { alert('Error: ' + data.message); btn.disabled = false; return; }
+          window.location.href = "{% url 'pizzeria_ordenes' %}";
+        })
+        .catch(() => { alert('Error inesperado al confirmar el cobro'); btn.disabled = false; });
+    });
+    div.querySelector('.cbm-barra-dividir').after(btn);
+  });
+</script>
+{% endif %}
+{% endblock %}

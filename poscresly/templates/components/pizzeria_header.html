@@ -1,0 +1,32 @@
+<!-- Header fijo · handoff_header. Byte-idéntico en toda la app: menú,
+     marca, tema (sin lógica todavía) y usuario. No recibe contexto por
+     vista — todo lo que muestra es fijo o viene de request.user. -->
+<header class="pzh-header">
+  <button type="button" class="pzh-menu-btn" id="pzhMenuToggle" aria-label="Abrir menú">
+    <i class="bi bi-list"></i>
+  </button>
+  <a href="{% url 'pizzeria_inicio' %}" class="pzh-brand">
+    <span class="pzh-brand-mark">C</span>
+    <span class="pzh-brand-text">
+      <span class="pzh-brand-name">Cresly Pizzería</span>
+    </span>
+  </a>
+  <button type="button" class="pzh-theme-btn" aria-label="Cambiar a tema oscuro (próximamente)" title="Próximamente">
+    <i class="bi bi-moon"></i>
+  </button>
+  <button type="button" class="pzh-user" aria-label="Cuenta">
+    <span class="pzh-avatar">{{ request.user.get_full_name|default:request.user.username|first|upper }}</span>
+    <i class="bi bi-chevron-down pzh-caret"></i>
+  </button>
+</header>
+
+<script>
+  // Mismo sidebar en cualquier pantalla (ver static/JS/sidebar.js) — el
+  // botón de menú de este header solo lo abre, nunca dibuja el suyo propio.
+  (function () {
+    var btn = document.getElementById('pzhMenuToggle');
+    // Referencia diferida a propósito: este script corre antes de que
+    // static/JS/sidebar.js (al final del body) defina openSidebar.
+    if (btn) btn.addEventListener('click', function () { openSidebar(); });
+  })();
+</script>

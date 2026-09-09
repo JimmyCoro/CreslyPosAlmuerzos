@@ -136,7 +136,7 @@
 
         const agregarUrl = pedido.tipo === 'mesa'
           ? `${window.PZ_URLS.tomarPedidoMesa.replace('/0/', '/' + pedido.mesa_id + '/')}?pedido_id=${pedido.id}`
-          : `/pizzeria/pedido/llevar/?pedido_id=${pedido.id}`;
+          : `${window.PZ_URLS.nuevaOrden}?pedido_id=${pedido.id}`;
 
         document.getElementById('pzModalFooter').innerHTML = `
           <a href="${agregarUrl}" class="btn btn-pz-outline"><i class="fas fa-plus me-2"></i>Agregar productos</a>

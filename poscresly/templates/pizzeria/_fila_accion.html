@@ -1,0 +1,14 @@
+<button
+  type="button"
+  class="acc-fila{% if fila.peligro %} acc-fila-peligro{% endif %}"
+  data-clave="{{ fila.clave }}"
+  data-disponible="{% if fila.disponible %}1{% else %}0{% endif %}"
+  {% if fila.url %}data-url="{{ fila.url }}"{% endif %}
+  onclick="accClickFila(this)">
+  <span class="acc-fila-icono"><i class="bi {{ fila.glifo }}"></i></span>
+  <span class="acc-fila-texto">
+    <span class="acc-fila-etiqueta">{{ fila.etiqueta }}</span>
+    <span class="acc-fila-sub">{{ fila.sub }}</span>
+  </span>
+  <i class="bi bi-chevron-right acc-fila-chevron"></i>
+</button>

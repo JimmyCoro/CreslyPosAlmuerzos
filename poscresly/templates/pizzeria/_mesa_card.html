@@ -3,6 +3,7 @@
   class="pzm-table pzm-table-{{ mesa.estado }}{% if mesa.forma == 'redonda' %} pzm-table-round{% endif %}"
   data-mesa-id="{{ mesa.id }}"
   data-estado="{{ mesa.estado }}"
+  data-nombre="{{ mesa.nombre|default:mesa.numero }}"
   data-capacidad="{{ mesa.capacidad }}"
   {% if mesa.pedido_abierto %}data-pedido-id="{{ mesa.pedido_abierto.id }}"{% endif %}
   onclick="pzMesaClick(this)">

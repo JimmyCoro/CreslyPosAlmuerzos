@@ -1,0 +1,40 @@
+<!-- Confirmación de anulación — handoff_hoja_acciones §3. Segunda hoja,
+     encima de la de acciones, overlay más oscuro. -->
+<div class="pz-sheet-backdrop acc-confirm-backdrop" id="accConfirmBackdrop"></div>
+<div class="pz-cart-sheet acc-confirm" id="accConfirmHoja">
+  <div class="pz-cart-sheet-handle"></div>
+
+  <div class="acc-confirm-header">
+    <span class="acc-confirm-icono"><i class="bi bi-x-lg"></i></span>
+    <div class="acc-confirm-texto">
+      <span class="acc-confirm-titulo">Anular pedido #{{ pedido.numero_pedido_completo }}</span>
+      <span class="acc-confirm-cuerpo">
+        Se cancelan los {{ total_items }} platillo{{ total_items|pluralize }} por ${{ pedido.total|floatformat:2 }}{% if pedido.tipo == 'mesa' and pedido.mesa %} y la Mesa {{ pedido.mesa.nombre|default:pedido.mesa.numero }} queda libre{% endif %}. Esta acción no se puede deshacer.
+      </span>
+    </div>
+  </div>
+
+  {% if lineas_en_cocina %}
+  <div class="acc-confirm-aviso">
+    <i class="bi bi-exclamation-triangle"></i>
+    <span>{{ lineas_en_cocina }} platillo{{ lineas_en_cocina|pluralize }} ya {% if lineas_en_cocina == 1 %}está{% else %}están{% endif %} en cocina. Avisa a cocina antes de anular.</span>
+  </div>
+  {% endif %}
+
+  <div class="acc-confirm-motivo">
+    <span class="acc-confirm-motivo-label">MOTIVO</span>
+    <div class="acc-confirm-chips" id="accMotivoChips">
+      {% for motivo in motivos_anulacion %}
+      <button type="button" class="acc-chip" data-motivo="{{ motivo }}" onclick="accElegirMotivo(this)">{{ motivo }}</button>
+      {% endfor %}
+    </div>
+    <textarea class="acc-confirm-otro" id="accMotivoOtro" hidden placeholder="Describe el motivo..." rows="2"></textarea>
+  </div>
+
+  <div class="acc-confirm-acciones">
+    <button type="button" class="acc-btn-anular" id="accBtnAnular" disabled onclick="accConfirmarAnular()">
+      <i class="bi bi-x-lg"></i><span>Sí, anular pedido</span>
+    </button>
+    <button type="button" class="acc-btn-volver" onclick="accCerrarConfirmacion()">Volver</button>
+  </div>
+</div>

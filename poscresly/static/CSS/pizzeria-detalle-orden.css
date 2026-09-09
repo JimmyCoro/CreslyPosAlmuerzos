@@ -1,0 +1,691 @@
+/* =====================================================================
+   Detalle de orden · móvil (poscresly/pizzeria/handoff_detalle_orden)
+   Solo el body: header/subheader ya viven en components/pizzeria_header.html
+   y pizzeria_subheader.html (compartidos, ver barras.css). Archivo propio
+   en vez de sumar más clases a pizzeria-mapa.css porque este handoff trae
+   su propia tabla de tokens (algunos valores difieren en 1-2 dígitos de
+   --pzm-*, ver README) y pide fidelidad exacta.
+
+   La hoja del platillo reutiliza el mecanismo de .pz-cart-sheet /
+   .pz-sheet-backdrop (pizzeria-cart-bar.css) — mismo slide-up, mismo
+   "se detiene justo encima de la bottom nav" que ya usa el carrito de
+   Punto de venta — y solo sobreescribe lo que este handoff pide distinto
+   (radio, padding, ancho del asa).
+   ===================================================================== */
+:root {
+  --do-ink: #14181d;
+  --do-text-2: #4a545f;
+  --do-text-3: #5b6673;
+  --do-muted-2: #8a929c;
+  --do-muted-3: #98a1ab;
+  --do-faint: #a8afb8;
+  --do-faint-2: #c3c8ce;
+  --do-surface: #ffffff;
+  --do-page: #f4f5f7;
+  --do-segmented-bg: #e9ebef;
+  --do-border: #e6e8ec;
+  --do-border-soft: #eef0f3;
+  --do-border-soft-2: #f2f4f6;
+  --do-border-input: #dfe2e7;
+  --do-brand: #c8102e;
+  --do-brand-dark: #a90d27;
+  --do-brand-tint-bg: #fdecef;
+  --do-brand-tint-border: #f4d3d9;
+  --do-green: #23a05f;
+  --do-green-dark: #1c7a4a;
+  --do-green-tint: #eaf6ef;
+  --do-amber: #d99000;
+  --do-amber-dark: #8a5800;
+  --do-amber-tint-bg: #fdf3e2;
+  --do-amber-tint-fila: #fffdf7;
+  --do-amber-tint-border: #f2e0bd;
+  --do-blue: #2f7fd9;
+  --do-blue-dark: #1d5a9e;
+  --do-blue-tint: #e9f1fb;
+  --do-brand-muted: #a9707c;
+}
+
+.do-page {
+  max-width: 640px;
+  margin: 0 auto;
+  font-family: var(--fuente-jakarta);
+  font-feature-settings: 'tnum' 1;
+  color: var(--do-ink);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  /* Deja libre el alto real de la barra de acciones fija (ver
+     .do-barra-acciones) para que la última fila de platillo no quede
+     tapada al hacer scroll — mismo mecanismo que .col-der::after. */
+  padding-bottom: 82px;
+}
+
+/* ===== Tarjeta de entrega ===== */
+.do-entrega {
+  background: var(--do-surface);
+  border: 1px solid var(--do-border);
+  border-radius: 16px;
+  padding: 14px 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.do-entrega-top { display: flex; align-items: center; gap: 10px; }
+.do-entrega-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.do-entrega-label { font-size: 10.5px; font-weight: 800; letter-spacing: .09em; color: var(--do-muted-2); }
+.do-entrega-nombre {
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: -.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.do-entrega-sub { font-size: 11.5px; color: var(--do-muted-3); font-weight: 600; }
+.do-entrega-llamar {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--do-green-tint);
+  color: var(--do-green-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex: 0 0 auto;
+  text-decoration: none;
+}
+.do-entrega-llamar:hover { color: var(--do-green-dark); }
+.do-entrega-pie {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 11px;
+  border-top: 1px solid var(--do-border-soft-2);
+}
+.do-entrega-total-label { font-size: 12px; font-weight: 800; letter-spacing: .07em; color: var(--do-muted-2); }
+.do-entrega-total-valor { font-size: 26px; font-weight: 800; letter-spacing: -.03em; line-height: 1; }
+
+/* ===== Progreso de cocina ===== */
+.do-progreso { display: flex; align-items: center; gap: 10px; }
+.do-progreso-label { font-size: 10.5px; font-weight: 800; letter-spacing: .1em; color: var(--do-muted-2); flex-shrink: 0; }
+.do-progreso-conteo { font-size: 11px; font-weight: 700; color: var(--do-muted-3); flex-shrink: 0; white-space: nowrap; }
+.do-progreso-track { flex: 1; height: 4px; border-radius: 999px; background: var(--do-border-soft); overflow: hidden; }
+.do-progreso-fill { height: 100%; background: var(--do-green); transition: width .2s ease; }
+
+/* ===== Filas de platillo ===== */
+.do-lineas { display: flex; flex-direction: column; gap: 9px; }
+
+.do-grupo { display: flex; flex-direction: column; gap: 7px; }
+.do-grupo-header {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--do-ink);
+  padding-left: 2px;
+}
+
+.do-linea {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  background: var(--do-surface);
+  border: 1px solid var(--do-border);
+  border-radius: 14px;
+  padding: 11px 12px;
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background .12s ease, border-color .12s ease;
+}
+/* Solo "Cocinando" tiñe la fila entera — el resto de estados solo
+   cambian el pill de la derecha (ver README, "Los cuatro estados"). */
+.do-linea-cocinando { background: var(--do-amber-tint-fila); border-color: var(--do-amber-tint-border); }
+
+.do-linea-badge {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: var(--do-brand-tint-bg);
+  color: var(--do-brand-dark);
+  font-size: 12.5px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+.do-linea-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.do-linea-nombre { font-size: 13.5px; font-weight: 700; line-height: 1.35; }
+.do-linea-mods {
+  font-size: 11.5px;
+  color: var(--do-amber-dark);
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.do-linea-estado {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 11px;
+  border-radius: 11px;
+  flex: 0 0 auto;
+  border: none;
+  font-family: inherit;
+}
+.do-linea-estado-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.do-linea-estado-label { font-size: 12px; font-weight: 800; }
+
+.do-linea-estado-en_proceso { background: var(--do-page); }
+.do-linea-estado-en_proceso .do-linea-estado-dot { background: var(--do-muted-2); }
+.do-linea-estado-en_proceso .do-linea-estado-label { color: var(--do-text-2); }
+
+.do-linea-estado-cocinando { background: var(--do-amber-tint-bg); }
+.do-linea-estado-cocinando .do-linea-estado-dot { background: var(--do-amber); }
+.do-linea-estado-cocinando .do-linea-estado-label { color: var(--do-amber-dark); }
+
+.do-linea-estado-listo { background: var(--do-green-tint); }
+.do-linea-estado-listo .do-linea-estado-dot { background: var(--do-green); }
+.do-linea-estado-listo .do-linea-estado-label { color: var(--do-green-dark); }
+
+.do-linea-estado-completo { background: var(--do-blue-tint); }
+.do-linea-estado-completo .do-linea-estado-dot { background: var(--do-blue); }
+.do-linea-estado-completo .do-linea-estado-label { color: var(--do-blue-dark); }
+
+/* Último estado: ya no se puede avanzar tocando el pill, así que no es
+   un <button> interactivo (ver detalle_orden.html) — se ve igual pero sin
+   affordance de toque. */
+.do-linea-estado[disabled] { cursor: default; }
+
+/* ===== Barra de acciones (fija) =====
+   OJO: a diferencia del handoff (que la pone en bottom:0 y reemplaza la
+   tab bar mientras se gestiona el pedido), acá la navbar inferior
+   (.pzbn) se mantiene siempre visible en toda la app — así que esta
+   barra se apila JUSTO ENCIMA usando la misma variable --pz-bottomnav-h
+   que ya usa la barra de carrito de Punto de venta, en vez de bottom:0. */
+.do-barra-acciones {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: var(--pz-bottomnav-h, 88px);
+  max-width: 640px;
+  margin: 0 auto;
+  background: var(--do-surface);
+  border-top: 1px solid var(--do-border);
+  padding: 12px 14px;
+  box-shadow: 0 -8px 22px rgba(20, 24, 29, .07);
+  display: flex;
+  gap: 9px;
+  z-index: 900;
+}
+
+.do-btn-agregar {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  border: 1px solid var(--do-border-input);
+  background: #fff;
+  color: var(--do-text-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  line-height: 1;
+  flex: 0 0 auto;
+}
+.do-btn-agregar:hover { background: var(--do-page); color: var(--do-text-3); }
+
+.do-btn-cobrar {
+  flex: 1;
+  min-width: 0;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  border-radius: 14px;
+  border: none;
+  background: var(--do-brand);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+  box-shadow: 0 8px 18px rgba(200, 16, 46, .26);
+  text-decoration: none;
+}
+.do-btn-cobrar:hover { color: #fff; background: var(--do-brand-dark); }
+.do-btn-cobrar-disabled,
+.do-btn-cobrar-disabled:hover {
+  background: var(--do-segmented-bg);
+  color: var(--do-faint);
+  box-shadow: none;
+  pointer-events: none;
+}
+
+/* Este handoff está diseñado solo para 360-430px (ver README). En
+   escritorio no hay bottom nav que respetar, así que la barra vuelve al
+   borde real en vez de flotar sobre el hueco fantasma que deja el valor
+   de --pz-bottomnav-h por defecto. */
+@media (min-width: 1024px) {
+  .do-barra-acciones { bottom: 0; }
+}
+
+/* ===== Hoja del platillo =====
+   .pz-cart-sheet / .pz-sheet-backdrop (pizzeria-cart-bar.css) ya resuelven
+   posición, animación y overlay — acá solo se ajustan radio/padding/asa a
+   los valores de este handoff. */
+.do-hoja.pz-cart-sheet {
+  border-radius: 22px 22px 0 0;
+  padding: 14px 16px 20px;
+  gap: 15px;
+  display: flex;
+  flex-direction: column;
+}
+.do-hoja .pz-cart-sheet-handle { width: 38px; background: var(--do-border-input); }
+
+.do-hoja-header { display: flex; align-items: flex-start; gap: 11px; }
+.do-hoja-badge {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: var(--do-brand-tint-bg);
+  color: var(--do-brand-dark);
+  font-size: 13.5px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+.do-hoja-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.do-hoja-nombre { font-size: 17px; font-weight: 800; letter-spacing: -.02em; line-height: 1.25; }
+.do-hoja-mods { font-size: 12px; color: var(--do-amber-dark); font-weight: 700; }
+.do-hoja-importe { font-size: 16px; font-weight: 800; letter-spacing: -.02em; flex: 0 0 auto; }
+
+.do-hoja-section { display: flex; flex-direction: column; gap: 9px; }
+.do-hoja-section-label { font-size: 10.5px; font-weight: 800; letter-spacing: .09em; color: var(--do-muted-2); }
+
+.do-hoja-estados { display: flex; gap: 6px; }
+.do-hoja-estado-opcion {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 11px 4px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid var(--do-border-input);
+  font-family: inherit;
+}
+.do-hoja-estado-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--do-muted-2); }
+.do-hoja-estado-label { font-size: 11px; font-weight: 700; color: var(--do-text-3); }
+
+.do-hoja-estado-opcion-activa { border-color: transparent; }
+.do-hoja-estado-opcion-activa .do-hoja-estado-dot { background: #fff; }
+.do-hoja-estado-opcion-activa .do-hoja-estado-label { color: #fff; font-weight: 800; }
+
+.do-hoja-estado-opcion-activa[data-estado="en_proceso"] { background: var(--do-muted-2); box-shadow: 0 6px 14px rgba(138, 146, 156, .24); }
+.do-hoja-estado-opcion-activa[data-estado="cocinando"] { background: var(--do-amber); box-shadow: 0 6px 14px rgba(217, 144, 0, .24); }
+.do-hoja-estado-opcion-activa[data-estado="listo"] { background: var(--do-green); box-shadow: 0 6px 14px rgba(35, 160, 95, .24); }
+.do-hoja-estado-opcion-activa[data-estado="completo"] { background: var(--do-blue); box-shadow: 0 6px 14px rgba(47, 127, 217, .24); }
+
+.do-hoja-siguiente-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px;
+  border-radius: 12px;
+  background: var(--do-ink);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+  border: none;
+}
+
+.do-hoja-divider { height: 1px; background: var(--do-border-soft); }
+
+.do-hoja-cantidad-row { display: flex; align-items: center; gap: 11px; }
+.do-hoja-stepper { display: flex; align-items: center; gap: 3px; }
+.do-hoja-stepper-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid var(--do-border-input);
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--do-text-3);
+  line-height: 1;
+}
+.do-hoja-stepper-btn:disabled { opacity: .4; }
+.do-hoja-cantidad-valor { min-width: 38px; text-align: center; font-size: 18px; font-weight: 800; }
+.do-hoja-precio-unit { flex: 1; text-align: right; font-size: 12px; color: var(--do-muted-3); font-weight: 600; }
+
+.do-hoja-acciones { display: flex; flex-direction: column; gap: 7px; }
+.do-hoja-accion {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  padding: 13px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--do-border-input);
+  background: #fff;
+  text-align: left;
+  font-family: inherit;
+}
+.do-hoja-accion-icono { font-size: 14px; color: var(--do-text-3); width: 18px; text-align: center; flex: 0 0 auto; }
+.do-hoja-accion-texto { flex: 1; min-width: 0; font-size: 13.5px; font-weight: 700; }
+.do-hoja-accion-chevron { font-size: 14px; color: var(--do-faint-2); flex: 0 0 auto; }
+
+.do-hoja-accion-danger { border-color: var(--do-brand-tint-border); }
+.do-hoja-accion-danger .do-hoja-accion-icono,
+.do-hoja-accion-danger .do-hoja-accion-texto { color: var(--do-brand); }
+.do-hoja-accion-danger .do-hoja-accion-chevron { color: var(--do-brand-tint-border); }
+
+/* Form de edición (cantidad + nota) dentro de la hoja — mismos campos que
+   ya existía en el modal viejo, solo con los tokens nuevos. */
+.do-hoja-edit-form { display: flex; flex-direction: column; gap: 8px; }
+.do-hoja-edit-label { font-size: 11px; font-weight: 700; color: var(--do-muted-3); }
+.do-hoja-edit-input,
+.do-hoja-edit-textarea {
+  border: 1px solid var(--do-border-input);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 14px;
+  color: var(--do-ink);
+  width: 100%;
+  font-family: inherit;
+}
+.do-hoja-edit-textarea { resize: vertical; }
+.do-hoja-edit-actions { display: flex; gap: 8px; margin-top: 4px; }
+.do-hoja-btn-cancelar,
+.do-hoja-btn-guardar {
+  flex: 1;
+  border-radius: 999px;
+  padding: 10px 14px;
+  font-weight: 700;
+  font-size: 13.5px;
+  border: 1px solid var(--do-border-input);
+  font-family: inherit;
+}
+.do-hoja-btn-cancelar { background: #fff; color: var(--do-ink); }
+.do-hoja-btn-guardar { background: var(--do-brand); border-color: var(--do-brand); color: #fff; }
+.do-hoja-btn-guardar:hover { background: var(--do-brand-dark); border-color: var(--do-brand-dark); }
+
+.do-vacio { text-align: center; color: var(--do-muted-3); font-size: 13px; padding: 1.5rem 0; }
+
+/* ===== Escritorio (≥1024px) =====
+   El handoff es exclusivamente móvil (360-430px, ver README). .pz-cart-sheet
+   solo define su mecánica de hoja deslizante dentro de @media(max-width:1023px)
+   — en pantallas grandes no hereda ningún position/transform. Sin este
+   bloque la hoja quedaría rota (un bloque suelto en el flujo normal,
+   siempre "visible" a medias). Se resuelve como modal centrado, acotado a
+   #diHoja/#diSheetBackdrop (IDs únicos de esta pantalla) para no tocar el
+   comportamiento del carrito de Punto de venta en pizzeria-cart-bar.css. */
+@media (min-width: 1024px) {
+  #diSheetBackdrop.active {
+    display: block;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .do-hoja.pz-cart-sheet {
+    position: fixed;
+    inset: 0;
+    left: 50%;
+    top: 50%;
+    right: auto;
+    bottom: auto;
+    width: min(420px, 90vw);
+    max-height: 85vh;
+    margin: 0;
+    border-radius: 22px;
+    transform: translate(-50%, -50%) scale(.97);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .15s ease, transform .15s ease;
+  }
+  .do-hoja.pz-cart-sheet.pz-cart-sheet-open {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .do-hoja .pz-cart-sheet-handle { display: none; }
+}
+
+/* =====================================================================
+   Hoja de acciones (⋯) — handoff_hoja_acciones. Reutiliza --do-* (mismos
+   tokens de color) y el mecanismo .pz-cart-sheet/.pz-sheet-backdrop, igual
+   que la hoja del platillo. Nombres genéricos (.acc-*, no .do-*) porque el
+   propio handoff dice que este componente se reutilizará en Cobrar y
+   Punto de venta más adelante. */
+.acc-hoja.pz-cart-sheet {
+  border-radius: 22px 22px 0 0;
+  padding: 14px 16px 20px;
+  gap: 14px;
+  display: flex;
+  flex-direction: column;
+}
+.acc-hoja .pz-cart-sheet-handle { width: 38px; background: var(--do-border-input); }
+
+.acc-header { display: flex; align-items: center; gap: 10px; }
+.acc-header-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.acc-header-titulo { font-size: 17px; font-weight: 800; letter-spacing: -.02em; }
+.acc-header-sub {
+  font-size: 11.5px;
+  color: var(--do-muted-2);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.acc-header-pill {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 800;
+}
+.acc-header-pill-dot { width: 5px; height: 5px; border-radius: 50%; }
+.acc-header-pill-neutro { background: var(--do-page); color: var(--do-text-2); }
+.acc-header-pill-neutro .acc-header-pill-dot { background: var(--do-muted-2); }
+.acc-header-pill-rojo { background: var(--do-brand-tint-bg); color: var(--do-brand-dark); }
+.acc-header-pill-rojo .acc-header-pill-dot { background: var(--do-brand); }
+.acc-header-pill-verde { background: var(--do-green-tint); color: var(--do-green-dark); }
+.acc-header-pill-verde .acc-header-pill-dot { background: var(--do-green); }
+
+.acc-grupo { display: flex; flex-direction: column; gap: 8px; }
+.acc-grupo-titulo { font-size: 10.5px; font-weight: 800; letter-spacing: .09em; color: var(--do-muted-2); }
+.acc-grupo-riesgo .acc-grupo-titulo { color: var(--do-brand-dark); }
+.acc-filas { display: flex; flex-direction: column; gap: 8px; }
+.acc-divider { height: 1px; background: var(--do-border-soft); margin: 2px 0; }
+
+.acc-fila {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  padding: 13px 14px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid var(--do-border-input);
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.acc-fila-icono {
+  flex: 0 0 auto;
+  width: 18px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--do-text-3);
+}
+.acc-fila-texto { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.acc-fila-etiqueta { font-size: 13.5px; font-weight: 700; }
+.acc-fila-sub {
+  font-size: 11px;
+  color: var(--do-muted-3);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.acc-fila-chevron { flex: 0 0 auto; font-size: 14px; color: var(--do-faint-2); }
+
+.acc-fila-peligro { border-color: var(--do-brand-tint-border); }
+.acc-fila-peligro .acc-fila-icono,
+.acc-fila-peligro .acc-fila-etiqueta { color: var(--do-brand); }
+.acc-fila-peligro .acc-fila-sub { color: var(--do-brand-muted); }
+.acc-fila-peligro .acc-fila-chevron { color: var(--do-brand-tint-border); }
+
+/* Filas sin backend real todavía (ver _grupos_acciones_pedido en
+   views.py) — mismo look, un poco más apagadas para no prometer algo que
+   hoy solo avisa "todavía no disponible" al tocarla. */
+.acc-fila[data-disponible="0"] { opacity: .55; }
+
+/* ===== Confirmación de anulación ===== */
+.acc-confirm.pz-cart-sheet {
+  border-radius: 22px 22px 0 0;
+  padding: 14px 16px 20px;
+  gap: 15px;
+  display: flex;
+  flex-direction: column;
+}
+.acc-confirm .pz-cart-sheet-handle { width: 38px; background: var(--do-border-input); }
+.acc-confirm-backdrop.active { background: rgba(20, 24, 29, .52); }
+
+.acc-confirm-header { display: flex; align-items: flex-start; gap: 11px; }
+.acc-confirm-icono {
+  flex: 0 0 auto;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: var(--do-brand-tint-bg);
+  color: var(--do-brand);
+  font-size: 17px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.acc-confirm-texto { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+.acc-confirm-titulo { font-size: 17px; font-weight: 800; line-height: 1.25; }
+.acc-confirm-cuerpo { font-size: 12.5px; color: var(--do-text-2); font-weight: 600; line-height: 1.45; }
+
+.acc-confirm-aviso {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: var(--do-amber-tint-bg);
+  border: 1px solid var(--do-amber-tint-border);
+  border-radius: 12px;
+  padding: 11px 13px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--do-amber-dark);
+}
+.acc-confirm-aviso i { font-size: 13px; margin-top: 1px; }
+
+.acc-confirm-motivo { display: flex; flex-direction: column; gap: 8px; }
+.acc-confirm-motivo-label { font-size: 10.5px; font-weight: 800; letter-spacing: .09em; color: var(--do-muted-2); }
+.acc-confirm-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.acc-chip {
+  padding: 9px 13px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 700;
+  background: #fff;
+  border: 1px solid var(--do-border-input);
+  color: var(--do-text-3);
+  font-family: inherit;
+}
+.acc-chip-active { background: var(--do-ink); border-color: var(--do-ink); color: #fff; }
+.acc-confirm-otro {
+  border: 1px solid var(--do-border-input);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--do-ink);
+  resize: vertical;
+}
+
+.acc-confirm-acciones { display: flex; flex-direction: column; gap: 8px; }
+.acc-btn-anular {
+  padding: 16px;
+  border-radius: 13px;
+  border: none;
+  background: var(--do-brand);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 8px 20px rgba(200, 16, 46, .26);
+}
+.acc-btn-anular:disabled {
+  background: var(--do-segmented-bg);
+  color: var(--do-faint);
+  box-shadow: none;
+}
+.acc-btn-volver {
+  padding: 15px;
+  border-radius: 13px;
+  background: #fff;
+  border: 1px solid var(--do-border-input);
+  color: var(--do-text-3);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* Escritorio: mismo fallback de modal centrado que .do-hoja, acotado por
+   ID para no tocar pizzeria-cart-bar.css. */
+@media (min-width: 1024px) {
+  #accSheetBackdrop.active,
+  #accConfirmBackdrop.active {
+    display: block;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .acc-hoja.pz-cart-sheet,
+  .acc-confirm.pz-cart-sheet {
+    position: fixed;
+    inset: 0;
+    left: 50%;
+    top: 50%;
+    right: auto;
+    bottom: auto;
+    width: min(420px, 90vw);
+    max-height: 85vh;
+    margin: 0;
+    border-radius: 22px;
+    transform: translate(-50%, -50%) scale(.97);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .15s ease, transform .15s ease;
+  }
+  .acc-hoja.pz-cart-sheet.pz-cart-sheet-open,
+  .acc-confirm.pz-cart-sheet.pz-cart-sheet-open {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .acc-hoja .pz-cart-sheet-handle,
+  .acc-confirm .pz-cart-sheet-handle { display: none; }
+}

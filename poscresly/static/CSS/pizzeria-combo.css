@@ -1,0 +1,753 @@
+/* ===== Configurador de combos · handoff_combo/README.md =====
+   Hoja inferior casi a pantalla completa con tres zonas: cabecera fija,
+   pasos con scroll y pie fijo. Solo un paso activo a la vez; los resueltos
+   colapsan a una fila que muestra la respuesta, no la pregunta. */
+
+.cmb-hoja {
+  --cmb-ink: #14181d;
+  --cmb-text-2: #4a545f;
+  --cmb-text-3: #5b6673;
+  --cmb-muted-2: #8a929c;
+  --cmb-muted-3: #98a1ab;
+  --cmb-faint: #a8afb8;
+  --cmb-fainter: #c3c8ce;
+  --cmb-surface-2: #fafbfc;
+  --cmb-page: #f4f5f7;
+  --cmb-disabled: #e9ebef;
+  --cmb-border: #e6e8ec;
+  --cmb-border-soft: #eef0f3;
+  --cmb-border-input: #dfe2e7;
+  --cmb-brand: #c8102e;
+  --cmb-green: #23a05f;
+  --cmb-green-dark: #1c7a4a;
+  --cmb-green-tint: #f4fbf7;
+  --cmb-green-tint-border: #cfeadb;
+  --cmb-blue: #1d5a9e;
+  --cmb-blue-tint: #e9f1fb;
+  --cmb-amber-dark: #8a5800;
+  --cmb-amber-tint: #fdf3e2;
+
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 40px;
+  z-index: 1060;
+  background: #fff;
+  border-radius: 22px 22px 0 0;
+  display: flex;
+  flex-direction: column;
+  /* Los contadores y precios cambian de dígito en cada toque: sin cifras de
+     ancho fijo el layout "salta" mientras el cajero reparte las alitas. */
+  font-feature-settings: 'tnum' 1;
+  color: var(--cmb-ink);
+  /* Oculta con visibility y no con display: así el translateY sí puede animar
+     al abrir (un display:none→flex no deja frame intermedio que transicionar). */
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(100%);
+  transition: transform 0.22s ease, visibility 0.22s ease;
+}
+
+.cmb-hoja-abierta {
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.cmb-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1059;
+  background: rgba(20, 24, 29, 0.42);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.22s ease, visibility 0.22s ease;
+}
+
+.cmb-overlay-activo {
+  opacity: 1;
+  visibility: visible;
+}
+
+@media (min-width: 1024px) {
+  .cmb-hoja {
+    left: 50%;
+    right: auto;
+    width: 480px;
+    transform: translate(-50%, 100%);
+    border-radius: 22px 22px 0 0;
+  }
+  .cmb-hoja-abierta { transform: translate(-50%, 0); }
+}
+
+/* ===== Cabecera fija ===== */
+.cmb-cabecera {
+  flex: 0 0 auto;
+  padding: 12px 16px 11px;
+  border-bottom: 1px solid var(--cmb-border-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cmb-asa {
+  width: 38px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--cmb-border-input);
+  align-self: center;
+}
+
+.cmb-cabecera-fila {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.cmb-cabecera-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cmb-nombre {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.cmb-estado {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--cmb-muted-2);
+}
+
+.cmb-estado strong { font-weight: 800; color: var(--cmb-brand); }
+.cmb-estado strong.cmb-completo { color: var(--cmb-green-dark); }
+
+.cmb-precio {
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  flex-shrink: 0;
+}
+
+.cmb-progreso { display: flex; gap: 4px; }
+
+.cmb-progreso-seg {
+  flex: 1;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--cmb-border-soft);
+  transition: background 0.12s ease;
+}
+
+.cmb-progreso-seg-resuelto { background: var(--cmb-green); }
+.cmb-progreso-seg-activo { background: var(--cmb-brand); }
+
+/* ===== Zona de pasos (la única que scrollea) ===== */
+.cmb-pasos {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+/* Sin esto el contenido del paso activo se comprime y se recorta. */
+.cmb-paso { flex: 0 0 auto; }
+
+/* ===== Paso resuelto ===== */
+.cmb-paso-resuelto {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 10px 13px;
+  border-radius: 13px;
+  background: var(--cmb-green-tint);
+  border: 1px solid var(--cmb-green-tint-border);
+}
+
+.cmb-check {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--cmb-green);
+  color: #fff;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cmb-resuelto-texto {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.cmb-resuelto-label {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  color: var(--cmb-green-dark);
+}
+
+.cmb-resuelto-valor {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--cmb-ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cmb-cambiar {
+  flex: 0 0 auto;
+  border: none;
+  background: none;
+  padding: 4px 2px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--cmb-green-dark);
+}
+
+/* ===== Paso pendiente ===== */
+.cmb-paso-pendiente {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 12px 13px;
+  border-radius: 13px;
+  background: #fff;
+  border: 1px solid var(--cmb-border);
+  text-align: left;
+}
+
+.cmb-num {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--cmb-border-soft);
+  color: var(--cmb-muted-2);
+  font-size: 11px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cmb-pendiente-texto {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.cmb-pendiente-titulo {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--cmb-text-3);
+}
+
+.cmb-pendiente-sub {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--cmb-muted-3);
+}
+
+.cmb-chevron { flex: 0 0 auto; font-size: 14px; color: var(--cmb-fainter); }
+
+/* ===== Paso activo ===== */
+.cmb-paso-activo {
+  border: 1.5px solid var(--cmb-ink);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.cmb-activo-cabecera {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 12px 13px;
+  background: var(--cmb-surface-2);
+  border-bottom: 1px solid var(--cmb-border-soft);
+}
+
+.cmb-activo-cabecera .cmb-num { background: var(--cmb-ink); color: #fff; }
+
+.cmb-activo-texto {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.cmb-activo-titulo {
+  font-size: 13.5px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.cmb-activo-sub {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--cmb-muted-2);
+}
+
+.cmb-activo-sub strong { font-weight: 800; color: var(--cmb-brand); }
+
+.cmb-activo-cuerpo {
+  padding: 12px 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+/* ===== Etiqueta de sub-grupo ===== */
+.cmb-sublabel {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--cmb-muted-2);
+  display: block;
+  margin-bottom: 7px;
+}
+
+/* ===== Rejillas de opciones ===== */
+.cmb-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 7px;
+}
+
+.cmb-opcion {
+  padding: 12px 10px;
+  border-radius: 11px;
+  border: 1px solid var(--cmb-border-input);
+  background: #fff;
+  color: var(--cmb-ink);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.25;
+  text-align: center;
+  min-height: 46px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+
+.cmb-opcion-larga { font-size: 12.5px; }
+
+.cmb-opcion-activa {
+  background: var(--cmb-ink);
+  border: 1.5px solid var(--cmb-ink);
+  color: #fff;
+  font-weight: 800;
+}
+
+.cmb-opcion-precio {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--cmb-muted-2);
+}
+
+.cmb-opcion-activa .cmb-opcion-precio { color: rgba(255, 255, 255, 0.82); }
+
+/* Recargo: se muestra el monto, no la palabra "Premium". */
+.cmb-recargo {
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--cmb-amber-tint);
+  color: var(--cmb-amber-dark);
+  font-size: 9.5px;
+  font-weight: 800;
+}
+
+.cmb-opcion-activa .cmb-recargo { background: rgba(255, 255, 255, 0.16); color: #fff; }
+
+/* ===== Selector de modo (un solo sabor / mitad y mitad) ===== */
+.cmb-modo { display: flex; gap: 7px; }
+
+.cmb-modo-btn {
+  flex: 1;
+  padding: 10px 6px;
+  border-radius: 11px;
+  border: 1px solid var(--cmb-border-input);
+  background: #fff;
+  color: var(--cmb-text-3);
+  font-size: 12.5px;
+  font-weight: 700;
+  min-height: 44px;
+}
+
+.cmb-modo-btn-activo {
+  background: var(--cmb-ink);
+  border-color: var(--cmb-ink);
+  color: #fff;
+  font-weight: 800;
+}
+
+/* ===== Ranuras de mitad y mitad ===== */
+.cmb-ranuras { display: flex; gap: 8px; }
+
+.cmb-ranura {
+  flex: 1;
+  min-width: 0;
+  padding: 11px 12px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid var(--cmb-border-input);
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cmb-ranura-llena {
+  background: var(--cmb-green-tint);
+  border: 1px solid var(--cmb-green-tint-border);
+}
+
+.cmb-ranura-pendiente { border: 1.5px dashed var(--cmb-brand); }
+
+.cmb-ranura-label {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--cmb-muted-2);
+}
+
+.cmb-ranura-llena .cmb-ranura-label { color: var(--cmb-green-dark); }
+.cmb-ranura-pendiente .cmb-ranura-label { color: var(--cmb-brand); }
+
+.cmb-ranura-valor {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--cmb-ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cmb-ranura-pendiente .cmb-ranura-valor { color: var(--cmb-faint); font-weight: 700; }
+
+/* La ranura que se está editando se marca para que el toque tenga destino claro. */
+.cmb-ranura-editando { box-shadow: 0 0 0 2px rgba(20, 24, 29, 0.14); }
+
+/* ===== Reparto de alitas ===== */
+.cmb-reparto-barra { display: flex; align-items: center; gap: 8px; }
+
+.cmb-barra {
+  flex: 1;
+  height: 9px;
+  border-radius: 999px;
+  background: var(--cmb-border-soft);
+  overflow: hidden;
+  display: flex;
+}
+
+.cmb-barra-seg { height: 100%; transition: width 0.12s ease; }
+
+.cmb-reparto-contador { font-size: 12px; font-weight: 800; color: var(--cmb-muted-3); }
+.cmb-reparto-contador strong { color: var(--cmb-ink); font-weight: 800; }
+
+.cmb-atajos { display: flex; gap: 6px; }
+
+.cmb-atajo {
+  flex: 1;
+  padding: 8px 5px;
+  border-radius: 9px;
+  border: 1px solid var(--cmb-border-input);
+  background: #fff;
+  color: var(--cmb-text-3);
+  font-size: 11.5px;
+  font-weight: 700;
+  min-height: 36px;
+}
+
+.cmb-elegidos { display: flex; flex-direction: column; gap: 7px; }
+
+.cmb-elegido {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1.5px solid var(--cmb-ink);
+  background: #fff;
+}
+
+.cmb-punto {
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.cmb-elegido-nombre {
+  flex: 1;
+  min-width: 0;
+  font-size: 13.5px;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cmb-mini-stepper { display: flex; align-items: center; gap: 4px; }
+
+.cmb-mini-btn {
+  width: 34px;
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid var(--cmb-border-input);
+  background: #fff;
+  color: var(--cmb-text-3);
+  font-size: 16px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cmb-mini-btn:disabled { color: var(--cmb-fainter); }
+
+.cmb-mini-num {
+  min-width: 26px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.cmb-divisor { height: 1px; background: var(--cmb-border-soft); }
+
+.cmb-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.cmb-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--cmb-border-input);
+  background: #fff;
+  color: var(--cmb-text-2);
+  font-size: 12.5px;
+  font-weight: 700;
+  min-height: 36px;
+}
+
+.cmb-chip i { font-size: 11px; color: var(--cmb-muted-2); }
+
+.cmb-chip-atenuado {
+  background: var(--cmb-page);
+  border-color: transparent;
+  color: var(--cmb-faint);
+  cursor: not-allowed;
+}
+
+.cmb-chip-atenuado i { color: var(--cmb-faint); }
+
+.cmb-ayuda {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--cmb-muted-3);
+}
+
+/* ===== Temperatura de la bebida ===== */
+.cmb-temp { display: flex; gap: 7px; }
+
+.cmb-temp-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 12px 8px;
+  border-radius: 11px;
+  border: 1px solid var(--cmb-border-input);
+  background: #fff;
+  color: var(--cmb-text-3);
+  font-size: 13px;
+  font-weight: 700;
+  min-height: 46px;
+}
+
+.cmb-temp-btn-activo-helada {
+  background: var(--cmb-blue-tint);
+  border: 1.5px solid var(--cmb-blue);
+  color: var(--cmb-blue);
+  font-weight: 800;
+}
+
+.cmb-temp-btn-activo-ambiente {
+  background: var(--cmb-amber-tint);
+  border: 1.5px solid var(--cmb-amber-dark);
+  color: var(--cmb-amber-dark);
+  font-weight: 800;
+}
+
+/* ===== Resumen ===== */
+.cmb-resumen {
+  background: var(--cmb-surface-2);
+  border: 1px solid var(--cmb-border-soft);
+  border-radius: 14px;
+  padding: 12px 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.cmb-resumen-label {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--cmb-muted-2);
+}
+
+.cmb-resumen-fila { display: flex; align-items: baseline; gap: 9px; }
+
+.cmb-resumen-grupo {
+  flex: 0 0 52px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: var(--cmb-muted-3);
+}
+
+.cmb-resumen-valor {
+  flex: 1;
+  min-width: 0;
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.cmb-resumen-monto { font-size: 12px; font-weight: 700; color: var(--cmb-muted-2); }
+.cmb-resumen-monto-recargo { color: var(--cmb-amber-dark); }
+
+.cmb-resumen-pie {
+  border-top: 1px solid var(--cmb-border);
+  padding-top: 9px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.cmb-nota-label { flex: 1; font-size: 12.5px; font-weight: 600; color: var(--cmb-faint); }
+
+.cmb-nota-btn {
+  border: none;
+  background: none;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--cmb-text-3);
+  padding: 4px 2px;
+}
+
+.cmb-nota-input {
+  width: 100%;
+  border: 1px solid var(--cmb-border-input);
+  border-radius: 11px;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--cmb-ink);
+}
+
+.cmb-nota-input:focus { outline: none; border-color: var(--cmb-ink); }
+
+/* ===== Pie fijo ===== */
+.cmb-pie {
+  flex: 0 0 auto;
+  padding: 12px 16px max(20px, env(safe-area-inset-bottom));
+  border-top: 1px solid var(--cmb-border);
+  box-shadow: 0 -8px 22px rgba(20, 24, 29, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: #fff;
+}
+
+.cmb-pie-fila { display: flex; gap: 9px; }
+
+.cmb-stepper { flex: 0 0 auto; display: flex; align-items: center; gap: 2px; }
+
+.cmb-stepper-btn {
+  width: 40px;
+  height: 50px;
+  border-radius: 12px;
+  border: 1px solid var(--cmb-border-input);
+  background: #fff;
+  color: var(--cmb-text-3);
+  font-size: 18px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cmb-stepper-btn:disabled { color: var(--cmb-fainter); }
+
+.cmb-stepper-num {
+  min-width: 26px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.cmb-agregar {
+  flex: 1;
+  height: 50px;
+  border-radius: 13px;
+  border: none;
+  background: var(--cmb-brand);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 8px 18px rgba(200, 16, 46, 0.26);
+}
+
+.cmb-agregar-bloqueado {
+  background: var(--cmb-disabled);
+  color: var(--cmb-muted-2);
+  box-shadow: none;
+}
+
+/* El botón nunca queda gris sin explicación: debajo va el motivo exacto. */
+.cmb-motivo {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--cmb-brand);
+  text-align: center;
+  min-height: 13px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cmb-hoja,
+  .cmb-overlay,
+  .cmb-barra-seg,
+  .cmb-opcion { transition: none; }
+}

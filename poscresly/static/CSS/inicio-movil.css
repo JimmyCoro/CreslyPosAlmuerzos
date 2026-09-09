@@ -1,0 +1,226 @@
+/* =====================================================================
+   Inicio móvil · Pizzería (poscresly/pizzeria/handoff_inicio_movil)
+   Pantalla dedicada, alta fidelidad al handoff. Header fijo + subheader
+   son el sistema compartido (ver barras.css); el sidebar (menú ☰) es el
+   mismo components/navbar.html que el resto de la app. Lo único propio
+   de esta pantalla es la tab bar de abajo y las tarjetas del cuerpo.
+   Rango objetivo: 360–430px de ancho, sin scroll horizontal.
+   ===================================================================== */
+:root {
+  --im-ink: #14181d;
+  --im-ink-3: #262d34;
+  --im-text-2: #4a545f;
+  --im-text-3: #5b6673;
+  --im-muted-2: #8a929c;
+  --im-muted-3: #98a1ab;
+  --im-surface: #ffffff;
+  --im-page: #f4f5f7;
+  --im-surface-2: #fafbfc;
+  --im-border: #e6e8ec;
+  --im-border-soft: #eef0f3;
+  --im-border-soft-2: #f2f4f6;
+  --im-border-input: #dfe2e7;
+  --im-brand: #c8102e;
+  --im-brand-dark: #a90d27;
+  --im-brand-tint-bg: #fdecef;
+  --im-brand-tint-border: #f4d3d9;
+  --im-green: #23a05f;
+  --im-green-dark: #1c7a4a;
+  --im-green-tint: #eaf6ef;
+  --im-blue: #2f7fd9;
+  --im-amber: #d99000;
+}
+
+html, body.im-body {
+  margin: 0;
+  padding: 0;
+  background: var(--im-page);
+}
+
+body.im-body {
+  font-family: 'Plus Jakarta Sans', Helvetica, Arial, sans-serif;
+  font-feature-settings: 'tnum' 1;
+  color: var(--im-ink);
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Este shell no tiene el .app-layout de escritorio que en base.html
+   posiciona el sidebar como riel fijo lateral — acá siempre debe
+   comportarse como panel deslizable, sin importar el ancho (a diferencia
+   de base.css, donde eso solo pasa por debajo de 1024px). Mismos valores
+   que esa media query, solo que sin el max-width que la gatilla. */
+body.im-body .sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  transform: translateX(-100%);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  z-index: 1000;
+}
+body.im-body .sidebar.sidebar-open {
+  transform: translateX(0);
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.45);
+}
+body.im-body .sidebar-close-btn { display: flex; align-self: flex-end; }
+body.im-body .sidebar-overlay { display: block; pointer-events: none; }
+body.im-body .sidebar-overlay.active { pointer-events: auto; }
+
+/* Mismo motivo: components/pizzeria_bottom_nav.html (.pzbn) solo se
+   muestra por debajo de 1024px en pizzeria-bottom-nav.css, porque en las
+   demás páginas ese es el ancho en el que el sidebar de escritorio deja
+   de estar disponible. Acá no hay sidebar de escritorio — es la única
+   navegación de esta pantalla, así que siempre debe verse. */
+/* Este shell no tiene sidebar de escritorio, así que la barra inferior
+   compartida (.pzbn, components/pizzeria_bottom_nav.html) debe quedarse
+   visible sin importar el ancho — ver el "display:none ≥1024px" que
+   pizzeria-bottom-nav.css aplica solo a body.pizzeria-page. */
+
+.im-shell {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== Header ===== */
+/* ===== Contenido ===== */
+.im-content {
+  flex: 1;
+  padding: 14px 18px calc(92px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ===== Tarjeta 1 — Venta del turno ===== */
+.im-card-venta {
+  background: var(--im-ink);
+  color: #fff;
+  border-radius: 18px;
+  padding: 18px 19px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.im-venta-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.im-venta-info { display: flex; flex-direction: column; gap: 3px; }
+.im-venta-label { font-size: 11px; font-weight: 800; letter-spacing: .09em; color: var(--im-muted-3); }
+.im-venta-monto { font-size: 38px; font-weight: 800; letter-spacing: -.035em; line-height: 1.05; }
+
+.im-venta-footer { display: flex; gap: 10px; padding-top: 13px; border-top: 1px solid var(--im-ink-3); }
+.im-venta-stat { flex: 1; display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.im-venta-stat + .im-venta-stat { border-left: 1px solid var(--im-ink-3); padding-left: 12px; }
+.im-venta-stat-value { font-size: 17px; font-weight: 800; letter-spacing: -.02em; }
+.im-venta-stat-label { font-size: 11px; color: var(--im-muted-3); font-weight: 600; }
+
+/* ===== Tarjeta 2 — Por cobrar ===== */
+.im-card-cobrar {
+  background: var(--im-surface);
+  border: 1px solid var(--im-brand-tint-border);
+  border-radius: 16px;
+  padding: 15px 17px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  text-decoration: none;
+  color: inherit;
+}
+.im-cobrar-info { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.im-cobrar-label { font-size: 11px; font-weight: 800; letter-spacing: .09em; color: var(--im-brand-dark); }
+.im-cobrar-monto { font-size: 28px; font-weight: 800; letter-spacing: -.03em; line-height: 1.1; color: var(--im-brand); }
+.im-cobrar-sub { font-size: 11.5px; color: var(--im-muted-2); font-weight: 600; }
+.im-cobrar-chevron {
+  width: 44px;
+  height: 44px;
+  border-radius: 13px;
+  background: var(--im-brand-tint-bg);
+  color: var(--im-brand);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 19px;
+  flex: 0 0 auto;
+}
+
+/* ===== Tarjeta 3 — Dinero en caja (barra apilada) ===== */
+.im-card-caja {
+  background: var(--im-surface);
+  border: 1px solid var(--im-border);
+  border-radius: 18px;
+  padding: 17px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+.im-caja-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.im-caja-header-info { display: flex; flex-direction: column; gap: 3px; }
+.im-caja-label { font-size: 11px; font-weight: 800; letter-spacing: .09em; color: var(--im-muted-2); }
+.im-caja-total { font-size: 30px; font-weight: 800; letter-spacing: -.03em; line-height: 1.1; }
+.im-caja-link { font-size: 11.5px; font-weight: 700; color: var(--im-muted-2); text-decoration: none; flex-shrink: 0; }
+.im-caja-link:hover { color: var(--im-ink); }
+
+.im-barra { display: flex; height: 12px; border-radius: 999px; overflow: hidden; gap: 2px; }
+.im-barra-seg { height: 100%; }
+.im-barra-empty { background: var(--im-border-soft); }
+
+.im-leyenda-list { display: flex; flex-direction: column; }
+.im-leyenda-item { display: flex; align-items: center; gap: 11px; padding: 12px 0; }
+.im-leyenda-list .im-leyenda-item:not(:last-child) { border-bottom: 1px solid var(--im-border-soft-2); }
+.im-leyenda-dot { width: 10px; height: 10px; border-radius: 3px; flex: 0 0 auto; }
+.im-leyenda-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.im-leyenda-nombre { font-size: 13.5px; font-weight: 700; }
+.im-leyenda-meta { font-size: 11.5px; color: var(--im-muted-3); font-weight: 600; }
+.im-leyenda-cifras { text-align: right; flex-shrink: 0; }
+.im-leyenda-monto { font-size: 15px; font-weight: 800; letter-spacing: -.02em; }
+.im-leyenda-pct { font-size: 11.5px; color: var(--im-muted-3); font-weight: 700; }
+.im-leyenda-empty { font-size: 12.5px; color: var(--im-muted-3); }
+
+.im-gaveta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--im-surface-2);
+  border: 1px solid var(--im-border-soft);
+}
+.im-gaveta-info { display: flex; flex-direction: column; gap: 1px; }
+.im-gaveta-label { font-size: 11px; font-weight: 800; letter-spacing: .07em; color: var(--im-muted-2); }
+.im-gaveta-sub { font-size: 11.5px; color: var(--im-muted-3); font-weight: 600; }
+.im-gaveta-monto { font-size: 19px; font-weight: 800; letter-spacing: -.025em; }
+
+/* ===== Accesos rápidos ===== */
+.im-accesos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.im-acceso {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 14px 15px;
+  border-radius: 14px;
+  text-decoration: none;
+  min-height: 44px;
+}
+.im-acceso-primary {
+  background: var(--im-brand);
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(200, 16, 46, .24);
+  font-size: 13.5px;
+  font-weight: 800;
+  letter-spacing: -.01em;
+}
+.im-acceso-primary i { font-size: 19px; }
+.im-acceso-outline {
+  background: var(--im-surface);
+  border: 1px solid var(--im-border-input);
+  color: var(--im-ink);
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: -.01em;
+}
+.im-acceso-outline i { font-size: 17px; color: var(--im-text-3); }
+
+/* La barra inferior es components/pizzeria_bottom_nav.html (.pzbn) —
+   compartida con el resto de la app, ver el override "siempre visible"
+   más arriba junto al del sidebar. */

@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  html, body { margin:0; padding:0; background:#eceef1; }
+  * { box-sizing:border-box; }
+  a { color:#c8102e; text-decoration:none; }
+  a:hover { color:#9c0c23; }
+</style>
+</helmet>
+
+<section style="padding:40px;display:flex;flex-direction:column;gap:32px;font-family:'Plus Jakarta Sans',Helvetica,Arial,sans-serif;color:#14181d;font-feature-settings:'tnum' 1">
+
+  <div style="display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap">
+    <span style="padding:5px 11px;border-radius:999px;background:#14181d;color:#fff;font-size:12px;font-weight:800;letter-spacing:.04em">7</span>
+    <div style="display:flex;flex-direction:column;gap:5px">
+      <h1 style="margin:0;font-size:28px;font-weight:800;letter-spacing:-.025em">Detalle de orden · móvil</h1>
+      <p style="margin:0;font-size:14px;color:#4a545f;max-width:860px;text-wrap:pretty">La pantalla donde se mueve el estado de cada platillo. El estado deja de ser una etiqueta y pasa a ser el control: se toca y avanza. La hoja completa queda para lo demás.</p>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start">
+
+    <!-- ============ PANTALLA ============ -->
+    <div style="display:flex;flex-direction:column;gap:9px">
+      <span style="font-size:11.5px;font-weight:800;color:#5b6673;letter-spacing:.04em">DETALLE · EN PREPARACIÓN</span>
+      <div style="position:relative;width:390px;height:800px;background:#f4f5f7;border:1px solid #d6dae0;border-radius:24px;overflow:hidden;box-shadow:0 16px 40px rgba(20,24,29,.12)">
+
+        <div style="display:flex;align-items:center;gap:8px;height:52px;padding:0 12px;background:#fff;border-bottom:1px solid #e6e8ec">
+          <div style="width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:0 0 auto"><span style="font-size:17px;color:#14181d">☰</span></div>
+          <div style="flex:1;min-width:0;display:flex;align-items:center;gap:9px">
+            <div style="width:30px;height:30px;border-radius:9px;background:#c8102e;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex:0 0 auto">C</div>
+            <div style="min-width:0;display:flex;flex-direction:column;gap:0">
+              <span style="font-size:13.5px;font-weight:800;letter-spacing:-.015em;line-height:1.2">Cresly Pizzería</span>
+              <span style="font-size:10.5px;color:#8a929c;font-weight:600;line-height:1.2">Suc. Centro</span>
+            </div>
+          </div>
+          <div style="width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:0 0 auto"><span style="font-size:16px;color:#5b6673">☾</span></div>
+          <div style="display:flex;align-items:center;gap:7px;padding:4px 8px 4px 4px;border-radius:11px;flex:0 0 auto">
+            <div style="width:34px;height:34px;border-radius:50%;background:#14181d;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800">M</div>
+            <span style="font-size:8px;color:#8a929c">▼</span>
+          </div>
+        </div>
+
+        <div style="background:#fafbfc;border-bottom:1px solid #eef0f3;display:flex;align-items:center;gap:10px;min-height:56px;padding:9px 14px">
+          <div style="width:38px;height:38px;border-radius:11px;border:1px solid #e6e8ec;background:#fff;display:flex;align-items:center;justify-content:center;flex:0 0 auto"><span style="font-size:15px;color:#5b6673">‹</span></div>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px">
+            <div style="display:flex;align-items:center;gap:8px;min-width:0">
+              <span style="font-size:17px;font-weight:800;letter-spacing:-.02em;line-height:1.2">Pedido #002</span>
+              <span style="display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:999px;background:#fdf3e2;color:#8a5800;font-size:10.5px;font-weight:800;flex:0 0 auto">
+                <span style="width:5px;height:5px;border-radius:50%;background:#d99000"></span>En cocina
+              </span>
+            </div>
+            <span style="font-size:11px;color:#8a929c;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Delivery · mesero1 · <strong style="font-weight:800;color:#8a5800">hace 22 min</strong></span>
+          </div>
+          <div style="width:38px;height:38px;border-radius:11px;background:#fff;border:1px solid #e6e8ec;display:flex;align-items:center;justify-content:center;flex:0 0 auto"><span style="font-size:16px;color:#5b6673">⋯</span></div>
+        </div>
+
+        <div style="height:calc(100% - 108px);overflow:hidden;padding:14px 14px 0;display:flex;flex-direction:column;gap:12px">
+
+          <div style="background:#fff;border:1px solid #e6e8ec;border-radius:16px;padding:14px 15px;display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                <span style="font-size:10.5px;font-weight:800;letter-spacing:.09em;color:#8a929c">ENTREGA</span>
+                <span style="font-size:13.5px;font-weight:700;letter-spacing:-.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Ana R. · Col. Miramonte</span>
+                <span style="font-size:11.5px;color:#98a1ab;font-weight:600">0991073962 · envío $2.50</span>
+              </div>
+              <div style="width:40px;height:40px;border-radius:12px;background:#eaf6ef;color:#1c7a4a;display:flex;align-items:center;justify-content:center;font-size:16px;flex:0 0 auto">✆</div>
+            </div>
+            <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding-top:11px;border-top:1px solid #f2f4f6">
+              <span style="font-size:12px;font-weight:800;letter-spacing:.07em;color:#8a929c">TOTAL</span>
+              <span style="font-size:26px;font-weight:800;letter-spacing:-.03em;line-height:1">$12.00</span>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:9px">
+            <div style="display:flex;align-items:center;gap:10px">
+              <span style="font-size:10.5px;font-weight:800;letter-spacing:.1em;color:#8a929c">COCINA</span>
+              <span style="font-size:11px;font-weight:700;color:#98a1ab">1 de 3 listos</span>
+              <div style="flex:1;height:4px;border-radius:999px;background:#eef0f3;overflow:hidden">
+                <div style="width:33%;height:100%;background:#23a05f"></div>
+              </div>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:11px;background:#fff;border:1px solid #e6e8ec;border-radius:14px;padding:11px 12px">
+              <span style="width:26px;height:26px;border-radius:8px;background:#fdecef;color:#a90d27;font-size:12.5px;font-weight:800;display:flex;align-items:center;justify-content:center;flex:0 0 auto">1</span>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                <span style="font-size:13.5px;font-weight:700;line-height:1.35;text-wrap:pretty">14 alitas</span>
+                <span style="font-size:11.5px;color:#8a5800;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">7 BBQ · 7 Broster</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:7px;padding:8px 11px;border-radius:11px;background:#eaf6ef;flex:0 0 auto">
+                <span style="width:7px;height:7px;border-radius:50%;background:#23a05f"></span>
+                <span style="font-size:12px;font-weight:800;color:#1c7a4a">Listo</span>
+              </div>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:11px;background:#fffdf7;border:1px solid #f2e0bd;border-radius:14px;padding:11px 12px">
+              <span style="width:26px;height:26px;border-radius:8px;background:#fdecef;color:#a90d27;font-size:12.5px;font-weight:800;display:flex;align-items:center;justify-content:center;flex:0 0 auto">2</span>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                <span style="font-size:13.5px;font-weight:700;line-height:1.35">Pizza mediana</span>
+                <span style="font-size:11.5px;color:#8a5800;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Sin cebolla · extra queso</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:7px;padding:8px 11px;border-radius:11px;background:#fdf3e2;flex:0 0 auto">
+                <span style="width:7px;height:7px;border-radius:50%;background:#d99000"></span>
+                <span style="font-size:12px;font-weight:800;color:#8a5800">Cocinando</span>
+              </div>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:11px;background:#fff;border:1px solid #e6e8ec;border-radius:14px;padding:11px 12px">
+              <span style="width:26px;height:26px;border-radius:8px;background:#fdecef;color:#a90d27;font-size:12.5px;font-weight:800;display:flex;align-items:center;justify-content:center;flex:0 0 auto">1</span>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                <span style="font-size:13.5px;font-weight:700;line-height:1.35">Coca-Cola 1.5 L</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:7px;padding:8px 11px;border-radius:11px;background:#f4f5f7;flex:0 0 auto">
+                <span style="width:7px;height:7px;border-radius:50%;background:#8a929c"></span>
+                <span style="font-size:12px;font-weight:800;color:#4a545f">Pendiente</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="position:absolute;left:0;right:0;bottom:0;background:#fff;border-top:1px solid #e6e8ec;padding:12px 14px 20px;display:flex;gap:9px;box-shadow:0 -8px 22px rgba(20,24,29,.07)">
+          <div style="width:52px;height:52px;border-radius:14px;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:20px;color:#5b6673;flex:0 0 auto;line-height:1">＋</div>
+          <div style="flex:1;min-width:0;display:flex;align-items:center;justify-content:center;gap:9px;height:52px;border-radius:14px;background:#c8102e;color:#fff;font-size:15px;font-weight:800;box-shadow:0 8px 18px rgba(200,16,46,.26)">
+            <span style="font-size:15px">▤</span><span>Cobrar $12.00</span>
+          </div>
+        </div>
+      </div>
+      <span style="font-size:11.5px;color:#4a545f;width:390px;line-height:1.5">El estado de cada platillo es un botón, no una etiqueta: un toque lo avanza al siguiente estado. Mantener pulsado, o tocar la fila, abre la hoja completa.</span>
+    </div>
+
+    <!-- ============ HOJA DE PLATILLO ============ -->
+    <div style="display:flex;flex-direction:column;gap:9px">
+      <span style="font-size:11.5px;font-weight:800;color:#5b6673;letter-spacing:.04em">HOJA DEL PLATILLO</span>
+      <div style="position:relative;width:390px;height:800px;border-radius:24px;overflow:hidden;border:1px solid #d6dae0;box-shadow:0 16px 40px rgba(20,24,29,.12);background:#f4f5f7">
+
+        <div style="display:flex;align-items:center;gap:8px;height:52px;padding:0 12px;background:#fff;border-bottom:1px solid #e6e8ec;opacity:.4">
+          <div style="width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:0 0 auto"><span style="font-size:17px">☰</span></div>
+          <div style="flex:1;min-width:0;display:flex;align-items:center;gap:9px">
+            <div style="width:30px;height:30px;border-radius:9px;background:#c8102e;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex:0 0 auto">C</div>
+            <span style="font-size:13.5px;font-weight:800;letter-spacing:-.015em">Cresly Pizzería</span>
+          </div>
+          <div style="width:34px;height:34px;border-radius:50%;background:#14181d;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex:0 0 auto">M</div>
+        </div>
+
+        <div style="position:absolute;inset:52px 0 0;background:rgba(20,24,29,.42)"></div>
+
+        <div style="position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:22px 22px 0 0;padding:14px 16px 20px;display:flex;flex-direction:column;gap:15px">
+          <div style="width:38px;height:4px;border-radius:999px;background:#dfe2e7;margin:0 auto"></div>
+
+          <div style="display:flex;align-items:flex-start;gap:11px">
+            <span style="width:30px;height:30px;border-radius:9px;background:#fdecef;color:#a90d27;font-size:13.5px;font-weight:800;display:flex;align-items:center;justify-content:center;flex:0 0 auto">2</span>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+              <span style="font-size:17px;font-weight:800;letter-spacing:-.02em;line-height:1.25">Pizza mediana</span>
+              <span style="font-size:12px;color:#8a5800;font-weight:700">Sin cebolla · extra queso</span>
+            </div>
+            <span style="font-size:16px;font-weight:800;letter-spacing:-.02em;flex:0 0 auto">$24.00</span>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:9px">
+            <span style="font-size:10.5px;font-weight:800;letter-spacing:.09em;color:#8a929c">ESTADO</span>
+            <div style="display:flex;gap:6px">
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:11px 4px;border-radius:12px;background:#fff;border:1px solid #dfe2e7">
+                <span style="width:9px;height:9px;border-radius:50%;background:#8a929c"></span>
+                <span style="font-size:11px;font-weight:700;color:#5b6673">Pendiente</span>
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:11px 4px;border-radius:12px;background:#d99000;border:1px solid #d99000;box-shadow:0 6px 14px rgba(217,144,0,.24)">
+                <span style="width:9px;height:9px;border-radius:50%;background:#fff"></span>
+                <span style="font-size:11px;font-weight:800;color:#fff">Cocinando</span>
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:11px 4px;border-radius:12px;background:#fff;border:1px solid #dfe2e7">
+                <span style="width:9px;height:9px;border-radius:50%;background:#23a05f"></span>
+                <span style="font-size:11px;font-weight:700;color:#5b6673">Listo</span>
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:11px 4px;border-radius:12px;background:#fff;border:1px solid #dfe2e7">
+                <span style="width:9px;height:9px;border-radius:50%;background:#2f7fd9"></span>
+                <span style="font-size:11px;font-weight:700;color:#5b6673">Servido</span>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border-radius:12px;background:#14181d;color:#fff;font-size:14px;font-weight:800">
+              <span style="font-size:13px">✓</span><span>Marcar como listo</span>
+            </div>
+            <span style="text-align:center;font-size:11px;color:#98a1ab;font-weight:600">Cocinando desde las 12:23 · 22 min</span>
+          </div>
+
+          <div style="height:1px;background:#eef0f3"></div>
+
+          <div style="display:flex;flex-direction:column;gap:7px">
+            <span style="font-size:10.5px;font-weight:800;letter-spacing:.09em;color:#8a929c">CANTIDAD</span>
+            <div style="display:flex;align-items:center;gap:11px">
+              <div style="display:flex;align-items:center;gap:3px">
+                <div style="width:44px;height:44px;border-radius:12px;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:700;color:#5b6673;line-height:1">−</div>
+                <span style="min-width:38px;text-align:center;font-size:18px;font-weight:800">2</span>
+                <div style="width:44px;height:44px;border-radius:12px;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:700;color:#5b6673;line-height:1">＋</div>
+              </div>
+              <span style="flex:1;text-align:right;font-size:12px;color:#98a1ab;font-weight:600">$12.00 c/u</span>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:7px">
+            <span style="font-size:10.5px;font-weight:800;letter-spacing:.09em;color:#8a929c">ACCIONES</span>
+            <div style="display:flex;flex-direction:column;gap:7px">
+              <div style="display:flex;align-items:center;gap:11px;padding:13px 14px;border-radius:12px;border:1px solid #dfe2e7;background:#fff">
+                <span style="font-size:14px;color:#5b6673;width:18px;text-align:center;flex:0 0 auto">✎</span>
+                <span style="flex:1;min-width:0;font-size:13.5px;font-weight:700">Editar personalización</span>
+                <span style="font-size:14px;color:#c3c8ce;flex:0 0 auto">›</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:11px;padding:13px 14px;border-radius:12px;border:1px solid #dfe2e7;background:#fff">
+                <span style="font-size:14px;color:#5b6673;width:18px;text-align:center;flex:0 0 auto">⧉</span>
+                <span style="flex:1;min-width:0;font-size:13.5px;font-weight:700">Pedir otro igual</span>
+                <span style="font-size:14px;color:#c3c8ce;flex:0 0 auto">›</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:11px;padding:13px 14px;border-radius:12px;border:1px solid #dfe2e7;background:#fff">
+                <span style="font-size:14px;color:#5b6673;width:18px;text-align:center;flex:0 0 auto">⎙</span>
+                <span style="flex:1;min-width:0;font-size:13.5px;font-weight:700">Reimprimir en cocina</span>
+                <span style="font-size:14px;color:#c3c8ce;flex:0 0 auto">›</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:11px;padding:13px 14px;border-radius:12px;border:1px solid #f4d3d9;background:#fff">
+                <span style="font-size:14px;color:#c8102e;width:18px;text-align:center;flex:0 0 auto">✕</span>
+                <span style="flex:1;min-width:0;font-size:13.5px;font-weight:700;color:#c8102e">Quitar de la orden</span>
+                <span style="font-size:14px;color:#f4d3d9;flex:0 0 auto">›</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <span style="font-size:11.5px;color:#4a545f;width:390px;line-height:1.5">Los cuatro estados a la vista, no dentro de un desplegable: mover el estado es la razón de abrir esta hoja y debe costar un toque.</span>
+    </div>
+
+    <!-- ============ NOTAS ============ -->
+    <div style="flex:1;min-width:300px;max-width:430px;display:flex;flex-direction:column;gap:12px">
+      <span style="font-size:15px;font-weight:800;letter-spacing:-.015em">Qué cambió y por qué</span>
+      <sc-for list="{{ notes }}" as="n" hint-placeholder-count="6">
+        <div style="background:#fff;border:1px solid #d6dae0;border-radius:14px;padding:15px 17px;display:flex;flex-direction:column;gap:5px">
+          <span style="font-size:11px;font-weight:800;letter-spacing:.09em;color:#8a929c">{{ n.title }}</span>
+          <span style="font-size:12.5px;color:#4a545f;line-height:1.55">{{ n.body }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- ============ ESTADOS DE LA FILA ============ -->
+  <div style="display:flex;flex-direction:column;gap:14px">
+    <div style="display:flex;flex-direction:column;gap:3px">
+      <span style="font-size:16px;font-weight:800;letter-spacing:-.02em">Los cuatro estados del platillo</span>
+      <span style="font-size:12.5px;color:#4a545f">Un toque en el botón avanza al siguiente. Solo el que está cocinando tiñe la fila: es donde debe caer la vista.</span>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:14px">
+      <sc-for list="{{ states }}" as="s" hint-placeholder-count="4">
+        <div style="display:flex;flex-direction:column;gap:8px;width:362px">
+          <div style="display:flex;align-items:center;gap:11px;background:{{ s.rowBg }};border:1px solid {{ s.rowBorder }};border-radius:14px;padding:11px 12px">
+            <span style="width:26px;height:26px;border-radius:8px;background:#fdecef;color:#a90d27;font-size:12.5px;font-weight:800;display:flex;align-items:center;justify-content:center;flex:0 0 auto">2</span>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+              <span style="font-size:13.5px;font-weight:700;line-height:1.35">Pizza mediana</span>
+              <span style="font-size:11.5px;color:#8a5800;font-weight:700">Sin cebolla · extra queso</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:7px;padding:8px 11px;border-radius:11px;background:{{ s.pillBg }};flex:0 0 auto">
+              <span style="width:7px;height:7px;border-radius:50%;background:{{ s.dot }}"></span>
+              <span style="font-size:12px;font-weight:800;color:{{ s.fg }}">{{ s.label }}</span>
+            </div>
+          </div>
+          <span style="font-size:11.5px;color:#4a545f;line-height:1.5">{{ s.note }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const NOTES = [
+  { title: "EL ESTADO ES EL CONTROL", body: "Hoy “Completo” es una etiqueta verde que no hace nada: hay que abrir el modal para mover el estado. Ahora es un botón — un toque avanza al siguiente estado, que es la acción que más se repite en esta pantalla." },
+  { title: "SE FUE LA TARJETA NEGRA", body: "Repetía el tipo de orden, el mesero y el tiempo que ya están en el subheader. En su lugar, una tarjeta blanca con lo que sí falta: cliente, dirección, teléfono con botón de llamar, y el total." },
+  { title: "PROGRESO DE COCINA", body: "“1 de 3 listos” con una barra fina reemplaza el pill de “1 platillo”. Dice si el pedido puede salir, que es lo que se está consultando al abrir la pantalla." },
+  { title: "LOS ESTADOS, A LA VISTA EN LA HOJA", body: "Tu modal esconde los estados tras un desplegable y da protagonismo a Editar, Duplicar e Imprimir. Se invierte: los cuatro estados arriba en una fila, con un botón grande para el siguiente paso." },
+  { title: "SIN ICONOS DE COLOR EN LAS ACCIONES", body: "Los círculos ámbar competían con el estado por la atención. Las acciones pasan a filas con glifo neutro; solo “Quitar de la orden” se marca en rojo." },
+  { title: "SE QUITÓ LA PISTA EN ROJO", body: "“Toca un platillo para gestionarlo” en rojo cursiva parecía un error. Si el estado ya es un botón visible, la pista sobra." }
+];
+
+const STATES = [
+  { label: "Pendiente", dot: "#8a929c", fg: "#4a545f", pillBg: "#f4f5f7", rowBg: "#fff", rowBorder: "#e6e8ec",
+    note: "Enviado a cocina, aún sin empezar. Fila neutra." },
+  { label: "Cocinando", dot: "#d99000", fg: "#8a5800", pillBg: "#fdf3e2", rowBg: "#fffdf7", rowBorder: "#f2e0bd",
+    note: "El único estado que tiñe la fila. Si pasa del tiempo previsto, el pill se vuelve rojo." },
+  { label: "Listo", dot: "#23a05f", fg: "#1c7a4a", pillBg: "#eaf6ef", rowBg: "#fff", rowBorder: "#e6e8ec",
+    note: "Sale de cocina. Suma al contador “N de M listos”." },
+  { label: "Servido", dot: "#2f7fd9", fg: "#1d5a9e", pillBg: "#e9f1fb", rowBg: "#fff", rowBorder: "#e6e8ec",
+    note: "Entregado en mesa o despachado. Último toque cierra el ciclo del platillo." }
+];
+
+class Component extends DCLogic {
+  renderVals() {
+    return { notes: NOTES, states: STATES };
+  }
+}
+</script>
+</body>
+</html>

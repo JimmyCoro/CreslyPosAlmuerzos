@@ -276,7 +276,6 @@
   font-weight: 700;
 }
 .pz-obs-input { flex: 1; min-width: 150px; }
-.pz-precio { font-weight: 700; font-size: 1.1rem; min-width: 80px; }
 
 .pz-modal-footer { display: flex; align-items: center; gap: .75rem; }
 .pz-btn-agregar {

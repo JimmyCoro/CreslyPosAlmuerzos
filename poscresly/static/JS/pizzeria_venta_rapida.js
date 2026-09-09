@@ -25,7 +25,9 @@
   let selectorModal;
 
   function actualizarNumeroOrden(numero) {
-    document.getElementById('vrNumeroOrden').textContent = '#' + String(numero).padStart(3, '0');
+    const numeroStr = String(numero).padStart(3, '0');
+    document.getElementById('vrNumeroOrden').textContent = '#' + numeroStr;
+    window.PZ_NUMERO_STR = numeroStr;
   }
 
   function productoPorcionIndividual() {
@@ -33,29 +35,6 @@
   }
 
   // ===== CATEGORÍAS =====
-  const CATEGORIA_META = {
-    'Todas': { icon: 'fa-border-all', color: '#6b7280' },
-    'Pizzas': { icon: 'fa-pizza-slice', color: '#ef4444' },
-    'Combos': { icon: 'fa-gifts', color: '#8b5cf6' },
-    'Bebida': { icon: 'fa-glass-water', color: '#3b82f6' },
-    'Alitas': { icon: 'fa-drumstick-bite', color: '#f59e0b' },
-    'Hamburguesa': { icon: 'fa-burger', color: '#92400e' },
-    'Para picar': { icon: 'fa-utensils', color: '#10b981' },
-    'Otro': { icon: 'fa-ellipsis', color: '#6b7280' },
-  };
-
-  function metaCategoria(cat) {
-    return CATEGORIA_META[cat] || { icon: 'fa-tag', color: '#6b7280' };
-  }
-
-  function hexToRgba(hex, alpha) {
-    const h = hex.replace('#', '');
-    const r = parseInt(h.substring(0, 2), 16);
-    const g = parseInt(h.substring(2, 4), 16);
-    const b = parseInt(h.substring(4, 6), 16);
-    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-  }
-
   function construirCategorias() {
     const categorias = ['Todas', 'Pizzas', 'Combos'];
     const vistas = new Set();
@@ -68,28 +47,17 @@
     return categorias;
   }
 
-  function contarItemsCategoria(cat) {
-    return construirItems(cat, '').length;
-  }
-
   function renderCategorias() {
     const categorias = construirCategorias();
     const cont = document.getElementById('vrCategorias');
     cont.innerHTML = '';
     categorias.forEach(cat => {
-      const meta = metaCategoria(cat);
-      const card = document.createElement('button');
-      card.type = 'button';
-      card.className = 'vr-cat-card' + (categoriaActiva === cat ? ' vr-cat-card-active' : '');
-      card.innerHTML = `
-        <span class="vr-cat-icon" style="background:${hexToRgba(meta.color, 0.12)}"><i class="fas ${meta.icon}" style="--cat-color:${meta.color}"></i></span>
-        <span class="vr-cat-info">
-          <span class="vr-cat-nombre">${cat}</span>
-          <span class="vr-cat-count">${contarItemsCategoria(cat)} productos</span>
-        </span>
-      `;
-      card.addEventListener('click', () => { categoriaActiva = cat; renderCategorias(); renderGrid(); });
-      cont.appendChild(card);
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'vr-cat-chip' + (categoriaActiva === cat ? ' vr-cat-chip-active' : '');
+      chip.textContent = cat;
+      chip.addEventListener('click', () => { categoriaActiva = cat; renderCategorias(); renderGrid(); });
+      cont.appendChild(chip);
     });
   }
 
@@ -334,26 +302,6 @@
   function comboMicheladaCantidad() {
     const c = comboSeleccionado();
     return (selector.kind === 'combo' && c && c.michelada_cantidad) || 0;
-  }
-
-  function renderSelectorTamanos() {
-    const opciones = selector.kind === 'combo'
-      ? comboSeleccionado().tamanos.map(t => ({ id: t.tamano_id, nombre: t.tamano_nombre, precio: t.precio }))
-      : catalogo.tamanos.map(t => ({ id: t.id, nombre: t.nombre, precio: t.precio_base }));
-
-    const cont = document.getElementById('vrSelectorTamanos');
-    cont.innerHTML = '';
-    opciones.forEach(t => {
-      const activo = selector.tamanoId === t.id;
-      const row = document.createElement('button');
-      row.type = 'button';
-      row.className = 'pz-radio-row' + (activo ? ' pz-radio-row-active' : '');
-      row.innerHTML = `
-        <span class="pz-radio-left"><span class="pz-radio-dot"></span>${t.nombre}</span>
-        <span class="pz-radio-precio">$${parseFloat(t.precio).toFixed(2)}</span>`;
-      row.addEventListener('click', () => { selector.tamanoId = t.id; renderSelectorTamanos(); actualizarPrecioSelector(); });
-      cont.appendChild(row);
-    });
   }
 
   // ===== SABOR DE ALITAS (combos y productos de alitas) =====
@@ -634,13 +582,6 @@
     document.getElementById('vrSelectorCantidad').textContent = '1';
   }
 
-  function actualizarVisibilidadSelectorPizza() {
-    const tienePizza = comboRequierePizza();
-    document.getElementById('vrSelectorTamanoWrap').style.display = comboTieneTamanos() ? 'block' : 'none';
-    document.getElementById('vrSelectorMitadWrap').style.display = tienePizza ? 'block' : 'none';
-    document.getElementById('vrSelectorSaborWrap').style.display = tienePizza ? 'block' : 'none';
-  }
-
   function abrirSelectorTamanoPizza(tamano) {
     selector.kind = 'pizza';
     selector.comboId = null;
@@ -648,9 +589,13 @@
     selector.tamanoId = tamano.id;
     resetSelectorComun();
 
+    // La "Porción" es una sola porción de pizza: no admite mitad y mitad
+    // (no tiene sentido partir una porción individual en dos sabores).
+    const permiteMitad = tamano.nombre !== 'Porción';
+
     document.getElementById('vrModalTitulo').textContent = `Pizza ${tamano.nombre}`;
     document.getElementById('vrSelectorTamanoWrap').style.display = 'none';
-    document.getElementById('vrSelectorMitadWrap').style.display = 'block';
+    document.getElementById('vrSelectorMitadWrap').style.display = permiteMitad ? 'block' : 'none';
     document.getElementById('vrSelectorSaborWrap').style.display = 'block';
 
     renderSelectorSabor1();
@@ -662,24 +607,24 @@
     selectorModal.show();
   }
 
+  // Los combos usan su propio configurador por pasos (handoff_combo): el modal
+  // genérico se queda para pizzas, porciones y productos sueltos.
+  const configuradorCombo = window.pzCrearConfiguradorCombo
+    ? window.pzCrearConfiguradorCombo({
+      catalogo: catalogo,
+      calcularPrecioUrl: window.PZ_URLS.calcularPrecio,
+      csrfToken: window.CSRF_TOKEN,
+      mostrarToast: mostrarToast,
+      onAgregar: function (item) {
+        carrito.push(item);
+        mostrarToast(`Agregado: ${item._label}`);
+        renderCarrito();
+      },
+    })
+    : null;
+
   function abrirSelectorCombo(combo) {
-    selector.kind = 'combo';
-    selector.comboId = combo.id;
-    selector.productoId = null;
-    selector.tamanoId = null;
-    resetSelectorComun();
-
-    document.getElementById('vrModalTitulo').textContent = combo.nombre;
-    actualizarVisibilidadSelectorPizza();
-
-    renderSelectorTamanos();
-    renderSelectorSabor1();
-    renderSelectorPorciones();
-    renderSelectorAlitas();
-    renderSelectorBebida();
-    renderSelectorMichelada();
-    actualizarPrecioSelector();
-    selectorModal.show();
+    configuradorCombo.abrir(combo);
   }
 
   function abrirSelectorPorcion(producto) {
@@ -1006,6 +951,24 @@
   }
 
   // ===== CARRITO =====
+  // `_label` siempre llega como una sola cadena armada por el backend-side
+  // equivalente en Python (ver ItemPreparacion.nombre_corto/modificadores
+  // en pizzeria/models.py) — acá se parte igual, del lado del cliente,
+  // porque el carrito se arma 100% en JS antes de guardar el pedido.
+  function separarNombreMod(label) {
+    const seps = [' - ', ': ', ' | '];
+    let mejorPos = -1;
+    let mejorSep = '';
+    seps.forEach((sep) => {
+      const pos = label.indexOf(sep);
+      if (pos !== -1 && (mejorPos === -1 || pos < mejorPos)) { mejorPos = pos; mejorSep = sep; }
+    });
+    if (mejorPos === -1) return { nombre: label.trim(), mods: '' };
+    const nombre = label.slice(0, mejorPos).trim();
+    const mods = label.slice(mejorPos + mejorSep.length).trim().replace(/ \| /g, ' / ').replace(/, /g, ' / ');
+    return { nombre, mods };
+  }
+
   function renderCarrito() {
     const cont = document.getElementById('vrCartItems');
 
@@ -1025,22 +988,26 @@
     cont.innerHTML = carrito.map((item, idx) => {
       const subtotal = item._precio_unitario * item.cantidad;
       total += subtotal;
+      const { nombre, mods } = separarNombreMod(item._label);
       return `
         <div class="vr-cart-item">
           <div class="vr-cart-item-top">
-            <span class="vr-cart-item-nombre">${item._label}</span>
+            <div class="vr-cart-item-info">
+              <span class="vr-cart-item-nombre">${escapeHtml(nombre)}</span>
+              ${mods ? `<span class="vr-cart-item-mods">${escapeHtml(mods)}</span>` : ''}
+            </div>
             <span class="vr-cart-item-precio">$${subtotal.toFixed(2)}</span>
           </div>
           ${item.observacion ? `<div class="vr-cart-item-nota"><i class="fas fa-note-sticky me-1"></i>${escapeHtml(item.observacion)}</div>` : ''}
           <div class="vr-cart-item-bottom">
+            <button type="button" class="vr-cart-item-editar" onclick="vrEditarNotaCarrito(${idx})">
+              <i class="fas fa-pencil"></i> Editar
+            </button>
             <div class="vr-cart-item-stepper">
               <button type="button" class="vr-cart-item-step" onclick="vrCambiarCantidadCarrito(${idx}, -1)">-</button>
               <span class="vr-cart-item-qty">${item.cantidad}</span>
               <button type="button" class="vr-cart-item-step vr-cart-item-step-plus" onclick="vrCambiarCantidadCarrito(${idx}, 1)">+</button>
             </div>
-            <button type="button" class="vr-cart-item-editar" onclick="vrEditarNotaCarrito(${idx})" aria-label="Editar nota">
-              <i class="fas fa-pencil"></i>
-            </button>
           </div>
         </div>`;
     }).join('');
@@ -1090,69 +1057,152 @@
   // ===== TIPO DE VENTA (Servirse / Llevar / Delivery) =====
   let tipoVentaSeleccionado = 'llevar';
 
-  function renderMesasSelect() {
-    const select = document.getElementById('vrMesaSelect');
+  // ===== TECLADO DE MESAS (modo Servirse) =====
+  function renderMesaGrid() {
+    const cont = document.getElementById('vrMesaGrid');
+    if (!cont) return;
     const mesas = catalogo.mesas || [];
-    select.innerHTML = '<option value="">Mesa *</option>' +
-      mesas.map(m => `<option value="${m.id}">Mesa ${escapeHtml(m.nombre || String(m.numero))}</option>`).join('');
+    const libres = mesas.filter(m => m.libre).length;
+    const libresLabel = document.getElementById('vrMesasLibresCount');
+    if (libresLabel) libresLabel.textContent = `${libres} libre${libres === 1 ? '' : 's'}`;
 
-    const dropdown = document.getElementById('vrMesaSelectDropdown');
-    dropdown.innerHTML = mesas.length
-      ? mesas.map(m => `
-          <button type="button" class="vr-select-opcion" data-value="${m.id}">
-            <span>Mesa ${escapeHtml(m.nombre || String(m.numero))}</span>
-            <i class="fas fa-check vr-select-check"></i>
-          </button>
-        `).join('')
-      : '<p class="vr-select-dropdown-empty mb-0">No hay mesas libres</p>';
+    const seleccionada = document.getElementById('vrMesaSelect').value;
+    cont.innerHTML = '';
+    mesas.forEach(function (m) {
+      const activa = String(m.id) === String(seleccionada);
+      const celda = document.createElement('button');
+      celda.type = 'button';
+      celda.className = 'vr-mesa-celda'
+        + (!m.libre && !activa ? ' vr-mesa-celda-ocupada' : '')
+        + (activa ? ' vr-mesa-celda-activa' : '');
+      celda.textContent = m.nombre || m.numero;
+      if (m.libre || activa) {
+        celda.addEventListener('click', function () { seleccionarMesa(m.id); });
+      } else {
+        celda.disabled = true;
+      }
+      cont.appendChild(celda);
+    });
 
-    dropdown.querySelectorAll('.vr-select-opcion').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        select.value = this.dataset.value;
-        select.dispatchEvent(new Event('input', { bubbles: true }));
-        actualizarMesaTrigger();
-        cerrarMesaSelectDropdown();
+    const verCelda = document.createElement('button');
+    verCelda.type = 'button';
+    verCelda.className = 'vr-mesa-celda vr-mesa-celda-ver';
+    verCelda.textContent = 'Ver';
+    verCelda.addEventListener('click', function () { window.location.href = window.PZ_URLS.mapaMesas; });
+    cont.appendChild(verCelda);
+  }
+
+  // ===== PERSONAS EN LA MESA =====
+  // Se precarga con la capacidad de la mesa elegida (lo más común es que la
+  // ocupen completa) y queda editable. Alimenta el "Dividir cuenta" del cobro.
+  let personasSeleccionadas = 1;
+  let personasEditadasAMano = false;
+
+  function renderPersonas() {
+    const num = document.getElementById('vrPersonasNum');
+    if (!num) return;
+    num.textContent = String(personasSeleccionadas);
+    document.getElementById('vrPersonasTexto').textContent = personasSeleccionadas === 1 ? 'persona' : 'personas';
+    document.getElementById('vrPersonasMenos').disabled = personasSeleccionadas <= 1;
+
+    const mesa = mesaSeleccionada();
+    const hint = document.getElementById('vrPersonasHint');
+    hint.textContent = mesa
+      ? `Mesa ${mesa.nombre || mesa.numero} · ${mesa.capacidad} puestos`
+      : '';
+  }
+
+  function cambiarPersonas(delta) {
+    const nuevo = personasSeleccionadas + delta;
+    if (nuevo < 1 || nuevo > 40) return;
+    personasSeleccionadas = nuevo;
+    personasEditadasAMano = true;
+    renderPersonas();
+    actualizarTextoContinuar();
+  }
+
+  function mesaSeleccionada() {
+    const mesaId = document.getElementById('vrMesaSelect').value;
+    return (catalogo.mesas || []).find(m => String(m.id) === String(mesaId)) || null;
+  }
+
+  function seleccionarMesa(mesaId) {
+    document.getElementById('vrMesaSelect').value = String(mesaId);
+    // Solo autocompletamos mientras el mesero no haya tocado el stepper: si ya
+    // ajustó el número a mano, cambiar de mesa no debe pisarle el dato.
+    if (!personasEditadasAMano) {
+      const mesa = mesaSeleccionada();
+      if (mesa && mesa.capacidad) personasSeleccionadas = mesa.capacidad;
+    }
+    renderMesaGrid();
+    renderPersonas();
+    actualizarTextoContinuar();
+    actualizarBotonesConfirmar();
+    actualizarResumenSubheader();
+  }
+
+  // ===== SUBHEADER COMO "RECIBO" (handoff_pos_movil/README.md §3) =====
+  // Mesa: verde si ya hay mesa asignada, rojo si falta. Llevar: nombre del
+  // cliente (o "Sin nombre"). Delivery: teléfono + valor de la moto (rojo
+  // si aún no se fija el envío).
+  function actualizarResumenSubheader() {
+    // Al agregar a un pedido ya abierto el tipo no se puede cambiar, así que
+    // el resumen que ya renderizó el servidor (con los datos reales
+    // guardados) es el correcto — no lo pisamos con el estado del JS.
+    if (PEDIDO_ID) return;
+    const el = document.getElementById('pzshResumen');
+    if (!el) return;
+    const numero = window.PZ_NUMERO_STR || '';
+    const mesero = window.PZ_MESERO_NOMBRE || '';
+    let html;
+    if (tipoVentaSeleccionado === 'mesa') {
+      const mesaId = document.getElementById('vrMesaSelect').value;
+      const mesa = (catalogo.mesas || []).find(m => String(m.id) === mesaId);
+      html = `#${numero} · ` + (mesa
+        ? `<strong class="pzsh-hl-verde">Mesa ${escapeHtml(mesa.nombre || String(mesa.numero))}</strong>`
+        : `<strong class="pzsh-hl-rojo">Falta mesa</strong>`);
+    } else if (tipoVentaSeleccionado === 'llevar') {
+      const nombre = document.getElementById('vrNombreLlevar').value.trim();
+      html = `#${numero} · <strong class="pzsh-hl-neutro">${escapeHtml(nombre || 'Sin nombre')}</strong> · ${escapeHtml(mesero)}`;
+    } else {
+      const tel = document.getElementById('vrTelefonoDelivery').value.trim();
+      const valor = document.getElementById('vrValorMoto').value;
+      const pre = tel ? `${escapeHtml(tel)} · ` : '';
+      html = pre + (valor
+        ? `<strong class="pzsh-hl-neutro">envío $${parseFloat(valor).toFixed(2)}</strong>`
+        : `<strong class="pzsh-hl-rojo">Falta envío</strong>`);
+    }
+    el.innerHTML = html;
+  }
+
+  // ===== CHIPS "RECIENTES" (modo Llevar) =====
+  function renderClientesRecientes() {
+    const cont = document.getElementById('vrClientesRecientes');
+    if (!cont) return;
+    cont.innerHTML = '';
+    (catalogo.clientes_recientes || []).forEach(function (nombre) {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'vr-modo-chip';
+      chip.textContent = nombre;
+      chip.addEventListener('click', function () {
+        document.getElementById('vrNombreLlevar').value = nombre;
+        actualizarBotonesConfirmar();
+        actualizarResumenSubheader();
       });
+      cont.appendChild(chip);
     });
-
-    actualizarMesaTrigger();
-  }
-
-  function actualizarMesaTrigger() {
-    const select = document.getElementById('vrMesaSelect');
-    const opcion = select.options[select.selectedIndex];
-    document.getElementById('vrMesaSelectTriggerTexto').textContent = opcion ? opcion.textContent : 'Mesa *';
-    document.getElementById('vrMesaSelectTrigger').classList.toggle('vr-select-trigger-placeholder', !select.value);
-    document.querySelectorAll('#vrMesaSelectDropdown .vr-select-opcion').forEach(function (btn) {
-      btn.classList.toggle('vr-select-opcion-active', btn.dataset.value === select.value);
+    const sinNombre = document.createElement('button');
+    sinNombre.type = 'button';
+    sinNombre.className = 'vr-modo-chip vr-modo-chip-sinnombre';
+    sinNombre.textContent = 'Sin nombre';
+    sinNombre.addEventListener('click', function () {
+      document.getElementById('vrNombreLlevar').value = '';
+      actualizarBotonesConfirmar();
+      actualizarResumenSubheader();
     });
+    cont.appendChild(sinNombre);
   }
-
-  function abrirMesaSelectDropdown() {
-    document.getElementById('vrMesaSelectDropdown').classList.remove('d-none');
-    document.getElementById('vrMesaSelectTrigger').classList.add('vr-select-trigger-open');
-  }
-
-  function cerrarMesaSelectDropdown() {
-    document.getElementById('vrMesaSelectDropdown').classList.add('d-none');
-    document.getElementById('vrMesaSelectTrigger').classList.remove('vr-select-trigger-open');
-  }
-
-  document.getElementById('vrMesaSelectTrigger').addEventListener('click', function (e) {
-    e.stopPropagation();
-    const dropdown = document.getElementById('vrMesaSelectDropdown');
-    if (dropdown.classList.contains('d-none')) abrirMesaSelectDropdown();
-    else cerrarMesaSelectDropdown();
-  });
-
-  document.addEventListener('click', function (e) {
-    const wrap = document.getElementById('vrMesaSelectWrap');
-    if (wrap && !wrap.contains(e.target)) cerrarMesaSelectDropdown();
-  });
-
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') cerrarMesaSelectDropdown();
-  });
 
   function actualizarGrupoClienteDatos() {
     document.getElementById('vrGrupoMesa').classList.toggle('d-none', tipoVentaSeleccionado !== 'mesa');
@@ -1160,37 +1210,168 @@
     document.getElementById('vrGrupoDelivery').classList.toggle('d-none', tipoVentaSeleccionado !== 'delivery');
   }
 
-  document.querySelectorAll('.vr-tipo-tab').forEach(function (tab) {
+  // ===== TABS DE MODO (Servirse/Llevar/Delivery) =====
+  const TIPO_LABELS_UI = { mesa: 'Servirse', llevar: 'Llevar', delivery: 'Delivery' };
+
+  document.querySelectorAll('.vr-modo-tab').forEach(function (tab) {
     tab.addEventListener('click', function () {
       tipoVentaSeleccionado = this.dataset.tipo;
-      document.querySelectorAll('.vr-tipo-tab').forEach(t => t.classList.toggle('vr-tipo-tab-active', t === this));
+      document.querySelectorAll('.vr-modo-tab').forEach(t => t.classList.toggle('vr-modo-tab-active', t === this));
+      actualizarPillTipo();
       actualizarGrupoClienteDatos();
+      actualizarTextoContinuar();
       actualizarBotonesConfirmar();
+      actualizarResumenSubheader();
     });
   });
 
+  // ===== UBICACIÓN RESPONSIVE DE #vrTipoYDatos =====
+  // En desktop vive inline dentro de #vrCart (posición original, barra
+  // lateral siempre visible). En mobile/tablet (≤1023px) se muda dentro de
+  // la hoja #vrTipoSheet, que el pill del subheader abre bajo demanda —
+  // evita tener el mismo control repetido en dos sitios a la vez.
+  (function () {
+    const wrap = document.getElementById('vrTipoYDatos');
+    const sheetBody = document.getElementById('vrTipoSheetBody');
+    if (!wrap || !sheetBody) return;
+    const originalParent = wrap.parentNode;
+    const originalNext = wrap.nextSibling;
+    let enHoja = false;
+
+    function actualizarUbicacion() {
+      const esAngosto = window.innerWidth <= 1023;
+      if (esAngosto && !enHoja) { sheetBody.appendChild(wrap); enHoja = true; }
+      else if (!esAngosto && enHoja) { originalParent.insertBefore(wrap, originalNext); enHoja = false; }
+    }
+
+    actualizarUbicacion();
+    window.addEventListener('resize', actualizarUbicacion);
+  })();
+
+  // ===== PILL DE TIPO DE PEDIDO (subheader) =====
+  // Ya no es clickeable: es solo un badge informativo (ver
+  // pizzeria/handoff_pos_movil/README.md). Quien abre la hoja de modo es el
+  // botón "⋯" (#pzshMasOpciones), no el pill. Solo existe cuando no hay
+  // PEDIDO_ID: al agregar a un pedido abierto el tipo ya no se puede cambiar.
+  const pillTipo = document.getElementById('pzshTipoPedido');
+  const masOpciones = document.getElementById('pzshMasOpciones');
+  const tipoSheet = document.getElementById('vrTipoSheet');
+  const tipoSheetBackdrop = document.getElementById('vrTipoSheetBackdrop');
+  const tipoSheetListo = document.getElementById('vrTipoSheetListo');
+  if (window.pzMoverAlBodyEnMobile) {
+    window.pzMoverAlBodyEnMobile(tipoSheet);
+    window.pzMoverAlBodyEnMobile(tipoSheetBackdrop);
+  }
+
+  const cartTipoPill = document.getElementById('vrCartTipoPill');
+
+  function actualizarPillTipo() {
+    if (pillTipo) {
+      const label = pillTipo.querySelector('.pzsh-pill-label');
+      if (label) label.textContent = TIPO_LABELS_UI[tipoVentaSeleccionado] || '';
+      pillTipo.classList.toggle('pzsh-pill-tono-delivery', tipoVentaSeleccionado === 'delivery');
+      pillTipo.classList.toggle('pzsh-pill-tono-oscuro', tipoVentaSeleccionado !== 'delivery');
+    }
+    // Pill del carrito (handoff visual "Pedido #001 · Llevar ▾") — mismo
+    // dato que el pill del subheader, sincronizados desde una sola fuente
+    // (tipoVentaSeleccionado) para no repetir la lógica dos veces.
+    if (cartTipoPill) {
+      const icono = cartTipoPill.querySelector('i');
+      cartTipoPill.textContent = (TIPO_LABELS_UI[tipoVentaSeleccionado] || '') + ' ';
+      if (icono) cartTipoPill.appendChild(icono);
+      cartTipoPill.classList.toggle('vr-cart-tipo-pill-delivery', tipoVentaSeleccionado === 'delivery');
+    }
+  }
+
+  // El texto del botón "Continuar" confirma lo elegido (ver
+  // handoff_pos_movil/README.md: "Continuar · Mesa 6", "Continuar · envío $2.50").
+  function actualizarTextoContinuar() {
+    if (!tipoSheetListo) return;
+    let texto = 'Continuar';
+    if (tipoVentaSeleccionado === 'mesa') {
+      const mesa = mesaSeleccionada();
+      if (mesa) texto = `Continuar · Mesa ${mesa.nombre || mesa.numero} · ${personasSeleccionadas}p`;
+    } else if (tipoVentaSeleccionado === 'delivery') {
+      const valor = document.getElementById('vrValorMoto').value;
+      if (valor) texto = `Continuar · envío $${parseFloat(valor).toFixed(2)}`;
+    }
+    tipoSheetListo.textContent = texto;
+  }
+
+  function abrirTipoSheet() {
+    if (!tipoSheet) return;
+    tipoSheet.classList.add('pz-cart-sheet-open');
+    if (tipoSheetBackdrop) tipoSheetBackdrop.classList.add('active');
+    if (masOpciones) masOpciones.setAttribute('aria-expanded', 'true');
+    actualizarTextoContinuar();
+  }
+
+  function cerrarTipoSheet() {
+    if (!tipoSheet) return;
+    tipoSheet.classList.remove('pz-cart-sheet-open');
+    if (tipoSheetBackdrop) tipoSheetBackdrop.classList.remove('active');
+    if (masOpciones) masOpciones.setAttribute('aria-expanded', 'false');
+  }
+
+  if (tipoSheetListo) tipoSheetListo.addEventListener('click', cerrarTipoSheet);
+  if (tipoSheetBackdrop) tipoSheetBackdrop.addEventListener('click', cerrarTipoSheet);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') cerrarTipoSheet();
+  });
+
+  // ===== ACCIÓN DEL SUBHEADER "⋯" → abre la hoja de modo =====
+  if (masOpciones) masOpciones.addEventListener('click', abrirTipoSheet);
+
+  document.getElementById('vrPersonasMenos').addEventListener('click', function () { cambiarPersonas(-1); });
+  document.getElementById('vrPersonasMas').addEventListener('click', function () { cambiarPersonas(1); });
+  renderPersonas();
+
   ['vrMesaSelect', 'vrTelefonoDelivery'].forEach(function (id) {
-    document.getElementById(id).addEventListener('input', actualizarBotonesConfirmar);
+    document.getElementById(id).addEventListener('input', function () {
+      actualizarBotonesConfirmar();
+      actualizarResumenSubheader();
+    });
+  });
+
+  document.getElementById('vrNombreLlevar').addEventListener('input', actualizarResumenSubheader);
+
+  // ===== DATOS DE ENTREGA (Delivery): forma de pago =====
+  // Efectivo: el motorizado cobra el total directo al cliente. Transferencia:
+  // ya se cobró (o se cobra) por transferencia, así que el motorizado no
+  // cobra nada al entregar — solo le pagamos su valor de moto aparte.
+  let pagoDeliverySeleccionado = null;
+
+  document.querySelectorAll('#vrPagoDeliveryTabs .vr-modo-pago-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      pagoDeliverySeleccionado = this.dataset.valor;
+      document.querySelectorAll('#vrPagoDeliveryTabs .vr-modo-pago-btn').forEach(function (b) {
+        b.classList.toggle('vr-modo-pago-btn-active', b === btn);
+      });
+    });
   });
 
   // ===== DATOS DE ENTREGA (Delivery): costo de envío =====
   function marcarBotonCostoEnvio(valor) {
-    document.querySelectorAll('#vrCostoEnvioTabs .vr-entrega-toggle').forEach(function (btn) {
-      btn.classList.toggle('vr-entrega-toggle-active', valor !== null && btn.dataset.valor === valor);
+    document.querySelectorAll('#vrCostoEnvioTabs .vr-modo-envio-btn').forEach(function (btn) {
+      btn.classList.toggle('vr-modo-envio-btn-active', valor !== null && btn.dataset.valor === valor);
     });
   }
 
   function seleccionarCostoEnvio(valor) {
     marcarBotonCostoEnvio(valor);
     document.getElementById('vrValorMoto').value = valor === null ? '' : valor;
+    actualizarTextoContinuar();
+    actualizarResumenSubheader();
   }
 
-  document.querySelectorAll('#vrCostoEnvioTabs .vr-entrega-toggle').forEach(function (btn) {
+  document.querySelectorAll('#vrCostoEnvioTabs .vr-modo-envio-btn').forEach(function (btn) {
     btn.addEventListener('click', function () { seleccionarCostoEnvio(this.dataset.valor); });
   });
 
   document.getElementById('vrValorMoto').addEventListener('input', function () {
     marcarBotonCostoEnvio(null);
+    actualizarTextoContinuar();
+    actualizarResumenSubheader();
   });
 
   // ===== CONFIRMAR PEDIDO (el cobro se hace luego en Órdenes) =====
@@ -1230,6 +1411,7 @@
       if (tipoVentaSeleccionado === 'mesa') {
         mesaIdUsada = document.getElementById('vrMesaSelect').value;
         body.append('mesa_id', mesaIdUsada);
+        body.append('personas', String(personasSeleccionadas));
         body.append('nombre', document.getElementById('vrNombreMesa').value.trim());
       } else if (tipoVentaSeleccionado === 'llevar') {
         body.append('nombre', document.getElementById('vrNombreLlevar').value.trim());
@@ -1237,6 +1419,7 @@
         body.append('telefono', document.getElementById('vrTelefonoDelivery').value.trim());
         body.append('nombre', document.getElementById('vrNombreDelivery').value.trim());
         body.append('valor_moto', document.getElementById('vrValorMoto').value.trim());
+        body.append('pago_delivery', pagoDeliverySeleccionado || '');
         body.append('observaciones', document.getElementById('vrNotasDelivery').value.trim());
       }
     }
@@ -1254,17 +1437,28 @@
         carrito.length = 0;
         renderCarrito();
         if (mesaIdUsada) {
-          catalogo.mesas = (catalogo.mesas || []).filter(m => String(m.id) !== String(mesaIdUsada));
-          renderMesasSelect();
+          const mesa = (catalogo.mesas || []).find(m => String(m.id) === String(mesaIdUsada));
+          if (mesa) mesa.libre = false;
+          document.getElementById('vrMesaSelect').value = '';
+          renderMesaGrid();
         }
+        personasSeleccionadas = 1;
+        personasEditadasAMano = false;
+        renderPersonas();
         document.getElementById('vrNombreMesa').value = '';
         document.getElementById('vrNombreLlevar').value = '';
         document.getElementById('vrTelefonoDelivery').value = '';
         document.getElementById('vrNombreDelivery').value = '';
         document.getElementById('vrValorMoto').value = '';
         document.getElementById('vrNotasDelivery').value = '';
+        pagoDeliverySeleccionado = null;
+        document.querySelectorAll('#vrPagoDeliveryTabs .vr-modo-pago-btn').forEach(function (b) {
+          b.classList.remove('vr-modo-pago-btn-active');
+        });
         seleccionarCostoEnvio(null);
+        actualizarTextoContinuar();
         actualizarNumeroOrden(data.pedido.numero_dia + 1);
+        actualizarResumenSubheader();
         mostrarToast(`Pedido #${data.pedido.numero_pedido_completo} confirmado`);
       })
       .catch(() => alert('Error inesperado al confirmar el pedido'))
@@ -1284,15 +1478,12 @@
     const mesaId = catalogo.mesa_preseleccionada;
     if (!mesaId || PEDIDO_ID) return;
 
-    const tab = document.querySelector('.vr-tipo-tab[data-tipo="mesa"]');
-    if (!tab) return;
     tipoVentaSeleccionado = 'mesa';
-    document.querySelectorAll('.vr-tipo-tab').forEach(t => t.classList.toggle('vr-tipo-tab-active', t === tab));
+    document.querySelectorAll('.vr-modo-tab').forEach(t => t.classList.toggle('vr-modo-tab-active', t.dataset.tipo === 'mesa'));
+    actualizarPillTipo();
     actualizarGrupoClienteDatos();
 
-    document.getElementById('vrMesaSelect').value = String(mesaId);
-    actualizarMesaTrigger();
-    actualizarBotonesConfirmar();
+    seleccionarMesa(mesaId);
   }
 
   // ===== INIT =====
@@ -1301,8 +1492,10 @@
     renderCategorias();
     renderGrid();
     renderCarrito();
-    renderMesasSelect();
+    renderMesaGrid();
+    renderClientesRecientes();
     actualizarGrupoClienteDatos();
     preseleccionarMesa();
+    actualizarResumenSubheader();
   });
 })();

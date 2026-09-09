@@ -28,9 +28,63 @@
 }
 .btn-pz-outline:hover { background: var(--primary-color); color: #fff; }
 
+/* ===== Búsqueda de órdenes (por número o cliente, automática al tipear) =====
+   Mismo patrón visual que .vr-search de Punto de venta: input con ícono
+   superpuesto, 42px de alto, borde/radio consistentes con el resto de la
+   app (ver pizzeria-venta-rapida.css). */
+.oc-busqueda {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .6rem;
+  margin: 1rem 0 1.25rem;
+}
+
+.oc-busqueda-texto {
+  position: relative;
+  flex: 1 1 240px;
+  min-width: 0;
+}
+.oc-busqueda-texto i {
+  position: absolute;
+  left: .9rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  font-size: .85rem;
+}
+.oc-busqueda-texto input {
+  width: 100%;
+  height: 42px;
+  padding: 0 .9rem 0 2.4rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #fff;
+  font-size: .9rem;
+  font-family: var(--fuente-principal);
+  outline: none;
+}
+.oc-busqueda-texto input:focus { border-color: var(--primary-color); }
+
+.oc-busqueda-limpiar {
+  font-size: .85rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.oc-busqueda-limpiar:hover { color: var(--primary-color); }
+
 /* =====================================================================
    Mapa de mesas — diseño hifi (design_handoff_mesas)
    Tokens tomados literalmente del handoff; scope: sólo esta pantalla.
+
+   MOBILE-FIRST: los estilos base (sin media query) son para móvil
+   (< 768px, el caso de uso real de un mesero/cajero con el teléfono en
+   mano). El bloque @media (min-width: 768px) al final amplía densidad,
+   tipografía y layout en fila para tablet/escritorio. Breakpoints
+   alineados con base.css (768px tablet vertical, 1024px tablet
+   horizontal/desktop).
    ===================================================================== */
 :root {
   --pzm-ink: #14181d;
@@ -65,87 +119,128 @@
   font-family: var(--fuente-jakarta);
   font-feature-settings: 'tnum' 1;
   color: var(--pzm-ink);
-  /* .col-der (caja.css) ya aporta el padding simétrico de página; acá sólo
-     se afina el tope para acercarse a los 26px del handoff. */
-  padding-top: 6px;
+  padding-top: 0;
 }
 
-.pzm-stack { display: flex; flex-direction: column; gap: 20px; padding-bottom: 1rem; }
+.pzm-stack { display: flex; flex-direction: column; gap: 16px; padding-bottom: 1rem; }
 
+/* Móvil: título arriba, acciones abajo en fila completa (target táctil
+   grande) en vez de competir por espacio horizontal con el título. */
 .pzm-head {
   display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 28px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 14px;
 }
-.pzm-title { margin: 0; font-size: 27px; font-weight: 800; letter-spacing: -.025em; }
-.pzm-subtitle { margin: 6px 0 0; font-size: 13.5px; color: var(--pzm-muted); max-width: 620px; }
-.pzm-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.pzm-title { margin: 0; font-size: 21px; font-weight: 800; letter-spacing: -.025em; }
+.pzm-subtitle { margin: 6px 0 0; font-size: 13px; color: var(--pzm-muted); max-width: 620px; }
+.pzm-actions { display: flex; gap: 8px; align-items: center; }
+.pzm-actions .pzm-btn { flex: 1; justify-content: center; }
 
 .pzm-btn {
-  padding: 10px 16px;
-  border-radius: 10px;
-  font-size: 13.5px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-size: 13px;
   font-weight: 700;
   cursor: pointer;
   border: 1px solid transparent;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   line-height: 1.3;
+  min-height: 44px;
 }
-.pzm-btn-primary { background: var(--pzm-brand); color: #fff; box-shadow: 0 6px 14px rgba(200, 16, 46, .22); }
-.pzm-btn-primary:hover { background: var(--pzm-brand-dark); color: #fff; }
 .pzm-btn-outline { background: #fff; border-color: var(--pzm-border-input); color: var(--pzm-ink); font-weight: 600; }
 .pzm-btn-outline:hover { border-color: var(--pzm-ink); color: var(--pzm-ink); }
 
-/* ===== Métricas ===== */
+/* Variante primaria — no existía; "Agregar mesa" caía a .btn-pz-primary
+   (genérico de Bootstrap) en vez de la familia .pzm-btn. Mismo tratamiento
+   que .im-acceso-primary de Inicio: color de marca sólido + sombra suave
+   del mismo tono, para que los CTA primarios se sientan iguales en toda
+   la app. */
+.pzm-btn-primary {
+  background: var(--pzm-brand);
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(200, 16, 46, .24);
+}
+.pzm-btn-primary:hover { background: var(--pzm-brand-dark); color: #fff; }
+
+/* ===== Métricas: 2x2 en móvil, fila auto-fit desde tablet ===== */
 .pzm-metrics {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
 }
 .pzm-metric {
   background: #fff;
   border: 1px solid var(--pzm-border);
   border-radius: 14px;
-  padding: 14px 16px;
+  padding: 12px 14px;
   display: flex;
   flex-direction: column;
   gap: 4px;
+  min-width: 0;
 }
-.pzm-metric-label { font-size: 11.5px; font-weight: 700; letter-spacing: .06em; color: var(--pzm-muted-2); }
-.pzm-metric-value-row { display: flex; align-items: baseline; gap: 7px; flex-wrap: wrap; min-width: 0; }
-.pzm-metric-value { font-size: 26px; font-weight: 800; letter-spacing: -.03em; }
-.pzm-metric-sub { font-size: 12.5px; color: var(--pzm-muted-2); }
-.pzm-metric-free .pzm-metric-value { color: var(--pzm-green-dark); }
-.pzm-metric-busy .pzm-metric-value { color: var(--pzm-brand); }
-.pzm-metric-bill .pzm-metric-value { color: var(--pzm-amber-value); }
-.pzm-metric-open { background: var(--pzm-ink); border-color: var(--pzm-ink); color: #fff; }
-.pzm-metric-open .pzm-metric-label,
-.pzm-metric-open .pzm-metric-sub { color: #98a1ab; }
+.pzm-metric-label { font-size: 10.5px; font-weight: 700; letter-spacing: .06em; color: var(--pzm-muted-2); }
+.pzm-metric-value-row { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; min-width: 0; }
+.pzm-metric-value { font-size: 21px; font-weight: 800; letter-spacing: -.03em; }
+.pzm-metric-sub { font-size: 11.5px; color: var(--pzm-muted-2); }
 
 /* ===== Panel del mapa ===== */
-.pzm-panel { background: #fff; border: 1px solid var(--pzm-border); border-radius: 18px; overflow: hidden; }
+.pzm-panel { background: #fff; border: 1px solid var(--pzm-border); border-radius: 16px; overflow: hidden; }
 .pzm-panel-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
-  padding: 14px 20px;
+  gap: 12px;
+  padding: 12px 14px;
   border-bottom: 1px solid var(--pzm-border-soft);
   flex-wrap: wrap;
 }
-.pzm-legend { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+/* Buscador de mesas — mismo patrón visual que .oc-busqueda (Órdenes) y
+   .vr-search (Punto de venta): ícono superpuesto a la izquierda, input de
+   ~42px de alto, borde/radio consistentes con el resto de la app. Filtra
+   client-side (ver el script al final de mapa_mesas.html), a diferencia
+   de .oc-busqueda que recarga la página — acá no hace falta porque las
+   mesas ya están todas renderizadas. */
+.pzm-search {
+  position: relative;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--pzm-border-soft);
+}
+.pzm-search i {
+  position: absolute;
+  left: .9rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--pzm-muted-3);
+  font-size: .8rem;
+}
+.pzm-search input {
+  width: 100%;
+  height: 42px;
+  padding: 0 .9rem 0 2.4rem;
+  border: 1px solid var(--pzm-border);
+  border-radius: 10px;
+  background: #fff;
+  font-size: .9rem;
+  font-family: var(--fuente-jakarta);
+  outline: none;
+  color: var(--pzm-ink);
+}
+.pzm-search input::placeholder { color: var(--pzm-muted-3); }
+.pzm-search input:focus { border-color: var(--pzm-brand); }
+
+.pzm-legend { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
 .pzm-legend-pill {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 6px 12px;
+  gap: 6px;
+  padding: 5px 10px;
   border-radius: 999px;
-  font-size: 12.5px;
+  font-size: 11.5px;
   font-weight: 700;
 }
 .pzm-legend-pill .pzm-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
@@ -159,31 +254,44 @@
 .pzm-legend-reservada .pzm-dot { background: var(--pzm-blue); }
 .pzm-legend-inactiva { background: #f3f4f6; color: #6b7280; }
 .pzm-legend-inactiva .pzm-dot { background: #9ca3af; outline: 1px dashed #6b7280; outline-offset: 1px; }
-.pzm-updated { font-size: 12.5px; color: var(--pzm-muted-2); }
+/* Texto decorativo de bajo valor: se oculta en móvil para no competir
+   por espacio con la leyenda de colores; vuelve desde tablet. */
+.pzm-updated { display: none; font-size: 12.5px; color: var(--pzm-muted-2); }
 
-.pzm-body { padding: 20px; display: flex; flex-direction: column; gap: 22px; }
+.pzm-body { padding: 14px; display: flex; flex-direction: column; gap: 18px; }
 
-.pzm-zone { display: flex; flex-direction: column; gap: 11px; }
-.pzm-zone-header { display: flex; align-items: center; gap: 12px; }
-.pzm-zone-name { font-size: 12px; font-weight: 800; letter-spacing: .1em; color: var(--pzm-ink); text-transform: uppercase; }
-.pzm-zone-meta { font-size: 11.5px; color: var(--pzm-muted-3); font-weight: 600; white-space: nowrap; }
+.pzm-zone { display: flex; flex-direction: column; gap: 10px; }
+/* El filtro de mapa_mesas.html oculta mesas/zonas con el atributo
+   `hidden` — sin este override, el `display:flex` de acá arriba (regla de
+   autor) le gana al `[hidden]{display:none}` del navegador y el elemento
+   se sigue viendo. */
+.pzm-zone[hidden] { display: none; }
+.pzm-zone-header { display: flex; align-items: center; gap: 10px; }
+.pzm-zone-name { font-size: 11.5px; font-weight: 800; letter-spacing: .1em; color: var(--pzm-ink); text-transform: uppercase; }
+.pzm-zone-meta { font-size: 11px; color: var(--pzm-muted-3); font-weight: 600; white-space: nowrap; }
 .pzm-zone-rule { flex: 1; height: 1px; background: var(--pzm-border-soft); }
 
-.pzm-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.pzm-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
 
+.pzm-table[hidden] { display: none; }
 .pzm-table {
   position: relative;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 112px;
-  padding: 14px 15px;
-  border-radius: 16px;
+  min-height: 96px;
+  padding: 12px 13px;
+  border-radius: 14px;
   border: 1px solid;
+  /* Sombra sutil en reposo, igual que .vr-card de Punto de venta — le da
+     el mismo peso táctil a las tarjetas en toda la app en vez de quedar
+     planas solo acá. */
+  box-shadow: 0 1px 3px rgba(20, 24, 29, .04);
   cursor: pointer;
   text-align: left;
   transition: transform .12s ease, box-shadow .12s ease;
 }
+.pzm-table:active { transform: scale(.97); }
 .pzm-table:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(20, 24, 29, .10); }
 .pzm-table-round { border-radius: 999px; }
 
@@ -193,7 +301,7 @@
 .pzm-table-reservada { background: var(--pzm-blue-soft-bg); border-color: var(--pzm-blue-soft-border); }
 
 .pzm-table-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
-.pzm-table-num { font-size: 25px; font-weight: 800; letter-spacing: -.03em; line-height: 1; color: var(--pzm-ink); }
+.pzm-table-num { font-size: 22px; font-weight: 800; letter-spacing: -.03em; line-height: 1; color: var(--pzm-ink); }
 .pzm-table-dot { width: 9px; height: 9px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
 .pzm-table-libre .pzm-table-dot { background: var(--pzm-green); }
 .pzm-table-ocupada .pzm-table-dot { background: var(--pzm-brand); }
@@ -201,45 +309,48 @@
 .pzm-table-reservada .pzm-table-dot { background: var(--pzm-blue); }
 
 .pzm-table-bottom { display: flex; flex-direction: column; gap: 3px; }
-.pzm-table-status { font-size: 11.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+.pzm-table-status { font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
 .pzm-table-libre .pzm-table-status { color: var(--pzm-green); }
 .pzm-table-ocupada .pzm-table-status { color: var(--pzm-brand); }
 .pzm-table-por_cobrar .pzm-table-status { color: var(--pzm-amber); }
 .pzm-table-reservada .pzm-table-status { color: var(--pzm-blue); }
 
 .pzm-table-amount-row { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
-.pzm-table-amount { font-size: 15px; font-weight: 800; letter-spacing: -.02em; color: var(--pzm-ink); }
-.pzm-table-sub { font-size: 11.5px; color: #98a1ab; font-weight: 600; white-space: nowrap; }
+.pzm-table-amount { font-size: 14px; font-weight: 800; letter-spacing: -.02em; color: var(--pzm-ink); }
+.pzm-table-sub { font-size: 11px; color: #98a1ab; font-weight: 600; white-space: nowrap; }
 
 .pzm-empty-zone { grid-column: 1 / -1; font-size: 13px; color: var(--pzm-muted-2); text-align: center; padding: 1.5rem 0; }
 .pzm-empty-zone a { color: var(--pzm-brand); font-weight: 600; }
 
 /* ===== Para llevar ===== */
-.pzm-takeaway { display: flex; flex-direction: column; gap: 12px; }
+.pzm-takeaway { display: flex; flex-direction: column; gap: 10px; }
 .pzm-takeaway-head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .5rem; }
-.pzm-takeaway-title { margin: 0; font-size: 16px; font-weight: 800; letter-spacing: -.015em; }
-.pzm-takeaway-meta { font-size: 12.5px; color: var(--pzm-muted-2); font-weight: 600; }
-.pzm-takeaway-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
+.pzm-takeaway-title { margin: 0; font-size: 15px; font-weight: 800; letter-spacing: -.015em; }
+.pzm-takeaway-meta { font-size: 12px; color: var(--pzm-muted-2); font-weight: 600; }
+.pzm-takeaway-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
 .pzm-takeaway-card {
   background: #fff;
   border: 1px solid var(--pzm-border);
   border-radius: 14px;
-  padding: 14px 15px;
+  padding: 13px 14px;
   display: flex;
   flex-direction: column;
-  gap: 9px;
+  gap: 8px;
+  box-shadow: 0 1px 3px rgba(20, 24, 29, .04);
   cursor: pointer;
   text-align: left;
-  transition: border-color .12s ease;
+  transition: border-color .12s ease, box-shadow .12s ease;
 }
-.pzm-takeaway-card:hover { border-color: var(--pzm-ink); }
+.pzm-takeaway-card:hover { border-color: var(--pzm-ink); box-shadow: 0 4px 12px rgba(20, 24, 29, .08); }
 .pzm-takeaway-top { display: flex; align-items: center; justify-content: space-between; }
-.pzm-takeaway-code { font-size: 12.5px; font-weight: 800; color: var(--pzm-brand); }
+.pzm-takeaway-code { font-size: 12px; font-weight: 800; color: var(--pzm-brand); }
 .pzm-takeaway-time { font-size: 11px; color: #98a1ab; font-weight: 600; }
-.pzm-takeaway-name { font-size: 13px; color: var(--pzm-muted); }
-.pzm-takeaway-total { font-size: 18px; font-weight: 800; letter-spacing: -.02em; }
+.pzm-takeaway-name { font-size: 12.5px; color: var(--pzm-muted); }
+.pzm-takeaway-total { font-size: 17px; font-weight: 800; letter-spacing: -.02em; }
 
-/* ===== Modal de acciones de mesa (click en mesa libre/reservada) ===== */
+/* ===== Modal de acciones de mesa (click en mesa libre/reservada) =====
+   Botones con min-height 44-48px: el modal se usa con el pulgar en
+   teléfono/tablet, no con mouse. */
 #pzModalMesaAcciones .modal-content {
   border-radius: 18px;
   border: none;
@@ -250,12 +361,12 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 20px 20px 0;
+  padding: 18px 18px 0;
 }
-.pzma-titulo { font-size: 18px; font-weight: 800; color: var(--pzm-ink); letter-spacing: -.01em; }
+.pzma-titulo { font-size: 17px; font-weight: 800; color: var(--pzm-ink); letter-spacing: -.01em; }
 .pzma-close {
-  width: 34px;
-  height: 34px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   border: 1px solid var(--pzm-border-input);
   background: #fff;
@@ -263,7 +374,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: .9rem;
+  font-size: .95rem;
   flex-shrink: 0;
 }
 .pzma-close:hover { border-color: var(--pzm-ink); color: var(--pzm-ink); }
@@ -272,14 +383,14 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 20px 16px;
-  font-size: 13.5px;
+  padding: 10px 18px 14px;
+  font-size: 13px;
   color: var(--pzm-muted);
   font-weight: 600;
 }
 .pzma-status-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
-.pzma-body { padding: 4px 20px 20px; display: flex; flex-direction: column; gap: 10px; }
+.pzma-body { padding: 4px 18px 18px; display: flex; flex-direction: column; gap: 10px; }
 
 .pzma-action {
   display: flex;
@@ -289,7 +400,8 @@
   border: 1px solid var(--pzm-border-input);
   background: #fff;
   border-radius: 12px;
-  padding: 13px 15px;
+  padding: 14px 15px;
+  min-height: 48px;
   font-size: 14px;
   font-weight: 700;
   color: var(--pzm-ink);
@@ -302,12 +414,10 @@
 .pzma-action-reservar i { color: var(--pzm-blue); }
 .pzma-action-reservar:hover { border-color: var(--pzm-blue); }
 
-.pzma-action-quitar-reserva i { color: var(--pzm-muted-2); }
-
 .pzma-divider { border-top: 1px solid var(--pzm-border-soft); margin: 4px 0; }
 
 .pzma-select-label {
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: .04em;
   text-transform: uppercase;
@@ -323,8 +433,9 @@
   border: 1px solid var(--pzm-border-input);
   background: #fff;
   border-radius: 12px;
-  padding: 12px 14px;
-  font-size: 13.5px;
+  padding: 13px 14px;
+  min-height: 46px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--pzm-ink);
   font-family: var(--fuente-jakarta);
@@ -337,11 +448,74 @@
 .pzma-estado-opcion-libre .pzma-estado-dot { background: var(--pzm-green); }
 .pzma-estado-opcion-libre:hover { border-color: var(--pzm-green); background: var(--pzm-green-soft-bg); }
 
-@media (max-width: 640px) {
-  .pzm-page { padding-top: 0; }
-  .pzm-title { font-size: 22px; }
-  .pzm-body { padding: 14px; }
-  .pzm-panel-bar { padding: 12px 14px; }
+/* ===== Tablet (≥768px) y escritorio (≥1024px+) =====
+   Enhancement progresivo desde el layout móvil de base: más densidad,
+   layout en fila para el header y grillas más anchas. Los valores
+   reproducen el diseño hifi original pensado para pantallas grandes. */
+@media (min-width: 768px) {
+  .pzm-page { padding-top: 6px; }
+  .pzm-stack { gap: 20px; }
+
+  .pzm-head {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 28px;
+    flex-wrap: wrap;
+  }
+  .pzm-title { font-size: 27px; }
+  .pzm-subtitle { font-size: 13.5px; }
+  .pzm-actions { flex-wrap: wrap; }
+  .pzm-actions .pzm-btn { flex: none; }
+  .pzm-btn { padding: 10px 16px; min-height: 0; }
+
+  .pzm-metrics {
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 12px;
+  }
+  .pzm-metric { padding: 14px 16px; }
+  .pzm-metric-label { font-size: 11.5px; }
+  .pzm-metric-value-row { gap: 7px; }
+  .pzm-metric-value { font-size: 26px; }
+  .pzm-metric-sub { font-size: 12.5px; }
+
+  .pzm-panel { border-radius: 18px; }
+  .pzm-panel-bar { gap: 20px; padding: 14px 20px; }
+  .pzm-legend { gap: 8px; }
+  .pzm-legend-pill { gap: 7px; padding: 6px 12px; font-size: 12.5px; }
+  .pzm-updated { display: block; }
+  .pzm-search { padding: 12px 20px; max-width: 320px; }
+
+  .pzm-body { padding: 20px; gap: 22px; }
+  .pzm-zone { gap: 11px; }
+  .pzm-zone-header { gap: 12px; }
+  .pzm-zone-name { font-size: 12px; }
+  .pzm-zone-meta { font-size: 11.5px; }
+
+  .pzm-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+  .pzm-table { min-height: 112px; padding: 14px 15px; border-radius: 16px; }
+  .pzm-table-num { font-size: 25px; }
+  .pzm-table-status { font-size: 11.5px; }
+  .pzm-table-amount { font-size: 15px; }
+  .pzm-table-sub { font-size: 11.5px; }
+
+  .pzm-takeaway { gap: 12px; }
+  .pzm-takeaway-title { font-size: 16px; }
+  .pzm-takeaway-meta { font-size: 12.5px; }
+  .pzm-takeaway-grid { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
+  .pzm-takeaway-card { padding: 14px 15px; gap: 9px; }
+  .pzm-takeaway-code { font-size: 12.5px; }
+  .pzm-takeaway-name { font-size: 13px; }
+  .pzm-takeaway-total { font-size: 18px; }
+
+  .pzma-header { padding: 20px 20px 0; }
+  .pzma-titulo { font-size: 18px; }
+  .pzma-close { width: 34px; height: 34px; font-size: .9rem; }
+  .pzma-status-row { padding: 10px 20px 16px; font-size: 13.5px; }
+  .pzma-body { padding: 4px 20px 20px; }
+  .pzma-action { padding: 13px 15px; min-height: 0; }
+  .pzma-select-label { font-size: 11.5px; }
+  .pzma-estado-opcion { padding: 12px 14px; min-height: 0; font-size: 13.5px; }
 }
 
 .pz-items-list { max-height: 320px; overflow-y: auto; }
@@ -495,6 +669,22 @@
   color: #1f2328;
 }
 
+.oc-pago-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-left: 0.4rem;
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  vertical-align: middle;
+}
+.oc-pago-badge i { font-size: 0.6rem; }
+
+.oc-pago-efectivo { background: #fdf3e2; color: #8a5800; }
+.oc-pago-transferencia { background: #eaf6ef; color: #1c7a4a; }
+
 
 .oc-items-simple {
   display: flex;
@@ -599,456 +789,23 @@
   flex-shrink: 0;
 }
 
-/* ===== DETALLE DE ORDEN (página completa) ===== */
-.do-page {
-  max-width: 640px;
-  margin: 0 auto;
-}
-
-.do-back {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  color: #6b7280;
-  font-weight: 600;
-  font-size: 0.85rem;
-  margin-bottom: 0.75rem;
-}
-
-.do-back:hover { color: var(--primary-color); }
-
-.do-title {
-  font-family: var(--fuente-titulos);
-  font-weight: 800;
-  font-size: 1.4rem;
-  color: #111827;
-  margin: 0;
-}
-
-.do-card {
-  background: #fff;
-  border: 1px solid #f0f0f1;
-  border-radius: 16px;
-  padding: 1rem 1.1rem;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
-  margin-bottom: 1.1rem;
-}
-
-.do-header-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.6rem;
-  margin-bottom: 0.55rem;
-}
-
-.do-header-meta {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  column-gap: 0.9rem;
-  row-gap: 0.3rem;
-}
-
-.do-meta-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-size: 0.82rem;
-  color: #6b7280;
-  font-weight: 600;
-}
-
-.do-meta-item i { width: 14px; color: #9ca3af; text-align: center; }
-
-.do-meta-time { color: #9ca3af; font-weight: 500; }
-
-.do-estado-pill {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  background: #f3f4f6;
-  color: #6b7280;
-  font-size: 0.72rem;
-  font-weight: 700;
-  padding: 0.3rem 0.7rem;
-  border-radius: 999px;
-}
-
-.do-estado-pill-por_cobrar { background: rgba(168, 0, 24, 0.1); color: var(--primary-color); }
-.do-estado-pill-cobrado { background: rgba(0, 131, 59, 0.1); color: var(--secondary-color); }
-
-.do-total-row {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-}
-
-.do-total-label {
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: #9ca3af;
-  letter-spacing: 0.03em;
-}
-
-.do-total-valor {
-  font-size: 1.6rem;
-  font-weight: 800;
-  color: #111827;
-}
-
-.do-divider {
-  border-top: 1px solid #eceef1;
-  margin: 0.8rem 0;
-}
-
-.do-section-title {
-  font-weight: 700;
-  font-size: 0.8rem;
-  color: #9ca3af;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  margin-bottom: 0.6rem;
-}
-
-.do-section-title-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.do-count-pill {
-  background: #f3f4f6;
-  color: #6b7280;
-  font-size: 0.72rem;
-  font-weight: 700;
-  padding: 0.2rem 0.6rem;
-  border-radius: 999px;
-  margin-bottom: 0.6rem;
-}
-
-.do-item-card { margin-bottom: 0.7rem; }
-
-.do-item-top {
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-}
-
-.do-group-header {
-  font-weight: 700;
-  font-size: 0.85rem;
-  color: #111827;
-  padding-bottom: 0.6rem;
-  margin-bottom: 0.6rem;
-  border-bottom: 1px dashed #e0e0e0;
-}
-
-.do-item-group .do-item-sub:not(:last-child) {
-  margin-bottom: 0.55rem;
-}
-
-.do-item-qty {
-  flex-shrink: 0;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  background: rgba(168, 0, 24, 0.1);
-  color: var(--primary-color);
-  font-weight: 700;
-  font-size: 0.8rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.do-item-nombre {
-  flex: 1;
-  min-width: 0;
-  font-weight: 700;
-  font-size: 0.88rem;
-  color: #111827;
-}
-
-.do-pill-estado {
-  flex-shrink: 0;
-  border: none;
-  border-radius: 999px;
-  padding: 0.3rem 0.65rem;
-  font-size: 0.72rem;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.do-pill-en_proceso { background: #f3f4f6; color: #6b7280; }
-.do-pill-cocinando { background: #fff3e0; color: #f59e0b; }
-.do-pill-listo { background: rgba(168, 0, 24, 0.1); color: var(--primary-color); }
-.do-pill-completo { background: rgba(0, 131, 59, 0.1); color: var(--secondary-color); }
-
-.do-hint {
-  text-align: center;
-  color: var(--primary-color);
-  font-size: 0.78rem;
-  font-style: italic;
-  margin: 0.5rem 0 1rem;
-}
-
-.do-footer-bar {
-  position: sticky;
-  bottom: 0;
-  display: flex;
-  gap: 0.7rem;
-  max-width: 640px;
-  margin: 0 auto;
-  padding: 0.8rem 0.2rem;
-  background: #f9fafb;
-  border-top: 1px solid #eceef1;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
-  z-index: 20;
-}
-
-.do-btn-agregar {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 1.2rem;
-  border-radius: 999px;
-  border: 1px solid #e5e7eb;
-  color: #111827;
-  font-weight: 700;
-  font-size: 0.88rem;
-}
-
-.do-btn-agregar:hover { background: #f3f4f6; color: #111827; }
-
-.do-cobrar-wrap {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
-.do-btn-cobrar {
-  flex: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  border-radius: 999px;
-  padding: 0.75rem 1rem;
-  background: var(--primary-color);
-  color: #fff;
-  font-weight: 700;
-  font-size: 0.92rem;
-  text-decoration: none;
-}
-
-.do-btn-cobrar:hover { background: var(--primary-color-hover); color: #fff; }
-
-@media (max-width: 576px) {
-  .do-page { padding-left: 0.2rem; padding-right: 0.2rem; }
-  .do-title { font-size: 1.25rem; }
-  .do-total-valor { font-size: 1.35rem; }
-}
-
-/* ===== Modal de gestión de platillo (detalle de orden) ===== */
-
-.do-item-top[role="button"],
-.do-item-top.do-item-sub[role="button"] {
-  cursor: pointer;
-}
-
-.di-modal-header {
-  border-bottom: 1px solid #eceef1;
-  padding: 1.1rem 1.25rem 0.9rem;
-}
-
-.di-modal-titulo {
-  font-weight: 800;
-  font-size: 1.05rem;
-  color: #111827;
-}
-
-.di-modal-body {
-  padding: 1rem 1.25rem 1.25rem;
-}
-
-.di-subtitle {
-  font-size: 0.85rem;
-  color: #6b7280;
-  margin-bottom: 1rem;
-}
-
-.di-section-label {
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: #9ca3af;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  margin: 0.9rem 0 0.5rem;
-}
-
-.di-section-label:first-of-type { margin-top: 0; }
-
-.di-action {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  width: 100%;
-  border: none;
-  background: transparent;
-  text-align: left;
-  padding: 0.55rem 0.4rem;
-  border-radius: 10px;
-}
-
-.di-action:hover { background: #f9fafb; }
-
-.di-action-icon {
-  flex-shrink: 0;
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.95rem;
-  background: rgba(245, 158, 11, 0.12);
-  color: #f59e0b;
-}
-
-.di-action-danger .di-action-icon {
-  background: rgba(168, 0, 24, 0.1);
-  color: var(--primary-color);
-}
-
-.di-action-text {
-  display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
-  min-width: 0;
-}
-
-.di-action-title {
-  font-weight: 700;
-  font-size: 0.9rem;
-  color: #111827;
-}
-
-.di-action-danger .di-action-title { color: var(--primary-color); }
-
-.di-action-desc {
-  font-size: 0.78rem;
-  color: #9ca3af;
-}
-
-.di-icon-estado-en_proceso { background: #f3f4f6; color: #6b7280; }
-.di-icon-estado-cocinando { background: rgba(245, 158, 11, 0.12); color: #f59e0b; }
-.di-icon-estado-listo { background: rgba(168, 0, 24, 0.1); color: var(--primary-color); }
-.di-icon-estado-completo { background: rgba(0, 131, 59, 0.12); color: var(--secondary-color); }
-
-.di-estado-select { position: relative; margin-bottom: 0.3rem; }
-
-.di-estado-trigger {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  width: 100%;
-  border: 1px solid #e5e7eb;
-  background: #fff;
-  text-align: left;
-  padding: 0.5rem 0.7rem;
-  border-radius: 12px;
-}
-
-.di-estado-trigger:hover { background: #f9fafb; }
-
-.di-estado-chevron {
-  flex-shrink: 0;
-  color: #9ca3af;
-  font-size: 0.8rem;
-  transition: transform 0.15s ease;
-}
-
-.di-estado-chevron-abierto { transform: rotate(180deg); }
-
-.di-estado-opciones {
-  margin-top: 0.35rem;
-  padding: 0.3rem;
-  background: #f9fafb;
-  border-radius: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-}
-
-.di-estado-opcion {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  width: 100%;
-  border: none;
-  background: transparent;
-  text-align: left;
-  padding: 0.4rem 0.5rem;
-  border-radius: 8px;
-}
-
-.di-estado-opcion:hover { background: #fff; }
-
-.di-estado-opcion .di-action-icon { width: 30px; height: 30px; font-size: 0.8rem; }
-.di-estado-opcion .di-action-title { font-size: 0.85rem; }
-
-.di-estado-opcion-actual { background: #fff; box-shadow: inset 0 0 0 1px #e5e7eb; }
-
-.di-estado-check {
-  margin-left: auto;
-  color: var(--secondary-color);
-  font-size: 0.85rem;
-}
-
-.di-edit-form { display: flex; flex-direction: column; gap: 0.4rem; }
-
-.di-edit-label {
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: #6b7280;
-  margin-top: 0.5rem;
-}
-
-.di-edit-label:first-child { margin-top: 0; }
-
-.di-edit-input,
-.di-edit-textarea {
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  padding: 0.5rem 0.7rem;
-  font-size: 0.9rem;
-  color: #111827;
-  width: 100%;
-}
-
-.di-edit-textarea { resize: vertical; }
-
-.di-edit-actions {
-  display: flex;
-  gap: 0.6rem;
-  margin-top: 1rem;
-}
-
-.di-btn-cancelar,
-.di-btn-guardar {
-  flex: 1;
-  border-radius: 999px;
-  padding: 0.6rem 0.8rem;
-  font-weight: 700;
-  font-size: 0.88rem;
-  border: 1px solid #e5e7eb;
-}
-
-.di-btn-cancelar { background: #fff; color: #111827; }
-.di-btn-guardar { background: var(--primary-color); border-color: var(--primary-color); color: #fff; }
-.di-btn-guardar:hover { background: var(--primary-color-hover); border-color: var(--primary-color-hover); }
+/* =====================================================================
+   Inicio (Pizzería) — dashboard operativo
+   Mobile-first: reutiliza tokens/clases de Mapa de mesas (.pzm-*, .oc-*)
+   y agrega sólo lo específico de esta pantalla (namespace .pzi-*).
+   ===================================================================== */
+
+/* Variantes de color para .pzm-metric — genéricas y reutilizables en
+   cualquier pantalla con tarjetas de métrica, sin acoplarlas al
+   significado libre/ocupada/por-cobrar de Mapa de mesas. */
+.pzm-metric-tone-ink { background: var(--pzm-ink); border-color: var(--pzm-ink); color: #fff; }
+.pzm-metric-tone-ink .pzm-metric-label,
+.pzm-metric-tone-ink .pzm-metric-sub { color: #98a1ab; }
+.pzm-metric-tone-red .pzm-metric-value { color: var(--pzm-brand); }
+.pzm-metric-tone-green .pzm-metric-value { color: var(--pzm-green-dark); }
+.pzm-metric-tone-amber .pzm-metric-value { color: var(--pzm-amber-value); }
+
+/* Métrica secundaria/derivada (ej. ticket promedio): ocupa toda la fila en
+   vez de competir por una celda de la grilla 2x2/auto-fit, para que se lea
+   como un dato de cierre, no como un 5º KPI del mismo peso que los otros. */
+.pzm-metric-span-full { grid-column: 1 / -1; }

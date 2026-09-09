@@ -1,0 +1,31 @@
+<div class="im-barra">
+  {% if hay_ventas_turno %}
+    {% for metodo in caja_metodos %}
+    <div class="im-barra-seg" style="width: {{ metodo.pct }}%; background: {{ metodo.color }};"></div>
+    {% endfor %}
+  {% else %}
+    <div class="im-barra-seg im-barra-empty" style="width: 100%;"></div>
+  {% endif %}
+</div>
+
+<div class="im-leyenda-list">
+  {% if hay_ventas_turno %}
+    {% for metodo in caja_metodos %}
+    <div class="im-leyenda-item">
+      <span class="im-leyenda-dot" style="background: {{ metodo.color }};"></span>
+      <div class="im-leyenda-info">
+        <span class="im-leyenda-nombre">{{ metodo.nombre }}</span>
+        <span class="im-leyenda-meta">{{ metodo.ordenes }} {% if metodo.ordenes == 1 %}orden{% else %}órdenes{% endif %}</span>
+      </div>
+      <div class="im-leyenda-cifras">
+        <div class="im-leyenda-monto">${{ metodo.total|floatformat:2 }}</div>
+        <div class="im-leyenda-pct">{{ metodo.pct }}%</div>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="im-leyenda-item">
+      <span class="im-leyenda-empty">Sin cobros en este turno</span>
+    </div>
+  {% endif %}
+</div>

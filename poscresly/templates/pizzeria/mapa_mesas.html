@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'CSS/pizzeria-mapa.css' %}?v=4">
+<link rel="stylesheet" href="{% static 'CSS/pizzeria-mapa.css' %}?v=13">
 {% endblock %}
 
 {% block content %}
@@ -15,53 +15,21 @@
   </div>
   {% include 'components/topbar_right.html' %}
 </div>
+{% include 'components/pizzeria_header.html' %}
+{% include 'components/pizzeria_alerta.html' %}
+{% include 'components/pizzeria_subheader.html' %}
 
 <div class="container-fluid contenedor-principal">
   <div class="col-12 col-der pzm-page">
     <div class="pzm-stack">
 
-      <div class="pzm-head">
+      <div class="pzm-head pzsh-superseded">
         <div>
           <h1 class="pzm-title">Mapa de mesas · Pizzería</h1>
           <p class="pzm-subtitle">Toca una mesa libre para tomar un pedido, u ocupada para ver su cuenta.</p>
         </div>
         <div class="pzm-actions">
-          <a href="{% url 'pizzeria_tomar_pedido_llevar' %}" class="pzm-btn pzm-btn-primary">
-            <i class="fas fa-bag-shopping"></i>Para llevar
-          </a>
-          <a href="{% url 'pizzeria_dashboard_caja' %}" class="pzm-btn pzm-btn-outline"><i class="fas fa-cash-register"></i>Caja pizzería</a>
           <a href="{% url 'pizzeria_gestionar_mesas' %}" class="pzm-btn pzm-btn-outline"><i class="fas fa-sliders"></i>Gestionar mesas</a>
-        </div>
-      </div>
-
-      <div class="pzm-metrics">
-        <div class="pzm-metric pzm-metric-free">
-          <div class="pzm-metric-label">LIBRES</div>
-          <div class="pzm-metric-value-row">
-            <span class="pzm-metric-value">{{ count_free }}</span>
-            <span class="pzm-metric-sub">de {{ count_all }} mesas</span>
-          </div>
-        </div>
-        <div class="pzm-metric pzm-metric-busy">
-          <div class="pzm-metric-label">OCUPADAS</div>
-          <div class="pzm-metric-value-row">
-            <span class="pzm-metric-value">{{ count_busy }}</span>
-            <span class="pzm-metric-sub">en servicio</span>
-          </div>
-        </div>
-        <div class="pzm-metric pzm-metric-bill">
-          <div class="pzm-metric-label">POR COBRAR</div>
-          <div class="pzm-metric-value-row">
-            <span class="pzm-metric-value">{{ count_bill }}</span>
-            <span class="pzm-metric-sub">esperando pago</span>
-          </div>
-        </div>
-        <div class="pzm-metric pzm-metric-open">
-          <div class="pzm-metric-label">EN CURSO</div>
-          <div class="pzm-metric-value-row">
-            <span class="pzm-metric-value">${{ total_open|floatformat:2 }}</span>
-            <span class="pzm-metric-sub">sin cobrar</span>
-          </div>
         </div>
       </div>
 
@@ -76,9 +44,14 @@
           <div class="pzm-updated">Actualizado hace un momento</div>
         </div>
 
+        <div class="pzm-search">
+          <i class="fas fa-search"></i>
+          <input type="text" id="pzmBuscarMesa" placeholder="Buscar mesa..." autocomplete="off">
+        </div>
+
         <div class="pzm-body">
           {% for zona in zonas %}
-          <div class="pzm-zone">
+          <div class="pzm-zone" data-zona="{{ zona.nombre }}">
             <div class="pzm-zone-header">
               <span class="pzm-zone-name">{{ zona.nombre }}</span>
               <span class="pzm-zone-meta">{{ zona.total }} mesa{{ zona.total|pluralize }} · {{ zona.libres }} libre{{ zona.libres|pluralize }}</span>
@@ -187,4 +160,52 @@
   };
 </script>
 <script src="{% static 'JS/pizzeria_mapa.js' %}?v=5"></script>
+<script>
+  // Filtro por zona (chips del subheader) + búsqueda por nombre/número
+  // (input propio de este panel) — puramente client-side, combinados con
+  // AND: una mesa se oculta si no calza con la zona activa O no calza con
+  // el texto buscado. Mismo patrón de "buscar mientras escribes" que ya
+  // usa Órdenes (.oc-busqueda), pero sin recargar la página porque acá
+  // las mesas ya están todas renderizadas y el filtro por zona también es
+  // client-side.
+  (function () {
+    var grupoZonas = document.getElementById('pzshZonas');
+    var inputBuscar = document.getElementById('pzmBuscarMesa');
+    var zonaActiva = '';
+
+    function normalizar(texto) {
+      return (texto || '').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+    }
+
+    function aplicarFiltros() {
+      var termino = normalizar(inputBuscar ? inputBuscar.value.trim() : '');
+      document.querySelectorAll('.pzm-zone').forEach(function (bloque) {
+        var zonaOculta = !!zonaActiva && bloque.dataset.zona !== zonaActiva;
+        var algunaVisible = false;
+        bloque.querySelectorAll('.pzm-table').forEach(function (mesa) {
+          var coincideTexto = !termino || normalizar(mesa.dataset.nombre).indexOf(termino) !== -1;
+          var visible = !zonaOculta && coincideTexto;
+          mesa.hidden = !visible;
+          if (visible) algunaVisible = true;
+        });
+        bloque.hidden = zonaOculta || !algunaVisible;
+      });
+    }
+
+    if (grupoZonas) {
+      grupoZonas.addEventListener('click', function (ev) {
+        var chip = ev.target.closest('.pzsh-chip');
+        if (!chip) return;
+        grupoZonas.querySelectorAll('.pzsh-chip').forEach(function (c) { c.classList.remove('pzsh-chip-active'); });
+        chip.classList.add('pzsh-chip-active');
+        zonaActiva = chip.dataset.filtro || '';
+        aplicarFiltros();
+      });
+    }
+
+    if (inputBuscar) {
+      inputBuscar.addEventListener('input', aplicarFiltros);
+    }
+  })();
+</script>
 {% endblock %}

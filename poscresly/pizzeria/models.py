@@ -179,6 +179,10 @@ class PedidoPizzeria(models.Model):
 
     tipo = models.CharField(max_length=10, choices=TIPOS)
     mesa = models.ForeignKey(Mesa, null=True, blank=True, on_delete=models.PROTECT)
+    personas = models.PositiveIntegerField(
+        null=True, blank=True,
+        help_text='Comensales en la mesa. Precarga la cantidad de personas al dividir la cuenta.',
+    )
     contacto = models.CharField(max_length=100, blank=True, null=True)
     mesero = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='pedidos_pizzeria'
@@ -190,6 +194,14 @@ class PedidoPizzeria(models.Model):
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     observaciones = models.TextField(blank=True, null=True)
     valor_moto = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
+    PAGO_DELIVERY = [
+        ('efectivo', 'Efectivo'),
+        ('transferencia', 'Transferencia'),
+    ]
+    pago_delivery = models.CharField(
+        max_length=15, choices=PAGO_DELIVERY, blank=True, null=True,
+        help_text='Cómo se cobra un pedido a domicilio: en efectivo (lo cobra el motorizado al cliente) o ya transferido (el motorizado no cobra nada al entregar).',
+    )
 
     class Meta:
         verbose_name = 'Pedido de pizzería'
@@ -274,15 +286,28 @@ class PedidoComboSaborAlitas(models.Model):
 class PedidoComboSaborBebida(models.Model):
     """Un registro por cada bebida (cola) incluida en el combo, para permitir
     sabor independiente cuando el combo trae más de una (ej. Combo Duo)."""
+    TEMPERATURAS = [
+        ('helada', 'Helada'),
+        ('ambiente', 'Al ambiente'),
+    ]
+
     pedido_combo = models.ForeignKey(PedidoCombo, on_delete=models.CASCADE, related_name='sabores_bebida')
     sabor = models.ForeignKey(Sabor, on_delete=models.PROTECT, related_name='+')
+    temperatura = models.CharField(max_length=10, choices=TEMPERATURAS, blank=True)
 
     class Meta:
         verbose_name = 'Sabor de bebida de combo'
         verbose_name_plural = 'Sabores de bebida de combo'
 
     def __str__(self):
-        return f"{self.pedido_combo} - {self.sabor.nombre}"
+        return f"{self.pedido_combo} - {self.etiqueta}"
+
+    @property
+    def etiqueta(self):
+        """Sabor + temperatura tal como debe leerse en comanda y resumen."""
+        if not self.temperatura:
+            return self.sabor.nombre
+        return f"{self.sabor.nombre} ({self.get_temperatura_display().lower()})"
 
 
 class PedidoComboSaborMichelada(models.Model):
@@ -405,6 +430,24 @@ class PagoPedido(models.Model):
         return f"{self.pedido} - {self.metodo} ${self.monto}"
 
 
+def _separar_nombre_modificadores(descripcion):
+    """`descripcion` es una sola línea armada en views.py (ej. "Pizza Familiar
+    - BBQ", "Mega Combo 1 (Familiar) - BBQ | Alitas: 7 BBQ, 7 Broster",
+    "Alitas: 7 BBQ, 7 Broster") sin campos separados para nombre/modificadores.
+    Para el handoff de Detalle de orden, que pide el nombre del platillo y sus
+    modificadores en líneas distintas, se parte en el primer separador que
+    aparezca (" - ", ": " o " | ") y el resto se homogeniza con "·"."""
+    separadores = (' - ', ': ', ' | ')
+    candidatos = [(descripcion.find(sep), sep) for sep in separadores if sep in descripcion]
+    if not candidatos:
+        return descripcion.strip(), ''
+    pos, sep = min(candidatos, key=lambda t: t[0])
+    nombre = descripcion[:pos].strip()
+    resto = descripcion[pos + len(sep):].strip()
+    resto = resto.replace(' | ', ' · ').replace(', ', ' · ')
+    return nombre, resto
+
+
 class ItemPreparacion(models.Model):
     """Ítem de cocina rastreable dentro de un pedido (ej: la pizza de un combo,
     las papas+alitas de un combo, una bebida suelta). No es 1:1 con las líneas
@@ -449,6 +492,14 @@ class ItemPreparacion(models.Model):
         """La línea de pedido (PedidoPizza/PedidoCombo/PedidoProductoSimple) que originó
         este ítem de cocina, o None si no se pudo asociar (datos legacy)."""
         return self.pizza or self.combo or self.producto_simple
+
+    @property
+    def nombre_corto(self):
+        return _separar_nombre_modificadores(self.descripcion)[0]
+
+    @property
+    def modificadores(self):
+        return _separar_nombre_modificadores(self.descripcion)[1]
 
 
 class CajaPizzeria(models.Model):
