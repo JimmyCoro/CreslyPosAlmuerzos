@@ -33,7 +33,7 @@
     document.getElementById('pzgModalTitulo').textContent = `Mesa ${mesaEl.dataset.numero}`;
     document.getElementById('pzgNumero').value = mesaEl.dataset.numero;
     document.getElementById('pzgNombre').value = mesaEl.dataset.nombre || '';
-    document.getElementById('pzgZona').value = mesaEl.dataset.zona || '';
+    document.getElementById('pzgZona').value = mesaEl.dataset.zona || 'dentro';
     document.getElementById('pzgForma').value = mesaEl.dataset.forma;
     document.getElementById('pzgCapacidad').value = mesaEl.dataset.capacidad;
     document.getElementById('pzgActiva').checked = mesaEl.dataset.activa === 'true';

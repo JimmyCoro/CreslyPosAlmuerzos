@@ -15,9 +15,14 @@ class Mesa(models.Model):
         ('cuadrada', 'Cuadrada'),
     ]
 
+    ZONAS = [
+        ('dentro', 'Dentro'),
+        ('afuera', 'Afuera'),
+    ]
+
     numero = models.PositiveIntegerField(unique=True)
     nombre = models.CharField(max_length=50, blank=True)
-    zona = models.CharField(max_length=50, blank=True)
+    zona = models.CharField(max_length=10, choices=ZONAS, default='dentro')
     estado = models.CharField(max_length=20, choices=ESTADOS, default='libre')
     pos_x = models.FloatField(default=0)
     pos_y = models.FloatField(default=0)

@@ -93,13 +93,12 @@
             <input type="text" maxlength="50" class="form-control" id="pzgNombre">
           </div>
           <div class="mb-3">
-            <label class="form-label">Zona (opcional)</label>
-            <input type="text" maxlength="50" class="form-control" id="pzgZona" list="pzgZonasExistentes" placeholder="Ej. Salón principal">
-            <datalist id="pzgZonasExistentes">
-              {% for zona in zonas_existentes %}
-              <option value="{{ zona }}"></option>
+            <label class="form-label">Zona</label>
+            <select class="form-select" id="pzgZona">
+              {% for valor, etiqueta in zonas %}
+              <option value="{{ valor }}">{{ etiqueta }}</option>
               {% endfor %}
-            </datalist>
+            </select>
           </div>
           <div class="row">
             <div class="col-6 mb-3">

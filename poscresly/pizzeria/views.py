@@ -165,16 +165,19 @@ def mapa_mesas(request):
         mesa.pedido_abierto = pedido
         mesa.tiempo_transcurrido = _formatear_tiempo_transcurrido(pedido.fecha_creacion) if pedido else None
 
-        zonas.setdefault(mesa.zona or 'Mesas', []).append(mesa)
+        zonas.setdefault(mesa.zona, []).append(mesa)
 
+    # Orden fijo por categoría (Dentro y luego Afuera), no por el orden en que
+    # aparecieron las mesas: el mapa debe verse igual en cada carga.
     zonas_lista = [
         {
-            'nombre': nombre,
-            'mesas': mesas_zona,
-            'total': len(mesas_zona),
-            'libres': sum(1 for m in mesas_zona if m.estado == 'libre'),
+            'nombre': etiqueta,
+            'mesas': zonas[clave],
+            'total': len(zonas[clave]),
+            'libres': sum(1 for m in zonas[clave] if m.estado == 'libre'),
         }
-        for nombre, mesas_zona in zonas.items()
+        for clave, etiqueta in Mesa.ZONAS
+        if zonas.get(clave)
     ]
 
     pedidos_llevar_abiertos = list(PedidoPizzeria.objects.filter(
@@ -210,6 +213,13 @@ def mapa_mesas(request):
 
 # ===== GESTIÓN DE MESAS =====
 
+def _zona_valida(valor):
+    """La zona llega del formulario como clave ('dentro'/'afuera'); cualquier
+    otra cosa cae en 'dentro', que es la categoría por defecto."""
+    claves = {c for c, _ in Mesa.ZONAS}
+    return valor if valor in claves else 'dentro'
+
+
 def _serializar_mesa(mesa):
     return {
         'id': mesa.id,
@@ -228,11 +238,10 @@ def _serializar_mesa(mesa):
 @login_required(login_url=LOGIN_URL)
 def gestionar_mesas(request):
     mesas = Mesa.objects.all().order_by('numero')
-    zonas_existentes = sorted({m.zona for m in mesas if m.zona})
     return render(request, 'pizzeria/gestionar_mesas.html', {
         'mesas': mesas,
         'formas': Mesa.FORMAS,
-        'zonas_existentes': zonas_existentes,
+        'zonas': Mesa.ZONAS,
         'breadcrumbs': [
             {'label': 'Mesas', 'url': reverse('pizzeria_mapa_mesas')},
             {'label': 'Gestionar', 'url': None},
@@ -252,7 +261,7 @@ def crear_mesa_pizzeria(request):
         mesa = Mesa.objects.create(
             numero=int(numero),
             nombre=(request.POST.get('nombre') or '').strip(),
-            zona=(request.POST.get('zona') or '').strip(),
+            zona=_zona_valida((request.POST.get('zona') or '').strip()),
             forma=request.POST.get('forma') or 'cuadrada',
             capacidad=int(request.POST.get('capacidad') or 4),
             pos_x=float(request.POST.get('pos_x') or 50),
@@ -276,7 +285,7 @@ def actualizar_mesa_pizzeria(request, mesa_id):
         if 'nombre' in request.POST:
             mesa.nombre = (request.POST.get('nombre') or '').strip()
         if 'zona' in request.POST:
-            mesa.zona = (request.POST.get('zona') or '').strip()
+            mesa.zona = _zona_valida((request.POST.get('zona') or '').strip())
         if 'forma' in request.POST:
             mesa.forma = request.POST.get('forma')
         if 'capacidad' in request.POST:
@@ -582,7 +591,7 @@ def _tarjeta_entrega(pedido):
     return {
         'tipo': 'mesa',
         'mesa_nombre': (pedido.mesa.nombre or pedido.mesa.numero) if pedido.mesa else '',
-        'mesa_zona': pedido.mesa.zona if pedido.mesa else '',
+        'mesa_zona': pedido.mesa.get_zona_display() if pedido.mesa else '',
         'mesa_capacidad': pedido.mesa.capacidad if pedido.mesa else None,
     }
 
@@ -651,9 +660,10 @@ def _grupos_acciones_pedido(pedido):
     if pedido.tipo == 'mesa':
         mesa_txt = 'Sin mesa asignada'
         if pedido.mesa:
-            mesa_txt = f'Actualmente Mesa {pedido.mesa.nombre or pedido.mesa.numero}'
-            if pedido.mesa.zona:
-                mesa_txt += f' · {pedido.mesa.zona}'
+            mesa_txt = (
+                f'Actualmente Mesa {pedido.mesa.nombre or pedido.mesa.numero}'
+                f' · {pedido.mesa.get_zona_display()}'
+            )
         filas_orden.append({
             'clave': 'cambiar_mesa', 'glifo': 'bi-grid-3x3-gap', 'etiqueta': 'Cambiar de mesa',
             'sub': mesa_txt, 'disponible': False,
