@@ -3,6 +3,14 @@ from django.db import models, transaction
 from django.utils import timezone
 
 
+# Cómo se sirve una bebida. Viaja en la comanda tanto si la bebida viene dentro
+# de un combo como si se vende suelta.
+TEMPERATURAS_BEBIDA = [
+    ('helada', 'Helada'),
+    ('ambiente', 'Al ambiente'),
+]
+
+
 class Mesa(models.Model):
     ESTADOS = [
         ('libre', 'Libre'),
@@ -291,14 +299,11 @@ class PedidoComboSaborAlitas(models.Model):
 class PedidoComboSaborBebida(models.Model):
     """Un registro por cada bebida (cola) incluida en el combo, para permitir
     sabor independiente cuando el combo trae más de una (ej. Combo Duo)."""
-    TEMPERATURAS = [
-        ('helada', 'Helada'),
-        ('ambiente', 'Al ambiente'),
-    ]
+    TEMPERATURAS = TEMPERATURAS_BEBIDA
 
     pedido_combo = models.ForeignKey(PedidoCombo, on_delete=models.CASCADE, related_name='sabores_bebida')
     sabor = models.ForeignKey(Sabor, on_delete=models.PROTECT, related_name='+')
-    temperatura = models.CharField(max_length=10, choices=TEMPERATURAS, blank=True)
+    temperatura = models.CharField(max_length=10, choices=TEMPERATURAS_BEBIDA, blank=True)
 
     class Meta:
         verbose_name = 'Sabor de bebida de combo'
@@ -346,6 +351,7 @@ class PedidoProductoSimple(models.Model):
     pedido = models.ForeignKey(PedidoPizzeria, on_delete=models.CASCADE, related_name='productos_simples')
     producto = models.ForeignKey(ProductoSimple, on_delete=models.PROTECT)
     sabor_bebida = models.ForeignKey(Sabor, on_delete=models.PROTECT, related_name='+', null=True, blank=True)
+    temperatura = models.CharField(max_length=10, choices=TEMPERATURAS_BEBIDA, blank=True)
     cantidad = models.PositiveIntegerField(default=1)
     precio_unitario = models.DecimalField(max_digits=6, decimal_places=2)
     observacion = models.CharField(max_length=200, blank=True)
@@ -353,6 +359,15 @@ class PedidoProductoSimple(models.Model):
     class Meta:
         verbose_name = 'Producto simple de pedido'
         verbose_name_plural = 'Productos simples de pedido'
+
+    @property
+    def etiqueta_bebida(self):
+        """Sabor + temperatura tal como debe leerse en comanda y resumen."""
+        if not self.sabor_bebida:
+            return ''
+        if not self.temperatura:
+            return self.sabor_bebida.nombre
+        return f"{self.sabor_bebida.nombre} ({self.get_temperatura_display().lower()})"
 
 
 class PedidoProductoSimpleSaborAlitas(models.Model):

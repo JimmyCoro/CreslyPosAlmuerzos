@@ -64,7 +64,50 @@
     let peticionPrecio = 0;
 
     // ===== DEFINICIÓN DE PASOS =====
-    function construirPasos(combo) {
+    // Cada producto se describe como una lista de pasos; de ahí en adelante la
+    // hoja es la misma para una pizza, unas alitas o un combo de seis grupos.
+    function construirPasos(spec) {
+      if (spec.kind === 'combo') return construirPasosCombo(spec.combo);
+
+      if (spec.kind === 'pizza') {
+        return [{
+          id: 'pizza', tipo: 'mitades', titulo: 'Sabor de la pizza', etiqueta: 'PIZZA',
+          pista: spec.permiteMitad ? 'Uno o mitad y mitad' : 'Elige el sabor',
+          permiteMitad: spec.permiteMitad,
+        }];
+      }
+      if (spec.kind === 'porcion') {
+        return [{
+          id: 'porciones', tipo: 'multi', titulo: 'Sabor de la porción', etiqueta: 'SABOR',
+          pista: 'Elige el sabor', cantidad: 1, pool: catalogo.sabores, prefijo: 'Porción',
+        }];
+      }
+      if (spec.kind === 'producto_alitas') {
+        const total = spec.producto.alitas_cantidad;
+        return [{
+          id: 'alitas', tipo: 'reparto', titulo: `${total} alitas`, etiqueta: 'ALITAS',
+          pista: 'Hasta 3 sabores', total: total, maxOpciones: 3,
+          pool: catalogo.sabores_alitas || [],
+        }];
+      }
+      if (spec.kind === 'producto_bebida') {
+        return [{
+          id: 'bebida', tipo: 'bebida', titulo: 'Bebida', etiqueta: 'BEBIDA',
+          pista: 'Sabor y temperatura', cantidad: 1,
+          pool: catalogo.sabores_bebida || [], prefijo: 'Bebida',
+        }];
+      }
+      if (spec.kind === 'producto_michelada') {
+        return [{
+          id: 'michelada', tipo: 'multi', titulo: 'Michelada', etiqueta: 'MICHELADA',
+          pista: 'Elige el sabor', cantidad: 1,
+          pool: catalogo.sabores_michelada || [], prefijo: 'Michelada',
+        }];
+      }
+      return [];
+    }
+
+    function construirPasosCombo(combo) {
       const lista = [];
       if (combo.tamanos && combo.tamanos.length) {
         lista.push({ id: 'tamano', tipo: 'tamano', titulo: 'Tamaño', etiqueta: 'TAMAÑO', pista: 'Define el precio' });
@@ -128,7 +171,7 @@
 
     function resumenPaso(paso) {
       if (paso.tipo === 'tamano') {
-        const t = estado.combo.tamanos.find(x => x.tamano_id === estado.tamanoId);
+        const t = estado.spec.combo.tamanos.find(x => x.tamano_id === estado.tamanoId);
         return t ? `${t.tamano_nombre} · ${dinero(t.precio)}` : '';
       }
       if (paso.tipo === 'mitades') {
@@ -225,13 +268,22 @@
     }
 
     // ===== PRECIO =====
+    function comboConTamanos() {
+      const c = estado.spec.combo;
+      return !!(c && c.tamanos && c.tamanos.length);
+    }
+
     function precioBase() {
-      const c = estado.combo;
-      if (c.tamanos && c.tamanos.length) {
-        const t = c.tamanos.find(x => x.tamano_id === estado.tamanoId);
-        return t ? parseFloat(t.precio) : 0;
+      const spec = estado.spec;
+      if (spec.kind === 'combo') {
+        if (comboConTamanos()) {
+          const t = spec.combo.tamanos.find(x => x.tamano_id === estado.tamanoId);
+          return t ? parseFloat(t.precio) : 0;
+        }
+        return parseFloat(spec.combo.precio_fijo || 0);
       }
-      return parseFloat(c.precio_fijo || 0);
+      if (spec.kind === 'pizza') return parseFloat(spec.tamano.precio_base || 0);
+      return parseFloat(spec.producto.precio || 0);
     }
 
     // El precio nunca muestra $0.00 cuando ya hay tamaño: parte del base y el
@@ -240,7 +292,10 @@
       estado.precioUnitario = precioBase();
       pintarPrecio();
 
-      const necesitaServidor = estado.combo.tamanos && estado.combo.tamanos.length
+      // Solo pizza y combos con tamaño necesitan al servidor: ahí el recargo
+      // por sabor premium depende del tamaño y no se puede calcular aquí.
+      const spec = estado.spec;
+      const necesitaServidor = (spec.kind === 'pizza' || (spec.kind === 'combo' && comboConTamanos()))
         && estado.tamanoId && estado.sabor1
         && (estado.modo === 'unico' || estado.sabor2);
       if (!necesitaServidor) return;
@@ -250,7 +305,7 @@
       body.append('tamano_id', estado.tamanoId);
       body.append('sabor_1_id', estado.sabor1);
       body.append('sabor_2_id', estado.modo === 'mitades' ? estado.sabor2 : '');
-      body.append('combo_id', estado.combo.id);
+      if (spec.kind === 'combo') body.append('combo_id', spec.combo.id);
 
       fetch(deps.calcularPrecioUrl, {
         method: 'POST', body, headers: { 'X-CSRFToken': deps.csrfToken },
@@ -279,8 +334,8 @@
 
     function pintarCabecera() {
       const resueltos = pasos.filter(pasoResuelto).length;
-      const tamanoNombre = estado.tamanoId
-        ? (estado.combo.tamanos.find(t => t.tamano_id === estado.tamanoId) || {}).tamano_nombre
+      const tamanoNombre = (estado.tamanoId && comboConTamanos())
+        ? (estado.spec.combo.tamanos.find(t => t.tamano_id === estado.tamanoId) || {}).tamano_nombre
         : '';
       const completo = resueltos === pasos.length;
       const prefijo = tamanoNombre ? `${escapeHtml(tamanoNombre)} · ` : '';
@@ -399,7 +454,7 @@
     function cuerpoTamano(paso) {
       const grid = document.createElement('div');
       grid.className = 'cmb-grid';
-      estado.combo.tamanos.forEach(function (t) {
+      estado.spec.combo.tamanos.forEach(function (t) {
         const btn = botonOpcion(
           t.tamano_nombre, estado.tamanoId === t.tamano_id,
           `<span class="cmb-opcion-precio">${dinero(t.precio)}</span>`,
@@ -419,6 +474,13 @@
       wrap.style.display = 'flex';
       wrap.style.flexDirection = 'column';
       wrap.style.gap = '11px';
+
+      // Una porción individual no se parte en dos sabores: ahí el selector de
+      // modo sobra y la rejilla de sabores va directa.
+      if (paso.permiteMitad === false) {
+        wrap.appendChild(rejillaSaboresPizza(paso));
+        return wrap;
+      }
 
       const modos = document.createElement('div');
       modos.className = 'cmb-modo';
@@ -441,7 +503,11 @@
       wrap.appendChild(modos);
 
       if (estado.modo === 'mitades') wrap.appendChild(vistaRanuras());
+      wrap.appendChild(rejillaSaboresPizza(paso));
+      return wrap;
+    }
 
+    function rejillaSaboresPizza(paso) {
       const grid = document.createElement('div');
       grid.className = 'cmb-grid';
       (catalogo.sabores || []).forEach(function (s) {
@@ -454,8 +520,7 @@
         btn.addEventListener('click', function () { elegirSaborPizza(paso, s.id); });
         grid.appendChild(btn);
       });
-      wrap.appendChild(grid);
-      return wrap;
+      return grid;
     }
 
     function vistaRanuras() {
@@ -548,18 +613,40 @@
         estado.alitas.forEach(function (a) {
           const fila = document.createElement('div');
           fila.className = 'cmb-elegido';
+          const nombre = nombreSabor(paso.pool, a.saborId);
           fila.innerHTML = `
             <span class="cmb-punto" style="background:${colorSabor(paso, a.saborId)}"></span>
-            <span class="cmb-elegido-nombre">${escapeHtml(nombreSabor(paso.pool, a.saborId))}</span>
+            <span class="cmb-elegido-nombre">${escapeHtml(nombre)}</span>
             <span class="cmb-mini-stepper">
-              <button type="button" class="cmb-mini-btn" data-d="-1"><i class="fas fa-minus"></i></button>
-              <span class="cmb-mini-num">${a.cantidad}</span>
-              <button type="button" class="cmb-mini-btn" data-d="1"${asignado >= paso.total ? ' disabled' : ''}><i class="fas fa-plus"></i></button>
+              <button type="button" class="cmb-mini-btn" data-d="-1" aria-label="Quitar una de ${escapeHtml(nombre)}"><i class="fas fa-minus"></i></button>
+              <input type="text" inputmode="numeric" class="cmb-mini-input" value="${a.cantidad}" maxlength="3" aria-label="Cantidad de ${escapeHtml(nombre)}">
+              <button type="button" class="cmb-mini-btn" data-d="1"${asignado >= paso.total ? ' disabled' : ''} aria-label="Agregar una de ${escapeHtml(nombre)}"><i class="fas fa-plus"></i></button>
             </span>`;
           fila.querySelectorAll('.cmb-mini-btn').forEach(function (btn) {
             btn.addEventListener('click', function () {
               cambiarReparto(paso, a.saborId, parseInt(btn.dataset.d, 10));
             });
+          });
+
+          // Escribir la cantidad no puede repintar la hoja: eso destruiría el
+          // input que se está usando y se perdería el foco a media cifra.
+          const input = fila.querySelector('.cmb-mini-input');
+          input.addEventListener('focus', function () { input.select(); });
+          input.addEventListener('input', function () {
+            const limpio = input.value.replace(/\D/g, '');
+            if (limpio !== input.value) input.value = limpio;
+            const tope = paso.total - asignadoEnOtros(a.saborId);
+            const valor = Math.min(parseInt(limpio, 10) || 0, tope);
+            if (limpio !== '' && String(valor) !== limpio) input.value = String(valor);
+            a.cantidad = valor;
+            refrescarRepartoEnVivo(paso);
+          });
+          input.addEventListener('blur', function () {
+            // Solo repinta si el sabor debe volver a los chips: un repintado
+            // en cada blur cancelaría el clic que se está haciendo en +/−.
+            if (a.cantidad > 0) return;
+            estado.alitas = estado.alitas.filter(x => x.saborId !== a.saborId);
+            render();
           });
           elegidos.appendChild(fila);
         });
@@ -581,11 +668,13 @@
         btn.innerHTML = `${escapeHtml(s.nombre)} <i class="fas fa-plus"></i>`;
         btn.disabled = alMaximo;
         btn.addEventListener('click', function () {
-          // Entra con el resto pendiente: en la mayoría de los pedidos es
-          // un solo sabor y así el paso queda resuelto de un toque.
-          const restan = paso.total - asignadoReparto();
-          if (restan <= 0) { deps.mostrarToast(`Ya repartiste las ${paso.total} alitas`); return; }
-          estado.alitas.push({ saborId: s.id, cantidad: restan });
+          // Entra con 1 y no con el resto pendiente: el sabor se agrega para
+          // luego repartir, no para llevarse todas las alitas de un toque.
+          if (paso.total - asignadoReparto() <= 0) {
+            deps.mostrarToast(`Ya repartiste las ${paso.total}: baja otro sabor primero`);
+            return;
+          }
+          estado.alitas.push({ saborId: s.id, cantidad: 1 });
           avanzar(paso);
         });
         chips.appendChild(btn);
@@ -594,10 +683,46 @@
 
       const ayuda = document.createElement('span');
       ayuda.className = 'cmb-ayuda';
-      ayuda.textContent = `Toca un sabor para sumarlo. Con ${paso.maxOpciones} elegidos el resto se atenúa.`;
+      ayuda.textContent = `Toca un sabor para agregarlo y escribe cuántas van de cada uno. Hasta ${paso.maxOpciones} sabores.`;
       wrap.appendChild(ayuda);
 
       return wrap;
+    }
+
+    function asignadoEnOtros(saborId) {
+      return estado.alitas.reduce((s, a) => s + (a.saborId === saborId ? 0 : a.cantidad), 0);
+    }
+
+    // Repinta solo lo que depende del reparto (barra, contador, sub-línea del
+    // paso y pie), dejando intacto el input que el cajero está escribiendo.
+    function refrescarRepartoEnVivo(paso) {
+      const asignado = asignadoReparto();
+
+      const barra = elPasos.querySelector('.cmb-barra');
+      if (barra) {
+        barra.innerHTML = estado.alitas.map(function (a) {
+          const ancho = (a.cantidad / paso.total) * 100;
+          return `<span class="cmb-barra-seg" style="width:${ancho}%;background:${colorSabor(paso, a.saborId)}"></span>`;
+        }).join('');
+      }
+
+      const contador = elPasos.querySelector('.cmb-reparto-contador');
+      if (contador) contador.innerHTML = `<strong>${asignado}</strong>/${paso.total}`;
+
+      const sub = elPasos.querySelector('.cmb-activo-sub');
+      if (sub) {
+        const falta = faltaEnPaso(paso);
+        sub.innerHTML = falta
+          ? `${escapeHtml(paso.pista)} · <strong>${escapeHtml(falta)}</strong>`
+          : escapeHtml(paso.pista);
+      }
+
+      elPasos.querySelectorAll('.cmb-mini-btn[data-d="1"]').forEach(function (btn) {
+        btn.disabled = asignado >= paso.total;
+      });
+
+      pintarCabecera();
+      pintarPie();
     }
 
     function cambiarReparto(paso, saborId, delta) {
@@ -759,9 +884,9 @@
     }
 
     // ===== APERTURA / CIERRE =====
-    function abrir(combo) {
+    function abrir(spec) {
       estado = {
-        combo: combo,
+        spec: spec,
         cantidad: 1,
         nota: '',
         notaAbierta: false,
@@ -776,14 +901,17 @@
         michelada: [],
         precioUnitario: 0,
       };
-      pasos = construirPasos(combo);
+      // Una pizza suelta ya trae su tamaño elegido desde la tarjeta que se tocó.
+      if (spec.kind === 'pizza') estado.tamanoId = spec.tamano.id;
+
+      pasos = construirPasos(spec);
       pasos.forEach(function (paso) {
         if (paso.tipo === 'bebida') {
           estado.bebidas = Array.from({ length: paso.cantidad }, () => ({ saborId: null, temperatura: null }));
         }
       });
       estado.pasoActivo = pasos.length ? pasos[0].id : null;
-      elNombre.textContent = combo.nombre;
+      elNombre.textContent = spec.nombre;
       actualizarPrecio();
       render();
       elPasos.scrollTop = 0;
@@ -825,7 +953,10 @@
     });
 
     function construirItemCarrito() {
-      const c = estado.combo;
+      const spec = estado.spec;
+      if (spec.kind !== 'combo') return itemProductoSuelto(spec);
+
+      const c = spec.combo;
       const partes = [];
       pasos.forEach(function (paso) {
         if (paso.id === 'tamano' || paso.id === 'pizza') return;
@@ -857,6 +988,67 @@
         _label: label,
         _precio_unitario: estado.precioUnitario,
       };
+    }
+
+    // Pizza suelta, porción, alitas, bebida y michelada: cada una arma el ítem
+    // que ya espera el backend, pero todas se configuran en la misma hoja.
+    function itemProductoSuelto(spec) {
+      const base = {
+        cantidad: estado.cantidad,
+        observacion: estado.nota,
+        _precio_unitario: estado.precioUnitario,
+      };
+
+      if (spec.kind === 'pizza') {
+        const sabores = resumenPaso(pasos[0]);
+        return Object.assign(base, {
+          kind: 'pizza',
+          tamano_id: estado.tamanoId,
+          sabor_1_id: estado.sabor1,
+          sabor_2_id: estado.modo === 'mitades' ? estado.sabor2 : null,
+          _label: `Pizza ${spec.tamano.nombre} - ${sabores}`,
+        });
+      }
+
+      const producto = spec.producto;
+
+      if (spec.kind === 'porcion') {
+        const sabor = nombreSabor(catalogo.sabores, estado.porciones[0]);
+        return Object.assign(base, {
+          kind: 'producto',
+          producto_id: producto.id,
+          // El sabor de la porción no tiene columna propia: viaja en la nota.
+          observacion: [`Sabor: ${sabor}`, estado.nota].filter(Boolean).join(' · '),
+          _label: `${producto.nombre} - ${sabor}`,
+        });
+      }
+
+      if (spec.kind === 'producto_alitas') {
+        return Object.assign(base, {
+          kind: 'producto',
+          producto_id: producto.id,
+          alitas_sabores: estado.alitas.map(a => ({ sabor_id: a.saborId, cantidad: a.cantidad })),
+          _label: `${producto.nombre} - ${resumenPaso(pasos[0])}`,
+        });
+      }
+
+      if (spec.kind === 'producto_bebida') {
+        const bebida = estado.bebidas[0];
+        return Object.assign(base, {
+          kind: 'producto',
+          producto_id: producto.id,
+          sabor_bebida_id: bebida.saborId,
+          temperatura: bebida.temperatura,
+          _label: `${producto.nombre} - ${resumenPaso(pasos[0])}`,
+        });
+      }
+
+      return Object.assign(base, {
+        kind: 'producto',
+        producto_id: producto.id,
+        sabor_bebida_id: estado.michelada[0],
+        _label: `${producto.nombre} - ${resumenPaso(pasos[0])}`,
+      });
     }
 
     return { abrir: abrir, cerrar: cerrar };

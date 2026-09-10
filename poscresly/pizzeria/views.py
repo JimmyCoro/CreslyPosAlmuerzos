@@ -41,6 +41,7 @@ from .models import (
     ProductoSimple,
     Sabor,
     TamanoPizza,
+    TEMPERATURAS_BEBIDA,
 )
 from .pricing import calcular_precio_combo, calcular_precio_pizza, calcular_recargo_premium
 
@@ -75,7 +76,7 @@ def _cantidad_componente(componentes, tipo):
 
 TAMANO_REFERENCIA_PORCION_NOMBRE = 'Pequeña'
 
-TEMPERATURAS_BEBIDA = {t[0] for t in PedidoComboSaborBebida.TEMPERATURAS}
+TEMPERATURAS_BEBIDA_VALIDAS = {clave for clave, _ in TEMPERATURAS_BEBIDA}
 
 
 def _tamano_referencia_porcion():
@@ -371,7 +372,7 @@ def _describir_producto_simple(ps):
     if alitas_ps:
         linea_ps += ': ' + ', '.join(f"{sa.cantidad} {sa.sabor.nombre}" for sa in alitas_ps)
     elif ps.sabor_bebida_id:
-        linea_ps += f' - {ps.sabor_bebida.nombre}'
+        linea_ps += f' - {ps.etiqueta_bebida}'
     return linea_ps
 
 
@@ -1631,7 +1632,8 @@ def duplicar_item_preparacion(request, item_id):
             elif item.producto_simple_id:
                 original = item.producto_simple
                 nuevo_producto = PedidoProductoSimple.objects.create(
-                    pedido=pedido, producto=original.producto, sabor_bebida=original.sabor_bebida, cantidad=1,
+                    pedido=pedido, producto=original.producto, sabor_bebida=original.sabor_bebida,
+                    temperatura=original.temperatura, cantidad=1,
                     precio_unitario=original.precio_unitario, observacion=original.observacion,
                 )
                 alitas_originales_prod = list(original.sabores_alitas.select_related('sabor').all())
@@ -1644,8 +1646,8 @@ def duplicar_item_preparacion(request, item_id):
                     descripcion_producto = f"{original.producto.nombre}: {detalle_alitas_prod}"
                     nuevas_lineas_ticket.append(f"1x {original.producto.nombre}: {detalle_alitas_prod}")
                 elif original.sabor_bebida:
-                    descripcion_producto = f"{original.producto.nombre} - {original.sabor_bebida.nombre}"
-                    nuevas_lineas_ticket.append(f"1x {original.producto.nombre} - {original.sabor_bebida.nombre}")
+                    descripcion_producto = f"{original.producto.nombre} - {nuevo_producto.etiqueta_bebida}"
+                    nuevas_lineas_ticket.append(f"1x {descripcion_producto}")
                 else:
                     descripcion_producto = original.producto.nombre
                     nuevas_lineas_ticket.append(f"1x {original.producto.nombre}")
@@ -1726,7 +1728,7 @@ def reimprimir_item_preparacion(request, item_id):
                 detalle_alitas_prod = ', '.join(f"{sa.cantidad} {sa.sabor.nombre}" for sa in alitas_prod)
                 lineas_ticket.append(f"{ps.cantidad}x {ps.producto.nombre}: {detalle_alitas_prod}")
             elif ps.sabor_bebida:
-                lineas_ticket.append(f"{ps.cantidad}x {ps.producto.nombre} - {ps.sabor_bebida.nombre}")
+                lineas_ticket.append(f"{ps.cantidad}x {ps.producto.nombre} - {ps.etiqueta_bebida}")
             else:
                 lineas_ticket.append(f"{ps.cantidad}x {ps.producto.nombre}")
             if ps.observacion:
@@ -2191,7 +2193,7 @@ def guardar_pedido_pizzeria(request):
                     if bebidas_data:
                         sabores_bebida_ids = [b.get('sabor_id') for b in bebidas_data]
                         temperaturas_bebida = [
-                            b.get('temperatura') if b.get('temperatura') in TEMPERATURAS_BEBIDA else ''
+                            b.get('temperatura') if b.get('temperatura') in TEMPERATURAS_BEBIDA_VALIDAS else ''
                             for b in bebidas_data
                         ]
                     else:
@@ -2349,8 +2351,15 @@ def guardar_pedido_pizzeria(request):
                             raise ValueError(f'Selecciona el sabor de la bebida para {producto.nombre}')
                         sabor_bebida_prod = Sabor.objects.get(pk=sabor_bebida_prod_id, tipo=tipo_sabor_bebida_prod)
 
+                    # Solo las bebidas se preguntan frías o al ambiente; una
+                    # michelada siempre va helada, preguntarlo sería ruido.
+                    temperatura_prod = item.get('temperatura') or ''
+                    if tipo_sabor_bebida_prod != 'bebida' or temperatura_prod not in TEMPERATURAS_BEBIDA_VALIDAS:
+                        temperatura_prod = ''
+
                     pedido_producto = PedidoProductoSimple.objects.create(
-                        pedido=pedido, producto=producto, sabor_bebida=sabor_bebida_prod, cantidad=cantidad,
+                        pedido=pedido, producto=producto, sabor_bebida=sabor_bebida_prod,
+                        temperatura=temperatura_prod, cantidad=cantidad,
                         precio_unitario=producto.precio, observacion=observacion_item,
                     )
 
@@ -2368,8 +2377,8 @@ def guardar_pedido_pizzeria(request):
                         descripcion_producto = f"{producto.nombre}: {detalle_alitas_prod}"
                         nuevos_items_ticket.append(f"{cantidad}x {producto.nombre}: {detalle_alitas_prod}")
                     elif sabor_bebida_prod:
-                        descripcion_producto = f"{producto.nombre} - {sabor_bebida_prod.nombre}"
-                        nuevos_items_ticket.append(f"{cantidad}x {producto.nombre} - {sabor_bebida_prod.nombre}")
+                        descripcion_producto = f"{producto.nombre} - {pedido_producto.etiqueta_bebida}"
+                        nuevos_items_ticket.append(f"{cantidad}x {descripcion_producto}")
                     else:
                         descripcion_producto = producto.nombre
                         nuevos_items_ticket.append(f"{cantidad}x {producto.nombre}")
@@ -2652,7 +2661,7 @@ def obtener_pedido_pizzeria(request, pedido_id):
         {
             'id': ps.id, 'producto': ps.producto.nombre, 'cantidad': ps.cantidad,
             'precio_unitario': float(ps.precio_unitario), 'observacion': ps.observacion,
-            'sabor_bebida': ps.sabor_bebida.nombre if ps.sabor_bebida_id else None,
+            'sabor_bebida': ps.etiqueta_bebida if ps.sabor_bebida_id else None,
             'sabores_alitas': [
                 {'sabor': sa.sabor.nombre, 'cantidad': sa.cantidad} for sa in ps.sabores_alitas.all()
             ],

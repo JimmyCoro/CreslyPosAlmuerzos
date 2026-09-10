@@ -530,11 +530,24 @@
 
 .cmb-mini-btn:disabled { color: var(--cmb-fainter); }
 
-.cmb-mini-num {
-  min-width: 26px;
+/* Se puede teclear la cantidad además de usar los ±: repartir 14 alitas
+   entre dos sabores a punta de toques es demasiado lento en caja. */
+.cmb-mini-input {
+  width: 42px;
+  height: 38px;
   text-align: center;
   font-size: 16px;
   font-weight: 800;
+  color: var(--cmb-ink);
+  background: #fff;
+  border: 1px solid var(--cmb-border-input);
+  border-radius: 10px;
+  padding: 0 2px;
+}
+
+.cmb-mini-input:focus {
+  outline: none;
+  border: 1.5px solid var(--cmb-ink);
 }
 
 .cmb-divisor { height: 1px; background: var(--cmb-border-soft); }

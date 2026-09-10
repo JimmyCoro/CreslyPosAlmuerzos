@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="{% static 'CSS/pizzeria-mapa.css' %}?v=13">
 <link rel="stylesheet" href="{% static 'CSS/pizzeria-pedido.css' %}">
 <link rel="stylesheet" href="{% static 'CSS/pizzeria-venta-rapida.css' %}?v=20">
-<link rel="stylesheet" href="{% static 'CSS/pizzeria-combo.css' %}?v=1">
+<link rel="stylesheet" href="{% static 'CSS/pizzeria-combo.css' %}?v=2">
 <link rel="stylesheet" href="{% static 'CSS/pizzeria-cart-bar.css' %}">
 {% endblock %}
 
@@ -240,67 +240,6 @@
   </div>
 </div>
 
-<!-- Modal: seleccionar tamaño/sabor de pizza (los combos usan #cmbHoja) -->
-<div class="modal fade" id="vrModalSelector" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="vrModalTitulo">Elegir opciones</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <div class="pz-builder-section" id="vrSelectorTamanoWrap">
-          <div class="pz-builder-header">
-            <label class="pz-builder-label">Tamaño</label>
-            <span class="pz-req-badge">Requerido</span>
-          </div>
-          <div class="pz-tamano-grid" id="vrSelectorTamanos"></div>
-        </div>
-        <div class="pz-builder-section" id="vrSelectorMitadWrap">
-          <label class="pz-check">
-            <input type="checkbox" id="vrSelectorMitad"> Mitad y mitad (2 sabores)
-          </label>
-        </div>
-        <div class="pz-builder-section" id="vrSelectorSaborWrap">
-          <div class="pz-builder-header">
-            <label class="pz-builder-label">Sabor</label>
-            <span class="pz-faltan-badge" id="vrSelectorSaborFaltan">Falta 1</span>
-          </div>
-          <div class="pz-sabor-grid" id="vrSelectorSabor1"></div>
-        </div>
-        <div class="pz-builder-section d-none" id="vrSelectorPorcionesWrap">
-          <label class="pz-builder-label">Sabor de cada porción de pizza</label>
-          <div id="vrSelectorPorciones"></div>
-        </div>
-        <div class="pz-builder-section d-none" id="vrSelectorAlitasWrap">
-          <div class="pz-builder-header">
-            <label class="pz-builder-label">Sabor de alitas (hasta 3 sabores)</label>
-            <span class="pz-faltan-badge" id="vrSelectorAlitasTotal">Faltan 0</span>
-          </div>
-          <div class="pz-alitas-grid" id="vrSelectorAlitas"></div>
-        </div>
-        <div class="pz-builder-section d-none" id="vrSelectorBebidaWrap">
-          <label class="pz-builder-label">Sabor de la bebida</label>
-          <div id="vrSelectorBebida"></div>
-        </div>
-        <div class="pz-builder-section d-none" id="vrSelectorMicheladaWrap">
-          <label class="pz-builder-label">Sabor de la michelada</label>
-          <div id="vrSelectorMichelada"></div>
-        </div>
-      </div>
-      <div class="modal-footer pz-modal-footer">
-        <div class="pz-stepper">
-          <button type="button" onclick="vrCambiarCantidad(-1)">-</button>
-          <span id="vrSelectorCantidad">1</span>
-          <button type="button" onclick="vrCambiarCantidad(1)">+</button>
-        </div>
-        <button type="button" class="btn btn-pz-primary pz-btn-agregar" id="vrBtnAgregarSelector">
-          Agregar <span class="pz-btn-agregar-sep">·</span> <span id="vrSelectorPrecio">$0.00</span>
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
 
 <script>
   window.PZ_CATALOGO = {{ catalogo_json|safe }};
@@ -317,8 +256,8 @@
   };
 </script>
 <script src="{% static 'JS/pizzeria_cart_bar.js' %}"></script>
-<script src="{% static 'JS/pizzeria_combo.js' %}?v=1"></script>
-<script src="{% static 'JS/pizzeria_venta_rapida.js' %}?v=15"></script>
+<script src="{% static 'JS/pizzeria_combo.js' %}?v=3"></script>
+<script src="{% static 'JS/pizzeria_venta_rapida.js' %}?v=16"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     pzInitCartBar({
