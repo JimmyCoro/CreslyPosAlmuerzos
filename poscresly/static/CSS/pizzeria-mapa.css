@@ -671,30 +671,33 @@
   color: #111827;
 }
 
-/* ===== ÓRDENES EN CURSO: cards con estado de preparación por ítem ===== */
+/* ===== ÓRDENES EN CURSO: cards con estado de preparación por ítem =====
+   minmax(0, 1fr) y no 1fr: con 1fr la columna nunca baja del ancho del
+   contenido más largo de la card y en móvil se sale de la pantalla. */
 .oc-grid {
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 @media (max-width: 1200px) {
   .oc-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 900px) {
   .oc-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 576px) {
   .oc-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
 .oc-card {
+  min-width: 0;
   background: #fff;
   border: 1px solid #f0f0f1;
   border-radius: 16px;
@@ -761,6 +764,7 @@
   font-weight: 700;
   font-size: 0.88rem;
   color: #1f2328;
+  overflow-wrap: anywhere;
 }
 
 .oc-pago-badge {
@@ -789,7 +793,7 @@
 
 .oc-item-simple {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.4rem;
   font-size: 0.82rem;
   color: #4b5563;
@@ -817,12 +821,13 @@
   justify-content: center;
 }
 
+/* El nombre baja de línea en vez de cortarse: la descripción completa
+   (sabores de alitas, bebida del combo) es la que necesita cocina. */
 .oc-item-nombre {
   min-width: 0;
   font-weight: 700;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow-wrap: anywhere;
+  line-height: 18px;
 }
 
 .oc-item-grupo {
@@ -843,6 +848,7 @@
 
 .oc-bottom {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
