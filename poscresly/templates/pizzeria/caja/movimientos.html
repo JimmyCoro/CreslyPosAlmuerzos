@@ -1,0 +1,35 @@
+{% extends 'movil/base_movil.html' %}
+{% load static %}
+
+{% block title %}Movimientos · Caja · Cresly POS{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'CSS/pizzeria-caja.css' %}?v=1">
+{% endblock %}
+
+{% block content %}
+<div class="im-shell cj">
+
+  {% include 'components/pizzeria_header.html' %}
+  {% include 'components/pizzeria_alerta.html' %}
+  {% include 'components/pizzeria_subheader.html' %}
+
+  <main class="cj-content">
+    {% for grupo in grupos %}
+    <section class="cj-grupo" aria-labelledby="cjDia{{ forloop.counter }}">
+      <h2 class="cj-grupo-titulo" id="cjDia{{ forloop.counter }}">{{ grupo.titulo }}</h2>
+      <ul class="cj-movs">
+        {% for fila in grupo.filas %}
+          {% include 'pizzeria/caja/_fila_movimiento.html' %}
+        {% endfor %}
+      </ul>
+    </section>
+    {% empty %}
+    <p class="cj-vacio">No hay {{ filtro }}s en este turno.</p>
+    {% endfor %}
+  </main>
+
+  {% include 'components/pizzeria_bottom_nav.html' %}
+
+</div>
+{% endblock %}

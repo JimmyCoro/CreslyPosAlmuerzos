@@ -1,0 +1,22 @@
+{% comment %}
+Conteo por denominación (handoff_caja §4.5). Lo reusará el cierre de turno:
+cambia el marco que lo rodea, no esta tabla. Recibe `conteo_id`.
+{% endcomment %}
+<div class="cj-conteo" id="{{ conteo_id }}" data-cj-conteo>
+  <div class="cj-conteo-cab" aria-hidden="true">
+    <span>DENOMINACIÓN</span>
+    <span>CANTIDAD · SUBTOTAL</span>
+  </div>
+  {% for d in denominaciones.billetes %}
+    {% include 'pizzeria/caja/_conteo_fila.html' %}
+  {% endfor %}
+  <button type="button" class="cj-conteo-monedas" data-bs-toggle="collapse" data-bs-target="#{{ conteo_id }}Monedas" aria-expanded="false" aria-controls="{{ conteo_id }}Monedas">
+    <span>Monedas · ver {{ denominaciones.monedas|length }} más</span>
+    <i class="bi bi-chevron-down cj-fila-chev-toggle" aria-hidden="true"></i>
+  </button>
+  <div class="collapse" id="{{ conteo_id }}Monedas">
+    {% for d in denominaciones.monedas %}
+      {% include 'pizzeria/caja/_conteo_fila.html' %}
+    {% endfor %}
+  </div>
+</div>

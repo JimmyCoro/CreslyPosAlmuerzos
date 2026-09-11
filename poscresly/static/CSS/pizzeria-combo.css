@@ -405,8 +405,47 @@
   font-weight: 800;
 }
 
-/* ===== Ranuras de mitad y mitad ===== */
+/* Cuerpo de un grupo: interruptor, ranuras, catálogo y nota apilados. */
+.cmb-cuerpo-col {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+/* Acerca cada etiqueta a su contenido (7px) sin cerrar la separación entre
+   bloques (11px), que es la escala de espaciado del handoff. */
+.cmb-cuerpo-col > .cmb-sublabel {
+  margin-bottom: -4px;
+}
+
+/* ===== Ranuras de mitad y mitad / de unidades ===== */
 .cmb-ranuras { display: flex; gap: 8px; }
+
+/* Con 3 o 4 unidades las ranuras bajan a dos filas. */
+.cmb-ranuras-wrap { flex-wrap: wrap; }
+.cmb-ranuras-wrap .cmb-ranura { flex: 1 1 calc(50% - 4px); }
+
+/* ===== Nota "un catálogo, no uno por unidad" ===== */
+.cmb-nota-ayuda {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 11px 13px;
+  border-radius: 12px;
+  background: var(--cmb-surface-2);
+  border: 1px solid var(--cmb-border-soft);
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--cmb-text-3);
+  line-height: 1.35;
+}
+
+.cmb-nota-ayuda i {
+  flex: 0 0 auto;
+  font-size: 13px;
+  color: var(--cmb-muted-2);
+  margin-top: 1px;
+}
 
 .cmb-ranura {
   flex: 1;

@@ -1,27 +1,53 @@
-<button
-  type="button"
-  class="pzm-table pzm-table-{{ mesa.estado }}{% if mesa.forma == 'redonda' %} pzm-table-round{% endif %}"
+{% comment %}
+Tarjeta de mesa. El estado se lee por la palabra (SERVICIO / CUENTA / RESERVA /
+LIBRE) y la barra de color solo lo refuerza: el color nunca es la única señal.
+En mesas libres la acción es el botón "Abrir"; en el resto toda la tarjeta es
+tocable mediante un botón que la cubre. Espejo en JS: actualizarTarjetaMesa()
+en pizzeria_mapa.js — si se toca uno hay que tocar el otro.
+{% endcomment %}
+<div
+  class="pzm-table pzm-table-{{ mesa.estado }}"
   data-mesa-id="{{ mesa.id }}"
   data-estado="{{ mesa.estado }}"
   data-nombre="{{ mesa.nombre|default:mesa.numero }}"
   data-capacidad="{{ mesa.capacidad }}"
-  {% if mesa.pedido_abierto %}data-pedido-id="{{ mesa.pedido_abierto.id }}"{% endif %}
-  onclick="pzMesaClick(this)">
+  {% if mesa.pedido_abierto %}data-pedido-id="{{ mesa.pedido_abierto.id }}" data-total="{{ mesa.pedido_abierto.total|floatformat:2 }}" data-tiempo="{{ mesa.tiempo_transcurrido|default:'' }}"{% endif %}>
+
   <div class="pzm-table-top">
     <span class="pzm-table-num">{{ mesa.nombre|default:mesa.numero }}</span>
-    <span class="pzm-table-dot"></span>
-  </div>
-  <div class="pzm-table-bottom">
     <span class="pzm-table-status">
-      {% if mesa.estado == 'libre' %}Libre{% elif mesa.estado == 'reservada' %}Reservada{% elif mesa.estado == 'ocupada' %}Ocupada{% else %}Por cobrar{% endif %}
+      {% if mesa.estado == 'libre' %}Libre
+      {% elif mesa.estado == 'reservada' %}Reserva
+      {% elif mesa.estado == 'ocupada' %}Servicio
+      {% else %}Cuenta{% endif %}
     </span>
-    <div class="pzm-table-amount-row">
-      <span class="pzm-table-amount">
-        {% if mesa.pedido_abierto %}${{ mesa.pedido_abierto.total|floatformat:2 }}{% elif mesa.estado == 'libre' %}Disponible{% elif mesa.estado == 'reservada' %}Reservada{% else %}En cuenta{% endif %}
-      </span>
-      <span class="pzm-table-sub">
-        {% if mesa.tiempo_transcurrido %}{{ mesa.tiempo_transcurrido }} · {{ mesa.capacidad }}p{% else %}{{ mesa.capacidad }} persona{{ mesa.capacidad|pluralize }}{% endif %}
-      </span>
-    </div>
   </div>
-</button>
+
+  <div class="pzm-table-bottom">
+    {% if mesa.estado == 'libre' %}
+    <span class="pzm-table-sub">{{ mesa.capacidad }} persona{{ mesa.capacidad|pluralize }}</span>
+    <button type="button" class="pzm-table-abrir" onclick="pzMesaClick(this)">Abrir</button>
+    {% elif mesa.estado == 'reservada' %}
+    {% if mesa.reserva.reserva_hora %}
+    <span class="pzm-table-amount">{{ mesa.reserva.reserva_hora }}</span>
+    <span class="pzm-table-sub{% if mesa.reserva.reserva_atrasada %} pzm-table-sub-atrasada{% endif %}">{{ mesa.reserva.reserva_relativa }}</span>
+    {% else %}
+    {# Reserva sin hora: el dato útil que queda es la capacidad. #}
+    <span class="pzm-table-sub">{{ mesa.capacidad }} persona{{ mesa.capacidad|pluralize }}</span>
+    {% endif %}
+    {% elif mesa.pedido_abierto %}
+    <span class="pzm-table-amount">${{ mesa.pedido_abierto.total|floatformat:2 }}</span>
+    <span class="pzm-table-sub">
+      {% if mesa.tiempo_transcurrido %}{{ mesa.tiempo_transcurrido }} · {% endif %}{{ mesa.capacidad }}p
+    </span>
+    {% else %}
+    {# Ocupada a mano desde el modal, sin pedido abierto: no hay monto. #}
+    <span class="pzm-table-sub">{{ mesa.capacidad }}p · sin pedido</span>
+    {% endif %}
+  </div>
+
+  {% if mesa.estado != 'libre' %}
+  <button type="button" class="pzm-table-overlay" onclick="pzMesaClick(this)"
+    aria-label="Mesa {{ mesa.nombre|default:mesa.numero }}{% if mesa.estado == 'reservada' %} · reservada{% elif not mesa.pedido_abierto %} · ocupada sin pedido{% elif mesa.estado == 'ocupada' %} · en servicio, ${{ mesa.pedido_abierto.total|floatformat:2 }}{% else %} · esperando cobro, ${{ mesa.pedido_abierto.total|floatformat:2 }}{% endif %}"></button>
+  {% endif %}
+</div>

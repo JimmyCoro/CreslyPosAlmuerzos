@@ -1,5 +1,8 @@
 (function () {
-  function pzMesaClick(el) {
+  function pzMesaClick(origen) {
+    // El clic llega desde el botón "Abrir" o desde el que cubre la tarjeta,
+    // así que hay que subir hasta la tarjeta, que es donde viven los datos.
+    const el = (origen.closest && origen.closest('.pzm-table')) || origen;
     const pedidoId = el.dataset.pedidoId;
     if (pedidoId) {
       pzVerPedido(pedidoId, el.dataset.mesaId);
@@ -25,24 +28,39 @@
 
     const reservaTexto = document.getElementById('pzmaReservaTexto');
     const reservaBtn = document.getElementById('pzmaReserva');
+    const horaWrap = document.getElementById('pzmaReservaHoraWrap');
+    const horaInput = document.getElementById('pzmaReservaHora');
     if (estado === 'reservada') {
       reservaTexto.textContent = 'Quitar reserva';
       reservaBtn.dataset.accion = 'quitar';
+      if (horaWrap) horaWrap.hidden = true;
     } else {
       reservaTexto.textContent = 'Marcar como reservada';
       reservaBtn.dataset.accion = 'reservar';
+      if (horaWrap) horaWrap.hidden = false;
+      if (horaInput) horaInput.value = horaSugeridaReserva();
     }
 
     const modal = new bootstrap.Modal(document.getElementById('pzModalMesaAcciones'));
     modal.show();
   }
 
-  function pzCambiarEstadoMesa(mesaId, estado) {
+  // Media hora desde ahora, redondeada al cuarto de hora siguiente: es lo más
+  // común al reservar por teléfono y evita escribir la hora desde cero.
+  function horaSugeridaReserva() {
+    const d = new Date(Date.now() + 30 * 60 * 1000);
+    d.setMinutes(Math.ceil(d.getMinutes() / 15) * 15, 0, 0);
+    return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+  }
+
+  function pzCambiarEstadoMesa(mesaId, estado, hora) {
     const url = window.PZ_URLS.cambiarEstadoMesa.replace('/0/', '/' + mesaId + '/');
+    const body = new URLSearchParams({ estado });
+    if (hora) body.append('hora', hora);
     fetch(url, {
       method: 'POST',
       headers: { 'X-CSRFToken': window.CSRF_TOKEN },
-      body: new URLSearchParams({ estado }),
+      body,
     })
       .then(r => r.json())
       .then(data => {
@@ -149,27 +167,58 @@
     window.location.href = window.PZ_URLS.cobrarOrden.replace('/0/', '/' + pedidoId + '/');
   }
 
-  const PZM_ESTADO_LABEL = { libre: 'Libre', reservada: 'Reservada', ocupada: 'Ocupada', por_cobrar: 'Por cobrar' };
+  // Palabra corta del estado en la tarjeta (debe coincidir con _mesa_card.html).
+  const PZM_ESTADO_CORTO = { libre: 'Libre', reservada: 'Reserva', ocupada: 'Servicio', por_cobrar: 'Cuenta' };
 
-  function actualizarTarjetaMesa(mesaEl, estado) {
+  function escapeHtml(str) {
+    return String(str == null ? '' : str).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  // Reconstruye la tarjeta completa para el estado nuevo. No basta con cambiar
+  // textos: una mesa libre lleva el botón "Abrir" y el resto un botón que la
+  // cubre, así que al cambiar de estado cambia la estructura. Es el espejo en
+  // JS de _mesa_card.html; si se toca uno hay que tocar el otro.
+  function actualizarTarjetaMesa(mesaEl, estado, reserva) {
     mesaEl.classList.remove('pzm-table-libre', 'pzm-table-reservada', 'pzm-table-ocupada', 'pzm-table-por_cobrar');
     mesaEl.classList.add(`pzm-table-${estado}`);
     mesaEl.dataset.estado = estado;
 
-    const statusEl = mesaEl.querySelector('.pzm-table-status');
-    if (statusEl) statusEl.textContent = PZM_ESTADO_LABEL[estado] || estado;
+    const nombre = escapeHtml(mesaEl.dataset.nombre);
+    const cap = mesaEl.dataset.capacidad || '';
+    const personas = `${cap} persona${cap === '1' ? '' : 's'}`;
+    const total = `$${parseFloat(mesaEl.dataset.total || 0).toFixed(2)}`;
 
-    const amountEl = mesaEl.querySelector('.pzm-table-amount');
-    const subEl = mesaEl.querySelector('.pzm-table-sub');
-    const cap = mesaEl.dataset.capacidad;
-
-    if (estado === 'libre' || estado === 'reservada') {
-      if (amountEl) amountEl.textContent = estado === 'libre' ? 'Disponible' : 'Reservada';
-      if (subEl && cap) subEl.textContent = `${cap} persona${cap === '1' ? '' : 's'}`;
+    let pie;
+    let etiquetaAccesible;
+    if (estado === 'libre') {
+      pie = `<span class="pzm-table-sub">${personas}</span>
+        <button type="button" class="pzm-table-abrir" onclick="pzMesaClick(this)">Abrir</button>`;
+    } else if (estado === 'reservada') {
+      pie = reserva && reserva.reserva_hora
+        ? `<span class="pzm-table-amount">${escapeHtml(reserva.reserva_hora)}</span>
+           <span class="pzm-table-sub${reserva.reserva_atrasada ? ' pzm-table-sub-atrasada' : ''}">${escapeHtml(reserva.reserva_relativa)}</span>`
+        : `<span class="pzm-table-sub">${personas}</span>`;
+      etiquetaAccesible = `Mesa ${nombre} · reservada`;
+    } else if (mesaEl.dataset.pedidoId) {
+      const tiempo = mesaEl.dataset.tiempo ? `${escapeHtml(mesaEl.dataset.tiempo)} · ` : '';
+      pie = `<span class="pzm-table-amount">${total}</span>
+        <span class="pzm-table-sub">${tiempo}${cap}p</span>`;
+      etiquetaAccesible = `Mesa ${nombre} · ${estado === 'ocupada' ? 'en servicio' : 'esperando cobro'}, ${total}`;
     } else {
-      if (amountEl && ['Disponible', 'Reservada'].includes(amountEl.textContent.trim())) amountEl.textContent = 'En cuenta';
-      if (subEl && cap) subEl.textContent = `${cap}p`;
+      // Ocupada a mano desde el modal, sin pedido abierto: no hay monto.
+      pie = `<span class="pzm-table-sub">${cap}p · sin pedido</span>`;
+      etiquetaAccesible = `Mesa ${nombre} · ocupada sin pedido`;
     }
+
+    mesaEl.innerHTML = `
+      <div class="pzm-table-top">
+        <span class="pzm-table-num">${nombre}</span>
+        <span class="pzm-table-status">${PZM_ESTADO_CORTO[estado] || estado}</span>
+      </div>
+      <div class="pzm-table-bottom">${pie}</div>
+      ${estado === 'libre' ? '' : `<button type="button" class="pzm-table-overlay" onclick="pzMesaClick(this)" aria-label="${etiquetaAccesible}"></button>`}`;
   }
 
   function conectarWebSocketMesas() {
@@ -184,16 +233,25 @@
         if (data.payload.pedido_id) {
           mesaEl.dataset.pedidoId = data.payload.pedido_id;
         } else {
+          // Sin pedido la mesa no tiene monto ni tiempo: que no los arrastre
+          // a la próxima vez que se ocupe.
           delete mesaEl.dataset.pedidoId;
+          delete mesaEl.dataset.total;
+          delete mesaEl.dataset.tiempo;
         }
-        actualizarTarjetaMesa(mesaEl, data.payload.estado);
+        actualizarTarjetaMesa(mesaEl, data.payload.estado, data.payload);
       } else if (data.type === 'pedido_pizzeria_actualizado') {
         const mesaId = data.payload.mesa_id;
         if (!mesaId) return;
         const mesaEl = document.querySelector(`.pzm-table[data-mesa-id="${mesaId}"]`);
         if (!mesaEl) return;
+        // El total puede llegar antes o después del cambio de estado: se guarda
+        // en la tarjeta para que el siguiente repintado lo tenga.
+        mesaEl.dataset.total = data.payload.total;
         const amountEl = mesaEl.querySelector('.pzm-table-amount');
-        if (amountEl) amountEl.textContent = `$${data.payload.total.toFixed(2)}`;
+        if (amountEl && mesaEl.dataset.estado !== 'reservada') {
+          amountEl.textContent = `$${parseFloat(data.payload.total).toFixed(2)}`;
+        }
       }
     };
 
@@ -254,8 +312,13 @@
 
     reservaBtn.addEventListener('click', function () {
       if (!pzmaMesaActual) return;
-      const nuevoEstado = this.dataset.accion === 'quitar' ? 'libre' : 'reservada';
-      pzCambiarEstadoMesa(pzmaMesaActual.dataset.mesaId, nuevoEstado);
+      const quitar = this.dataset.accion === 'quitar';
+      const horaInput = document.getElementById('pzmaReservaHora');
+      pzCambiarEstadoMesa(
+        pzmaMesaActual.dataset.mesaId,
+        quitar ? 'libre' : 'reservada',
+        quitar || !horaInput ? '' : horaInput.value,
+      );
     });
 
     opcionesEstado.forEach(function (boton) {

@@ -50,6 +50,42 @@
   accBackdrop.addEventListener('click', cerrarAcciones);
   confirmBackdrop.addEventListener('click', cerrarConfirmacion);
 
+  // Estilo inline porque esta hoja se usa en pantallas con CSS distintos
+  // (detalle de orden y cobro).
+  let avisoTimer = null;
+  function mostrarAviso(texto) {
+    let aviso = document.getElementById('accAviso');
+    if (!aviso) {
+      aviso = document.createElement('div');
+      aviso.id = 'accAviso';
+      aviso.setAttribute('role', 'status');
+      aviso.style.cssText = 'position:fixed;left:50%;bottom:96px;transform:translateX(-50%);z-index:3000;'
+        + 'background:#1f2328;color:#fff;padding:10px 16px;border-radius:12px;font-size:14px;font-weight:600;'
+        + 'box-shadow:0 6px 20px rgba(0,0,0,.25);max-width:calc(100% - 32px);text-align:center;'
+        + 'transition:opacity .2s;opacity:0;pointer-events:none;';
+      document.body.appendChild(aviso);
+    }
+    aviso.innerHTML = '<i class="bi bi-printer me-2"></i>';
+    aviso.appendChild(document.createTextNode(texto));
+    aviso.style.opacity = '1';
+    clearTimeout(avisoTimer);
+    avisoTimer = setTimeout(() => { aviso.style.opacity = '0'; }, 2500);
+  }
+
+  let enviando = false;
+  function enviarAccion(url) {
+    if (enviando) return;
+    enviando = true;
+    fetch(url, { method: 'POST', headers: { 'X-CSRFToken': window.CSRF_TOKEN } })
+      .then((r) => r.json().catch(() => { throw new Error(`Respuesta inválida del servidor (HTTP ${r.status})`); }))
+      .then((data) => {
+        if (data.status !== 'ok') { alert('Error: ' + data.message); return; }
+        mostrarAviso(data.message || 'Listo');
+      })
+      .catch((err) => alert(err && err.message ? err.message : 'Error inesperado'))
+      .finally(() => { enviando = false; });
+  }
+
   // ===== Tap en una fila de la hoja de acciones =====
   function clickFila(el) {
     const disponible = el.dataset.disponible === '1';
@@ -70,6 +106,12 @@
     if (clave === 'anular') {
       cerrarAcciones();
       abrirConfirmacion();
+      return;
+    }
+
+    if (el.dataset.postUrl) {
+      cerrarAcciones();
+      enviarAccion(el.dataset.postUrl);
       return;
     }
 
@@ -135,6 +177,7 @@
   }
 
   window.accClickFila = clickFila;
+  window.accEnviarAccion = enviarAccion;
   window.accElegirMotivo = elegirMotivo;
   window.accConfirmarAnular = confirmarAnular;
   window.accCerrarConfirmacion = cerrarConfirmacion;

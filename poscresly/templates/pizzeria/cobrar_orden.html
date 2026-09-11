@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'CSS/pizzeria-mapa.css' %}?v=13">
+<link rel="stylesheet" href="{% static 'CSS/pizzeria-mapa.css' %}?v=16">
 <link rel="stylesheet" href="{% static 'CSS/pizzeria-cobrar.css' %}">
 <link rel="stylesheet" href="{% static 'CSS/pizzeria-cart-bar.css' %}">
 <link rel="stylesheet" href="{% static 'CSS/pizzeria-cobrar-movil.css' %}?v=3">
@@ -167,19 +167,23 @@
 <script>
   window.PZ_ITEMS_COBRO = {{ items_cobro_json|safe }};
   window.PZ_PEDIDO = {{ pedido.id }};
-  {# El backend valida los pagos contra el total CON IVA (ver procesar_cobro_pedido) —
-     esta pantalla de escritorio no desglosa IVA todavía, así que Subtotal y
-     Total a pagar muestran el mismo monto (igual que antes), ahora ya con IVA. #}
+  window.CSRF_TOKEN = "{{ csrf_token }}";
+  {% comment %}
+  El backend valida los pagos contra el total CON IVA (ver procesar_cobro_pedido).
+  Esta pantalla de escritorio no desglosa IVA todavía, así que Subtotal y Total a
+  pagar muestran el mismo monto, ahora ya con IVA.
+  {% endcomment %}
   window.PZ_TOTAL_PEDIDO = {{ total_con_iva }};
   window.PZ_IVA_TASA = {{ iva_pct }} / 100;
   window.PZ_URLS = {
     procesarCobro: "{% url 'pizzeria_procesar_cobro' pedido.id %}",
     cancelarPedido: "{% url 'pizzeria_cancelar_pedido' pedido.id %}",
+    imprimirPrecuenta: "{% url 'pizzeria_imprimir_precuenta' pedido.id %}",
     ordenes: "{% url 'pizzeria_ordenes' %}",
   };
 </script>
-<script src="{% static 'JS/pizzeria_cobrar_orden.js' %}"></script>
-<script src="{% static 'JS/pizzeria_hoja_acciones.js' %}"></script>
+<script src="{% static 'JS/pizzeria_cobrar_orden.js' %}?v=2"></script>
+<script src="{% static 'JS/pizzeria_hoja_acciones.js' %}?v=2"></script>
 <script src="{% static 'JS/pizzeria_cobrar_movil.js' %}?v=2"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function () {

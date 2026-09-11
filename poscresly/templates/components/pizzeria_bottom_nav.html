@@ -1,7 +1,8 @@
 {% load static %}
 <!-- Navbar inferior del módulo Pizzería (≤1023px). Único partial para
      toda la app — Inicio móvil (templates/movil/inicio.html) lo incluye
-     igual que Mesas/Órdenes/Delivery, ya no tiene su propia copia. Barra
+     igual que Mesas/Órdenes/Caja, ya no tiene su propia copia. Delivery
+     se abre desde el menú lateral. Barra
      blanca de ancho completo, tabs con ícono+texto, FAB circular elevado
      y centrado para "Nueva orden". -->
 <nav class="pzbn" id="pzBottomNav" aria-label="Navegación principal">
@@ -21,9 +22,9 @@
     <span class="pzbn-tab-label">Órdenes</span>
     {% if pz_ordenes_abiertas %}<span class="pzbn-tab-badge">{{ pz_ordenes_abiertas }}</span>{% endif %}
   </a>
-  <a href="{% url 'pizzeria_delivery' %}" class="pzbn-tab{% if '/pizzeria/delivery/' in request.path %} pzbn-tab-active{% endif %}"{% if '/pizzeria/delivery/' in request.path %} aria-current="page"{% endif %}>
-    <i class="bi bi-scooter"></i>
-    <span class="pzbn-tab-label">Delivery</span>
+  <a href="{% url 'pizzeria_caja' %}" class="pzbn-tab{% if '/pizzeria/caja/' in request.path %} pzbn-tab-active{% endif %}"{% if '/pizzeria/caja/' in request.path %} aria-current="page"{% endif %}>
+    <i class="bi bi-cash-stack"></i>
+    <span class="pzbn-tab-label">Caja</span>
   </a>
 </nav>
 

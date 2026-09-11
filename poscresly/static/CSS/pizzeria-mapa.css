@@ -120,9 +120,13 @@
   font-feature-settings: 'tnum' 1;
   color: var(--pzm-ink);
   padding-top: 0;
+  /* Fondo gris de página: las tarjetas blancas se separan solas sobre él. */
+  background: var(--pzm-page);
 }
 
-.pzm-stack { display: flex; flex-direction: column; gap: 16px; padding-bottom: 1rem; }
+/* El inset lateral lo daba antes la caja blanca del panel; sin ella se
+   compensa acá para no pegar las tarjetas al borde de la pantalla. */
+.pzm-stack { display: flex; flex-direction: column; gap: 16px; padding: 8px 4px 1rem; }
 
 /* Móvil: título arriba, acciones abajo en fila completa (target táctil
    grande) en vez de competir por espacio horizontal con el título. */
@@ -189,27 +193,17 @@
 .pzm-metric-sub { font-size: 11.5px; color: var(--pzm-muted-2); }
 
 /* ===== Panel del mapa ===== */
-.pzm-panel { background: #fff; border: 1px solid var(--pzm-border); border-radius: 16px; overflow: hidden; }
-.pzm-panel-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 12px 14px;
-  border-bottom: 1px solid var(--pzm-border-soft);
-  flex-wrap: wrap;
-}
+/* Sin caja blanca alrededor: las tarjetas (blancas) se apoyan directo sobre
+   el fondo gris de la página, que es lo que las separa visualmente. */
+.pzm-panel { background: transparent; border: none; }
 /* Buscador de mesas — mismo patrón visual que .oc-busqueda (Órdenes) y
    .vr-search (Punto de venta): ícono superpuesto a la izquierda, input de
    ~42px de alto, borde/radio consistentes con el resto de la app. Filtra
    client-side (ver el script al final de mapa_mesas.html), a diferencia
    de .oc-busqueda que recarga la página — acá no hace falta porque las
    mesas ya están todas renderizadas. */
-.pzm-search {
-  position: relative;
-  padding: 10px 14px;
-  border-bottom: 1px solid var(--pzm-border-soft);
-}
+.pzm-search { position: relative; }
+.pzm-search[hidden] { display: none; }
 .pzm-search i {
   position: absolute;
   left: .9rem;
@@ -254,11 +248,48 @@
 .pzm-legend-reservada .pzm-dot { background: var(--pzm-blue); }
 .pzm-legend-inactiva { background: #f3f4f6; color: #6b7280; }
 .pzm-legend-inactiva .pzm-dot { background: #9ca3af; outline: 1px dashed #6b7280; outline-offset: 1px; }
-/* Texto decorativo de bajo valor: se oculta en móvil para no competir
-   por espacio con la leyenda de colores; vuelve desde tablet. */
-.pzm-updated { display: none; font-size: 12.5px; color: var(--pzm-muted-2); }
+.pzm-body { display: flex; flex-direction: column; gap: 18px; }
 
-.pzm-body { padding: 14px; display: flex; flex-direction: column; gap: 18px; }
+/* ===== Resumen de mesas que piden atención ===== */
+.pzm-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.pzm-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 62px;
+  padding: 10px 8px;
+  border-radius: 13px;
+  border: 1px solid var(--pzm-border);
+  background: #fff;
+}
+
+.pzm-stat-valor {
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -.03em;
+  line-height: 1;
+  color: var(--pzm-estado, var(--pzm-ink));
+}
+
+.pzm-stat-etiqueta {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--pzm-muted-2);
+}
+
+.pzm-stat-reservada { --pzm-estado: #5b6673; }
+.pzm-stat-ocupada { --pzm-estado: #1d5a9e; background: #f5f8fc; border-color: #d8e4f2; }
+.pzm-stat-por_cobrar { --pzm-estado: var(--pzm-brand); background: #fdf3f5; border-color: #f4d3d9; }
 
 .pzm-zone { display: flex; flex-direction: column; gap: 10px; }
 /* El filtro de mapa_mesas.html oculta mesas/zonas con el atributo
@@ -287,37 +318,84 @@
      el mismo peso táctil a las tarjetas en toda la app en vez de quedar
      planas solo acá. */
   box-shadow: 0 1px 3px rgba(20, 24, 29, .04);
-  cursor: pointer;
+  /* La barra de estado va pegada al borde superior y debe seguir el radio. */
+  overflow: hidden;
   text-align: left;
   transition: transform .12s ease, box-shadow .12s ease;
 }
-.pzm-table:active { transform: scale(.97); }
 .pzm-table:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(20, 24, 29, .10); }
+.pzm-table:has(.pzm-table-overlay:active) { transform: scale(.97); }
 .pzm-table-round { border-radius: 999px; }
 
-.pzm-table-libre { background: #f4fbf7; border-color: var(--pzm-green-soft-border); }
-.pzm-table-ocupada { background: #fef6f7; border-color: var(--pzm-red-soft-border); }
-.pzm-table-por_cobrar { background: #fffaf1; border-color: var(--pzm-amber-soft-border); }
-.pzm-table-reservada { background: var(--pzm-blue-soft-bg); border-color: var(--pzm-blue-soft-border); }
+/* Fondo blanco en todos los estados: la señal es la barra superior y la
+   palabra, no el tinte de la tarjeta. Así la grilla se lee tranquila y el
+   rojo queda reservado para lo que de verdad urge (cuenta por cobrar). */
+.pzm-table { background: #fff; border-color: var(--pzm-border); }
 
-.pzm-table-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.pzm-table::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--pzm-estado, #c3c8ce);
+}
+
+.pzm-table-libre { --pzm-estado: var(--pzm-green); }
+.pzm-table-ocupada { --pzm-estado: #1d5a9e; }
+.pzm-table-por_cobrar { --pzm-estado: var(--pzm-brand); }
+.pzm-table-reservada { --pzm-estado: #98a1ab; }
+
+.pzm-table-top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
 .pzm-table-num { font-size: 22px; font-weight: 800; letter-spacing: -.03em; line-height: 1; color: var(--pzm-ink); }
-.pzm-table-dot { width: 9px; height: 9px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
-.pzm-table-libre .pzm-table-dot { background: var(--pzm-green); }
-.pzm-table-ocupada .pzm-table-dot { background: var(--pzm-brand); }
-.pzm-table-por_cobrar .pzm-table-dot { background: var(--pzm-amber); }
-.pzm-table-reservada .pzm-table-dot { background: var(--pzm-blue); }
 
-.pzm-table-bottom { display: flex; flex-direction: column; gap: 3px; }
-.pzm-table-status { font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
-.pzm-table-libre .pzm-table-status { color: var(--pzm-green); }
-.pzm-table-ocupada .pzm-table-status { color: var(--pzm-brand); }
-.pzm-table-por_cobrar .pzm-table-status { color: var(--pzm-amber); }
-.pzm-table-reservada .pzm-table-status { color: var(--pzm-blue); }
+.pzm-table-status {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--pzm-estado);
+}
 
-.pzm-table-amount-row { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
-.pzm-table-amount { font-size: 14px; font-weight: 800; letter-spacing: -.02em; color: var(--pzm-ink); }
+.pzm-table-bottom { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.pzm-table-amount { font-size: 17px; font-weight: 800; letter-spacing: -.03em; color: var(--pzm-ink); }
+/* Una cuenta por cobrar va entera en rojo (monto y espera): es lo que urge. */
+.pzm-table-por_cobrar .pzm-table-amount,
+.pzm-table-por_cobrar .pzm-table-sub { color: var(--pzm-brand); }
+/* La mesa reservada todavía no está en uso: su número se apaga. */
+.pzm-table-reservada .pzm-table-num { color: var(--pzm-muted-2); }
 .pzm-table-sub { font-size: 11px; color: #98a1ab; font-weight: 600; white-space: nowrap; }
+/* La reserva ya debió llegar: se destaca para que alguien la confirme o libere. */
+.pzm-table-sub-atrasada { color: var(--pzm-brand); font-weight: 800; }
+
+/* Cubre la tarjeta entera para que toda ella sea tocable sin anidar botones
+   (un <button> dentro de otro es HTML inválido). */
+.pzm-table-overlay {
+  position: absolute;
+  inset: 0;
+  border: none;
+  background: none;
+  padding: 0;
+  border-radius: inherit;
+  cursor: pointer;
+}
+.pzm-table-overlay:focus-visible { outline: 2px solid var(--pzm-ink); outline-offset: -2px; }
+
+.pzm-table-abrir {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  min-height: 36px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 9px;
+  background: var(--pzm-brand);
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 800;
+}
 
 .pzm-empty-zone { grid-column: 1 / -1; font-size: 13px; color: var(--pzm-muted-2); text-align: center; padding: 1.5rem 0; }
 .pzm-empty-zone a { color: var(--pzm-brand); font-weight: 600; }
@@ -416,6 +494,25 @@
 
 .pzma-divider { border-top: 1px solid var(--pzm-border-soft); margin: 4px 0; }
 
+/* ===== Hora de la reserva ===== */
+.pzma-reserva-hora { display: flex; flex-direction: column; gap: 6px; }
+.pzma-reserva-hora[hidden] { display: none; }
+.pzma-opcional { text-transform: none; letter-spacing: 0; font-weight: 600; color: var(--pzm-muted-3); }
+
+.pzma-hora-input {
+  width: 100%;
+  height: 46px;
+  padding: 0 12px;
+  border: 1px solid var(--pzm-border-input);
+  border-radius: 11px;
+  background: #fff;
+  font-family: var(--fuente-jakarta);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--pzm-ink);
+}
+.pzma-hora-input:focus { outline: none; border: 1.5px solid var(--pzm-ink); }
+
 .pzma-select-label {
   font-size: 11px;
   font-weight: 700;
@@ -479,14 +576,11 @@
   .pzm-metric-value { font-size: 26px; }
   .pzm-metric-sub { font-size: 12.5px; }
 
-  .pzm-panel { border-radius: 18px; }
-  .pzm-panel-bar { gap: 20px; padding: 14px 20px; }
   .pzm-legend { gap: 8px; }
   .pzm-legend-pill { gap: 7px; padding: 6px 12px; font-size: 12.5px; }
-  .pzm-updated { display: block; }
-  .pzm-search { padding: 12px 20px; max-width: 320px; }
+  .pzm-search { max-width: 360px; }
 
-  .pzm-body { padding: 20px; gap: 22px; }
+  .pzm-body { gap: 22px; }
   .pzm-zone { gap: 11px; }
   .pzm-zone-header { gap: 12px; }
   .pzm-zone-name { font-size: 12px; }

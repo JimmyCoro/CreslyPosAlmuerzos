@@ -79,32 +79,51 @@
       if (spec.kind === 'porcion') {
         return [{
           id: 'porciones', tipo: 'multi', titulo: 'Sabor de la porción', etiqueta: 'SABOR',
-          pista: 'Elige el sabor', cantidad: 1, pool: catalogo.sabores, prefijo: 'Porción',
+          pista: 'Elige el sabor', unidades: 1, pool: catalogo.sabores, prefijo: 'Porción',
         }];
       }
       if (spec.kind === 'producto_alitas') {
         const total = spec.producto.alitas_cantidad;
         return [{
-          id: 'alitas', tipo: 'reparto', titulo: `${total} alitas`, etiqueta: 'ALITAS',
-          pista: 'Hasta 3 sabores', total: total, maxOpciones: 3,
-          pool: catalogo.sabores_alitas || [],
+          id: 'alitas', tipo: 'reparto', titulo: `${total} alitas`, etiqueta: `${total} ALITAS`,
+          pista: 'Iguales o repartidas',
+          total: total, unidades: total, maxOpciones: maxSaboresReparto(total),
+          pool: catalogo.sabores_alitas || [], prefijo: 'Alitas',
         }];
       }
       if (spec.kind === 'producto_bebida') {
         return [{
           id: 'bebida', tipo: 'bebida', titulo: 'Bebida', etiqueta: 'BEBIDA',
-          pista: 'Sabor y temperatura', cantidad: 1,
+          pista: 'Sabor y temperatura', unidades: 1,
           pool: catalogo.sabores_bebida || [], prefijo: 'Bebida',
         }];
       }
       if (spec.kind === 'producto_michelada') {
         return [{
           id: 'michelada', tipo: 'multi', titulo: 'Michelada', etiqueta: 'MICHELADA',
-          pista: 'Elige el sabor', cantidad: 1,
+          pista: 'Elige el sabor', unidades: 1,
           pool: catalogo.sabores_michelada || [], prefijo: 'Michelada',
         }];
       }
       return [];
+    }
+
+    function conUnidades(n, singular, plural) {
+      return n > 1 ? `${n} ${plural}` : singular.charAt(0).toUpperCase() + singular.slice(1);
+    }
+
+    // El máximo de sabores sale del grupo, no de una constante: repartir 4
+    // alitas entre 3 sabores no tiene sentido en la práctica (14 → 3, 4 → 2).
+    function maxSaboresReparto(total) {
+      return Math.min(3, Math.max(1, Math.floor(total / 2)));
+    }
+
+    function unidadesDe(paso) {
+      return paso.unidades || 1;
+    }
+
+    function modoDe(paso) {
+      return estado.modos[paso.id] || 'iguales';
     }
 
     function construirPasosCombo(combo) {
@@ -117,31 +136,47 @@
         lista.push({ id: 'pizza', tipo: 'mitades', titulo: 'Sabor de la pizza', etiqueta: 'PIZZA', pista: 'Uno o mitad y mitad' });
       }
       if (combo.porcion_pizza_cantidad) {
+        const n = combo.porcion_pizza_cantidad;
         lista.push({
-          id: 'porciones', tipo: 'multi', titulo: 'Porciones de pizza', etiqueta: 'PORCIÓN',
-          pista: `${combo.porcion_pizza_cantidad} sabor${combo.porcion_pizza_cantidad > 1 ? 'es' : ''}`,
-          cantidad: combo.porcion_pizza_cantidad, pool: catalogo.sabores, prefijo: 'Porción',
+          id: 'porciones', tipo: 'multi',
+          titulo: conUnidades(n, 'porción de pizza', 'porciones de pizza'),
+          etiqueta: conUnidades(n, 'PORCIÓN DE PIZZA', 'PORCIONES DE PIZZA'),
+          pista: n > 1 ? 'Iguales o distintas' : 'Elige el sabor',
+          corto: `${n} porciones`,
+          unidades: n, pool: catalogo.sabores, prefijo: 'Porción',
         });
       }
       if (combo.alitas_cantidad) {
+        const n = combo.alitas_cantidad;
         lista.push({
-          id: 'alitas', tipo: 'reparto', titulo: `${combo.alitas_cantidad} alitas`, etiqueta: 'ALITAS',
-          pista: 'Hasta 3 sabores', total: combo.alitas_cantidad, maxOpciones: 3,
-          pool: catalogo.sabores_alitas || [],
+          id: 'alitas', tipo: 'reparto',
+          titulo: `${n} alitas`, etiqueta: `${n} ALITAS`,
+          pista: 'Iguales o repartidas',
+          corto: `${n} alitas`,
+          total: n, unidades: n, maxOpciones: maxSaboresReparto(n),
+          pool: catalogo.sabores_alitas || [], prefijo: 'Alitas',
         });
       }
       if (combo.bebida_cantidad) {
+        const n = combo.bebida_cantidad;
         lista.push({
-          id: 'bebida', tipo: 'bebida', titulo: combo.bebida_cantidad > 1 ? 'Bebidas' : 'Bebida',
-          etiqueta: 'BEBIDA', pista: 'Sabor y temperatura',
-          cantidad: combo.bebida_cantidad, pool: catalogo.sabores_bebida || [], prefijo: 'Bebida',
+          id: 'bebida', tipo: 'bebida',
+          titulo: conUnidades(n, 'bebida', 'bebidas'),
+          etiqueta: conUnidades(n, 'BEBIDA', 'BEBIDAS'),
+          pista: 'Sabor y temperatura',
+          corto: `${n} bebidas`,
+          unidades: n, pool: catalogo.sabores_bebida || [], prefijo: 'Bebida',
         });
       }
       if (combo.michelada_cantidad) {
+        const n = combo.michelada_cantidad;
         lista.push({
-          id: 'michelada', tipo: 'multi', titulo: combo.michelada_cantidad > 1 ? 'Micheladas' : 'Michelada',
-          etiqueta: 'MICHELADA', pista: 'Elige el sabor',
-          cantidad: combo.michelada_cantidad, pool: catalogo.sabores_michelada || [], prefijo: 'Michelada',
+          id: 'michelada', tipo: 'multi',
+          titulo: conUnidades(n, 'michelada', 'micheladas'),
+          etiqueta: conUnidades(n, 'MICHELADA', 'MICHELADAS'),
+          pista: n > 1 ? 'Iguales o distintas' : 'Elige el sabor',
+          corto: `${n} micheladas`,
+          unidades: n, pool: catalogo.sabores_michelada || [], prefijo: 'Michelada',
         });
       }
       return lista;
@@ -155,10 +190,10 @@
       }
       if (paso.tipo === 'reparto') return asignadoReparto() === paso.total;
       if (paso.tipo === 'multi') {
-        return estado[paso.id].filter(Boolean).length === paso.cantidad;
+        return estado[paso.id].filter(Boolean).length === unidadesDe(paso);
       }
       if (paso.tipo === 'bebida') {
-        return estado.bebidas.length === paso.cantidad
+        return estado.bebidas.length === unidadesDe(paso)
           && estado.bebidas.every(b => b && b.saborId && b.temperatura);
       }
       return false;
@@ -179,19 +214,34 @@
         if (estado.modo === 'unico') return n1;
         return `½ ${n1} · ½ ${nombreSabor(catalogo.sabores, estado.sabor2)}`;
       }
+      // El número por delante ("Las 2 de Peperoni") dice cuántas unidades cubre
+      // la elección sin tener que repetir el grupo una vez por unidad.
       if (paso.tipo === 'reparto') {
+        if (modoDe(paso) === 'iguales' && estado.alitas.length === 1) {
+          return `Las ${paso.total} ${nombreSabor(paso.pool, estado.alitas[0].saborId)}`;
+        }
         return estado.alitas.map(a => `${a.cantidad} ${nombreSabor(paso.pool, a.saborId)}`).join(' · ');
       }
       if (paso.tipo === 'multi') {
-        return estado[paso.id].filter(Boolean).map(id => nombreSabor(paso.pool, id)).join(' · ');
+        const elegidos = estado[paso.id].filter(Boolean);
+        if (modoDe(paso) === 'iguales' && unidadesDe(paso) > 1 && elegidos.length) {
+          return `Las ${unidadesDe(paso)} de ${nombreSabor(paso.pool, elegidos[0])}`;
+        }
+        return elegidos.map(id => nombreSabor(paso.pool, id)).join(' · ');
       }
       if (paso.tipo === 'bebida') {
-        return estado.bebidas.map(function (b) {
-          const temp = TEMPERATURAS.find(t => t.valor === b.temperatura);
-          return nombreSabor(paso.pool, b.saborId) + (temp ? ` · ${temp.label.toLowerCase()}` : '');
-        }).join(' · ');
+        const textos = estado.bebidas.map(b => textoBebida(paso, b));
+        return modoDe(paso) === 'iguales' ? textos[0] || '' : textos.join(' · ');
       }
       return '';
+    }
+
+    // Sin sabor la ranura sigue pendiente aunque ya tenga temperatura: si
+    // devolviera " · helada" se pintaría como llena.
+    function textoBebida(paso, b) {
+      if (!b || !b.saborId) return '';
+      const temp = TEMPERATURAS.find(t => t.valor === b.temperatura);
+      return nombreSabor(paso.pool, b.saborId) + (temp ? ` · ${temp.label.toLowerCase()}` : '');
     }
 
     // Lo que falta en el paso activo, resaltado en rojo bajo su título.
@@ -208,18 +258,26 @@
         return restan > 0 ? `Faltan ${restan}` : (restan < 0 ? `Sobran ${-restan}` : '');
       }
       if (paso.tipo === 'multi') {
-        const faltan = paso.cantidad - estado[paso.id].filter(Boolean).length;
-        return faltan > 0 ? `falta${faltan > 1 ? 'n' : ''} ${faltan}` : '';
+        const idx = estado[paso.id].findIndex((v, i) => i < unidadesDe(paso) && !v);
+        if (idx === -1) return '';
+        if (modoDe(paso) === 'iguales' || unidadesDe(paso) === 1) return 'elige el sabor';
+        return `falta ${etiquetaRanura(paso, idx).toLowerCase()}`;
       }
       if (paso.tipo === 'bebida') {
-        for (let i = 0; i < paso.cantidad; i++) {
+        const varias = unidadesDe(paso) > 1 && modoDe(paso) === 'distintas';
+        for (let i = 0; i < unidadesDe(paso); i++) {
           const b = estado.bebidas[i];
-          if (!b || !b.saborId) return paso.cantidad > 1 ? `falta el sabor ${i + 1}` : 'falta el sabor';
-          if (!b.temperatura) return paso.cantidad > 1 ? `falta la temperatura ${i + 1}` : 'falta la temperatura';
+          const suf = varias ? ` de la bebida ${i + 1}` : '';
+          if (!b || !b.saborId) return `falta el sabor${suf}`;
+          if (!b.temperatura) return `falta la temperatura${suf}`;
         }
         return '';
       }
       return '';
+    }
+
+    function etiquetaRanura(paso, idx) {
+      return `${paso.prefijo || 'Unidad'} ${idx + 1}`;
     }
 
     function asignadoReparto() {
@@ -260,7 +318,13 @@
           return { ok: false, motivo: 'Elige la mitad 2 para continuar' };
         }
         if (paso.tipo === 'bebida') {
-          return { ok: false, motivo: `Bebida: ${faltaEnPaso(paso)}` };
+          return { ok: false, motivo: `${paso.titulo}: ${faltaEnPaso(paso)}` };
+        }
+        if (paso.tipo === 'multi' && modoDe(paso) === 'distintas') {
+          const idx = estado[paso.id].findIndex((v, i) => i < unidadesDe(paso) && !v);
+          if (idx !== -1) {
+            return { ok: false, motivo: `Elige la ${etiquetaRanura(paso, idx).toLowerCase()} para continuar` };
+          }
         }
         return { ok: false, motivo: `Falta elegir: ${paso.titulo.toLowerCase()}` };
       }
@@ -332,6 +396,15 @@
       pintarPie();
     }
 
+    // "2 porciones · 4 alitas · 2 bebidas". Vacío si ningún grupo repite
+    // unidades: ahí la cabecera sigue contando pasos, que es más informativo.
+    function descripcionUnidades() {
+      const partes = pasos
+        .filter(p => unidadesDe(p) > 1)
+        .map(p => p.corto || p.titulo.toLowerCase());
+      return partes.length ? partes.join(' · ') : '';
+    }
+
     function pintarCabecera() {
       const resueltos = pasos.filter(pasoResuelto).length;
       const tamanoNombre = (estado.tamanoId && comboConTamanos())
@@ -339,9 +412,21 @@
         : '';
       const completo = resueltos === pasos.length;
       const prefijo = tamanoNombre ? `${escapeHtml(tamanoNombre)} · ` : '';
-      elEstado.innerHTML = completo
-        ? prefijo + '<strong class="cmb-completo">completo</strong>'
-        : prefijo + `<strong>${resueltos} de ${pasos.length} pasos</strong>`;
+
+      // Cuando el combo trae unidades repetidas, la sub-línea lo describe
+      // ("2 porciones · 4 alitas · 2 bebidas") en vez de contar pasos.
+      const composicion = descripcionUnidades();
+      if (composicion) {
+        const activo = pasos.find(p => p.id === estado.pasoActivo);
+        const falta = (!completo && activo) ? faltaEnPaso(activo) : '';
+        elEstado.innerHTML = prefijo + escapeHtml(composicion)
+          + (falta ? ` · <strong>${escapeHtml(falta)}</strong>` : '')
+          + (completo ? ' · <strong class="cmb-completo">completo</strong>' : '');
+      } else {
+        elEstado.innerHTML = completo
+          ? prefijo + '<strong class="cmb-completo">completo</strong>'
+          : prefijo + `<strong>${resueltos} de ${pasos.length} pasos</strong>`;
+      }
 
       elProgreso.innerHTML = pasos.map(function (paso) {
         let cls = 'cmb-progreso-seg';
@@ -406,9 +491,10 @@
       const tarjeta = document.createElement('div');
       tarjeta.className = 'cmb-paso-activo';
       const falta = faltaEnPaso(paso);
+      const pista = pistaActiva(paso);
       const sub = falta
-        ? `${escapeHtml(paso.pista)} · <strong>${escapeHtml(falta)}</strong>`
-        : escapeHtml(paso.pista);
+        ? `${escapeHtml(pista)} · <strong>${escapeHtml(falta)}</strong>`
+        : escapeHtml(pista);
       tarjeta.innerHTML = `
         <div class="cmb-activo-cabecera">
           <span class="cmb-num">${idx + 1}</span>
@@ -422,6 +508,105 @@
       cuerpo.appendChild(cuerpoDePaso(paso));
       tarjeta.appendChild(cuerpo);
       return tarjeta;
+    }
+
+    // ===== UNIDADES REPETIDAS · handoff_combo_duo =====
+    // Un grupo con varias unidades pide UNA respuesta que cubre todas. Solo si
+    // el cliente pide algo distinto se abren las ranuras, y aun así el catálogo
+    // se muestra una sola vez debajo.
+    function tieneInterruptor(paso) {
+      return unidadesDe(paso) > 1;
+    }
+
+    function pistaActiva(paso) {
+      if (!tieneInterruptor(paso)) return paso.pista;
+      return modoDe(paso) === 'iguales' ? `Las ${unidadesDe(paso)} iguales` : 'Distintas';
+    }
+
+    function vistaInterruptor(paso) {
+      const fila = document.createElement('div');
+      fila.className = 'cmb-modo';
+      [
+        ['iguales', `Las ${unidadesDe(paso)} iguales`],
+        ['distintas', 'Distintas'],
+      ].forEach(function (m) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'cmb-modo-btn' + (modoDe(paso) === m[0] ? ' cmb-modo-btn-activo' : '');
+        btn.textContent = m[1];
+        btn.addEventListener('click', function () {
+          if (modoDe(paso) === m[0]) return;
+          cambiarModoGrupo(paso, m[0]);
+        });
+        fila.appendChild(btn);
+      });
+      return fila;
+    }
+
+    // Pasar a "distintas" copia lo elegido a la ranura 1 y deja el resto
+    // pendiente; volver a "iguales" conserva la ranura 1 y descarta las demás.
+    function cambiarModoGrupo(paso, modo) {
+      estado.modos[paso.id] = modo;
+      const n = unidadesDe(paso);
+
+      if (paso.tipo === 'multi') {
+        const primero = estado[paso.id].filter(Boolean)[0] || null;
+        estado[paso.id] = modo === 'iguales'
+          ? Array.from({ length: n }, () => primero)
+          : [primero].concat(Array.from({ length: n - 1 }, () => null));
+      } else if (paso.tipo === 'bebida') {
+        const primera = estado.bebidas[0] || { saborId: null, temperatura: null };
+        estado.bebidas = modo === 'iguales'
+          ? Array.from({ length: n }, () => ({ saborId: primera.saborId, temperatura: primera.temperatura }))
+          : [primera].concat(Array.from({ length: n - 1 }, () => ({ saborId: null, temperatura: null })));
+      } else if (paso.tipo === 'reparto' && modo === 'iguales') {
+        const primero = estado.alitas[0];
+        estado.alitas = primero ? [{ saborId: primero.saborId, cantidad: paso.total }] : [];
+      }
+
+      estado.ranuraActiva[paso.id] = 0;
+      render();
+    }
+
+    function vistaRanurasUnidades(paso, valores, textoDe) {
+      const fila = document.createElement('div');
+      fila.className = 'cmb-ranuras' + (unidadesDe(paso) > 2 ? ' cmb-ranuras-wrap' : '');
+      for (let i = 0; i < unidadesDe(paso); i++) {
+        const texto = textoDe(valores[i]);
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'cmb-ranura'
+          + (texto ? ' cmb-ranura-llena' : ' cmb-ranura-pendiente')
+          + (ranuraEnEdicion(paso) === i ? ' cmb-ranura-editando' : '');
+        btn.innerHTML = `
+          <span class="cmb-ranura-label">${escapeHtml(etiquetaRanura(paso, i).toUpperCase())}</span>
+          <span class="cmb-ranura-valor">${texto ? escapeHtml(texto) : 'Elige abajo'}</span>`;
+        btn.addEventListener('click', function () {
+          estado.ranuraActiva[paso.id] = i;
+          render();
+        });
+        fila.appendChild(btn);
+      }
+      return fila;
+    }
+
+    // El toque cae en la primera ranura vacía; si están todas llenas, en la que
+    // el cajero haya fijado tocándola.
+    function ranuraEnEdicion(paso) {
+      const valores = paso.tipo === 'bebida'
+        ? estado.bebidas.map(b => (b && b.saborId ? b.saborId : null))
+        : estado[paso.id];
+      const vacia = valores.findIndex((v, i) => i < unidadesDe(paso) && !v);
+      if (vacia !== -1) return vacia;
+      return estado.ranuraActiva[paso.id] || 0;
+    }
+
+    function notaUnCatalogo() {
+      const nota = document.createElement('div');
+      nota.className = 'cmb-nota-ayuda';
+      nota.innerHTML = '<i class="fas fa-clone"></i><span>Un catálogo, no uno por unidad:'
+        + ' el sabor que tocas cae en la ranura pendiente.</span>';
+      return nota;
     }
 
     function cuerpoDePaso(paso) {
@@ -562,9 +747,27 @@
 
     function cuerpoReparto(paso) {
       const wrap = document.createElement('div');
-      wrap.style.display = 'flex';
-      wrap.style.flexDirection = 'column';
-      wrap.style.gap = '11px';
+      wrap.className = 'cmb-cuerpo-col';
+
+      if (tieneInterruptor(paso)) wrap.appendChild(vistaInterruptor(paso));
+
+      // "Las 4 iguales": el catálogo directo y un toque pone las N. El reparto
+      // con barra y steppers solo aparece cuando el cliente pide sabores mezclados.
+      if (tieneInterruptor(paso) && modoDe(paso) === 'iguales') {
+        const grid = document.createElement('div');
+        grid.className = 'cmb-grid';
+        (paso.pool || []).forEach(function (s) {
+          const sel = estado.alitas.length === 1 && estado.alitas[0].saborId === s.id;
+          const btn = botonOpcion(s.nombre, sel, '');
+          btn.addEventListener('click', function () {
+            estado.alitas = [{ saborId: s.id, cantidad: paso.total }];
+            avanzar(paso);
+          });
+          grid.appendChild(btn);
+        });
+        wrap.appendChild(grid);
+        return wrap;
+      }
 
       const asignado = asignadoReparto();
 
@@ -582,11 +785,6 @@
       const atajos = document.createElement('div');
       atajos.className = 'cmb-atajos';
       [
-        ['Todas iguales', function () {
-          const primero = estado.alitas[0] || { saborId: (paso.pool[0] || {}).id };
-          if (!primero.saborId) return;
-          estado.alitas = [{ saborId: primero.saborId, cantidad: paso.total }];
-        }],
         ['Mitad y mitad', function () {
           const dos = estado.alitas.slice(0, 2);
           if (dos.length < 2) { deps.mostrarToast('Elige dos sabores primero'); return; }
@@ -737,94 +935,103 @@
 
     function cuerpoMulti(paso) {
       const wrap = document.createElement('div');
-      wrap.style.display = 'flex';
-      wrap.style.flexDirection = 'column';
-      wrap.style.gap = '12px';
+      wrap.className = 'cmb-cuerpo-col';
+      const distintas = tieneInterruptor(paso) && modoDe(paso) === 'distintas';
 
-      for (let i = 0; i < paso.cantidad; i++) {
-        const bloque = document.createElement('div');
-        if (paso.cantidad > 1) {
-          const label = document.createElement('span');
-          label.className = 'cmb-sublabel';
-          label.textContent = `${paso.prefijo} ${i + 1}`.toUpperCase();
-          bloque.appendChild(label);
-        }
-        const grid = document.createElement('div');
-        grid.className = 'cmb-grid';
-        (paso.pool || []).forEach(function (s) {
-          const btn = botonOpcion(s.nombre, estado[paso.id][i] === s.id, '');
-          btn.addEventListener('click', function () {
-            estado[paso.id][i] = s.id;
-            if (paso.id === 'porciones') actualizarPrecio();
-            avanzar(paso);
-          });
-          grid.appendChild(btn);
-        });
-        bloque.appendChild(grid);
-        wrap.appendChild(bloque);
+      if (tieneInterruptor(paso)) wrap.appendChild(vistaInterruptor(paso));
+      if (distintas) {
+        wrap.appendChild(vistaRanurasUnidades(
+          paso, estado[paso.id], id => nombreSabor(paso.pool, id),
+        ));
       }
+
+      const grid = document.createElement('div');
+      grid.className = 'cmb-grid';
+      (paso.pool || []).forEach(function (s) {
+        const sel = distintas
+          ? estado[paso.id][ranuraEnEdicion(paso)] === s.id
+          : estado[paso.id].filter(Boolean)[0] === s.id;
+        const btn = botonOpcion(s.nombre, sel, '');
+        btn.addEventListener('click', function () {
+          if (distintas) {
+            const destino = ranuraEnEdicion(paso);
+            estado[paso.id][destino] = s.id;
+            // Deja fijada la siguiente ranura para que el toque siguiente
+            // tenga destino claro cuando ya no queden vacías.
+            estado.ranuraActiva[paso.id] = (destino + 1) % unidadesDe(paso);
+          } else {
+            // Una sola elección cubre todas las unidades del grupo.
+            estado[paso.id] = Array.from({ length: unidadesDe(paso) }, () => s.id);
+          }
+          if (paso.id === 'porciones') actualizarPrecio();
+          avanzar(paso);
+        });
+        grid.appendChild(btn);
+      });
+      wrap.appendChild(grid);
+
+      if (distintas) wrap.appendChild(notaUnCatalogo());
       return wrap;
     }
 
     // La temperatura viaja en la comanda: hasta ahora se preguntaba de viva voz.
     function cuerpoBebida(paso) {
       const wrap = document.createElement('div');
-      wrap.style.display = 'flex';
-      wrap.style.flexDirection = 'column';
-      wrap.style.gap = '12px';
+      wrap.className = 'cmb-cuerpo-col';
+      const distintas = tieneInterruptor(paso) && modoDe(paso) === 'distintas';
 
-      for (let i = 0; i < paso.cantidad; i++) {
-        const actual = estado.bebidas[i];
-
-        const bloque = document.createElement('div');
-        if (paso.cantidad > 1) {
-          const titulo = document.createElement('span');
-          titulo.className = 'cmb-sublabel';
-          titulo.textContent = `BEBIDA ${i + 1}`;
-          bloque.appendChild(titulo);
-        }
-
-        const labelSabor = document.createElement('span');
-        labelSabor.className = 'cmb-sublabel';
-        labelSabor.textContent = 'SABOR';
-        bloque.appendChild(labelSabor);
-
-        const grid = document.createElement('div');
-        grid.className = 'cmb-grid';
-        (paso.pool || []).forEach(function (s) {
-          const btn = botonOpcion(s.nombre, actual.saborId === s.id, '');
-          btn.addEventListener('click', function () {
-            actual.saborId = s.id;
-            avanzar(paso);
-          });
-          grid.appendChild(btn);
-        });
-        bloque.appendChild(grid);
-
-        const labelTemp = document.createElement('span');
-        labelTemp.className = 'cmb-sublabel';
-        labelTemp.style.marginTop = '11px';
-        labelTemp.textContent = 'TEMPERATURA';
-        bloque.appendChild(labelTemp);
-
-        const temps = document.createElement('div');
-        temps.className = 'cmb-temp';
-        TEMPERATURAS.forEach(function (t) {
-          const btn = document.createElement('button');
-          btn.type = 'button';
-          btn.className = 'cmb-temp-btn'
-            + (actual.temperatura === t.valor ? ` cmb-temp-btn-activo-${t.valor}` : '');
-          btn.innerHTML = `<i class="fas ${t.icono}"></i> ${t.label}`;
-          btn.addEventListener('click', function () {
-            actual.temperatura = t.valor;
-            avanzar(paso);
-          });
-          temps.appendChild(btn);
-        });
-        bloque.appendChild(temps);
-
-        wrap.appendChild(bloque);
+      if (tieneInterruptor(paso)) wrap.appendChild(vistaInterruptor(paso));
+      if (distintas) {
+        wrap.appendChild(vistaRanurasUnidades(paso, estado.bebidas, b => textoBebida(paso, b)));
       }
+
+      // En "iguales" se edita la unidad 0 y el cambio se copia a todas; en
+      // "distintas" se edita solo la ranura fijada.
+      const idx = distintas ? ranuraEnEdicion(paso) : 0;
+      const actual = estado.bebidas[idx];
+
+      const aplicar = function (cambio) {
+        if (distintas) {
+          Object.assign(estado.bebidas[idx], cambio);
+        } else {
+          estado.bebidas.forEach(b => Object.assign(b, cambio));
+        }
+        avanzar(paso);
+      };
+
+      const labelSabor = document.createElement('span');
+      labelSabor.className = 'cmb-sublabel';
+      labelSabor.textContent = 'SABOR';
+      wrap.appendChild(labelSabor);
+
+      const grid = document.createElement('div');
+      grid.className = 'cmb-grid';
+      (paso.pool || []).forEach(function (s) {
+        const btn = botonOpcion(s.nombre, actual.saborId === s.id, '');
+        btn.addEventListener('click', function () { aplicar({ saborId: s.id }); });
+        grid.appendChild(btn);
+      });
+      wrap.appendChild(grid);
+
+      const labelTemp = document.createElement('span');
+      labelTemp.className = 'cmb-sublabel';
+      labelTemp.textContent = 'TEMPERATURA';
+      wrap.appendChild(labelTemp);
+
+      const temps = document.createElement('div');
+      temps.className = 'cmb-temp';
+      TEMPERATURAS.forEach(function (t) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'cmb-temp-btn'
+          + (actual.temperatura === t.valor ? ` cmb-temp-btn-activo-${t.valor}` : '');
+        btn.innerHTML = `<i class="fas ${t.icono}"></i> ${t.label}`;
+        btn.addEventListener('click', function () { aplicar({ temperatura: t.valor }); });
+        temps.appendChild(btn);
+      });
+      wrap.appendChild(temps);
+
+      if (distintas) wrap.appendChild(notaUnCatalogo());
       return wrap;
     }
 
@@ -899,6 +1106,10 @@
         alitas: [],
         bebidas: [],
         michelada: [],
+        // Todo grupo con varias unidades arranca en "iguales": casi nadie pide
+        // dos porciones distintas, y quien lo hace paga un toque más.
+        modos: {},
+        ranuraActiva: {},
         precioUnitario: 0,
       };
       // Una pizza suelta ya trae su tamaño elegido desde la tarjeta que se tocó.
@@ -906,9 +1117,14 @@
 
       pasos = construirPasos(spec);
       pasos.forEach(function (paso) {
+        const n = unidadesDe(paso);
         if (paso.tipo === 'bebida') {
-          estado.bebidas = Array.from({ length: paso.cantidad }, () => ({ saborId: null, temperatura: null }));
+          estado.bebidas = Array.from({ length: n }, () => ({ saborId: null, temperatura: null }));
+        } else if (paso.tipo === 'multi') {
+          estado[paso.id] = Array.from({ length: n }, () => null);
         }
+        estado.modos[paso.id] = 'iguales';
+        estado.ranuraActiva[paso.id] = 0;
       });
       estado.pasoActivo = pasos.length ? pasos[0].id : null;
       elNombre.textContent = spec.nombre;
@@ -961,7 +1177,10 @@
       pasos.forEach(function (paso) {
         if (paso.id === 'tamano' || paso.id === 'pizza') return;
         const txt = resumenPaso(paso);
-        if (txt) partes.push(`${paso.etiqueta.charAt(0) + paso.etiqueta.slice(1).toLowerCase()}: ${txt}`);
+        // El resumen ya trae el número ("Las 2 de Peperoni"), así que la
+        // etiqueta va sin él para no repetirlo en la línea del carrito.
+        const base = paso.etiqueta.replace(/^\d+\s+/, '').toLowerCase();
+        if (txt) partes.push(`${base.charAt(0).toUpperCase() + base.slice(1)}: ${txt}`);
       });
 
       let label = c.nombre;

@@ -37,6 +37,10 @@ class Mesa(models.Model):
     forma = models.CharField(max_length=10, choices=FORMAS, default='cuadrada')
     capacidad = models.PositiveIntegerField(default=4)
     activa = models.BooleanField(default=True)
+    reserva_hora = models.DateTimeField(
+        null=True, blank=True,
+        help_text='A qué hora llega la reserva. Solo tiene sentido mientras la mesa está reservada.',
+    )
 
     class Meta:
         verbose_name = 'Mesa'
@@ -45,6 +49,17 @@ class Mesa(models.Model):
 
     def __str__(self):
         return self.nombre or f"Mesa {self.numero}"
+
+    def save(self, *args, **kwargs):
+        # La mesa deja de estar reservada por varios caminos (se abre un
+        # pedido, se cobra, se anula, se cambia a mano). Limpiar la hora aquí
+        # evita que una reserva vieja reaparezca la próxima vez que se reserve.
+        if self.estado != 'reservada' and self.reserva_hora is not None:
+            self.reserva_hora = None
+            update_fields = kwargs.get('update_fields')
+            if update_fields is not None and 'reserva_hora' not in update_fields:
+                kwargs['update_fields'] = list(update_fields) + ['reserva_hora']
+        super().save(*args, **kwargs)
 
 
 class Sabor(models.Model):
@@ -533,6 +548,12 @@ class CajaPizzeria(models.Model):
     fecha_apertura = models.DateTimeField(auto_now_add=True)
     fecha_cierre = models.DateTimeField(null=True, blank=True)
     observaciones = models.TextField(blank=True)
+    abierta_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name='cajas_pizzeria_abiertas',
+    )
+    cerrada_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name='cajas_pizzeria_cerradas',
+    )
 
     class Meta:
         verbose_name = 'Caja pizzería'
@@ -595,6 +616,45 @@ class CajaPizzeriaTarjeta(models.Model):
 
     def __str__(self):
         return f"Tarjeta pizzería {self.caja.fecha}"
+
+
+class MovimientoCajaPizzeria(models.Model):
+    """Dinero que entra o sale del cajón fuera de la venta. La apertura no se
+    guarda aquí: sale de la propia CajaPizzeria (fondo inicial)."""
+    TIPOS = [
+        ('retiro', 'Retiro a bóveda'),
+        ('ingreso', 'Ingreso'),
+        ('gasto', 'Gasto'),
+    ]
+    CATEGORIAS = [
+        ('insumos', 'Insumos'),
+        ('transporte', 'Transporte'),
+        ('mantenimiento', 'Mantenimiento'),
+        ('servicios', 'Servicios'),
+        ('otro', 'Otro'),
+    ]
+
+    caja = models.ForeignKey(CajaPizzeria, on_delete=models.CASCADE, related_name='movimientos')
+    tipo = models.CharField(max_length=10, choices=TIPOS)
+    monto = models.DecimalField(max_digits=10, decimal_places=2)
+    categoria = models.CharField(max_length=20, choices=CATEGORIAS, blank=True)
+    detalle = models.CharField(max_length=200, blank=True)
+    conteo = models.JSONField(null=True, blank=True, help_text='Retiros: cantidad por denominación.')
+    autor = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
+    creado_en = models.DateTimeField(auto_now_add=True)
+    saldo_posterior = models.DecimalField(
+        max_digits=10, decimal_places=2,
+        help_text='Lo que debía quedar en el cajón justo después; se guarda al registrar, no se recalcula.',
+    )
+    anulado = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = 'Movimiento de caja pizzería'
+        verbose_name_plural = 'Movimientos de caja pizzería'
+        ordering = ['-creado_en', '-id']
+
+    def __str__(self):
+        return f"{self.get_tipo_display()} ${self.monto} - {self.caja}"
 
 
 class GastoPizzeria(models.Model):

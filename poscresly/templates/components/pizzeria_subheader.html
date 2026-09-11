@@ -54,6 +54,8 @@
       <span class="pzsh-chip pzsh-chip-estado pzsh-chip-{{ chip.tono }}">
         <span class="pzsh-chip-dot"></span>{{ chip.label }}
       </span>
+      {% elif chip.url %}
+      <a href="{{ chip.url }}" class="pzsh-chip{% if chip.active %} pzsh-chip-active{% endif %}"{% if chip.active %} aria-current="page"{% endif %}>{{ chip.label }}{% if chip.count is not None %} <span class="pzsh-chip-count">{{ chip.count }}</span>{% endif %}</a>
       {% else %}
       <button type="button" class="pzsh-chip{% if chip.active %} pzsh-chip-active{% endif %}" data-filtro="{{ chip.value }}">{{ chip.label }}</button>
       {% endif %}

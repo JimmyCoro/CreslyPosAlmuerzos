@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import views
+from . import views, views_caja
 
 urlpatterns = [
     path('login/', views.pizzeria_login, name='pizzeria_login'),
@@ -34,6 +34,8 @@ urlpatterns = [
     path('ajax/guardar-pedido/', views.guardar_pedido_pizzeria, name='pizzeria_guardar_pedido'),
     path('ajax/pedido/<int:pedido_id>/procesar-cobro/', views.procesar_cobro_pedido, name='pizzeria_procesar_cobro'),
     path('ajax/pedido/<int:pedido_id>/cancelar/', views.cancelar_pedido_pizzeria, name='pizzeria_cancelar_pedido'),
+    path('ajax/pedido/<int:pedido_id>/reimprimir-comanda/', views.reimprimir_comanda_pizzeria, name='pizzeria_reimprimir_comanda'),
+    path('ajax/pedido/<int:pedido_id>/precuenta/', views.imprimir_precuenta_pizzeria, name='pizzeria_imprimir_precuenta'),
     path('ajax/pedido/<int:pedido_id>/', views.obtener_pedido_pizzeria, name='pizzeria_obtener_pedido'),
     path('ajax/pedidos-abiertos/', views.obtener_pedidos_abiertos_pizzeria, name='pizzeria_pedidos_abiertos'),
     path('ajax/item-preparacion/<int:item_id>/avanzar/', views.avanzar_estado_item_preparacion, name='pizzeria_avanzar_item_preparacion'),
@@ -47,4 +49,11 @@ urlpatterns = [
     path('caja/', views.dashboard_caja_pizzeria, name='pizzeria_dashboard_caja'),
     path('caja/abrir/', views.abrir_caja_pizzeria, name='pizzeria_abrir_caja'),
     path('caja/cerrar/', views.cerrar_caja_pizzeria, name='pizzeria_cerrar_caja'),
+
+    path('caja/turno/', views_caja.estado_caja, name='pizzeria_caja'),
+    path('caja/turno/abrir/', views_caja.abrir_caja, name='pizzeria_caja_abrir'),
+    path('caja/turno/movimientos/', views_caja.movimientos_caja, name='pizzeria_caja_movimientos'),
+    path('caja/turno/cortes/', views_caja.cortes_caja, name='pizzeria_caja_cortes'),
+    path('caja/turno/retiro/', views_caja.registrar_retiro, name='pizzeria_caja_retiro'),
+    path('caja/turno/movimiento/', views_caja.registrar_movimiento, name='pizzeria_caja_movimiento'),
 ]

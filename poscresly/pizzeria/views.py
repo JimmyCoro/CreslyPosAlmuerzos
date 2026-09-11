@@ -1,7 +1,9 @@
+import datetime
 import json
 import re
 from datetime import date
 from decimal import Decimal
+from urllib.parse import quote
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -15,7 +17,7 @@ from django.views.decorators.http import require_http_methods
 from django.db import IntegrityError, transaction
 from django.db.models import Count, Q, Sum
 
-from .impresion import generar_comanda_pizza
+from .impresion import generar_comanda_pizza, generar_precuenta_pizza
 from .models import (
     AsignacionItemCobro,
     CajaPizzeria,
@@ -27,6 +29,7 @@ from .models import (
     GastoPizzeria,
     ItemPreparacion,
     Mesa,
+    MovimientoCajaPizzeria,
     PagoPedido,
     PedidoCombo,
     PedidoComboSaborAlitas,
@@ -165,6 +168,7 @@ def mapa_mesas(request):
         pedido = pedidos_abiertos.get(mesa.id)
         mesa.pedido_abierto = pedido
         mesa.tiempo_transcurrido = _formatear_tiempo_transcurrido(pedido.fecha_creacion) if pedido else None
+        mesa.reserva = _datos_reserva(mesa)
 
         zonas.setdefault(mesa.zona, []).append(mesa)
 
@@ -188,23 +192,48 @@ def mapa_mesas(request):
 
     total_mesas = len(mesas)
     libres = sum(1 for m in mesas if m.estado == 'libre')
-    en_servicio = sum(1 for m in mesas if m.estado in ('ocupada', 'por_cobrar'))
+    reservadas = sum(1 for m in mesas if m.estado == 'reservada')
+    en_servicio = sum(1 for m in mesas if m.estado == 'ocupada')
+    en_cuenta = [m for m in mesas if m.estado == 'por_cobrar']
+    monto_por_cobrar = sum(
+        (m.pedido_abierto.total for m in en_cuenta if m.pedido_abierto), Decimal('0')
+    )
+
+    # Lo primero que necesita saber el cajero es cuánta plata está sin cobrar;
+    # si no hay nada pendiente, la línea vuelve a la disponibilidad de mesas.
+    if en_cuenta:
+        sub = {
+            'sub_hi': f'${monto_por_cobrar:.2f}',
+            'sub_hi_tono': 'rojo',
+            'sub_post': f' por cobrar en {len(en_cuenta)} mesa{"s" if len(en_cuenta) != 1 else ""}',
+        }
+    else:
+        sub = {
+            'sub_hi': f'{libres} libre{"s" if libres != 1 else ""}',
+            'sub_hi_tono': 'verde',
+            'sub_post': f' de {total_mesas}',
+        }
+
+    estadisticas = [
+        {'clave': 'reservada', 'valor': reservadas, 'etiqueta': 'Reservada'},
+        {'clave': 'ocupada', 'valor': en_servicio, 'etiqueta': 'En servicio'},
+        {'clave': 'por_cobrar', 'valor': len(en_cuenta), 'etiqueta': 'Cuenta'},
+    ]
+
+    # Sin fila de chips: las zonas ya se leen como secciones de la grilla, y la
+    # búsqueda queda detrás de un ícono para no gastar alto de pantalla.
     subheader = {
         'titulo': 'Mesas',
-        'sub_hi': f'{libres} libre{"s" if libres != 1 else ""}',
-        'sub_hi_tono': 'verde',
-        'sub_post': f' de {total_mesas} · {en_servicio} en servicio',
-        'segunda': {
-            'tipo': 'chips',
-            'chip_group_id': 'pzshZonas',
-            'chips': [{'label': 'Todas', 'value': '', 'active': True}] + [
-                {'label': z['nombre'], 'value': z['nombre'], 'active': False} for z in zonas_lista
-            ],
-        },
+        **sub,
+        'acciones': [
+            {'glifo': 'bi-search', 'label': 'Buscar mesa', 'id': 'pzmBuscarToggle'},
+            {'glifo': 'bi-three-dots', 'label': 'Gestionar mesas', 'url': reverse('pizzeria_gestionar_mesas')},
+        ],
     }
 
     return render(request, 'pizzeria/mapa_mesas.html', {
         'zonas': zonas_lista,
+        'estadisticas': estadisticas,
         'pedidos_llevar_abiertos': pedidos_llevar_abiertos,
         'total_llevar': total_llevar,
         'subheader': subheader,
@@ -233,6 +262,7 @@ def _serializar_mesa(mesa):
         'forma': mesa.forma,
         'capacidad': mesa.capacidad,
         'activa': mesa.activa,
+        **_datos_reserva(mesa),
     }
 
 
@@ -331,12 +361,54 @@ def cambiar_estado_mesa_pizzeria(request, mesa_id):
         return JsonResponse({'status': 'error', 'message': 'Esta mesa tiene un pedido abierto, no se puede cambiar el estado manualmente'}, status=400)
 
     mesa.estado = estado
-    mesa.save(update_fields=['estado'])
+    # La hora es opcional: una reserva sin hora sigue siendo válida. Al salir de
+    # 'reservada', Mesa.save() se encarga de borrarla.
+    mesa.reserva_hora = _parsear_hora_reserva(request.POST.get('hora')) if estado == 'reservada' else None
+    mesa.save(update_fields=['estado', 'reserva_hora'])
 
     _enviar_mensaje_websocket_pizzeria('mesa_actualizada', {
         'mesa_id': mesa.id, 'estado': mesa.estado, 'pedido_id': None,
+        **_datos_reserva(mesa),
     })
     return JsonResponse({'status': 'ok', 'mesa': _serializar_mesa(mesa)})
+
+
+def _parsear_hora_reserva(valor):
+    """'HH:MM' del input de hora → datetime de hoy en la zona local. Si la hora
+    ya pasó hace más de 2 h se asume que es de mañana (reserva para la noche
+    siguiente tomada de madrugada)."""
+    try:
+        horas, minutos = (int(x) for x in (valor or '').split(':')[:2])
+        hora = datetime.time(horas, minutos)
+    except (ValueError, TypeError):
+        return None
+    ahora = timezone.localtime()
+    llegada = timezone.make_aware(datetime.datetime.combine(timezone.localdate(), hora))
+    if llegada < ahora - datetime.timedelta(hours=2):
+        llegada += datetime.timedelta(days=1)
+    return llegada
+
+
+def _datos_reserva(mesa):
+    """Texto de la hora ('1:30 pm') y cuánto falta ('en 45 min') para la
+    tarjeta de una mesa reservada. Vacío si la reserva no tiene hora."""
+    if mesa.estado != 'reservada' or not mesa.reserva_hora:
+        return {'reserva_hora': '', 'reserva_relativa': '', 'reserva_atrasada': False}
+    llegada = timezone.localtime(mesa.reserva_hora)
+    sufijo = 'am' if llegada.hour < 12 else 'pm'
+    hora12 = llegada.hour % 12 or 12
+    # Redondeado, no truncado: la hora de reserva no tiene segundos y "ahora"
+    # sí, así que truncar mostraría "en 44 min" para una reserva a 45.
+    minutos = round((llegada - timezone.localtime()).total_seconds() / 60)
+    if minutos >= 0:
+        relativa = f'en {minutos} min' if minutos < 60 else f'en {minutos // 60} h {minutos % 60:02d}'
+    else:
+        relativa = f'hace {-minutos} min' if -minutos < 60 else f'hace {-minutos // 60} h'
+    return {
+        'reserva_hora': f'{hora12}:{llegada.minute:02d} {sufijo}',
+        'reserva_relativa': relativa,
+        'reserva_atrasada': minutos < 0,
+    }
 
 
 # ===== ÓRDENES EN CURSO =====
@@ -580,12 +652,24 @@ def _tarjeta_entrega(pedido):
     capturan hoy."""
     if pedido.tipo == 'delivery':
         telefono, _, nombre = (pedido.contacto or '').partition(' - ')
+        moto = pedido.valor_moto or Decimal('0')
+        pedido_con_iva = _total_con_iva(pedido.total)
+        texto_motorizado = (
+            f'Numero: {telefono}\n'
+            f'Precio\n'
+            f'Pedido: {pedido_con_iva:.2f}\n'
+            f'Moto: {moto:.2f}\n'
+            f'Total: {pedido_con_iva + moto:.2f}'
+        )
         return {
             'tipo': 'delivery',
             'nombre': nombre or pedido.contacto or 'Cliente',
             'zona': pedido.observaciones or '',
             'telefono': telefono,
             'costo_envio': pedido.valor_moto,
+            'texto_motorizado': texto_motorizado,
+            # Sin número en el enlace: WhatsApp deja elegir el chat del motorizado.
+            'whatsapp_url': 'https://wa.me/?text=' + quote(texto_motorizado),
         }
     if pedido.tipo == 'llevar':
         return {'tipo': 'llevar', 'nombre': pedido.contacto or 'Cliente'}
@@ -601,12 +685,33 @@ MOTIVOS_ANULACION = ['Cliente canceló', 'Error al tomar', 'Sin producto', 'Otro
 MOTIVOS_NO_ENTREGA = ['Nadie contestó', 'Dirección incorrecta', 'Cliente rechazó', 'Otro']
 
 
+def _filas_imprimir(pedido, sub_comanda):
+    """En delivery la precuenta se llama "Ticket con dirección" porque además
+    lleva los datos de entrega (ver generar_precuenta_pizza)."""
+    es_delivery = pedido.tipo == 'delivery'
+    return [
+        {
+            'clave': 'ticket_direccion' if es_delivery else 'precuenta',
+            'glifo': 'bi-receipt',
+            'etiqueta': 'Ticket con dirección' if es_delivery else 'Precuenta',
+            'sub': 'Va con el motorista' if es_delivery else 'Para que el cliente revise antes de pagar',
+            'disponible': True,
+            'post_url': reverse('pizzeria_imprimir_precuenta', args=[pedido.id]),
+        },
+        {
+            'clave': 'reimprimir_comanda', 'glifo': 'bi-printer', 'etiqueta': 'Reimprimir comanda',
+            'sub': sub_comanda, 'disponible': True,
+            'post_url': reverse('pizzeria_reimprimir_comanda', args=[pedido.id]),
+        },
+    ]
+
+
 def _grupos_acciones_pedido(pedido):
     """Filas de la hoja de acciones (handoff_hoja_acciones), agrupadas y
     calculadas acá — no repartidas en {% if %} por el template, tal como
     pide el handoff. `disponible=False` marca acciones que el handoff
     describe pero para las que todavía no existe backend en este proyecto
-    (precuenta, cambiar de mesa, comensales, descuento, dividir cuenta,
+    (cambiar de mesa, comensales, descuento, dividir cuenta,
     editar dirección, cambiar envío, no entregado): la fila se muestra con
     fidelidad visual, pero al tocarla se avisa que no está lista en vez de
     fallar en silencio o simular algo que no pasa de verdad. Las que sí
@@ -636,26 +741,7 @@ def _grupos_acciones_pedido(pedido):
             ],
         })
 
-    if pedido.tipo == 'delivery':
-        fila_imprimir_principal = {
-            'clave': 'ticket_direccion', 'glifo': 'bi-receipt', 'etiqueta': 'Ticket con dirección',
-            'sub': 'Va con el motorista', 'disponible': False,
-        }
-    else:
-        fila_imprimir_principal = {
-            'clave': 'precuenta', 'glifo': 'bi-receipt', 'etiqueta': 'Precuenta',
-            'sub': 'Para que el cliente revise antes de pagar', 'disponible': False,
-        }
-    grupos.append({
-        'titulo': 'IMPRIMIR',
-        'filas': [
-            fila_imprimir_principal,
-            {
-                'clave': 'reimprimir_comanda', 'glifo': 'bi-printer', 'etiqueta': 'Reimprimir comanda',
-                'sub': 'Copia completa para cocina', 'disponible': False,
-            },
-        ],
-    })
+    grupos.append({'titulo': 'IMPRIMIR', 'filas': _filas_imprimir(pedido, 'Copia completa para cocina')})
 
     filas_orden = []
     if pedido.tipo == 'mesa':
@@ -716,22 +802,7 @@ def _grupos_acciones_cobro(pedido):
     """Hoja de ⋯ de la pantalla Cobrar (handoff_cobrar §6) — grupos e
     íconos distintos a los del detalle de orden (menos filas: acá no
     aplican cambiar mesa/comensales/agregar platillos)."""
-    grupos = [{
-        'titulo': 'IMPRIMIR',
-        'filas': [
-            {
-                'clave': 'ticket_direccion' if pedido.tipo == 'delivery' else 'precuenta',
-                'glifo': 'bi-receipt',
-                'etiqueta': 'Ticket con dirección' if pedido.tipo == 'delivery' else 'Precuenta',
-                'sub': 'Va con el motorista' if pedido.tipo == 'delivery' else 'Para que el cliente revise antes de pagar',
-                'disponible': False,
-            },
-            {
-                'clave': 'reimprimir_comanda', 'glifo': 'bi-printer', 'etiqueta': 'Reimprimir comanda',
-                'sub': 'Copia para cocina', 'disponible': False,
-            },
-        ],
-    }]
+    grupos = [{'titulo': 'IMPRIMIR', 'filas': _filas_imprimir(pedido, 'Copia para cocina')}]
 
     filas_ajustes = [{
         'clave': 'descuento', 'glifo': 'bi-percent', 'etiqueta': 'Aplicar descuento',
@@ -1674,6 +1745,59 @@ def duplicar_item_preparacion(request, item_id):
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
 
+def _lineas_comanda_pizza(p):
+    linea_sabor = p.sabor_1.nombre if not p.sabor_2 else f"1/2 {p.sabor_1.nombre} / 1/2 {p.sabor_2.nombre}"
+    lineas = [f"{p.cantidad}x Pizza {p.tamano.nombre}", f"   - {linea_sabor}"]
+    if p.observacion:
+        lineas.append(f"   Obs: {p.observacion}")
+    return lineas
+
+
+def _lineas_comanda_combo(c):
+    combo = c.combo
+    nombre_combo_ticket = combo.nombre + (f" ({c.tamano.nombre})" if c.tamano else '')
+    lineas = [f"{c.cantidad}x {nombre_combo_ticket}"]
+    if c.sabor_1:
+        linea_sabor = c.sabor_1.nombre if not c.sabor_2 else f"1/2 {c.sabor_1.nombre} / 1/2 {c.sabor_2.nombre}"
+        lineas.append(f"   - Pizza: {linea_sabor}")
+    porciones = list(c.sabores_porcion.all())
+    for idx, sp in enumerate(porciones, start=1):
+        lineas.append(f"   - Porción {idx}: {sp.sabor.nombre}")
+    alitas = list(c.sabores_alitas.all())
+    bebidas = list(c.sabores_bebida.all())
+    micheladas = list(c.sabores_michelada.all())
+    for comp in combo.componentes.all():
+        if comp.tipo == 'alitas' and alitas:
+            detalle_alitas = ', '.join(f"{sa.cantidad} {sa.sabor.nombre}" for sa in alitas)
+            lineas.append(f"   - {comp.cantidad}x Alitas: {detalle_alitas}")
+        elif comp.tipo == 'bebida' and bebidas:
+            lineas.append(f"   - {comp.cantidad}x Bebida: {', '.join(sb.etiqueta for sb in bebidas)}")
+        elif comp.tipo == 'michelada' and micheladas:
+            lineas.append(f"   - {comp.cantidad}x Michelada: {', '.join(sm.sabor.nombre for sm in micheladas)}")
+        elif comp.tipo == 'porcion_pizza':
+            continue
+        else:
+            detalle = f" {comp.detalle}" if comp.detalle else ''
+            lineas.append(f"   - {comp.cantidad}x {comp.get_tipo_display()}{detalle}")
+    if c.observacion:
+        lineas.append(f"   Obs: {c.observacion}")
+    return lineas
+
+
+def _lineas_comanda_producto_simple(ps):
+    alitas_prod = list(ps.sabores_alitas.all())
+    if alitas_prod:
+        detalle_alitas_prod = ', '.join(f"{sa.cantidad} {sa.sabor.nombre}" for sa in alitas_prod)
+        lineas = [f"{ps.cantidad}x {ps.producto.nombre}: {detalle_alitas_prod}"]
+    elif ps.sabor_bebida:
+        lineas = [f"{ps.cantidad}x {ps.producto.nombre} - {ps.etiqueta_bebida}"]
+    else:
+        lineas = [f"{ps.cantidad}x {ps.producto.nombre}"]
+    if ps.observacion:
+        lineas.append(f"   Obs: {ps.observacion}")
+    return lineas
+
+
 @csrf_exempt
 @require_http_methods(["POST"])
 @login_required(login_url=LOGIN_URL)
@@ -1681,58 +1805,13 @@ def reimprimir_item_preparacion(request, item_id):
     try:
         item = get_object_or_404(ItemPreparacion, pk=item_id)
         pedido = item.pedido
-        lineas_ticket = []
 
         if item.pizza_id:
-            p = item.pizza
-            linea_sabor = p.sabor_1.nombre if not p.sabor_2 else f"1/2 {p.sabor_1.nombre} / 1/2 {p.sabor_2.nombre}"
-            lineas_ticket.append(f"{p.cantidad}x Pizza {p.tamano.nombre}")
-            lineas_ticket.append(f"   - {linea_sabor}")
-            if p.observacion:
-                lineas_ticket.append(f"   Obs: {p.observacion}")
-
+            lineas_ticket = _lineas_comanda_pizza(item.pizza)
         elif item.combo_id:
-            c = item.combo
-            combo = c.combo
-            nombre_combo_ticket = combo.nombre + (f" ({c.tamano.nombre})" if c.tamano else '')
-            lineas_ticket.append(f"{c.cantidad}x {nombre_combo_ticket}")
-            if c.sabor_1:
-                linea_sabor = c.sabor_1.nombre if not c.sabor_2 else f"1/2 {c.sabor_1.nombre} / 1/2 {c.sabor_2.nombre}"
-                lineas_ticket.append(f"   - Pizza: {linea_sabor}")
-            porciones = list(c.sabores_porcion.select_related('sabor').all())
-            for idx, sp in enumerate(porciones, start=1):
-                lineas_ticket.append(f"   - Porción {idx}: {sp.sabor.nombre}")
-            alitas = list(c.sabores_alitas.select_related('sabor').all())
-            bebidas = list(c.sabores_bebida.select_related('sabor').all())
-            micheladas = list(c.sabores_michelada.select_related('sabor').all())
-            for comp in combo.componentes.all():
-                if comp.tipo == 'alitas' and alitas:
-                    detalle_alitas = ', '.join(f"{sa.cantidad} {sa.sabor.nombre}" for sa in alitas)
-                    lineas_ticket.append(f"   - {comp.cantidad}x Alitas: {detalle_alitas}")
-                elif comp.tipo == 'bebida' and bebidas:
-                    lineas_ticket.append(f"   - {comp.cantidad}x Bebida: {', '.join(sb.etiqueta for sb in bebidas)}")
-                elif comp.tipo == 'michelada' and micheladas:
-                    lineas_ticket.append(f"   - {comp.cantidad}x Michelada: {', '.join(sm.sabor.nombre for sm in micheladas)}")
-                elif comp.tipo == 'porcion_pizza':
-                    continue
-                else:
-                    detalle = f" {comp.detalle}" if comp.detalle else ''
-                    lineas_ticket.append(f"   - {comp.cantidad}x {comp.get_tipo_display()}{detalle}")
-            if c.observacion:
-                lineas_ticket.append(f"   Obs: {c.observacion}")
-
+            lineas_ticket = _lineas_comanda_combo(item.combo)
         elif item.producto_simple_id:
-            ps = item.producto_simple
-            alitas_prod = list(ps.sabores_alitas.select_related('sabor').all())
-            if alitas_prod:
-                detalle_alitas_prod = ', '.join(f"{sa.cantidad} {sa.sabor.nombre}" for sa in alitas_prod)
-                lineas_ticket.append(f"{ps.cantidad}x {ps.producto.nombre}: {detalle_alitas_prod}")
-            elif ps.sabor_bebida:
-                lineas_ticket.append(f"{ps.cantidad}x {ps.producto.nombre} - {ps.etiqueta_bebida}")
-            else:
-                lineas_ticket.append(f"{ps.cantidad}x {ps.producto.nombre}")
-            if ps.observacion:
-                lineas_ticket.append(f"   Obs: {ps.observacion}")
+            lineas_ticket = _lineas_comanda_producto_simple(item.producto_simple)
         else:
             return JsonResponse({'status': 'error', 'message': 'Este platillo no se puede reimprimir'}, status=400)
 
@@ -1743,6 +1822,45 @@ def reimprimir_item_preparacion(request, item_id):
         return JsonResponse({'status': 'ok'})
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+
+@require_http_methods(["POST"])
+@login_required(login_url=LOGIN_URL)
+def reimprimir_comanda_pizzeria(request, pedido_id):
+    pedido = get_object_or_404(PedidoPizzeria.objects.select_related('mesa'), pk=pedido_id)
+    lineas_ticket = []
+    for p in pedido.pizzas.select_related('tamano', 'sabor_1', 'sabor_2').all():
+        lineas_ticket.extend(_lineas_comanda_pizza(p))
+    for c in _pedido_combos_qs(pedido).prefetch_related('combo__componentes'):
+        lineas_ticket.extend(_lineas_comanda_combo(c))
+    for ps in _pedido_productos_simples_qs(pedido):
+        lineas_ticket.extend(_lineas_comanda_producto_simple(ps))
+    if not lineas_ticket:
+        return JsonResponse({'status': 'error', 'message': 'El pedido no tiene platillos'}, status=400)
+
+    lineas_ticket.insert(0, "*** REIMPRESION DE COMANDA ***")
+    _enviar_trabajo_impresion_pizzeria(pedido, generar_comanda_pizza(pedido, lineas_ticket))
+    return JsonResponse({'status': 'ok', 'message': 'Comanda enviada a la impresora'})
+
+
+@require_http_methods(["POST"])
+@login_required(login_url=LOGIN_URL)
+def imprimir_precuenta_pizzeria(request, pedido_id):
+    pedido = get_object_or_404(PedidoPizzeria.objects.select_related('mesa'), pk=pedido_id)
+    items = [
+        (item['cantidad'], item['descripcion'], Decimal(str(item['precio_unitario'])) * item['cantidad'])
+        for item in _construir_items_cobro(pedido)
+    ]
+    if not items:
+        return JsonResponse({'status': 'error', 'message': 'El pedido no tiene platillos'}, status=400)
+
+    subtotal = pedido.total
+    total_con_iva = _total_con_iva(subtotal)
+    precuenta = generar_precuenta_pizza(
+        pedido, items, subtotal, total_con_iva - subtotal, int(IVA_TASA * 100), total_con_iva,
+    )
+    _enviar_trabajo_impresion_pizzeria(pedido, precuenta)
+    return JsonResponse({'status': 'ok', 'message': 'Precuenta enviada a la impresora'})
 
 
 @csrf_exempt
@@ -2570,9 +2688,24 @@ def procesar_cobro_pedido(request, pedido_id):
             caja_tarjeta.save()
 
             metodos_usados = {metodo for _, metodo, _ in pagos_a_crear}
+            # Delivery por transferencia: el cliente transfirió pedido + moto a la
+            # cuenta, así que al motorizado se le paga su parte en efectivo del cajón.
+            pagar_moto_de_caja = (
+                pedido.tipo == 'delivery' and pedido.valor_moto and 'Transferencia' in metodos_usados
+            )
             pedido.forma_pago = metodos_usados.pop() if (not data.get('dividir') and len(metodos_usados) == 1) else None
             pedido.estado = 'cobrado'
             pedido.save()
+
+            if pagar_moto_de_caja:
+                # Import diferido: views_caja importa este módulo.
+                from .views_caja import _resumen_turno
+                esperado = _resumen_turno(caja)['esperado_en_caja']
+                MovimientoCajaPizzeria.objects.create(
+                    caja=caja, tipo='gasto', monto=pedido.valor_moto, categoria='transporte',
+                    detalle=f'Moto pedido #{pedido.numero_pedido_completo}', autor=request.user,
+                    saldo_posterior=esperado - pedido.valor_moto,
+                )
 
             if pedido.mesa:
                 pedido.mesa.estado = 'libre'

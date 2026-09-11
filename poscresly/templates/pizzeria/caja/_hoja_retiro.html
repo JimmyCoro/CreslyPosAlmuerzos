@@ -1,0 +1,27 @@
+<div class="offcanvas offcanvas-bottom cj-hoja" tabindex="-1" id="cjHojaRetiro" aria-labelledby="cjHojaRetiroTitulo">
+  <div class="cj-hoja-asa" aria-hidden="true"></div>
+  <div class="offcanvas-body cj-hoja-body">
+    <h2 class="cj-hoja-titulo" id="cjHojaRetiroTitulo">Retirar a bóveda</h2>
+    <p class="cj-hoja-sub">En el cajón hay <strong>${{ turno.esperado_en_caja|floatformat:2 }}</strong>. Cuenta lo que sacas.</p>
+
+    {% include 'pizzeria/caja/_conteo.html' with conteo_id='cjConteoRetiro' %}
+
+    <div class="cj-totales">
+      <div class="cj-total-fila">
+        <span class="cj-total-label">Total a retirar</span>
+        <span class="cj-total-cifra" id="cjRetiroTotal">$0.00</span>
+      </div>
+      <div class="cj-quedan">
+        <span>Quedan en el cajón</span>
+        <strong id="cjRetiroQuedan">${{ turno.esperado_en_caja|floatformat:2 }}</strong>
+      </div>
+    </div>
+
+    <label class="cj-campo-label" for="cjRetiroMotivo">MOTIVO (OPCIONAL)</label>
+    <input type="text" id="cjRetiroMotivo" class="cj-input" maxlength="200" placeholder="Corte de mediodía" autocomplete="off">
+
+    <button type="button" class="cj-btn-primario" id="cjBtnRetirar" disabled>Retirar $0.00</button>
+    <p class="cj-linea-falta" id="cjRetiroFalta" aria-live="polite">Cuenta lo que vas a retirar</p>
+    <p class="cj-nota">Queda a tu nombre en el registro del turno.</p>
+  </div>
+</div>

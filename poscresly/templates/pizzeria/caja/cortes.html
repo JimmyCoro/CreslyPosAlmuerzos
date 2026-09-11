@@ -1,0 +1,48 @@
+{% extends 'movil/base_movil.html' %}
+{% load static %}
+
+{% block title %}Cortes anteriores · Caja · Cresly POS{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'CSS/pizzeria-caja.css' %}?v=1">
+{% endblock %}
+
+{% block content %}
+<div class="im-shell cj">
+
+  {% include 'components/pizzeria_header.html' %}
+  {% include 'components/pizzeria_alerta.html' %}
+  {% include 'components/pizzeria_subheader.html' %}
+
+  <main class="cj-content">
+    {% if not hay_turnos %}
+    <p class="cj-vacio">Aún no hay turnos cerrados</p>
+    {% else %}
+      {% for grupo in grupos %}
+      <section class="cj-grupo" aria-labelledby="cjCorteGrupo{{ forloop.counter }}">
+        <h2 class="cj-grupo-titulo" id="cjCorteGrupo{{ forloop.counter }}">{{ grupo.titulo }}</h2>
+        <ul class="cj-cortes">
+          {% for fila in grupo.filas %}
+          <li class="cj-corte cj-corte-{{ fila.resultado }}">
+            <span class="cj-corte-texto">
+              <span class="cj-corte-titulo">{{ fila.titulo }}</span>
+              <span class="cj-corte-sub">{{ fila.sub }}</span>
+            </span>
+            <span class="cj-corte-res">
+              <span class="cj-corte-dif cj-res-{{ fila.resultado }}">{{ fila.diferencia }}</span>
+              <span class="cj-corte-etiqueta cj-res-{{ fila.resultado }}">{{ fila.etiqueta }}</span>
+            </span>
+          </li>
+          {% endfor %}
+        </ul>
+      </section>
+      {% empty %}
+      <p class="cj-vacio">Ningún turno coincide con este filtro.</p>
+      {% endfor %}
+    {% endif %}
+  </main>
+
+  {% include 'components/pizzeria_bottom_nav.html' %}
+
+</div>
+{% endblock %}

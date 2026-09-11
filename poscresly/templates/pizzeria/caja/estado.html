@@ -1,0 +1,132 @@
+{% extends 'movil/base_movil.html' %}
+{% load static %}
+
+{% block title %}Caja · Cresly POS{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'CSS/pizzeria-caja.css' %}?v=1">
+{% endblock %}
+
+{% block content %}
+<div class="im-shell cj">
+
+  {% include 'components/pizzeria_header.html' %}
+  {% include 'components/pizzeria_alerta.html' %}
+  {% include 'components/pizzeria_subheader.html' %}
+
+  <main class="cj-content">
+
+    <section class="cj-card cj-principal" aria-labelledby="cjEsperadoLabel">
+      <div class="cj-principal-top">
+        <span class="cj-label" id="cjEsperadoLabel">DEBE HABER EN EL CAJÓN</span>
+        <span class="cj-cifra">${{ turno.esperado_en_caja|floatformat:2 }}</span>
+        <span class="cj-pie">Fondo ${{ turno.fondo_inicial|floatformat:2 }} + efectivo cobrado − retiros y gastos</span>
+      </div>
+      <div class="cj-sep"></div>
+      <div class="cj-dos">
+        <div class="cj-dato">
+          <span class="cj-label-sm">VENDIDO EN EL TURNO</span>
+          <span class="cj-cifra-sm">${{ turno.total_vendido|floatformat:2 }}</span>
+        </div>
+        <div class="cj-dato">
+          <span class="cj-label-sm">RETIRADO A BÓVEDA</span>
+          <span class="cj-cifra-sm cj-tono-salida">${{ turno.total_retirado|floatformat:2 }}</span>
+        </div>
+      </div>
+    </section>
+
+    {% if supera_umbral %}
+    <div class="cj-cinta" role="status">
+      <span class="cj-cinta-dot" aria-hidden="true"></span>
+      <span>El cajón pasa de <strong>${{ umbral_retiro|floatformat:0 }}</strong>. Conviene retirar a bóveda.</span>
+    </div>
+    {% endif %}
+
+    <section class="cj-lista">
+      <button type="button" class="cj-fila" data-bs-toggle="collapse" data-bs-target="#cjCobro" aria-expanded="false" aria-controls="cjCobro">
+        <span class="cj-fila-texto">
+          <span class="cj-fila-titulo">Cómo se cobró</span>
+          <span class="cj-fila-sub">Efectivo, tarjeta y transferencia</span>
+        </span>
+        <i class="bi bi-chevron-down cj-fila-chev cj-fila-chev-toggle" aria-hidden="true"></i>
+      </button>
+      <div class="collapse" id="cjCobro">
+        <div class="cj-cobro">
+          <div class="cj-cobro-cab">
+            <span class="cj-label-sm">CÓMO SE COBRÓ</span>
+            <span class="cj-cobro-ordenes">{{ turno.ordenes_cobradas }} {% if turno.ordenes_cobradas == 1 %}orden{% else %}órdenes{% endif %}</span>
+          </div>
+          {% for forma in formas_pago %}
+          <div class="cj-cobro-fila">
+            <div class="cj-cobro-linea">
+              <span class="cj-cobro-nombre">{{ forma.nombre }}</span>
+              <span class="cj-cobro-monto">${{ forma.monto|floatformat:2 }}</span>
+            </div>
+            <div class="cj-barra" role="img" aria-label="{{ forma.nombre }}: {{ forma.pct }}% de lo vendido">
+              <span class="cj-barra-relleno" style="width: {{ forma.pct }}%; background: {{ forma.color }};"></span>
+            </div>
+          </div>
+          {% endfor %}
+          <div class="cj-cobro-total">
+            <span>Vendido en el turno</span>
+            <span>${{ turno.total_vendido|floatformat:2 }}</span>
+          </div>
+        </div>
+      </div>
+
+      <a href="{% url 'pizzeria_caja_movimientos' %}" class="cj-fila">
+        <span class="cj-fila-texto">
+          <span class="cj-fila-titulo">Movimientos</span>
+          <span class="cj-fila-sub">{{ movimientos_sub }}</span>
+        </span>
+        <i class="bi bi-chevron-right cj-fila-chev" aria-hidden="true"></i>
+      </a>
+
+      {% if corte_fila %}
+      <a href="{% url 'pizzeria_caja_cortes' %}" class="cj-fila">
+        <span class="cj-fila-texto">
+          <span class="cj-fila-titulo">Cortes anteriores</span>
+          <span class="cj-fila-sub">
+            {% if corte_fila.resultado == 'sin_conteo' %}{{ corte_fila.dia }} cerró sin conteo
+            {% else %}{{ corte_fila.dia }} cerró con <strong class="cj-res-{{ corte_fila.resultado }}">{{ corte_fila.diferencia }}</strong> de diferencia{% endif %}
+          </span>
+        </span>
+        <i class="bi bi-chevron-right cj-fila-chev" aria-hidden="true"></i>
+      </a>
+      {% endif %}
+    </section>
+
+    <div class="cj-acciones">
+      <button type="button" class="cj-btn-sec" data-bs-toggle="offcanvas" data-bs-target="#cjHojaRetiro" aria-controls="cjHojaRetiro">
+        <i class="bi bi-arrow-up" aria-hidden="true"></i> Retirar
+      </button>
+      <button type="button" class="cj-btn-sec" data-bs-toggle="offcanvas" data-bs-target="#cjHojaMovimiento" aria-controls="cjHojaMovimiento">
+        <i class="bi bi-plus-slash-minus" aria-hidden="true"></i> Ingreso o gasto
+      </button>
+    </div>
+
+  </main>
+
+  {% include 'components/pizzeria_bottom_nav.html' %}
+
+</div>
+
+{% include 'pizzeria/caja/_hoja_retiro.html' %}
+{% include 'pizzeria/caja/_hoja_movimiento.html' %}
+<div class="cj-aviso" id="cjAviso" role="status" aria-live="polite"></div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  window.CJ = {
+    turnoId: {{ caja.id }},
+    esperadoCentavos: {{ esperado_centavos }},
+    urls: {
+      retiro: "{% url 'pizzeria_caja_retiro' %}",
+      movimiento: "{% url 'pizzeria_caja_movimiento' %}",
+    },
+  };
+</script>
+<script src="{% static 'JS/pizzeria_caja.js' %}?v=1"></script>
+{% endblock %}

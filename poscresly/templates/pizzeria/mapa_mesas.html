@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'CSS/pizzeria-mapa.css' %}?v=13">
+<link rel="stylesheet" href="{% static 'CSS/pizzeria-mapa.css' %}?v=16">
 {% endblock %}
 
 {% block content %}
@@ -33,22 +33,24 @@
         </div>
       </div>
 
+      <div class="pzm-search" id="pzmBuscarCaja" hidden>
+        <i class="fas fa-search" aria-hidden="true"></i>
+        <input type="search" id="pzmBuscarMesa" placeholder="Buscar mesa por número o nombre" autocomplete="off" aria-label="Buscar mesa">
+      </div>
+
+      <!-- Resumen de lo que exige atención: reservas por llegar, mesas
+           comiendo y mesas esperando cobro. Las libres no van acá porque no
+           piden acción — se ven en la grilla con su botón "Abrir". -->
+      <div class="pzm-stats">
+        {% for stat in estadisticas %}
+        <div class="pzm-stat pzm-stat-{{ stat.clave }}">
+          <span class="pzm-stat-valor">{{ stat.valor }}</span>
+          <span class="pzm-stat-etiqueta">{{ stat.etiqueta }}</span>
+        </div>
+        {% endfor %}
+      </div>
+
       <div class="pzm-panel">
-        <div class="pzm-panel-bar">
-          <div class="pzm-legend">
-            <span class="pzm-legend-pill pzm-legend-libre"><span class="pzm-dot"></span>Libre</span>
-            <span class="pzm-legend-pill pzm-legend-reservada"><span class="pzm-dot"></span>Reservada</span>
-            <span class="pzm-legend-pill pzm-legend-ocupada"><span class="pzm-dot"></span>Ocupada</span>
-            <span class="pzm-legend-pill pzm-legend-cobrar"><span class="pzm-dot"></span>Por cobrar</span>
-          </div>
-          <div class="pzm-updated">Actualizado hace un momento</div>
-        </div>
-
-        <div class="pzm-search">
-          <i class="fas fa-search"></i>
-          <input type="text" id="pzmBuscarMesa" placeholder="Buscar mesa..." autocomplete="off">
-        </div>
-
         <div class="pzm-body">
           {% for zona in zonas %}
           <div class="pzm-zone" data-zona="{{ zona.nombre }}">
@@ -128,6 +130,10 @@
         <button type="button" class="pzma-action" id="pzmaTomarOrden">
           <i class="fas fa-clipboard-list"></i>Tomar orden
         </button>
+        <div class="pzma-reserva-hora" id="pzmaReservaHoraWrap">
+          <label for="pzmaReservaHora" class="pzma-select-label">Hora de llegada <span class="pzma-opcional">(opcional)</span></label>
+          <input type="time" id="pzmaReservaHora" class="pzma-hora-input">
+        </div>
         <button type="button" class="pzma-action pzma-action-reservar" id="pzmaReserva">
           <i class="fas fa-calendar-check"></i><span id="pzmaReservaTexto">Marcar como reservada</span>
         </button>
@@ -159,52 +165,51 @@
     cambiarEstadoMesa: "{% url 'pizzeria_cambiar_estado_mesa' 0 %}",
   };
 </script>
-<script src="{% static 'JS/pizzeria_mapa.js' %}?v=5"></script>
+<script src="{% static 'JS/pizzeria_mapa.js' %}?v=8"></script>
 <script>
-  // Filtro por zona (chips del subheader) + búsqueda por nombre/número
-  // (input propio de este panel) — puramente client-side, combinados con
-  // AND: una mesa se oculta si no calza con la zona activa O no calza con
-  // el texto buscado. Mismo patrón de "buscar mientras escribes" que ya
-  // usa Órdenes (.oc-busqueda), pero sin recargar la página porque acá
-  // las mesas ya están todas renderizadas y el filtro por zona también es
-  // client-side.
+  // Búsqueda de mesa por nombre/número, client-side: las mesas ya están
+  // todas renderizadas. El buscador vive detrás del ícono ⌕ de la cabecera
+  // para no ocupar alto de pantalla mientras no se usa.
   (function () {
-    var grupoZonas = document.getElementById('pzshZonas');
+    var toggle = document.getElementById('pzmBuscarToggle');
+    var caja = document.getElementById('pzmBuscarCaja');
     var inputBuscar = document.getElementById('pzmBuscarMesa');
-    var zonaActiva = '';
+    if (!caja || !inputBuscar) return;
 
     function normalizar(texto) {
       return (texto || '').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
     }
 
     function aplicarFiltros() {
-      var termino = normalizar(inputBuscar ? inputBuscar.value.trim() : '');
+      var termino = normalizar(inputBuscar.value.trim());
       document.querySelectorAll('.pzm-zone').forEach(function (bloque) {
-        var zonaOculta = !!zonaActiva && bloque.dataset.zona !== zonaActiva;
         var algunaVisible = false;
         bloque.querySelectorAll('.pzm-table').forEach(function (mesa) {
-          var coincideTexto = !termino || normalizar(mesa.dataset.nombre).indexOf(termino) !== -1;
-          var visible = !zonaOculta && coincideTexto;
+          var visible = !termino || normalizar(mesa.dataset.nombre).indexOf(termino) !== -1;
           mesa.hidden = !visible;
           if (visible) algunaVisible = true;
         });
-        bloque.hidden = zonaOculta || !algunaVisible;
+        bloque.hidden = !algunaVisible;
       });
     }
 
-    if (grupoZonas) {
-      grupoZonas.addEventListener('click', function (ev) {
-        var chip = ev.target.closest('.pzsh-chip');
-        if (!chip) return;
-        grupoZonas.querySelectorAll('.pzsh-chip').forEach(function (c) { c.classList.remove('pzsh-chip-active'); });
-        chip.classList.add('pzsh-chip-active');
-        zonaActiva = chip.dataset.filtro || '';
-        aplicarFiltros();
-      });
-    }
+    inputBuscar.addEventListener('input', aplicarFiltros);
 
-    if (inputBuscar) {
-      inputBuscar.addEventListener('input', aplicarFiltros);
+    if (toggle) {
+      toggle.setAttribute('aria-controls', 'pzmBuscarCaja');
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.addEventListener('click', function () {
+        var abrir = caja.hidden;
+        caja.hidden = !abrir;
+        toggle.setAttribute('aria-expanded', String(abrir));
+        if (abrir) {
+          inputBuscar.focus();
+        } else {
+          // Cerrar el buscador no debe dejar mesas escondidas sin explicación.
+          inputBuscar.value = '';
+          aplicarFiltros();
+        }
+      });
     }
   })();
 </script>

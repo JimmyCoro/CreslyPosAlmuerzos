@@ -1,0 +1,31 @@
+<div class="offcanvas offcanvas-bottom cj-hoja" tabindex="-1" id="cjHojaMovimiento" aria-labelledby="cjHojaMovTitulo">
+  <div class="cj-hoja-asa" aria-hidden="true"></div>
+  <div class="offcanvas-body cj-hoja-body">
+    <h2 class="cj-hoja-titulo" id="cjHojaMovTitulo">Registrar movimiento</h2>
+    <p class="cj-hoja-sub">Dinero que entra o sale del cajón sin ser una venta</p>
+
+    <div class="cj-segmento" role="radiogroup" aria-label="Tipo de movimiento">
+      <button type="button" class="cj-seg cj-seg-gasto cj-seg-activo" role="radio" aria-checked="true" data-tipo="gasto">− Gasto</button>
+      <button type="button" class="cj-seg cj-seg-ingreso" role="radio" aria-checked="false" data-tipo="ingreso">+ Ingreso</button>
+    </div>
+
+    <label class="cj-campo-label" for="cjMovMonto">MONTO</label>
+    <div class="cj-monto cj-monto-md">
+      <span class="cj-monto-signo" aria-hidden="true">$</span>
+      <input type="text" id="cjMovMonto" inputmode="decimal" autocomplete="off" placeholder="0.00" maxlength="9">
+    </div>
+
+    <span class="cj-campo-label" id="cjMovCatLabel">CATEGORÍA</span>
+    <div class="cj-chips" role="radiogroup" aria-labelledby="cjMovCatLabel">
+      {% for valor, etiqueta in categorias %}
+      <button type="button" class="cj-chip" role="radio" aria-checked="false" data-categoria="{{ valor }}">{{ etiqueta }}</button>
+      {% endfor %}
+    </div>
+
+    <label class="cj-campo-label" for="cjMovDetalle">DETALLE</label>
+    <input type="text" id="cjMovDetalle" class="cj-input" maxlength="200" placeholder="Ej. hielo y servilletas" autocomplete="off">
+
+    <button type="button" class="cj-btn-primario" id="cjBtnMovimiento" disabled>Registrar gasto</button>
+    <p class="cj-linea-falta" id="cjMovFalta" aria-live="polite">Falta el monto y la categoría</p>
+  </div>
+</div>

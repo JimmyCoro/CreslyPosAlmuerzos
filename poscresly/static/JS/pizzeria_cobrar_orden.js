@@ -413,7 +413,7 @@
 
   // ---------- Imprimir (placeholder) ----------
   function cbImprimir() {
-    alert('Función de impresión próximamente.');
+    window.accEnviarAccion(window.PZ_URLS.imprimirPrecuenta);
   }
 
   // ---------- Cancelar pedido ----------

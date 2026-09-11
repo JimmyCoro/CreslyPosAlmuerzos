@@ -279,6 +279,47 @@
       .catch((err) => alert(err && err.message ? err.message : 'Error inesperado al actualizar el estado'));
   }
 
+  // ===== Copiar datos del delivery para el WhatsApp del motorizado =====
+  // navigator.clipboard solo existe en contexto seguro (https/localhost);
+  // abriendo la app por IP de la red local hay que usar execCommand.
+  function copiarTexto(texto) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(texto);
+    }
+    return new Promise((resolve, reject) => {
+      const ta = document.createElement('textarea');
+      ta.value = texto;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.top = '-1000px';
+      document.body.appendChild(ta);
+      ta.select();
+      ta.setSelectionRange(0, texto.length);
+      const ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      ok ? resolve() : reject(new Error('execCommand falló'));
+    });
+  }
+
+  const btnCopiar = document.getElementById('doBtnCopiarMotorizado');
+  if (btnCopiar) {
+    const icono = btnCopiar.querySelector('i');
+    let timer = null;
+    btnCopiar.addEventListener('click', () => {
+      copiarTexto(btnCopiar.dataset.copiar)
+        .then(() => {
+          icono.className = 'bi bi-clipboard-check';
+          btnCopiar.classList.add('do-copiado');
+          clearTimeout(timer);
+          timer = setTimeout(() => {
+            icono.className = 'bi bi-clipboard';
+            btnCopiar.classList.remove('do-copiado');
+          }, 1800);
+        })
+        .catch(() => alert('No se pudo copiar. Copia manualmente:\n\n' + btnCopiar.dataset.copiar));
+    });
+  }
+
   window.doAbrirHojaItem = abrirHojaItem;
   window.doAvanzarItem = avanzarItem;
   window.doRenderHojaItem = renderHoja;

@@ -94,8 +94,15 @@
   font-size: 16px;
   flex: 0 0 auto;
   text-decoration: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  transition: background .15s, color .15s;
 }
 .do-entrega-llamar:hover { color: var(--do-green-dark); }
+.do-entrega-llamar.do-copiado { background: var(--do-green-dark); color: #fff; }
+.do-entrega-wa { background: #25d366; color: #fff; font-size: 18px; }
+.do-entrega-wa:hover { background: #1ebe5b; color: #fff; }
 .do-entrega-pie {
   display: flex;
   align-items: baseline;

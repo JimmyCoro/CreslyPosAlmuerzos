@@ -1,0 +1,13 @@
+<li class="cj-mov cj-mov-{{ fila.tipo }}">
+  <span class="cj-mov-glifo" aria-hidden="true">
+    <i class="bi {% if fila.tipo == 'retiro' %}bi-arrow-up{% elif fila.tipo == 'gasto' %}bi-dash{% elif fila.tipo == 'ingreso' %}bi-plus{% else %}bi-house{% endif %}"></i>
+  </span>
+  <span class="cj-mov-texto">
+    <span class="cj-mov-titulo">{{ fila.titulo }}</span>
+    <span class="cj-mov-sub">{{ fila.sub }}</span>
+  </span>
+  <span class="cj-mov-montos">
+    <span class="cj-mov-monto">{{ fila.monto }}</span>
+    <span class="cj-mov-saldo">{{ fila.saldo }}</span>
+  </span>
+</li>

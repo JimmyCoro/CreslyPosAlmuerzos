@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  html, body { margin:0; padding:0; background:#eceef1; }
+  * { box-sizing:border-box; }
+  a { color:#c8102e; text-decoration:none; }
+  a:hover { color:#9c0c23; }
+</style>
+</helmet>
+
+<section style="padding:40px;display:flex;flex-direction:column;gap:32px;font-family:'Plus Jakarta Sans',Helvetica,Arial,sans-serif;color:#14181d;font-feature-settings:'tnum' 1">
+
+  <div style="display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap">
+    <span style="padding:5px 11px;border-radius:999px;background:#14181d;color:#fff;font-size:12px;font-weight:800;letter-spacing:.04em">8</span>
+    <div style="display:flex;flex-direction:column;gap:5px">
+      <h1 style="margin:0;font-size:28px;font-weight:800;letter-spacing:-.025em">Cobrar · móvil</h1>
+      <p style="margin:0;font-size:14px;color:#4a545f;max-width:870px;text-wrap:pretty">Cobrar es una sola decisión: cuánto se recibe y con qué. El detalle se colapsa, el vuelto se calcula en grande, y dividir cuenta pasa a ser un paso propio en vez de crecer la misma página.</p>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-wrap:wrap;gap:18px;align-items:flex-start">
+
+    <!-- ============ 1 · EFECTIVO ============ -->
+    <div style="display:flex;flex-direction:column;gap:9px">
+      <span style="font-size:11.5px;font-weight:800;color:#5b6673;letter-spacing:.04em">COBRO SIMPLE · EFECTIVO</span>
+      <div style="position:relative;width:390px;height:812px;background:#f4f5f7;border:1px solid #d6dae0;border-radius:24px;overflow:hidden;box-shadow:0 16px 40px rgba(20,24,29,.12)">
+
+        <div style="display:flex;align-items:center;gap:8px;height:52px;padding:0 12px;background:#fff;border-bottom:1px solid #e6e8ec">
+          <div style="width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:0 0 auto"><span style="font-size:17px;color:#14181d">☰</span></div>
+          <div style="flex:1;min-width:0;display:flex;align-items:center;gap:9px">
+            <div style="width:30px;height:30px;border-radius:9px;background:#c8102e;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex:0 0 auto">C</div>
+            <div style="min-width:0;display:flex;flex-direction:column;gap:0">
+              <span style="font-size:13.5px;font-weight:800;letter-spacing:-.015em;line-height:1.2">Cresly Pizzería</span>
+              <span style="font-size:10.5px;color:#8a929c;font-weight:600;line-height:1.2">Suc. Centro</span>
+            </div>
+          </div>
+          <div style="width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:0 0 auto"><span style="font-size:16px;color:#5b6673">☾</span></div>
+          <div style="display:flex;align-items:center;gap:7px;padding:4px 8px 4px 4px;border-radius:11px;flex:0 0 auto">
+            <div style="width:34px;height:34px;border-radius:50%;background:#14181d;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800">M</div>
+            <span style="font-size:8px;color:#8a929c">▼</span>
+          </div>
+        </div>
+
+        <div style="background:#fafbfc;border-bottom:1px solid #eef0f3;display:flex;align-items:center;gap:9px;min-height:56px;padding:9px 14px">
+          <div style="width:38px;height:38px;border-radius:11px;border:1px solid #e6e8ec;background:#fff;display:flex;align-items:center;justify-content:center;flex:0 0 auto"><span style="font-size:15px;color:#5b6673">‹</span></div>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+            <span style="font-size:17px;font-weight:800;letter-spacing:-.02em;line-height:1.2">Cobrar</span>
+            <span style="font-size:11px;color:#8a929c;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Pedido #002 · Mesa 7 · 5 platillos</span>
+          </div>
+          <div style="display:flex;gap:6px;flex:0 0 auto">
+            <div style="width:38px;height:38px;border-radius:11px;background:#fff;border:1px solid #e6e8ec;display:flex;align-items:center;justify-content:center"><span style="font-size:15px;color:#5b6673">⚯</span></div>
+            <div style="width:38px;height:38px;border-radius:11px;background:#fff;border:1px solid #e6e8ec;display:flex;align-items:center;justify-content:center"><span style="font-size:15px;color:#5b6673">⋯</span></div>
+          </div>
+        </div>
+
+        <div style="height:calc(100% - 108px - 152px);overflow:hidden;padding:13px 14px 0;display:flex;flex-direction:column;gap:11px">
+
+          <div style="background:#fff;border:1px solid #e6e8ec;border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:11px">
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+              <span style="font-size:10.5px;font-weight:800;letter-spacing:.09em;color:#8a929c">DETALLE</span>
+              <span style="font-size:12.5px;color:#4a545f;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">5 platillos · 1 pizza, 4 alitas</span>
+            </div>
+            <span style="font-size:12px;font-weight:700;color:#5b6673;flex:0 0 auto">Ver</span>
+            <span style="font-size:13px;color:#c3c8ce;flex:0 0 auto">▾</span>
+          </div>
+
+          <div style="background:#fff;border:1px solid #e6e8ec;border-radius:16px;padding:15px;display:flex;flex-direction:column;gap:14px">
+
+            <div style="display:flex;flex-direction:column;gap:7px">
+              <div style="display:flex;align-items:baseline;justify-content:space-between">
+                <span style="font-size:12.5px;color:#767e88">Subtotal</span>
+                <span style="font-size:12.5px;font-weight:700">$61.52</span>
+              </div>
+              <div style="display:flex;align-items:baseline;justify-content:space-between">
+                <span style="font-size:12.5px;color:#767e88">IVA 15%</span>
+                <span style="font-size:12.5px;font-weight:700">$9.23</span>
+              </div>
+              <div style="display:flex;align-items:baseline;justify-content:space-between;padding-top:10px;border-top:1px solid #eef0f3">
+                <span style="font-size:13.5px;font-weight:800">Total a pagar</span>
+                <span style="font-size:28px;font-weight:800;letter-spacing:-.03em;line-height:1">$70.75</span>
+              </div>
+            </div>
+
+            <div style="height:1px;background:#eef0f3"></div>
+
+            <div style="display:flex;flex-direction:column;gap:9px">
+              <span style="font-size:10.5px;font-weight:800;letter-spacing:.09em;color:#8a929c">MÉTODO DE PAGO</span>
+              <div style="display:flex;gap:6px">
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:11px 4px;border-radius:12px;background:#14181d;border:1px solid #14181d">
+                  <span style="font-size:15px;color:#fff">▬</span>
+                  <span style="font-size:11px;font-weight:800;color:#fff">Efectivo</span>
+                </div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:11px 4px;border-radius:12px;background:#fff;border:1px solid #dfe2e7">
+                  <span style="font-size:15px;color:#5b6673">⇄</span>
+                  <span style="font-size:11px;font-weight:700;color:#5b6673">Transf.</span>
+                </div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:11px 4px;border-radius:12px;background:#fff;border:1px solid #dfe2e7">
+                  <span style="font-size:15px;color:#5b6673">▭</span>
+                  <span style="font-size:11px;font-weight:700;color:#5b6673">Tarjeta</span>
+                </div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:11px 4px;border-radius:12px;background:#fff;border:1px solid #dfe2e7">
+                  <span style="font-size:15px;color:#5b6673">⧉</span>
+                  <span style="font-size:11px;font-weight:700;color:#5b6673">Mixto</span>
+                </div>
+              </div>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:9px">
+              <div style="display:flex;align-items:baseline;justify-content:space-between">
+                <span style="font-size:10.5px;font-weight:800;letter-spacing:.09em;color:#8a929c">MONTO RECIBIDO</span>
+                <span style="font-size:11px;font-weight:700;color:#1c7a4a">cubre el total</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;padding:14px 15px;border-radius:12px;border:1.5px solid #14181d;background:#fff">
+                <span style="font-size:17px;color:#8a929c;font-weight:700">$</span>
+                <span style="flex:1;font-size:26px;font-weight:800;letter-spacing:-.03em;line-height:1">80.00</span>
+                <span style="width:2px;height:26px;background:#c8102e"></span>
+              </div>
+              <div style="display:flex;gap:6px">
+                <span style="flex:1;text-align:center;padding:10px 4px;border-radius:10px;background:#eaf6ef;border:1px solid #cfeadb;font-size:12.5px;font-weight:800;color:#1c7a4a">Exacto</span>
+                <span style="flex:1;text-align:center;padding:10px 4px;border-radius:10px;background:#fff;border:1px solid #dfe2e7;font-size:12.5px;font-weight:700;color:#5b6673">$75</span>
+                <span style="flex:1;text-align:center;padding:10px 4px;border-radius:10px;background:#14181d;border:1px solid #14181d;font-size:12.5px;font-weight:800;color:#fff">$80</span>
+                <span style="flex:1;text-align:center;padding:10px 4px;border-radius:10px;background:#fff;border:1px solid #dfe2e7;font-size:12.5px;font-weight:700;color:#5b6673">$100</span>
+              </div>
+            </div>
+
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 15px;border-radius:13px;background:#eaf6ef;border:1px solid #cfeadb">
+              <div style="display:flex;flex-direction:column;gap:1px">
+                <span style="font-size:10.5px;font-weight:800;letter-spacing:.09em;color:#1c7a4a">VUELTO</span>
+                <span style="font-size:11px;color:#5f8a72;font-weight:600">Recibido $80.00</span>
+              </div>
+              <span style="font-size:27px;font-weight:800;letter-spacing:-.03em;color:#1c7a4a;line-height:1">$9.25</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="position:absolute;left:0;right:0;bottom:78px;background:#fff;border-top:1px solid #e6e8ec;padding:12px 14px;box-shadow:0 -8px 22px rgba(20,24,29,.07)">
+          <div style="display:flex;align-items:center;justify-content:center;gap:9px;height:52px;border-radius:14px;background:#c8102e;color:#fff;font-size:15px;font-weight:800;box-shadow:0 8px 18px rgba(200,16,46,.26)">
+            <span style="font-size:14px">✓</span><span>Confirmar cobro · $70.75</span>
+          </div>
+        </div>
+
+        <div style="position:absolute;left:0;right:0;bottom:0;height:78px;background:#fff;border-top:1px solid #e6e8ec;padding:9px 10px 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:2px">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 4px">
+            <span style="font-size:17px;color:#9aa2ac">⌂</span><span style="font-size:10.5px;font-weight:700;color:#8a929c">Inicio</span>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 4px">
+            <span style="font-size:17px;color:#9aa2ac">▦</span><span style="font-size:10.5px;font-weight:700;color:#8a929c">Mesas</span>
+          </div>
+          <div style="position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 4px;border-radius:12px;background:#fdecef">
+            <span style="font-size:17px;color:#c8102e">☰</span><span style="font-size:10.5px;font-weight:800;color:#c8102e">Órdenes</span>
+            <span style="position:absolute;top:2px;right:12px;min-width:17px;height:17px;padding:0 4px;border-radius:999px;background:#c8102e;color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #fff">10</span>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 4px">
+            <span style="font-size:17px;color:#9aa2ac">⇢</span><span style="font-size:10.5px;font-weight:700;color:#8a929c">Delivery</span>
+          </div>
+        </div>
+      </div>
+      <span style="font-size:11.5px;color:#4a545f;width:390px;line-height:1.5">El detalle se colapsa a una fila (“5 platillos · 1 pizza, 4 alitas”): al cobrar ya se revisó. El vuelto en verde y en 27 px es el número que el cajero busca.</span>
+    </div>
+
+    <!-- ============ 2 · MIXTO ============ -->
+    <div style="display:flex;flex-direction:column;gap:9px">
+      <span style="font-size:11.5px;font-weight:800;color:#5b6673;letter-spacing:.04em">PAGO MIXTO</span>
+      <div style="position:relative;width:390px;height:812px;background:#f4f5f7;border:1px solid #d6dae0;border-radius:24px;overflow:hidden;box-shadow:0 16px 40px rgba(20,24,29,.12)">
+
+        <div style="display:flex;align-items:center;gap:8px;height:52px;padding:0 12px;background:#fff;border-bottom:1px solid #e6e8ec">
+          <div style="width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:0 0 auto"><span style="font-size:17px;color:#14181d">☰</span></div>
+          <div style="flex:1;min-width:0;display:flex;align-items:center;gap:9px">
+            <div style="width:30px;height:30px;border-radius:9px;background:#c8102e;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex:0 0 auto">C</div>
+            <div style="min-width:0;display:flex;flex-direction:column;gap:0">
+              <span style="font-size:13.5px;font-weight:800;letter-spacing:-.015em;line-height:1.2">Cresly Pizzería</span>
+              <span style="font-size:10.5px;color:#8a929c;font-weight:600;line-height:1.2">Suc. Centro</span>
+            </div>
+          </div>
+          <div style="width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:0 0 auto"><span style="font-size:16px;color:#5b6673">☾</span></div>
+          <div style="display:flex;align-items:center;gap:7px;padding:4px 8px 4px 4px;border-radius:11px;flex:0 0 auto">
+            <div style="width:34px;height:34px;border-radius:50%;background:#14181d;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800">M</div>
+            <span style="font-size:8px;color:#8a929c">▼</span>
+          </div>
+        </div>
+
+        <div style="background:#fafbfc;border-bottom:1px solid #eef0f3;display:flex;align-items:center;gap:9px;min-height:56px;padding:9px 14px">
+          <div style="width:38px;height:38px;border-radius:11px;border:1px solid #e6e8ec;background:#fff;display:flex;align-items:center;justify-content:center;flex:0 0 auto"><span style="font-size:15px;color:#5b6673">‹</span></div>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+            <span style="font-size:17px;font-weight:800;letter-spacing:-.02em;line-height:1.2">Cobrar</span>
+            <span style="font-size:11px;color:#8a929c;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Pedido #002 · <strong style="font-weight:800;color:#c8102e">faltan $20.75</strong></span>
+          </div>
+          <div style="display:flex;gap:6px;flex:0 0 auto">
+            <div style="width:38px;height:38px;border-radius:11px;background:#fff;border:1px solid #e6e8ec;display:flex;align-items:center;justify-content:center"><span style="font-size:15px;color:#5b6673">⚯</span></div>
+            <div style="width:38px;height:38px;border-radius:11px;background:#fff;border:1px solid #e6e8ec;display:flex;align-items:center;justify-content:center"><span style="font-size:15px;color:#5b6673">⋯</span></div>
+          </div>
+        </div>
+
+        <div style="height:calc(100% - 108px - 152px);overflow:hidden;padding:13px 14px 0;display:flex;flex-direction:column;gap:11px">
+          <div style="background:#fff;border:1px solid #e6e8ec;border-radius:16px;padding:15px;display:flex;flex-direction:column;gap:14px">
+
+            <div style="display:flex;align-items:baseline;justify-content:space-between">
+              <span style="font-size:13.5px;font-weight:800">Total a pagar</span>
+              <span style="font-size:28px;font-weight:800;letter-spacing:-.03em;line-height:1">$70.75</span>
+            </div>
+
+            <div style="height:1px;background:#eef0f3"></div>
+
+            <div style="display:flex;flex-direction:column;gap:9px">
+              <span style="font-size:10.5px;font-weight:800;letter-spacing:.09em;color:#8a929c">MÉTODO DE PAGO</span>
+              <div style="display:flex;gap:6px">
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:11px 4px;border-radius:12px;background:#fff;border:1px solid #dfe2e7">
+                  <span style="font-size:15px;color:#5b6673">▬</span>
+                  <span style="font-size:11px;font-weight:700;color:#5b6673">Efectivo</span>
+                </div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:11px 4px;border-radius:12px;background:#fff;border:1px solid #dfe2e7">
+                  <span style="font-size:15px;color:#5b6673">⇄</span>
+                  <span style="font-size:11px;font-weight:700;color:#5b6673">Transf.</span>
+                </div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:11px 4px;border-radius:12px;background:#fff;border:1px solid #dfe2e7">
+                  <span style="font-size:15px;color:#5b6673">▭</span>
+                  <span style="font-size:11px;font-weight:700;color:#5b6673">Tarjeta</span>
+                </div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:11px 4px;border-radius:12px;background:#14181d;border:1px solid #14181d">
+                  <span style="font-size:15px;color:#fff">⧉</span>
+                  <span style="font-size:11px;font-weight:800;color:#fff">Mixto</span>
+                </div>
+              </div>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:9px">
+              <div style="display:flex;align-items:baseline;justify-content:space-between">
+                <span style="font-size:10.5px;font-weight:800;letter-spacing:.09em;color:#8a929c">REPARTIR ENTRE MÉTODOS</span>
+                <span style="font-size:11px;font-weight:700;color:#98a1ab">3 de 4</span>
+              </div>
+
+              <div style="display:flex;align-items:center;gap:9px;padding:10px 12px;border-radius:12px;border:1px solid #dfe2e7;background:#fff">
+                <span style="width:34px;height:34px;border-radius:10px;background:#fdecef;color:#a90d27;display:flex;align-items:center;justify-content:center;font-size:14px;flex:0 0 auto">▬</span>
+                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:0">
+                  <span style="font-size:11px;font-weight:700;color:#8a929c">Efectivo</span>
+                  <span style="font-size:19px;font-weight:800;letter-spacing:-.025em;line-height:1.2">$30.00</span>
+                </div>
+                <span style="padding:7px 10px;border-radius:9px;background:#f4f5f7;font-size:11px;font-weight:800;color:#5b6673;flex:0 0 auto">Resto</span>
+              </div>
+
+              <div style="display:flex;align-items:center;gap:9px;padding:10px 12px;border-radius:12px;border:1.5px solid #14181d;background:#fff">
+                <span style="width:34px;height:34px;border-radius:10px;background:#e9f1fb;color:#1d5a9e;display:flex;align-items:center;justify-content:center;font-size:14px;flex:0 0 auto">⇄</span>
+                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:0">
+                  <span style="font-size:11px;font-weight:700;color:#8a929c">Transferencia</span>
+                  <span style="font-size:19px;font-weight:800;letter-spacing:-.025em;line-height:1.2">$20.00</span>
+                </div>
+                <span style="padding:7px 10px;border-radius:9px;background:#14181d;color:#fff;font-size:11px;font-weight:800;flex:0 0 auto">Resto</span>
+              </div>
+
+              <div style="display:flex;align-items:center;gap:9px;padding:10px 12px;border-radius:12px;border:1px dashed #dfe2e7;background:#fafbfc">
+                <span style="width:34px;height:34px;border-radius:10px;background:#fff;border:1px solid #e6e8ec;color:#8a929c;display:flex;align-items:center;justify-content:center;font-size:14px;flex:0 0 auto">▭</span>
+                <span style="flex:1;min-width:0;font-size:12.5px;font-weight:700;color:#8a929c">Agregar tarjeta</span>
+                <span style="font-size:17px;color:#c3c8ce;flex:0 0 auto">＋</span>
+              </div>
+            </div>
+
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 15px;border-radius:13px;background:#fdecef;border:1px solid #f4d3d9">
+              <div style="display:flex;flex-direction:column;gap:1px">
+                <span style="font-size:10.5px;font-weight:800;letter-spacing:.09em;color:#a90d27">FALTA CUBRIR</span>
+                <span style="font-size:11px;color:#a9707c;font-weight:600">Asignado $50.00 de $70.75</span>
+              </div>
+              <span style="font-size:27px;font-weight:800;letter-spacing:-.03em;color:#c8102e;line-height:1">$20.75</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="position:absolute;left:0;right:0;bottom:78px;background:#fff;border-top:1px solid #e6e8ec;padding:12px 14px;display:flex;flex-direction:column;gap:6px;box-shadow:0 -8px 22px rgba(20,24,29,.07)">
+          <div style="display:flex;align-items:center;justify-content:center;gap:9px;height:52px;border-radius:14px;background:#e9ebef;color:#8a929c;font-size:15px;font-weight:800">
+            <span>Confirmar cobro · $70.75</span>
+          </div>
+          <span style="text-align:center;font-size:11px;font-weight:700;color:#c8102e">Asigna los $20.75 restantes para continuar</span>
+        </div>
+
+        <div style="position:absolute;left:0;right:0;bottom:0;height:78px;background:#fff;border-top:1px solid #e6e8ec;padding:9px 10px 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:2px">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 4px">
+            <span style="font-size:17px;color:#9aa2ac">⌂</span><span style="font-size:10.5px;font-weight:700;color:#8a929c">Inicio</span>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 4px">
+            <span style="font-size:17px;color:#9aa2ac">▦</span><span style="font-size:10.5px;font-weight:700;color:#8a929c">Mesas</span>
+          </div>
+          <div style="position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 4px;border-radius:12px;background:#fdecef">
+            <span style="font-size:17px;color:#c8102e">☰</span><span style="font-size:10.5px;font-weight:800;color:#c8102e">Órdenes</span>
+            <span style="position:absolute;top:2px;right:12px;min-width:17px;height:17px;padding:0 4px;border-radius:999px;background:#c8102e;color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #fff">10</span>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 4px">
+            <span style="font-size:17px;color:#9aa2ac">⇢</span><span style="font-size:10.5px;font-weight:700;color:#8a929c">Delivery</span>
+          </div>
+        </div>
+      </div>
+      <span style="font-size:11.5px;color:#4a545f;width:390px;line-height:1.5">Mixto es un método más, no un botón aparte. Cada línea muestra su monto en 19 px con un botón “Resto” que le asigna lo que falta de un toque. Lo pendiente sale en el subheader, en la tarjeta roja y bajo el botón.</span>
+    </div>
+
+    <!-- ============ 3 · DIVIDIR ============ -->
+    <div style="display:flex;flex-direction:column;gap:9px">
+      <span style="font-size:11.5px;font-weight:800;color:#5b6673;letter-spacing:.04em">DIVIDIR CUENTA · PASO PROPIO</span>
+      <div style="position:relative;width:390px;height:812px;background:#f4f5f7;border:1px solid #d6dae0;border-radius:24px;overflow:hidden;box-shadow:0 16px 40px rgba(20,24,29,.12)">
+
+        <div style="display:flex;align-items:center;gap:8px;height:52px;padding:0 12px;background:#fff;border-bottom:1px solid #e6e8ec">
+          <div style="width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:0 0 auto"><span style="font-size:17px;color:#14181d">☰</span></div>
+          <div style="flex:1;min-width:0;display:flex;align-items:center;gap:9px">
+            <div style="width:30px;height:30px;border-radius:9px;background:#c8102e;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex:0 0 auto">C</div>
+            <div style="min-width:0;display:flex;flex-direction:column;gap:0">
+              <span style="font-size:13.5px;font-weight:800;letter-spacing:-.015em;line-height:1.2">Cresly Pizzería</span>
+              <span style="font-size:10.5px;color:#8a929c;font-weight:600;line-height:1.2">Suc. Centro</span>
+            </div>
+          </div>
+          <div style="width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:0 0 auto"><span style="font-size:16px;color:#5b6673">☾</span></div>
+          <div style="display:flex;align-items:center;gap:7px;padding:4px 8px 4px 4px;border-radius:11px;flex:0 0 auto">
+            <div style="width:34px;height:34px;border-radius:50%;background:#14181d;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800">M</div>
+            <span style="font-size:8px;color:#8a929c">▼</span>
+          </div>
+        </div>
+
+        <div style="background:#fafbfc;border-bottom:1px solid #eef0f3;display:flex;align-items:center;gap:9px;min-height:56px;padding:9px 14px">
+          <div style="width:38px;height:38px;border-radius:11px;border:1px solid #e6e8ec;background:#fff;display:flex;align-items:center;justify-content:center;flex:0 0 auto"><span style="font-size:15px;color:#5b6673">‹</span></div>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+            <span style="font-size:17px;font-weight:800;letter-spacing:-.02em;line-height:1.2">Dividir cuenta</span>
+            <span style="font-size:11px;color:#8a929c;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Pedido #002 · <strong style="font-weight:800;color:#c8102e">3 sin asignar</strong> de 5</span>
+          </div>
+          <div style="width:38px;height:38px;border-radius:11px;background:#fff;border:1px solid #e6e8ec;display:flex;align-items:center;justify-content:center;flex:0 0 auto"><span style="font-size:15px;color:#5b6673">⋯</span></div>
+        </div>
+
+        <div style="height:calc(100% - 108px - 152px);overflow:hidden;padding:13px 0 0;display:flex;flex-direction:column;gap:11px">
+
+          <div style="display:flex;gap:9px;padding:0 14px;overflow:hidden">
+            <div style="flex:0 0 auto;width:128px;display:flex;flex-direction:column;gap:3px;padding:12px 13px;border-radius:14px;background:#14181d;color:#fff">
+              <span style="font-size:12px;font-weight:800">Persona 1</span>
+              <span style="font-size:20px;font-weight:800;letter-spacing:-.03em;line-height:1.1">$19.75</span>
+              <span style="font-size:10.5px;color:rgba(255,255,255,.7);font-weight:600">2 platillos</span>
+            </div>
+            <div style="flex:0 0 auto;width:128px;display:flex;flex-direction:column;gap:3px;padding:12px 13px;border-radius:14px;background:#fff;border:1px solid #dfe2e7">
+              <span style="font-size:12px;font-weight:800">Persona 2</span>
+              <span style="font-size:20px;font-weight:800;letter-spacing:-.03em;line-height:1.1;color:#8a929c">$0.00</span>
+              <span style="font-size:10.5px;color:#98a1ab;font-weight:600">0 platillos</span>
+            </div>
+            <div style="flex:0 0 auto;width:104px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:12px 10px;border-radius:14px;border:1px dashed #c3c8ce;background:#fafbfc">
+              <span style="font-size:17px;color:#8a929c">＋</span>
+              <span style="font-size:11px;font-weight:700;color:#5b6673;text-align:center">Agregar</span>
+            </div>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:9px;padding:0 14px">
+            <span style="font-size:10.5px;font-weight:800;letter-spacing:.1em;color:#8a929c">ASIGNAR A PERSONA 1</span>
+            <div style="flex:1;height:4px;border-radius:999px;background:#eef0f3;overflow:hidden">
+              <div style="width:40%;height:100%;background:#c8102e"></div>
+            </div>
+            <span style="font-size:11px;font-weight:800;color:#c8102e">2/5</span>
+          </div>
+
+          <div style="padding:0 14px;display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:center;gap:11px;background:#fff;border:1.5px solid #c8102e;border-radius:14px;padding:11px 12px;box-shadow:0 6px 14px rgba(200,16,46,.10)">
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                <span style="font-size:13.5px;font-weight:700;line-height:1.3">Pizza Porción</span>
+                <span style="font-size:11.5px;color:#8a5800;font-weight:700">3 Quesos · $2.75 c/u</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:2px;flex:0 0 auto">
+                <div style="width:36px;height:40px;border-radius:10px;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;color:#5b6673;line-height:1">−</div>
+                <span style="min-width:32px;text-align:center;font-size:14px;font-weight:800">1<span style="font-size:11px;color:#98a1ab;font-weight:700">/1</span></span>
+                <div style="width:36px;height:40px;border-radius:10px;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;color:#c3c8ce;line-height:1">＋</div>
+              </div>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:11px;background:#fff;border:1.5px solid #c8102e;border-radius:14px;padding:11px 12px;box-shadow:0 6px 14px rgba(200,16,46,.10)">
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                <span style="font-size:13.5px;font-weight:700;line-height:1.3">20 alitas</span>
+                <span style="font-size:11.5px;color:#8a5800;font-weight:700">20 BBQ · $17.00 c/u</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:2px;flex:0 0 auto">
+                <div style="width:36px;height:40px;border-radius:10px;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;color:#5b6673;line-height:1">−</div>
+                <span style="min-width:32px;text-align:center;font-size:14px;font-weight:800">1<span style="font-size:11px;color:#98a1ab;font-weight:700">/1</span></span>
+                <div style="width:36px;height:40px;border-radius:10px;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;color:#c3c8ce;line-height:1">＋</div>
+              </div>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:11px;background:#fff;border:1px solid #e6e8ec;border-radius:14px;padding:11px 12px">
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                <span style="font-size:13.5px;font-weight:700;line-height:1.3">20 alitas</span>
+                <span style="font-size:11.5px;color:#8a5800;font-weight:700">20 BBQ · $17.00 c/u</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:2px;flex:0 0 auto">
+                <div style="width:36px;height:40px;border-radius:10px;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;color:#c3c8ce;line-height:1">−</div>
+                <span style="min-width:32px;text-align:center;font-size:14px;font-weight:800;color:#8a929c">0<span style="font-size:11px;color:#c3c8ce;font-weight:700">/1</span></span>
+                <div style="width:36px;height:40px;border-radius:10px;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;color:#5b6673;line-height:1">＋</div>
+              </div>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:11px;background:#fff;border:1px solid #e6e8ec;border-radius:14px;padding:11px 12px">
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                <span style="font-size:13.5px;font-weight:700;line-height:1.3">20 alitas</span>
+                <span style="font-size:11.5px;color:#8a5800;font-weight:700">20 BBQ · $17.00 c/u</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:2px;flex:0 0 auto">
+                <div style="width:36px;height:40px;border-radius:10px;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;color:#c3c8ce;line-height:1">−</div>
+                <span style="min-width:32px;text-align:center;font-size:14px;font-weight:800;color:#8a929c">0<span style="font-size:11px;color:#c3c8ce;font-weight:700">/2</span></span>
+                <div style="width:36px;height:40px;border-radius:10px;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;color:#5b6673;line-height:1">＋</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="position:absolute;left:0;right:0;bottom:78px;background:#fff;border-top:1px solid #e6e8ec;padding:12px 14px;display:flex;gap:9px;box-shadow:0 -8px 22px rgba(20,24,29,.07)">
+          <div style="flex:0 0 auto;display:flex;align-items:center;justify-content:center;gap:7px;height:52px;padding:0 15px;border-radius:14px;border:1px solid #dfe2e7;font-size:13px;font-weight:700;color:#5b6673">Repartir igual</div>
+          <div style="flex:1;min-width:0;display:flex;align-items:center;justify-content:center;gap:8px;height:52px;border-radius:14px;background:#c8102e;color:#fff;font-size:14.5px;font-weight:800;box-shadow:0 8px 18px rgba(200,16,46,.26)">
+            <span>Cobrar P1 · $19.75</span>
+          </div>
+        </div>
+
+        <div style="position:absolute;left:0;right:0;bottom:0;height:78px;background:#fff;border-top:1px solid #e6e8ec;padding:9px 10px 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:2px">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 4px">
+            <span style="font-size:17px;color:#9aa2ac">⌂</span><span style="font-size:10.5px;font-weight:700;color:#8a929c">Inicio</span>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 4px">
+            <span style="font-size:17px;color:#9aa2ac">▦</span><span style="font-size:10.5px;font-weight:700;color:#8a929c">Mesas</span>
+          </div>
+          <div style="position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 4px;border-radius:12px;background:#fdecef">
+            <span style="font-size:17px;color:#c8102e">☰</span><span style="font-size:10.5px;font-weight:800;color:#c8102e">Órdenes</span>
+            <span style="position:absolute;top:2px;right:12px;min-width:17px;height:17px;padding:0 4px;border-radius:999px;background:#c8102e;color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #fff">10</span>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 4px">
+            <span style="font-size:17px;color:#9aa2ac">⇢</span><span style="font-size:10.5px;font-weight:700;color:#8a929c">Delivery</span>
+          </div>
+        </div>
+      </div>
+      <span style="font-size:11.5px;color:#4a545f;width:390px;line-height:1.5">Pantalla propia, no un bloque que crece bajo el pago. Las personas son tarjetas horizontales con su monto ya calculado; se cobra una por una y al terminar cada cobro se vuelve aquí con la siguiente activa.</span>
+    </div>
+
+    <!-- ============ 4 · HOJA DE ⋯ ============ -->
+    <div style="display:flex;flex-direction:column;gap:9px">
+      <span style="font-size:11.5px;font-weight:800;color:#5b6673;letter-spacing:.04em">HOJA DE ⋯ · IMPRIMIR, DESCUENTO, ANULAR</span>
+      <div style="position:relative;width:390px;height:812px;border-radius:24px;overflow:hidden;border:1px solid #d6dae0;box-shadow:0 16px 40px rgba(20,24,29,.12);background:#f4f5f7">
+
+        <div style="display:flex;align-items:center;gap:8px;height:52px;padding:0 12px;background:#fff;border-bottom:1px solid #e6e8ec;opacity:.4">
+          <div style="width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:0 0 auto"><span style="font-size:17px">☰</span></div>
+          <div style="flex:1;min-width:0;display:flex;align-items:center;gap:9px">
+            <div style="width:30px;height:30px;border-radius:9px;background:#c8102e;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex:0 0 auto">C</div>
+            <span style="font-size:13.5px;font-weight:800;letter-spacing:-.015em">Cresly Pizzería</span>
+          </div>
+          <div style="width:34px;height:34px;border-radius:50%;background:#14181d;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex:0 0 auto">M</div>
+        </div>
+
+        <div style="position:absolute;inset:52px 0 0;background:rgba(20,24,29,.42)"></div>
+
+        <div style="position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:22px 22px 0 0;padding:14px 16px 20px;display:flex;flex-direction:column;gap:14px">
+          <div style="width:38px;height:4px;border-radius:999px;background:#dfe2e7;margin:0 auto"></div>
+
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <span style="font-size:17px;font-weight:800;letter-spacing:-.02em">Pedido #002</span>
+            <span style="font-size:11.5px;color:#8a929c;font-weight:600">Mesa 7 · 5 platillos · $70.75</span>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <span style="font-size:10.5px;font-weight:800;letter-spacing:.09em;color:#8a929c">IMPRIMIR</span>
+            <div style="display:flex;align-items:center;gap:11px;padding:13px 14px;border-radius:12px;border:1px solid #dfe2e7;background:#fff">
+              <span style="font-size:14px;color:#5b6673;width:18px;text-align:center;flex:0 0 auto">⎙</span>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+                <span style="font-size:13.5px;font-weight:700">Precuenta</span>
+                <span style="font-size:11px;color:#98a1ab;font-weight:600">Para que el cliente revise antes de pagar</span>
+              </div>
+              <span style="font-size:14px;color:#c3c8ce;flex:0 0 auto">›</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:11px;padding:13px 14px;border-radius:12px;border:1px solid #dfe2e7;background:#fff">
+              <span style="font-size:14px;color:#5b6673;width:18px;text-align:center;flex:0 0 auto">▤</span>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+                <span style="font-size:13.5px;font-weight:700">Reimprimir comanda</span>
+                <span style="font-size:11px;color:#98a1ab;font-weight:600">Copia para cocina</span>
+              </div>
+              <span style="font-size:14px;color:#c3c8ce;flex:0 0 auto">›</span>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <span style="font-size:10.5px;font-weight:800;letter-spacing:.09em;color:#8a929c">AJUSTES DE LA CUENTA</span>
+            <div style="display:flex;align-items:center;gap:11px;padding:13px 14px;border-radius:12px;border:1px solid #dfe2e7;background:#fff">
+              <span style="font-size:14px;color:#5b6673;width:18px;text-align:center;flex:0 0 auto">%</span>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+                <span style="font-size:13.5px;font-weight:700">Aplicar descuento</span>
+                <span style="font-size:11px;color:#98a1ab;font-weight:600">Porcentaje o monto fijo</span>
+              </div>
+              <span style="font-size:14px;color:#c3c8ce;flex:0 0 auto">›</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:11px;padding:13px 14px;border-radius:12px;border:1px solid #dfe2e7;background:#fff">
+              <span style="font-size:14px;color:#5b6673;width:18px;text-align:center;flex:0 0 auto">⚯</span>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+                <span style="font-size:13.5px;font-weight:700">Dividir cuenta</span>
+                <span style="font-size:11px;color:#98a1ab;font-weight:600">También está como icono en la barra</span>
+              </div>
+              <span style="font-size:14px;color:#c3c8ce;flex:0 0 auto">›</span>
+            </div>
+          </div>
+
+          <div style="height:1px;background:#eef0f3"></div>
+
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <span style="font-size:10.5px;font-weight:800;letter-spacing:.09em;color:#a90d27">ZONA DE RIESGO</span>
+            <div style="display:flex;align-items:center;gap:11px;padding:13px 14px;border-radius:12px;border:1px solid #f4d3d9;background:#fff">
+              <span style="font-size:14px;color:#c8102e;width:18px;text-align:center;flex:0 0 auto">✕</span>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+                <span style="font-size:13.5px;font-weight:700;color:#c8102e">Anular pedido</span>
+                <span style="font-size:11px;color:#a9707c;font-weight:600">Pide confirmación y motivo</span>
+              </div>
+              <span style="font-size:14px;color:#f4d3d9;flex:0 0 auto">›</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <span style="font-size:11.5px;color:#4a545f;width:390px;line-height:1.5">Imprimir y anular viven aquí, con su etiqueta escrita. Anular queda separado bajo “Zona de riesgo” y pide confirmación: en la barra, como ✕ roja junto a imprimir, se toca por error.</span>
+    </div>
+
+    <!-- ============ 5 · COBRAR PERSONA ============ -->
+    <div style="display:flex;flex-direction:column;gap:9px">
+      <span style="font-size:11.5px;font-weight:800;color:#5b6673;letter-spacing:.04em">COBRAR A UNA PERSONA · MÉTODO PROPIO</span>
+      <div style="position:relative;width:390px;height:812px;background:#f4f5f7;border:1px solid #d6dae0;border-radius:24px;overflow:hidden;box-shadow:0 16px 40px rgba(20,24,29,.12)">
+
+        <div style="display:flex;align-items:center;gap:8px;height:52px;padding:0 12px;background:#fff;border-bottom:1px solid #e6e8ec">
+          <div style="width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:0 0 auto"><span style="font-size:17px;color:#14181d">☰</span></div>
+          <div style="flex:1;min-width:0;display:flex;align-items:center;gap:9px">
+            <div style="width:30px;height:30px;border-radius:9px;background:#c8102e;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex:0 0 auto">C</div>
+            <div style="min-width:0;display:flex;flex-direction:column;gap:0">
+              <span style="font-size:13.5px;font-weight:800;letter-spacing:-.015em;line-height:1.2">Cresly Pizzería</span>
+              <span style="font-size:10.5px;color:#8a929c;font-weight:600;line-height:1.2">Suc. Centro</span>
+            </div>
+          </div>
+          <div style="width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:0 0 auto"><span style="font-size:16px;color:#5b6673">☾</span></div>
+          <div style="display:flex;align-items:center;gap:7px;padding:4px 8px 4px 4px;border-radius:11px;flex:0 0 auto">
+            <div style="width:34px;height:34px;border-radius:50%;background:#14181d;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800">M</div>
+            <span style="font-size:8px;color:#8a929c">▼</span>
+          </div>
+        </div>
+
+        <div style="background:#fafbfc;border-bottom:1px solid #eef0f3;display:flex;align-items:center;gap:9px;min-height:56px;padding:9px 14px">
+          <div style="width:38px;height:38px;border-radius:11px;border:1px solid #e6e8ec;background:#fff;display:flex;align-items:center;justify-content:center;flex:0 0 auto"><span style="font-size:15px;color:#5b6673">‹</span></div>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+            <span style="font-size:17px;font-weight:800;letter-spacing:-.02em;line-height:1.2">Cobrar · Persona 1</span>
+            <span style="font-size:11px;color:#8a929c;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Pedido #002 · parte 1 de 2 · 2 platillos</span>
+          </div>
+          <div style="width:38px;height:38px;border-radius:11px;background:#fff;border:1px solid #e6e8ec;display:flex;align-items:center;justify-content:center;flex:0 0 auto"><span style="font-size:15px;color:#5b6673">⋯</span></div>
+        </div>
+
+        <div style="height:calc(100% - 108px - 152px);overflow:hidden;padding:13px 14px 0;display:flex;flex-direction:column;gap:11px">
+
+          <div style="display:flex;gap:8px">
+            <div style="flex:1;display:flex;flex-direction:column;gap:2px;padding:11px 13px;border-radius:13px;background:#14181d;color:#fff">
+              <span style="font-size:11.5px;font-weight:800">Persona 1</span>
+              <span style="font-size:19px;font-weight:800;letter-spacing:-.03em;line-height:1.1">$19.75</span>
+              <span style="font-size:10.5px;color:rgba(255,255,255,.7);font-weight:600">cobrando ahora</span>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:2px;padding:11px 13px;border-radius:13px;background:#fff;border:1px solid #dfe2e7">
+              <span style="font-size:11.5px;font-weight:800;color:#5b6673">Persona 2</span>
+              <span style="font-size:19px;font-weight:800;letter-spacing:-.03em;line-height:1.1;color:#5b6673">$51.00</span>
+              <span style="font-size:10.5px;color:#98a1ab;font-weight:600">pendiente</span>
+            </div>
+          </div>
+
+          <div style="background:#fff;border:1px solid #e6e8ec;border-radius:16px;padding:15px;display:flex;flex-direction:column;gap:14px">
+
+            <div style="display:flex;flex-direction:column;gap:7px">
+              <div style="display:flex;align-items:baseline;justify-content:space-between">
+                <span style="font-size:12.5px;color:#767e88">Pizza Porción · 3 Quesos</span>
+                <span style="font-size:12.5px;font-weight:700">$2.75</span>
+              </div>
+              <div style="display:flex;align-items:baseline;justify-content:space-between">
+                <span style="font-size:12.5px;color:#767e88">20 alitas · 20 BBQ</span>
+                <span style="font-size:12.5px;font-weight:700">$17.00</span>
+              </div>
+              <div style="display:flex;align-items:baseline;justify-content:space-between;padding-top:10px;border-top:1px solid #eef0f3">
+                <span style="font-size:13.5px;font-weight:800">Su parte</span>
+                <span style="font-size:28px;font-weight:800;letter-spacing:-.03em;line-height:1">$19.75</span>
+              </div>
+            </div>
+
+            <div style="height:1px;background:#eef0f3"></div>
+
+            <div style="display:flex;flex-direction:column;gap:9px">
+              <span style="font-size:10.5px;font-weight:800;letter-spacing:.09em;color:#8a929c">CÓMO PAGA PERSONA 1</span>
+              <div style="display:flex;gap:6px">
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:11px 4px;border-radius:12px;background:#fff;border:1px solid #dfe2e7">
+                  <span style="font-size:15px;color:#5b6673">▬</span>
+                  <span style="font-size:11px;font-weight:700;color:#5b6673">Efectivo</span>
+                </div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:11px 4px;border-radius:12px;background:#14181d;border:1px solid #14181d">
+                  <span style="font-size:15px;color:#fff">⇄</span>
+                  <span style="font-size:11px;font-weight:800;color:#fff">Transf.</span>
+                </div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:11px 4px;border-radius:12px;background:#fff;border:1px solid #dfe2e7">
+                  <span style="font-size:15px;color:#5b6673">▭</span>
+                  <span style="font-size:11px;font-weight:700;color:#5b6673">Tarjeta</span>
+                </div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:11px 4px;border-radius:12px;background:#fff;border:1px solid #dfe2e7">
+                  <span style="font-size:15px;color:#5b6673">⧉</span>
+                  <span style="font-size:11px;font-weight:700;color:#5b6673">Mixto</span>
+                </div>
+              </div>
+              <span style="font-size:11px;color:#98a1ab;font-weight:600">Cada persona elige su propio método. Persona 2 puede pagar distinto.</span>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:9px">
+              <span style="font-size:10.5px;font-weight:800;letter-spacing:.09em;color:#8a929c">REFERENCIA DE LA TRANSFERENCIA</span>
+              <div style="display:flex;align-items:center;gap:10px;padding:13px 14px;border-radius:12px;border:1.5px solid #14181d;background:#fff">
+                <span style="flex:1;font-size:16px;font-weight:700;letter-spacing:.02em">0091 4472</span>
+                <span style="width:2px;height:20px;background:#c8102e"></span>
+              </div>
+            </div>
+
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 15px;border-radius:13px;background:#eaf6ef;border:1px solid #cfeadb">
+              <div style="display:flex;flex-direction:column;gap:1px">
+                <span style="font-size:10.5px;font-weight:800;letter-spacing:.09em;color:#1c7a4a">LISTO PARA COBRAR</span>
+                <span style="font-size:11px;color:#5f8a72;font-weight:600">Transferencia · sin vuelto</span>
+              </div>
+              <span style="font-size:27px;font-weight:800;letter-spacing:-.03em;color:#1c7a4a;line-height:1">$19.75</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="position:absolute;left:0;right:0;bottom:78px;background:#fff;border-top:1px solid #e6e8ec;padding:12px 14px;display:flex;flex-direction:column;gap:6px;box-shadow:0 -8px 22px rgba(20,24,29,.07)">
+          <div style="display:flex;align-items:center;justify-content:center;gap:9px;height:52px;border-radius:14px;background:#c8102e;color:#fff;font-size:15px;font-weight:800;box-shadow:0 8px 18px rgba(200,16,46,.26)">
+            <span style="font-size:14px">✓</span><span>Cobrar Persona 1 · $19.75</span>
+          </div>
+          <span style="text-align:center;font-size:11px;font-weight:600;color:#98a1ab">Después sigue Persona 2 · $51.00</span>
+        </div>
+
+        <div style="position:absolute;left:0;right:0;bottom:0;height:78px;background:#fff;border-top:1px solid #e6e8ec;padding:9px 10px 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:2px">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 4px">
+            <span style="font-size:17px;color:#9aa2ac">⌂</span><span style="font-size:10.5px;font-weight:700;color:#8a929c">Inicio</span>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 4px">
+            <span style="font-size:17px;color:#9aa2ac">▦</span><span style="font-size:10.5px;font-weight:700;color:#8a929c">Mesas</span>
+          </div>
+          <div style="position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 4px;border-radius:12px;background:#fdecef">
+            <span style="font-size:17px;color:#c8102e">☰</span><span style="font-size:10.5px;font-weight:800;color:#c8102e">Órdenes</span>
+            <span style="position:absolute;top:2px;right:12px;min-width:17px;height:17px;padding:0 4px;border-radius:999px;background:#c8102e;color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #fff">10</span>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 4px">
+            <span style="font-size:17px;color:#9aa2ac">⇢</span><span style="font-size:10.5px;font-weight:700;color:#8a929c">Delivery</span>
+          </div>
+        </div>
+      </div>
+      <span style="font-size:11.5px;color:#4a545f;width:390px;line-height:1.5">Al tocar “Cobrar P1” se llega aquí: su parte, sus platillos y su propio método de pago. Cada persona puede pagar distinto —una en efectivo, otra por transferencia— e incluso mixto dentro de su parte.</span>
+    </div>
+
+    <!-- ============ ESTADO DEL REPARTO ============ -->
+    <div style="display:flex;flex-direction:column;gap:9px">
+      <span style="font-size:11.5px;font-weight:800;color:#5b6673;letter-spacing:.04em">DE VUELTA EN DIVIDIR · P1 YA PAGÓ</span>
+      <div style="width:390px;background:#fff;border:1px solid #d6dae0;border-radius:16px;overflow:hidden">
+        <div style="background:#fafbfc;border-bottom:1px solid #eef0f3;display:flex;align-items:center;gap:9px;min-height:56px;padding:9px 14px">
+          <div style="width:38px;height:38px;border-radius:11px;border:1px solid #e6e8ec;background:#fff;display:flex;align-items:center;justify-content:center;flex:0 0 auto"><span style="font-size:15px;color:#5b6673">‹</span></div>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+            <span style="font-size:17px;font-weight:800;letter-spacing:-.02em;line-height:1.2">Dividir cuenta</span>
+            <span style="font-size:11px;color:#8a929c;font-weight:600">Pedido #002 · <strong style="font-weight:800;color:#1c7a4a">$19.75 cobrado</strong> · falta $51.00</span>
+          </div>
+          <div style="width:38px;height:38px;border-radius:11px;background:#fff;border:1px solid #e6e8ec;display:flex;align-items:center;justify-content:center;flex:0 0 auto"><span style="font-size:15px;color:#5b6673">⋯</span></div>
+        </div>
+        <div style="padding:13px 14px;display:flex;flex-direction:column;gap:11px">
+          <div style="display:flex;gap:9px">
+            <div style="flex:1;display:flex;flex-direction:column;gap:3px;padding:12px 13px;border-radius:14px;background:#f4fbf7;border:1px solid #cfeadb">
+              <div style="display:flex;align-items:center;gap:6px">
+                <span style="width:15px;height:15px;border-radius:50%;background:#23a05f;color:#fff;font-size:9px;display:flex;align-items:center;justify-content:center;flex:0 0 auto">✓</span>
+                <span style="font-size:12px;font-weight:800;color:#1c7a4a">Persona 1</span>
+              </div>
+              <span style="font-size:20px;font-weight:800;letter-spacing:-.03em;line-height:1.1;color:#1c7a4a">$19.75</span>
+              <span style="font-size:10.5px;color:#5f8a72;font-weight:700">Pagado · transferencia</span>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:3px;padding:12px 13px;border-radius:14px;background:#14181d;color:#fff">
+              <span style="font-size:12px;font-weight:800">Persona 2</span>
+              <span style="font-size:20px;font-weight:800;letter-spacing:-.03em;line-height:1.1">$51.00</span>
+              <span style="font-size:10.5px;color:rgba(255,255,255,.7);font-weight:600">3 platillos · sin cobrar</span>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:9px">
+            <span style="font-size:10.5px;font-weight:800;letter-spacing:.1em;color:#8a929c">COBRADO</span>
+            <div style="flex:1;height:4px;border-radius:999px;background:#eef0f3;overflow:hidden">
+              <div style="width:28%;height:100%;background:#23a05f"></div>
+            </div>
+            <span style="font-size:11px;font-weight:800;color:#1c7a4a">$19.75 / $70.75</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:center;gap:8px;height:50px;border-radius:14px;background:#c8102e;color:#fff;font-size:14.5px;font-weight:800;box-shadow:0 8px 18px rgba(200,16,46,.26)">Cobrar P2 · $51.00</div>
+        </div>
+      </div>
+      <span style="font-size:11.5px;color:#4a545f;width:390px;line-height:1.5">La persona cobrada queda en verde con su método, ya no se puede editar, y la siguiente pasa a activa. La orden se cierra sola cuando la barra de cobrado llega al total.</span>
+    </div>
+
+    <!-- ============ NOTAS ============ -->
+    <div style="flex:1;min-width:300px;max-width:430px;display:flex;flex-direction:column;gap:12px">
+      <span style="font-size:15px;font-weight:800;letter-spacing:-.015em">Qué cambió y por qué</span>
+      <sc-for list="{{ notes }}" as="n" hint-placeholder-count="8">
+        <div style="background:#fff;border:1px solid #d6dae0;border-radius:14px;padding:15px 17px;display:flex;flex-direction:column;gap:5px">
+          <span style="font-size:11px;font-weight:800;letter-spacing:.09em;color:#8a929c">{{ n.title }}</span>
+          <span style="font-size:12.5px;color:#4a545f;line-height:1.55">{{ n.body }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const NOTES = [
+  { title: "LA FLECHA DE ATRÁS ES UN BOTÓN", body: "Hoy “← Pedido #002” es un enlace azul de navegador: rompe la paleta y no parece tocable. Pasa al subheader como botón de 38 px, igual que en Detalle de orden, con el título “Cobrar” y el contexto debajo." },
+  { title: "LOS TRES ICONOS SE ACLARAN", body: "Dividir, imprimir y la ✕ roja no dicen qué hacen y la ✕ parece cerrar la pantalla cuando en realidad anula la orden. Queda un solo icono visible —dividir cuenta— y el resto pasa a ⋯: imprimir precuenta, aplicar descuento y anular, esta última con confirmación." },
+  { title: "EL DETALLE SE COLAPSA", body: "Cuatro tarjetas de platillos empujan el pago fuera de pantalla y obligan a hacer scroll para cobrar. Se resume en una fila con “Ver” que despliega el detalle solo cuando hace falta." },
+  { title: "MIXTO ES UN MÉTODO, NO UN INTERRUPTOR", body: "El botón “Pago mixto” a la derecha de la etiqueta parecía un filtro. Ahora hay cuatro métodos —Efectivo, Transferencia, Tarjeta, Mixto— en una fila; elegir Mixto muestra las líneas por método." },
+  { title: "LOS MONTOS EN 19 PX, NO EN CAMPOS DE $0", body: "Tus dos campos con “$ 0” y un icono ambiguo al lado no dicen cuánto se lleva cada método. Cada línea muestra el método con su color, el monto grande y un botón “Resto” que le asigna lo que falta de un toque." },
+  { title: "EL VUELTO ES EL PROTAGONISTA", body: "En efectivo, lo que el cajero busca es cuánto devolver. Va en tarjeta verde con el monto en 27 px. Si falta dinero, la misma tarjeta se vuelve roja con “Falta cubrir”, en lugar del texto suelto “Restante: $70.75”." },
+  { title: "EL BOTÓN DICE POR QUÉ NO SE PUEDE", body: "Hoy está gris sin explicación. Cuando falta algo, debajo aparece “Asigna los $20.75 restantes para continuar” y el subheader muestra “faltan $20.75” en rojo — el mismo resaltado en color del resto del sistema." },
+  { title: "DIVIDIR ES UNA PANTALLA, NO UN BLOQUE", body: "Hoy la sección de personas crece sobre el pago y hay que recorrer todo para volver. Como paso propio: personas en tarjetas horizontales con su monto ya calculado, los platillos con contador “asignados/total”, y “Repartir igual” para el caso más común. Se cobra persona por persona." },
+  { title: "CADA PERSONA ELIGE SU MÉTODO", body: "Dividir solo repartía platillos y no decía cómo paga cada uno. Al tocar “Cobrar P1” se abre su propio cobro: su parte, sus platillos y los cuatro métodos —una puede pagar en efectivo con vuelto y otra por transferencia, o incluso mixto dentro de su parte." },
+  { title: "EL REPARTO GUARDA LO COBRADO", body: "Al volver de cobrar a una persona, su tarjeta queda en verde con el método usado y ya no se puede editar. La barra “cobrado $19.75 / $70.75” dice cuánto queda, y la orden se cierra sola al llegar al total." },
+  { title: "MONTO RECIBIDO CON ATAJOS ÚTILES", body: "Los chips $0.00 / $5 / $10 / $20 no sirven en una cuenta de $70.75. Se calculan a partir del total: “Exacto”, el siguiente múltiplo de 5 y los dos billetes siguientes." }
+];
+
+class Component extends DCLogic {
+  renderVals() { return { notes: NOTES }; }
+}
+</script>
+</body>
+</html>

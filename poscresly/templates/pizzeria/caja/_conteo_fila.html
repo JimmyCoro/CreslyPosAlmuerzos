@@ -1,0 +1,9 @@
+<div class="cj-conteo-fila cj-conteo-cero" data-clave="{{ d.clave }}" data-valor="{{ d.valor }}">
+  <span class="cj-conteo-den">{{ d.etiqueta }}</span>
+  <div class="cj-stepper">
+    <button type="button" class="cj-step" data-cj-menos aria-label="Quitar uno de {{ d.etiqueta }}" disabled><i class="bi bi-dash" aria-hidden="true"></i></button>
+    <span class="cj-conteo-cant" data-cj-cant aria-label="Cantidad de {{ d.etiqueta }}">0</span>
+    <button type="button" class="cj-step" data-cj-mas aria-label="Agregar uno de {{ d.etiqueta }}"><i class="bi bi-plus" aria-hidden="true"></i></button>
+  </div>
+  <span class="cj-conteo-sub" data-cj-sub>$0.00</span>
+</div>

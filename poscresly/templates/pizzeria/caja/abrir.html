@@ -1,0 +1,75 @@
+{% extends 'movil/base_movil.html' %}
+{% load static %}
+
+{% block title %}Abrir caja · Cresly POS{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'CSS/pizzeria-caja.css' %}?v=1">
+{% endblock %}
+
+{% block content %}
+<form method="post" class="im-shell cj" id="cjFormAbrir" novalidate>
+  {% csrf_token %}
+
+  {% include 'components/pizzeria_header.html' %}
+  {% include 'components/pizzeria_alerta.html' %}
+  {% include 'components/pizzeria_subheader.html' %}
+
+  <main class="cj-content cj-content-barra">
+
+    <section class="cj-card">
+      <label class="cj-label" for="cjFondo">FONDO INICIAL</label>
+      <div class="cj-monto cj-monto-lg">
+        <span class="cj-monto-signo" aria-hidden="true">$</span>
+        <input type="text" id="cjFondo" name="fondo_inicial" inputmode="decimal" autocomplete="off"
+               placeholder="0.00" maxlength="9" value="{{ valor_campo }}" aria-describedby="cjFondoNota">
+      </div>
+      <div class="cj-atajos" role="group" aria-label="Montos rápidos">
+        {% for atajo in atajos %}
+        <button type="button" class="cj-atajo" data-monto="{{ atajo }}">${{ atajo|floatformat:0 }}</button>
+        {% endfor %}
+      </div>
+      <p class="cj-nota-campo" id="cjFondoNota">
+        {% if propuesto is not None %}El fondo propuesto viene del cierre anterior. Si cuentas algo distinto, escríbelo: la diferencia queda registrada.
+        {% else %}Cuenta el efectivo con el que empieza el cajón.{% endif %}
+      </p>
+    </section>
+
+    <section class="cj-card">
+      <span class="cj-label">QUIÉN ABRE</span>
+      <div class="cj-quien">
+        <span class="cj-avatar" aria-hidden="true">{{ cajero_nombre|first|upper }}</span>
+        <span class="cj-quien-texto">
+          <span class="cj-quien-nombre">{{ cajero_nombre }}</span>
+          <span class="cj-quien-rol">{{ cajero_rol }} · sesión actual</span>
+        </span>
+      </div>
+      <div class="cj-sep"></div>
+      <div class="cj-par">
+        <span>Turno</span>
+        <strong>{{ turno_texto }}</strong>
+      </div>
+    </section>
+
+    {% if anterior %}
+    <section class="cj-card cj-card-suave">
+      <span class="cj-contexto-titulo">Turno anterior</span>
+      <p class="cj-contexto">
+        {{ anterior.fecha }}, cerró {{ anterior.cajero|default:"sin cajero registrado" }} a las {{ anterior.hora }}
+        {% if anterior.resultado == 'sin_conteo' %}sin conteo final.{% else %}con <strong class="cj-res-{{ anterior.resultado }}">{{ anterior.diferencia }}</strong> de diferencia.{% endif %}
+      </p>
+    </section>
+    {% endif %}
+
+  </main>
+
+  <div class="cj-barra-accion">
+    <button type="submit" class="cj-btn-primario" id="cjBtnAbrir">Abrir caja</button>
+    <p class="cj-linea-falta" id="cjAbrirFalta" aria-live="polite"{% if not error %} hidden{% endif %}>{{ error }}</p>
+  </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'JS/pizzeria_caja.js' %}?v=1"></script>
+{% endblock %}

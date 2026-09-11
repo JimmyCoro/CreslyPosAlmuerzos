@@ -3,7 +3,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'CSS/pizzeria-cart-bar.css' %}">
-<link rel="stylesheet" href="{% static 'CSS/pizzeria-detalle-orden.css' %}?v=2">
+<link rel="stylesheet" href="{% static 'CSS/pizzeria-detalle-orden.css' %}?v=4">
 {% endblock %}
 
 {% block content %}
@@ -40,9 +40,16 @@
             {% if entrega.mesa_capacidad %}<span class="do-entrega-sub">{{ entrega.mesa_capacidad }} persona{{ entrega.mesa_capacidad|pluralize }}</span>{% endif %}
             {% endif %}
           </div>
-          {% if entrega.telefono %}
-          <a href="tel:{{ entrega.telefono }}" class="do-entrega-llamar" aria-label="Llamar a {{ entrega.nombre }}">
-            <i class="bi bi-telephone"></i>
+          {% if entrega.tipo == 'delivery' %}
+          <button type="button" class="do-entrega-llamar" id="doBtnCopiarMotorizado"
+                  data-copiar="{{ entrega.texto_motorizado }}"
+                  aria-label="Copiar datos para el motorizado" title="Copiar datos para el motorizado">
+            <i class="bi bi-clipboard"></i>
+          </button>
+          <a href="{{ entrega.whatsapp_url }}" target="_blank" rel="noopener"
+             class="do-entrega-llamar do-entrega-wa"
+             aria-label="Enviar datos al motorizado por WhatsApp" title="Enviar por WhatsApp">
+            <i class="bi bi-whatsapp"></i>
           </a>
           {% endif %}
         </div>
@@ -141,6 +148,6 @@
   window.DO_PEDIDO_ID = {{ pedido.id }};
 </script>
 <script src="{% static 'JS/pizzeria_cart_bar.js' %}"></script>
-<script src="{% static 'JS/pizzeria_detalle_orden.js' %}?v=2"></script>
-<script src="{% static 'JS/pizzeria_hoja_acciones.js' %}"></script>
+<script src="{% static 'JS/pizzeria_detalle_orden.js' %}?v=3"></script>
+<script src="{% static 'JS/pizzeria_hoja_acciones.js' %}?v=2"></script>
 {% endblock %}

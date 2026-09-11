@@ -4,6 +4,7 @@
   data-clave="{{ fila.clave }}"
   data-disponible="{% if fila.disponible %}1{% else %}0{% endif %}"
   {% if fila.url %}data-url="{{ fila.url }}"{% endif %}
+  {% if fila.post_url %}data-post-url="{{ fila.post_url }}"{% endif %}
   onclick="accClickFila(this)">
   <span class="acc-fila-icono"><i class="bi {{ fila.glifo }}"></i></span>
   <span class="acc-fila-texto">
