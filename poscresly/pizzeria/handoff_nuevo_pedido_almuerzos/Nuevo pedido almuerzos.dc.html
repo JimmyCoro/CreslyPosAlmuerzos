@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  html, body { margin:0; padding:0; background:#eceef1; }
+  * { box-sizing:border-box; }
+  a { color:#1c7a4a; text-decoration:none; }
+  a:hover { color:#14603a; }
+</style>
+</helmet>
+
+<section style="padding:40px;display:flex;flex-wrap:wrap;gap:30px;align-items:flex-start;font-family:'Plus Jakarta Sans',Helvetica,Arial,sans-serif;color:#14181d;font-feature-settings:'tnum' 1">
+
+  <!-- ========================= 3A ========================= -->
+  <div id="3a" style="display:flex;flex-direction:column;gap:10px">
+    <div style="display:flex;flex-direction:column;gap:2px;padding-left:2px;width:390px">
+      <span style="font-size:10.5px;font-weight:800;letter-spacing:.09em;color:#1c7a4a">3A</span>
+      <span style="font-size:13.5px;font-weight:800;letter-spacing:-.01em">Nuevo pedido · una sola hoja</span>
+      <span style="font-size:12px;color:#8a929c;line-height:1.45">Se van los pasos: cliente, productos y pago en la misma vista, todo editable en el sitio. El pago es obligatorio porque el almuerzo se cobra por adelantado.</span>
+    </div>
+
+    <div data-screen-label="3A Nuevo pedido hoja unica" style="position:relative;width:390px;height:844px;background:#f4f5f7;border:1px solid #d6dae0;border-radius:26px;overflow:hidden;box-shadow:0 18px 44px rgba(20,24,29,.14)">
+
+      <div style="filter:blur(1.5px);opacity:.5">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px 6px;font-size:12px;font-weight:700">
+          <span>10:13</span><span style="letter-spacing:.1em;color:#8a929c">▮▮▮ ⌁</span>
+        </div>
+        <div style="height:52px;background:#fff;border-bottom:1px solid #e6e8ec"></div>
+      </div>
+
+      <div style="position:absolute;inset:0;background:rgba(20,24,29,.42)"></div>
+
+      <div style="position:absolute;left:0;right:0;top:74px;bottom:0;background:#fff;border-radius:22px 22px 0 0;display:flex;flex-direction:column;box-shadow:0 -14px 34px rgba(20,24,29,.18)">
+
+        <div style="padding:12px 16px 11px;display:flex;flex-direction:column;gap:9px;border-bottom:1px solid #eef0f3">
+          <div style="width:38px;height:4px;border-radius:999px;background:#dfe2e7;align-self:center"></div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="min-width:0;flex:1;display:flex;flex-direction:column;gap:1px">
+              <span style="font-size:19px;font-weight:800;letter-spacing:-.025em;line-height:1.2">Nuevo pedido</span>
+              <span style="font-size:11px;font-weight:600;color:#8a929c;line-height:1.25">#004 · <span style="font-weight:800;color:#c8102e">falta la forma de pago</span></span>
+            </div>
+            <span style="font-size:26px;font-weight:800;letter-spacing:-.03em;flex:0 0 auto">$5.50</span>
+          </div>
+        </div>
+
+        <div style="flex:1;min-height:0;overflow:hidden;padding:12px 16px 0;display:flex;flex-direction:column;gap:13px">
+
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:baseline;gap:8px;padding-left:2px">
+              <span style="font-size:11px;font-weight:800;letter-spacing:.09em;color:#5b6673">CLIENTE</span>
+              <span style="flex:1;font-size:11px;font-weight:700;color:#4a545f">Mesa 3 · servirse</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
+              <div style="height:42px;border-radius:11px;background:#eaf6ef;border:1.5px solid #1c7a4a;display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:800;color:#1c7a4a;letter-spacing:-.01em">Servirse</div>
+              <div style="height:42px;border-radius:11px;background:#fafbfc;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700;color:#4a545f">Llevar</div>
+              <div style="height:42px;border-radius:11px;background:#fafbfc;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700;color:#4a545f">Reserva</div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1.35fr;gap:6px">
+              <div style="height:44px;border-radius:11px;background:#fff;border:1px solid #dfe2e7;padding:0 11px;display:flex;align-items:center;gap:7px">
+                <span style="font-size:10.5px;font-weight:800;letter-spacing:.07em;color:#98a1ab">MESA</span>
+                <span style="flex:1;font-size:14px;font-weight:800;letter-spacing:-.01em">3</span>
+                <span style="font-size:8px;color:#8a929c">▼</span>
+              </div>
+              <div style="height:44px;border-radius:11px;background:#fff;border:1px solid #dfe2e7;padding:0 11px;display:flex;align-items:center;gap:7px">
+                <span style="flex:1;min-width:0;font-size:13.5px;font-weight:700;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Marisol Vera</span>
+                <span style="font-size:12px;color:#a8afb8">✎</span>
+              </div>
+            </div>
+            <div style="height:40px;border-radius:11px;background:#fafbfc;border:1px solid #eef0f3;padding:0 11px;display:flex;align-items:center;gap:8px">
+              <span style="flex:1;min-width:0;font-size:12.5px;font-weight:600;color:#5b6673;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Sin cebolla en las dos sopas</span>
+              <span style="font-size:12px;color:#a8afb8">✎</span>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:baseline;gap:8px;padding-left:2px">
+              <span style="font-size:11px;font-weight:800;letter-spacing:.09em;color:#5b6673">PRODUCTOS</span>
+              <span style="flex:1;font-size:11px;font-weight:700;color:#8a929c">2 platos</span>
+            </div>
+            <div style="background:#fafbfc;border:1px solid #eef0f3;border-radius:13px;padding:10px 12px;display:flex;gap:9px;align-items:center">
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+                <span style="font-size:12.5px;font-weight:800;letter-spacing:-.01em">Almuerzo</span>
+                <span style="font-size:11px;font-weight:600;color:#8a929c;line-height:1.3">Locro · Pechuga rellena · Melón</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:1px;flex:0 0 auto">
+                <div style="width:30px;height:30px;border-radius:9px;background:#fff;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#5b6673">−</div>
+                <span style="width:22px;text-align:center;font-size:13px;font-weight:800">1</span>
+                <div style="width:30px;height:30px;border-radius:9px;background:#fff;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#5b6673">＋</div>
+              </div>
+              <span style="width:42px;text-align:right;font-size:12.5px;font-weight:800;flex:0 0 auto">$3.50</span>
+            </div>
+            <div style="background:#fafbfc;border:1px solid #eef0f3;border-radius:13px;padding:10px 12px;display:flex;gap:9px;align-items:center">
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+                <span style="font-size:12.5px;font-weight:800;letter-spacing:-.01em">Sopa sola</span>
+                <span style="font-size:11px;font-weight:600;color:#8a929c;line-height:1.3">Locro de espinaca</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:1px;flex:0 0 auto">
+                <div style="width:30px;height:30px;border-radius:9px;background:#fff;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#5b6673">−</div>
+                <span style="width:22px;text-align:center;font-size:13px;font-weight:800">1</span>
+                <div style="width:30px;height:30px;border-radius:9px;background:#fff;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#5b6673">＋</div>
+              </div>
+              <span style="width:42px;text-align:right;font-size:12.5px;font-weight:800;flex:0 0 auto">$2.00</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">
+              <div style="height:44px;border-radius:11px;background:#eaf6ef;border:1px solid #cfeadb;display:flex;align-items:center;justify-content:center;gap:5px;font-size:11.5px;font-weight:800;color:#1c7a4a"><span style="font-size:12px">＋</span>Almuerzo</div>
+              <div style="height:44px;border-radius:11px;background:#fff;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;gap:5px;font-size:11.5px;font-weight:700;color:#4a545f"><span style="font-size:12px;color:#8a929c">＋</span>Sopa</div>
+              <div style="height:44px;border-radius:11px;background:#fff;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;gap:5px;font-size:11.5px;font-weight:700;color:#4a545f"><span style="font-size:12px;color:#8a929c">＋</span>Segundo</div>
+              <div style="height:44px;border-radius:11px;background:#fff;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;gap:5px;font-size:11.5px;font-weight:700;color:#4a545f"><span style="font-size:12px;color:#8a929c">＋</span>Extra</div>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:baseline;gap:8px;padding-left:2px">
+              <span style="font-size:11px;font-weight:800;letter-spacing:.09em;color:#5b6673">FORMA DE PAGO</span>
+              <span style="flex:1;font-size:11px;font-weight:700;color:#c8102e">obligatoria · se cobra al tomar el pedido</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
+              <div style="height:48px;border-radius:12px;background:#fff;border:1px solid #dfe2e7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:12.5px;font-weight:800;color:#14181d;letter-spacing:-.01em"><span style="font-size:13px;color:#8a929c">▤</span>Efectivo</div>
+              <div style="height:48px;border-radius:12px;background:#fff;border:1px solid #dfe2e7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:12.5px;font-weight:800;color:#14181d;letter-spacing:-.01em"><span style="font-size:13px;color:#8a929c">⇄</span>Transferencia</div>
+              <div style="height:48px;border-radius:12px;background:#fff;border:1px solid #dfe2e7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:12.5px;font-weight:800;color:#14181d;letter-spacing:-.01em"><span style="font-size:13px;color:#8a929c">◧</span>Mixto</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="border-top:1px solid #eef0f3;padding:11px 16px 18px;display:flex;flex-direction:column;gap:7px;background:#fff">
+          <div style="display:flex;gap:8px">
+            <div style="width:52px;height:52px;border-radius:14px;background:#fff;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:16px;color:#5b6673;flex:0 0 auto">⎙</div>
+            <div style="flex:1;height:52px;border-radius:14px;background:#e9ebef;color:#a8afb8;display:flex;align-items:center;justify-content:center;gap:8px;font-size:15px;font-weight:800;letter-spacing:-.01em">
+              <span>Cobrar e imprimir</span><span style="font-size:14px">$5.50</span>
+            </div>
+          </div>
+          <span style="font-size:10.5px;font-weight:700;color:#c8102e;text-align:center">Elige efectivo o transferencia para cobrar</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================= 3B ========================= -->
+  <div id="3b" style="display:flex;flex-direction:column;gap:10px">
+    <div style="display:flex;flex-direction:column;gap:2px;padding-left:2px;width:390px">
+      <span style="font-size:10.5px;font-weight:800;letter-spacing:.09em;color:#1c7a4a">3B</span>
+      <span style="font-size:13.5px;font-weight:800;letter-spacing:-.01em">La misma hoja con el pago resuelto</span>
+      <span style="font-size:12px;color:#8a929c;line-height:1.45">Efectivo abre el vuelto en línea, sin otra hoja encima. Con el pago elegido el botón se enciende y el pedido nace cobrado.</span>
+    </div>
+
+    <div data-screen-label="3B Pago resuelto" style="position:relative;width:390px;height:844px;background:#f4f5f7;border:1px solid #d6dae0;border-radius:26px;overflow:hidden;box-shadow:0 18px 44px rgba(20,24,29,.14)">
+
+      <div style="filter:blur(1.5px);opacity:.5">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px 6px;font-size:12px;font-weight:700">
+          <span>10:14</span><span style="letter-spacing:.1em;color:#8a929c">▮▮▮ ⌁</span>
+        </div>
+        <div style="height:52px;background:#fff;border-bottom:1px solid #e6e8ec"></div>
+      </div>
+
+      <div style="position:absolute;inset:0;background:rgba(20,24,29,.42)"></div>
+
+      <div style="position:absolute;left:0;right:0;top:74px;bottom:0;background:#fff;border-radius:22px 22px 0 0;display:flex;flex-direction:column;box-shadow:0 -14px 34px rgba(20,24,29,.18)">
+
+        <div style="padding:12px 16px 11px;display:flex;flex-direction:column;gap:9px;border-bottom:1px solid #eef0f3">
+          <div style="width:38px;height:4px;border-radius:999px;background:#dfe2e7;align-self:center"></div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="min-width:0;flex:1;display:flex;flex-direction:column;gap:1px">
+              <span style="font-size:19px;font-weight:800;letter-spacing:-.025em;line-height:1.2">Nuevo pedido</span>
+              <span style="font-size:11px;font-weight:600;color:#8a929c;line-height:1.25">#004 · <span style="font-weight:800;color:#1c7a4a">listo para cobrar</span></span>
+            </div>
+            <span style="font-size:26px;font-weight:800;letter-spacing:-.03em;flex:0 0 auto">$5.50</span>
+          </div>
+        </div>
+
+        <div style="flex:1;min-height:0;overflow:hidden;padding:12px 16px 0;display:flex;flex-direction:column;gap:13px">
+
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:baseline;gap:8px;padding-left:2px">
+              <span style="font-size:11px;font-weight:800;letter-spacing:.09em;color:#5b6673">CLIENTE</span>
+              <span style="flex:1;font-size:11px;font-weight:700;color:#1d5a9e">Llevar · 12:30</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
+              <div style="height:42px;border-radius:11px;background:#fafbfc;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700;color:#4a545f">Servirse</div>
+              <div style="height:42px;border-radius:11px;background:#e9f1fb;border:1.5px solid #2f7fd9;display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:800;color:#1d5a9e;letter-spacing:-.01em">Llevar</div>
+              <div style="height:42px;border-radius:11px;background:#fafbfc;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700;color:#4a545f">Reserva</div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1.35fr;gap:6px">
+              <div style="height:44px;border-radius:11px;background:#fafbfc;border:1px solid #eef0f3;padding:0 11px;display:flex;align-items:center;gap:7px">
+                <span style="font-size:10.5px;font-weight:800;letter-spacing:.07em;color:#c3c8ce">MESA</span>
+                <span style="flex:1;font-size:12.5px;font-weight:700;color:#c3c8ce">—</span>
+              </div>
+              <div style="height:44px;border-radius:11px;background:#fff;border:1px solid #dfe2e7;padding:0 11px;display:flex;align-items:center;gap:7px">
+                <span style="flex:1;min-width:0;font-size:13.5px;font-weight:700;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Marisol Vera</span>
+                <span style="font-size:12px;color:#a8afb8">✎</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:baseline;gap:8px;padding-left:2px">
+              <span style="font-size:11px;font-weight:800;letter-spacing:.09em;color:#5b6673">PRODUCTOS</span>
+              <span style="flex:1;font-size:11px;font-weight:700;color:#8a929c">2 platos</span>
+            </div>
+            <div style="background:#fafbfc;border:1px solid #eef0f3;border-radius:13px;padding:10px 12px;display:flex;gap:9px;align-items:center">
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+                <span style="font-size:12.5px;font-weight:800;letter-spacing:-.01em">Almuerzo</span>
+                <span style="font-size:11px;font-weight:600;color:#8a929c;line-height:1.3">Locro · Pechuga rellena · Melón</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:1px;flex:0 0 auto">
+                <div style="width:30px;height:30px;border-radius:9px;background:#fff;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#5b6673">−</div>
+                <span style="width:22px;text-align:center;font-size:13px;font-weight:800">1</span>
+                <div style="width:30px;height:30px;border-radius:9px;background:#fff;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#5b6673">＋</div>
+              </div>
+              <span style="width:42px;text-align:right;font-size:12.5px;font-weight:800;flex:0 0 auto">$3.50</span>
+            </div>
+            <div style="background:#fafbfc;border:1px solid #eef0f3;border-radius:13px;padding:10px 12px;display:flex;gap:9px;align-items:center">
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+                <span style="font-size:12.5px;font-weight:800;letter-spacing:-.01em">Sopa sola</span>
+                <span style="font-size:11px;font-weight:600;color:#8a929c;line-height:1.3">Locro de espinaca</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:1px;flex:0 0 auto">
+                <div style="width:30px;height:30px;border-radius:9px;background:#fff;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#5b6673">−</div>
+                <span style="width:22px;text-align:center;font-size:13px;font-weight:800">1</span>
+                <div style="width:30px;height:30px;border-radius:9px;background:#fff;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#5b6673">＋</div>
+              </div>
+              <span style="width:42px;text-align:right;font-size:12.5px;font-weight:800;flex:0 0 auto">$2.00</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">
+              <div style="height:44px;border-radius:11px;background:#eaf6ef;border:1px solid #cfeadb;display:flex;align-items:center;justify-content:center;gap:5px;font-size:11.5px;font-weight:800;color:#1c7a4a"><span style="font-size:12px">＋</span>Almuerzo</div>
+              <div style="height:44px;border-radius:11px;background:#fff;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;gap:5px;font-size:11.5px;font-weight:700;color:#4a545f"><span style="font-size:12px;color:#8a929c">＋</span>Sopa</div>
+              <div style="height:44px;border-radius:11px;background:#fff;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;gap:5px;font-size:11.5px;font-weight:700;color:#4a545f"><span style="font-size:12px;color:#8a929c">＋</span>Segundo</div>
+              <div style="height:44px;border-radius:11px;background:#fff;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;gap:5px;font-size:11.5px;font-weight:700;color:#4a545f"><span style="font-size:12px;color:#8a929c">＋</span>Extra</div>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:baseline;gap:8px;padding-left:2px">
+              <span style="font-size:11px;font-weight:800;letter-spacing:.09em;color:#5b6673">FORMA DE PAGO</span>
+              <span style="flex:1;font-size:11px;font-weight:700;color:#1c7a4a">efectivo · vuelto $4.50</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
+              <div style="height:48px;border-radius:12px;background:#eaf6ef;border:1.5px solid #1c7a4a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:12.5px;font-weight:800;color:#1c7a4a;letter-spacing:-.01em"><span style="font-size:13px">▤</span>Efectivo</div>
+              <div style="height:48px;border-radius:12px;background:#fafbfc;border:1px solid #dfe2e7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:12.5px;font-weight:700;color:#4a545f;letter-spacing:-.01em"><span style="font-size:13px;color:#8a929c">⇄</span>Transferencia</div>
+              <div style="height:48px;border-radius:12px;background:#fafbfc;border:1px solid #dfe2e7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:12.5px;font-weight:700;color:#4a545f;letter-spacing:-.01em"><span style="font-size:13px;color:#8a929c">◧</span>Mixto</div>
+            </div>
+            <div style="display:flex;gap:6px;align-items:center">
+              <div style="flex:1;height:46px;border-radius:12px;background:#fff;border:1px solid #dfe2e7;padding:0 11px;display:flex;align-items:center;gap:7px">
+                <span style="font-size:10.5px;font-weight:800;letter-spacing:.07em;color:#98a1ab">RECIBE</span>
+                <span style="flex:1;text-align:right;font-size:15px;font-weight:800;letter-spacing:-.02em">$10.00</span>
+              </div>
+              <div style="flex:1;height:46px;border-radius:12px;background:#f4fbf7;border:1px solid #cfeadb;padding:0 11px;display:flex;align-items:center;gap:7px">
+                <span style="font-size:10.5px;font-weight:800;letter-spacing:.07em;color:#1c7a4a">VUELTO</span>
+                <span style="flex:1;text-align:right;font-size:15px;font-weight:800;letter-spacing:-.02em;color:#1c7a4a">$4.50</span>
+              </div>
+            </div>
+            <div style="display:flex;gap:6px">
+              <div style="flex:1;height:38px;border-radius:10px;background:#fafbfc;border:1px solid #eef0f3;display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700;color:#5b6673">$5.50</div>
+              <div style="flex:1;height:38px;border-radius:10px;background:#fafbfc;border:1px solid #eef0f3;display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700;color:#5b6673">$10</div>
+              <div style="flex:1;height:38px;border-radius:10px;background:#fafbfc;border:1px solid #eef0f3;display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700;color:#5b6673">$20</div>
+              <div style="flex:1;height:38px;border-radius:10px;background:#fafbfc;border:1px solid #eef0f3;display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700;color:#5b6673">Otro</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="border-top:1px solid #eef0f3;padding:11px 16px 18px;display:flex;flex-direction:column;gap:7px;background:#fff">
+          <div style="display:flex;gap:8px">
+            <div style="width:52px;height:52px;border-radius:14px;background:#fff;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:16px;color:#5b6673;flex:0 0 auto">⎙</div>
+            <div style="flex:1;height:52px;border-radius:14px;background:#1c7a4a;color:#fff;display:flex;align-items:center;justify-content:center;gap:8px;font-size:15px;font-weight:800;letter-spacing:-.01em;box-shadow:0 8px 18px rgba(28,122,74,.26)">
+              <span>Cobrar e imprimir</span><span style="font-size:14px;opacity:.85">$5.50</span>
+            </div>
+          </div>
+          <span style="font-size:10.5px;font-weight:700;color:#8a929c;text-align:center">Imprime cocina y recibo · el pedido entra como cobrado</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================= 3D ========================= -->
+  <div id="3d" style="display:flex;flex-direction:column;gap:10px">
+    <div style="display:flex;flex-direction:column;gap:2px;padding-left:2px;width:390px">
+      <span style="font-size:10.5px;font-weight:800;letter-spacing:.09em;color:#1c7a4a">3D</span>
+      <span style="font-size:13.5px;font-weight:800;letter-spacing:-.01em">Pago mixto</span>
+      <span style="font-size:12px;color:#8a929c;line-height:1.45">Se escribe una parte y la otra se completa sola. Mientras la suma no llegue al total, el botón queda bloqueado y dice cuánto falta.</span>
+    </div>
+
+    <div data-screen-label="3D Pago mixto" style="position:relative;width:390px;height:844px;background:#f4f5f7;border:1px solid #d6dae0;border-radius:26px;overflow:hidden;box-shadow:0 18px 44px rgba(20,24,29,.14)">
+
+      <div style="filter:blur(1.5px);opacity:.5">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px 6px;font-size:12px;font-weight:700">
+          <span>10:16</span><span style="letter-spacing:.1em;color:#8a929c">▮▮▮ ⌁</span>
+        </div>
+        <div style="height:52px;background:#fff;border-bottom:1px solid #e6e8ec"></div>
+      </div>
+
+      <div style="position:absolute;inset:0;background:rgba(20,24,29,.42)"></div>
+
+      <div style="position:absolute;left:0;right:0;top:74px;bottom:0;background:#fff;border-radius:22px 22px 0 0;display:flex;flex-direction:column;box-shadow:0 -14px 34px rgba(20,24,29,.18)">
+
+        <div style="padding:12px 16px 11px;display:flex;flex-direction:column;gap:9px;border-bottom:1px solid #eef0f3">
+          <div style="width:38px;height:4px;border-radius:999px;background:#dfe2e7;align-self:center"></div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="min-width:0;flex:1;display:flex;flex-direction:column;gap:1px">
+              <span style="font-size:19px;font-weight:800;letter-spacing:-.025em;line-height:1.2">Nuevo pedido</span>
+              <span style="font-size:11px;font-weight:600;color:#8a929c;line-height:1.25">#005 · <span style="font-weight:800;color:#c8102e">faltan $2.00 por asignar</span></span>
+            </div>
+            <span style="font-size:26px;font-weight:800;letter-spacing:-.03em;flex:0 0 auto">$8.75</span>
+          </div>
+        </div>
+
+        <div style="flex:1;min-height:0;overflow:hidden;padding:12px 16px 0;display:flex;flex-direction:column;gap:13px">
+
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:baseline;gap:8px;padding-left:2px">
+              <span style="font-size:11px;font-weight:800;letter-spacing:.09em;color:#5b6673">CLIENTE</span>
+              <span style="flex:1;font-size:11px;font-weight:700;color:#4a545f">Mesa 5 · servirse</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1.35fr;gap:6px">
+              <div style="height:44px;border-radius:11px;background:#fff;border:1px solid #dfe2e7;padding:0 11px;display:flex;align-items:center;gap:7px">
+                <span style="font-size:10.5px;font-weight:800;letter-spacing:.07em;color:#98a1ab">MESA</span>
+                <span style="flex:1;font-size:14px;font-weight:800;letter-spacing:-.01em">5</span>
+                <span style="font-size:8px;color:#8a929c">▼</span>
+              </div>
+              <div style="height:44px;border-radius:11px;background:#fff;border:1px solid #dfe2e7;padding:0 11px;display:flex;align-items:center;gap:7px">
+                <span style="flex:1;min-width:0;font-size:13.5px;font-weight:700;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Don Rubén</span>
+                <span style="font-size:12px;color:#a8afb8">✎</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:baseline;gap:8px;padding-left:2px">
+              <span style="font-size:11px;font-weight:800;letter-spacing:.09em;color:#5b6673">PRODUCTOS</span>
+              <span style="flex:1;font-size:11px;font-weight:700;color:#8a929c">3 platos</span>
+            </div>
+            <div style="background:#fafbfc;border:1px solid #eef0f3;border-radius:13px;padding:10px 12px;display:flex;gap:9px;align-items:center">
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+                <span style="font-size:12.5px;font-weight:800;letter-spacing:-.01em">Almuerzo</span>
+                <span style="font-size:11px;font-weight:600;color:#8a929c;line-height:1.3">Locro · Pechuga rellena · Melón</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:1px;flex:0 0 auto">
+                <div style="width:30px;height:30px;border-radius:9px;background:#fff;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#5b6673">−</div>
+                <span style="width:22px;text-align:center;font-size:13px;font-weight:800">2</span>
+                <div style="width:30px;height:30px;border-radius:9px;background:#fff;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#5b6673">＋</div>
+              </div>
+              <span style="width:42px;text-align:right;font-size:12.5px;font-weight:800;flex:0 0 auto">$7.00</span>
+            </div>
+            <div style="background:#fafbfc;border:1px solid #eef0f3;border-radius:13px;padding:10px 12px;display:flex;gap:9px;align-items:center">
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+                <span style="font-size:12.5px;font-weight:800;letter-spacing:-.01em">Sopa sola</span>
+                <span style="font-size:11px;font-weight:600;color:#8a929c;line-height:1.3">Crema de zapallo</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:1px;flex:0 0 auto">
+                <div style="width:30px;height:30px;border-radius:9px;background:#fff;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#5b6673">−</div>
+                <span style="width:22px;text-align:center;font-size:13px;font-weight:800">1</span>
+                <div style="width:30px;height:30px;border-radius:9px;background:#fff;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#5b6673">＋</div>
+              </div>
+              <span style="width:42px;text-align:right;font-size:12.5px;font-weight:800;flex:0 0 auto">$1.75</span>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:baseline;gap:8px;padding-left:2px">
+              <span style="font-size:11px;font-weight:800;letter-spacing:.09em;color:#5b6673">FORMA DE PAGO</span>
+              <span style="flex:1;font-size:11px;font-weight:700;color:#c8102e">asignado $6.75 de $8.75</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
+              <div style="height:48px;border-radius:12px;background:#fafbfc;border:1px solid #dfe2e7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:12.5px;font-weight:700;color:#4a545f;letter-spacing:-.01em"><span style="font-size:13px;color:#8a929c">▤</span>Efectivo</div>
+              <div style="height:48px;border-radius:12px;background:#fafbfc;border:1px solid #dfe2e7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:12.5px;font-weight:700;color:#4a545f;letter-spacing:-.01em"><span style="font-size:13px;color:#8a929c">⇄</span>Transferencia</div>
+              <div style="height:48px;border-radius:12px;background:#eaf6ef;border:1.5px solid #1c7a4a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:12.5px;font-weight:800;color:#1c7a4a;letter-spacing:-.01em"><span style="font-size:13px">◧</span>Mixto</div>
+            </div>
+
+            <div style="border:1px solid #dfe2e7;border-radius:13px;overflow:hidden">
+              <div style="height:48px;padding:0 12px;display:flex;align-items:center;gap:9px;border-bottom:1px solid #eef0f3">
+                <span style="font-size:13px;color:#8a929c;width:15px;flex:0 0 auto">▤</span>
+                <span style="flex:1;font-size:13px;font-weight:700;letter-spacing:-.01em">Efectivo</span>
+                <span style="font-size:15px;font-weight:800;letter-spacing:-.02em">$5.00</span>
+                <span style="font-size:12px;color:#a8afb8;flex:0 0 auto">✎</span>
+              </div>
+              <div style="height:48px;padding:0 12px;display:flex;align-items:center;gap:9px;border-bottom:1px solid #eef0f3">
+                <span style="font-size:13px;color:#8a929c;width:15px;flex:0 0 auto">⇄</span>
+                <span style="flex:1;font-size:13px;font-weight:700;letter-spacing:-.01em">Transferencia</span>
+                <span style="font-size:15px;font-weight:800;letter-spacing:-.02em">$1.75</span>
+                <span style="font-size:12px;color:#a8afb8;flex:0 0 auto">✎</span>
+              </div>
+              <div style="height:42px;padding:0 12px;display:flex;align-items:center;gap:9px;background:#fdecef">
+                <span style="flex:1;font-size:11px;font-weight:800;letter-spacing:.07em;color:#a90d27">POR ASIGNAR</span>
+                <span style="font-size:15px;font-weight:800;letter-spacing:-.02em;color:#a90d27">$2.00</span>
+              </div>
+            </div>
+            <div style="display:flex;gap:6px">
+              <div style="flex:1;height:38px;border-radius:10px;background:#fafbfc;border:1px solid #eef0f3;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#5b6673">Resto en efectivo</div>
+              <div style="flex:1;height:38px;border-radius:10px;background:#fafbfc;border:1px solid #eef0f3;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#5b6673">Resto transferido</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="border-top:1px solid #eef0f3;padding:11px 16px 18px;display:flex;flex-direction:column;gap:7px;background:#fff">
+          <div style="display:flex;gap:8px">
+            <div style="width:52px;height:52px;border-radius:14px;background:#fff;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:16px;color:#5b6673;flex:0 0 auto">⎙</div>
+            <div style="flex:1;height:52px;border-radius:14px;background:#e9ebef;color:#a8afb8;display:flex;align-items:center;justify-content:center;gap:8px;font-size:15px;font-weight:800;letter-spacing:-.01em">
+              <span>Cobrar e imprimir</span><span style="font-size:14px">$8.75</span>
+            </div>
+          </div>
+          <span style="font-size:10.5px;font-weight:700;color:#c8102e;text-align:center">Asigna los $2.00 que faltan entre efectivo y transferencia</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================= 3E ========================= -->
+  <div id="3e" style="display:flex;flex-direction:column;gap:10px">
+    <div style="display:flex;flex-direction:column;gap:2px;padding-left:2px;width:390px">
+      <span style="font-size:10.5px;font-weight:800;letter-spacing:.09em;color:#1c7a4a">3E</span>
+      <span style="font-size:13.5px;font-weight:800;letter-spacing:-.01em">El ⋯ del pedido</span>
+      <span style="font-size:12px;color:#8a929c;line-height:1.45">Editar y Completar están en la card; acá va el resto. Anular baja a ZONA DE RIESGO, pide motivo y avisa que hay que devolver el dinero.</span>
+    </div>
+
+    <div data-screen-label="3E Hoja acciones pedido" style="position:relative;width:390px;height:844px;background:#f4f5f7;border:1px solid #d6dae0;border-radius:26px;overflow:hidden;box-shadow:0 18px 44px rgba(20,24,29,.14)">
+
+      <div style="filter:blur(1.5px);opacity:.5">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px 6px;font-size:12px;font-weight:700">
+          <span>10:18</span><span style="letter-spacing:.1em;color:#8a929c">▮▮▮ ⌁</span>
+        </div>
+        <div style="height:52px;background:#fff;border-bottom:1px solid #e6e8ec"></div>
+        <div style="height:112px;background:#fff;border-bottom:1px solid #e6e8ec"></div>
+        <div style="padding:12px 14px;display:flex;flex-direction:column;gap:10px">
+          <div style="height:200px;background:#fff;border:1px solid #e6e8ec;border-radius:16px"></div>
+        </div>
+      </div>
+
+      <div style="position:absolute;inset:0;background:rgba(20,24,29,.42)"></div>
+
+      <div style="position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:22px 22px 0 0;padding:14px 16px 20px;display:flex;flex-direction:column;gap:13px;box-shadow:0 -14px 34px rgba(20,24,29,.18)">
+        <div style="width:38px;height:4px;border-radius:999px;background:#dfe2e7;align-self:center"></div>
+
+        <div style="display:flex;flex-direction:column;gap:1px">
+          <span style="font-size:17px;font-weight:800;letter-spacing:-.025em;line-height:1.2">Pedido #003</span>
+          <span style="font-size:11px;font-weight:600;color:#8a929c;line-height:1.3">Marisol Vera · llevar · <span style="font-weight:800;color:#1c7a4a">cobrado $5.50</span></span>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <span style="font-size:11px;font-weight:800;letter-spacing:.09em;color:#98a1ab;padding:0 2px 4px">EL PEDIDO</span>
+          <div style="height:46px;display:flex;align-items:center;gap:12px;padding:0 2px">
+            <span style="width:19px;text-align:center;font-size:14px;color:#5b6673;flex:0 0 auto">✎</span>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+              <span style="font-size:13.5px;font-weight:700;letter-spacing:-.01em">Editar el pedido</span>
+              <span style="font-size:11px;font-weight:600;color:#8a929c">Cliente, platos y pago</span>
+            </div>
+            <span style="font-size:12px;color:#c3c8ce">›</span>
+          </div>
+          <div style="height:46px;display:flex;align-items:center;gap:12px;padding:0 2px;border-top:1px solid #f2f4f6">
+            <span style="width:19px;text-align:center;font-size:14px;color:#5b6673;flex:0 0 auto">✓</span>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+              <span style="font-size:13.5px;font-weight:700;letter-spacing:-.01em">Completar pedido</span>
+              <span style="font-size:11px;font-weight:600;color:#8a929c">Pasa a Listos y sale de esta lista</span>
+            </div>
+            <span style="font-size:12px;color:#c3c8ce">›</span>
+          </div>
+          <div style="height:46px;display:flex;align-items:center;gap:12px;padding:0 2px;border-top:1px solid #f2f4f6">
+            <span style="width:19px;text-align:center;font-size:14px;color:#5b6673;flex:0 0 auto">⎙</span>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+              <span style="font-size:13.5px;font-weight:700;letter-spacing:-.01em">Reimprimir</span>
+              <span style="font-size:11px;font-weight:600;color:#8a929c">Comanda de cocina o recibo</span>
+            </div>
+            <span style="font-size:12px;color:#c3c8ce">›</span>
+          </div>
+          <div style="height:46px;display:flex;align-items:center;gap:12px;padding:0 2px;border-top:1px solid #f2f4f6">
+            <span style="width:19px;text-align:center;font-size:14px;color:#5b6673;flex:0 0 auto">◧</span>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+              <span style="font-size:13.5px;font-weight:700;letter-spacing:-.01em">Cambiar forma de pago</span>
+              <span style="font-size:11px;font-weight:600;color:#8a929c">Ahora: transferencia</span>
+            </div>
+            <span style="font-size:12px;color:#c3c8ce">›</span>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <span style="font-size:11px;font-weight:800;letter-spacing:.09em;color:#a90d27;padding:0 2px">ZONA DE RIESGO</span>
+          <div style="background:#fdecef;border:1px solid #f4d3d9;border-radius:14px;padding:13px;display:flex;flex-direction:column;gap:9px">
+            <div style="display:flex;flex-direction:column;gap:2px">
+              <span style="font-size:13.5px;font-weight:800;letter-spacing:-.01em;color:#a90d27">Anular el pedido</span>
+              <span style="font-size:11.5px;font-weight:600;color:#8a5866;line-height:1.4">Ya está cobrado: hay que devolver $5.50 y queda registrado en caja con tu usuario.</span>
+            </div>
+            <div style="height:44px;border-radius:11px;background:#fff;border:1px solid #f4d3d9;display:flex;align-items:center;padding:0 12px;font-size:12.5px;font-weight:600;color:#a8afb8">Motivo — obligatorio</div>
+            <div style="height:46px;border-radius:12px;background:#c8102e;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13.5px;font-weight:800;letter-spacing:-.01em;opacity:.45">Anular y devolver</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================= 3C ========================= -->
+  <div id="3c" style="width:340px;display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;flex-direction:column;gap:2px;padding-left:2px">
+      <span style="font-size:10.5px;font-weight:800;letter-spacing:.09em;color:#1c7a4a">3C</span>
+      <span style="font-size:13.5px;font-weight:800;letter-spacing:-.01em">Qué cambió respecto a <a href="#2b">2B</a>/<a href="#2c">2C</a></span>
+    </div>
+
+    <div style="background:#fff;border:1px solid #e6e8ec;border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:13px">
+      <div style="display:flex;flex-direction:column;gap:3px">
+        <span style="font-size:12.5px;font-weight:800;letter-spacing:-.01em">Un solo lienzo, tres bloques</span>
+        <span style="font-size:11.5px;font-weight:600;color:#5b6673;line-height:1.5">Cliente, productos y pago viven en la misma hoja con scroll. Si el cliente cambia de mesa o suma un plato, se edita en el sitio sin retroceder de paso.</span>
+      </div>
+      <div style="height:1px;background:#eef0f3"></div>
+      <div style="display:flex;flex-direction:column;gap:3px">
+        <span style="font-size:12.5px;font-weight:800;letter-spacing:-.01em">Cabecera y barra fijas</span>
+        <span style="font-size:11.5px;font-weight:600;color:#5b6673;line-height:1.5">El total vive arriba a la derecha y el botón abajo; solo se desplaza el contenido. El monto nunca se pierde al hacer scroll.</span>
+      </div>
+      <div style="height:1px;background:#eef0f3"></div>
+      <div style="display:flex;flex-direction:column;gap:3px">
+        <span style="font-size:12.5px;font-weight:800;letter-spacing:-.01em">Los datos del cliente en 3 líneas</span>
+        <span style="font-size:11.5px;font-weight:600;color:#5b6673;line-height:1.5">Modo, mesa + nombre, y observación. Cada campo lleno se lee como texto con ✎ — ocupa menos que un formulario y sigue siendo tocable a 44 px.</span>
+      </div>
+      <div style="height:1px;background:#eef0f3"></div>
+      <div style="display:flex;flex-direction:column;gap:3px">
+        <span style="font-size:12.5px;font-weight:800;letter-spacing:-.01em">Pago obligatorio, no un extra</span>
+        <span style="font-size:11.5px;font-weight:600;color:#5b6673;line-height:1.5">Como se cobra por adelantado, el bloque de pago es parte de tomar el pedido: sin forma de pago el botón está bloqueado y la sub-línea del encabezado lo resalta en rojo.</span>
+      </div>
+      <div style="height:1px;background:#eef0f3"></div>
+      <div style="display:flex;flex-direction:column;gap:3px">
+        <span style="font-size:12.5px;font-weight:800;letter-spacing:-.01em">Las cards no colapsan</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:3px;margin-top:-10px">
+        <span style="font-size:11.5px;font-weight:600;color:#5b6673;line-height:1.5">Todas muestran sus platos siempre: nada de abrir y cerrar. La altura la define el pedido, no un estado.</span>
+      </div>
+      <div style="height:1px;background:#eef0f3"></div>
+      <div style="display:flex;flex-direction:column;gap:3px">
+        <span style="font-size:12.5px;font-weight:800;letter-spacing:-.01em">La card ya no cobra</span>
+        <span style="font-size:11.5px;font-weight:600;color:#5b6673;line-height:1.5">Como el pago va por adelantado, el pie muestra <b>Cobrado · forma de pago</b> y las acciones son <b>Editar</b> (abre la hoja de <a href="#3a">3A</a> con los datos actuales) y <b>Completar</b>. Anular vive en el ⋯ de <a href="#3e">3E</a>.</span>
+      </div>
+      <div style="height:1px;background:#eef0f3"></div>
+      <div style="display:flex;flex-direction:column;gap:3px">
+        <span style="font-size:12.5px;font-weight:800;letter-spacing:-.01em">Pago mixto</span>
+        <span style="font-size:11.5px;font-weight:600;color:#5b6673;line-height:1.5">Tercera opción junto a efectivo y transferencia (<a href="#3d">3D</a>): se escribe un monto y el otro se completa solo. La fila roja “por asignar” y el aviso bajo el botón impiden cobrar de menos.</span>
+      </div>
+      <div style="height:1px;background:#eef0f3"></div>
+      <div style="display:flex;flex-direction:column;gap:3px">
+        <span style="font-size:12.5px;font-weight:800;letter-spacing:-.01em">Confirmar se vuelve cobrar</span>
+        <span style="font-size:11.5px;font-weight:600;color:#5b6673;line-height:1.5">Desaparece el par “Confirmar / Confirmar e imprimir”: un solo botón <b>Cobrar e imprimir</b> con el monto, y el ⎙ aparte para quien no quiera ticket. El pedido nace cobrado, así la lista de <a href="#2a">2A</a> ya no necesita el botón Cobrar en cada card.</span>
+      </div>
+      <div style="height:1px;background:#eef0f3"></div>
+      <div style="display:flex;flex-direction:column;gap:3px">
+        <span style="font-size:12.5px;font-weight:800;letter-spacing:-.01em">Vuelto en línea</span>
+        <span style="font-size:11.5px;font-weight:600;color:#5b6673;line-height:1.5">Efectivo despliega recibe/vuelto con atajos de billete. Sin otra hoja encima: el mesero cobra y entrega el cambio en la misma pantalla.</span>
+      </div>
+    </div>
+
+    <div style="background:#fdf3e2;border:1px solid #f2e0bd;border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:4px">
+      <span style="font-size:12.5px;font-weight:800;letter-spacing:-.01em;color:#8a5800">Tu mensaje quedó cortado</span>
+      <span style="font-size:11.5px;font-weight:600;color:#8a5800;line-height:1.5">Terminaba en “además las…”. Decime qué faltaba y lo incorporo a esta hoja.</span>
+    </div>
+  </div>
+
+  <!-- ========================= 2A ========================= -->
+  <div id="2a" style="display:flex;flex-direction:column;gap:10px">
+    <div style="display:flex;flex-direction:column;gap:2px;padding-left:2px;width:390px">
+      <span style="font-size:10.5px;font-weight:800;letter-spacing:.09em;color:#1c7a4a">2A</span>
+      <span style="font-size:13.5px;font-weight:800;letter-spacing:-.01em">Pedidos del día (390 × 844)</span>
+      <span style="font-size:12px;color:#8a929c;line-height:1.45">La fila de 4 iconos sueltos se reemplaza por una acción escrita más ⋯. Anular deja de ser un basurero a un toque de distancia.</span>
+    </div>
+
+    <div data-screen-label="2A Pedidos" style="position:relative;width:390px;height:844px;background:#f4f5f7;border:1px solid #d6dae0;border-radius:26px;overflow:hidden;box-shadow:0 18px 44px rgba(20,24,29,.14)">
+
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px 6px;font-size:12px;font-weight:700">
+        <span>10:13</span><span style="letter-spacing:.1em;color:#8a929c">▮▮▮ ⌁</span>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:8px;height:52px;padding:0 12px;background:#fff;border-bottom:1px solid #e6e8ec">
+        <div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex:0 0 auto"><span style="font-size:17px">☰</span></div>
+        <div style="flex:1;min-width:0;display:flex;align-items:center;gap:9px">
+          <div style="width:30px;height:30px;border-radius:9px;background:#1c7a4a;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex:0 0 auto">C</div>
+          <div style="min-width:0;display:flex;flex-direction:column">
+            <span style="font-size:13.5px;font-weight:800;letter-spacing:-.015em;line-height:1.2;white-space:nowrap">Cresly Almuerzos</span>
+            <span style="font-size:10.5px;color:#8a929c;font-weight:600;line-height:1.2">Suc. Centro</span>
+          </div>
+        </div>
+        <div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex:0 0 auto"><span style="font-size:16px;color:#5b6673">☾</span></div>
+        <div style="display:flex;align-items:center;gap:7px;flex:0 0 auto">
+          <div style="width:34px;height:34px;border-radius:50%;background:#14181d;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800">M</div>
+          <span style="font-size:8px;color:#8a929c">▼</span>
+        </div>
+      </div>
+
+      <div style="background:#fff;border-bottom:1px solid #e6e8ec;padding:0 14px 10px;display:flex;flex-direction:column;gap:10px">
+        <div style="height:56px;display:flex;align-items:center;justify-content:space-between;gap:12px">
+          <div style="min-width:0;display:flex;flex-direction:column;gap:1px">
+            <span style="font-size:17px;font-weight:800;letter-spacing:-.02em;line-height:1.2">Pedidos</span>
+            <span style="font-size:11px;font-weight:600;color:#8a929c;line-height:1.2">Sábado 12 · <span style="font-weight:800;color:#8a5800">3 por entregar</span> · $11.50</span>
+          </div>
+          <div style="width:38px;height:38px;border-radius:11px;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;color:#5b6673;font-size:14px;flex:0 0 auto">⌕</div>
+        </div>
+        <div style="display:flex;gap:7px">
+          <div style="height:34px;padding:0 13px;border-radius:999px;background:#1c7a4a;color:#fff;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:800;letter-spacing:-.01em">Todos <span style="font-weight:700;opacity:.7">3</span></div>
+          <div style="height:34px;padding:0 13px;border-radius:999px;background:#fff;border:1px solid #dfe2e7;color:#4a545f;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700">Servirse <span style="color:#a8afb8">1</span></div>
+          <div style="height:34px;padding:0 13px;border-radius:999px;background:#fff;border:1px solid #dfe2e7;color:#4a545f;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700">Llevar <span style="color:#a8afb8">1</span></div>
+          <div style="height:34px;padding:0 13px;border-radius:999px;background:#fff;border:1px solid #dfe2e7;color:#4a545f;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700">Reserva <span style="color:#a8afb8">1</span></div>
+        </div>
+      </div>
+
+      <div style="height:calc(100% - 33px - 52px - 112px - 78px);overflow:hidden;padding:12px 14px 0;display:flex;flex-direction:column;gap:10px">
+
+        <div style="flex:0 0 auto;background:#fff;border:1px solid #e6e8ec;border-radius:16px;overflow:hidden">
+          <div style="padding:12px 14px 0;display:flex;align-items:center;gap:8px">
+            <span style="font-size:13px;font-weight:800;letter-spacing:-.01em">#003</span>
+            <span style="height:21px;padding:0 8px;border-radius:7px;background:#fdf3e2;border:1px solid #f2e0bd;color:#8a5800;display:flex;align-items:center;font-size:10px;font-weight:800;letter-spacing:.07em">RESERVA 13:00</span>
+            <span style="flex:1"></span>
+            <span style="font-size:11px;font-weight:600;color:#98a1ab">10:12</span>
+          </div>
+          <div style="padding:3px 14px 0;display:flex;align-items:baseline;gap:7px">
+            <span style="font-size:14px;font-weight:800;letter-spacing:-.015em">Marisol Vera</span>
+            <span style="font-size:11.5px;font-weight:700;color:#1d5a9e">Llevar</span>
+          </div>
+          <div style="padding:10px 14px 0;display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;gap:9px;align-items:flex-start">
+              <span style="width:17px;font-size:12px;font-weight:800;color:#8a929c;flex:0 0 auto">1</span>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+                <span style="font-size:12.5px;font-weight:800;letter-spacing:-.01em">Almuerzo</span>
+                <span style="font-size:11.5px;font-weight:600;color:#8a929c;line-height:1.35">Locro de espinaca · Pechuga rellena · Melón</span>
+              </div>
+              <span style="font-size:12.5px;font-weight:700;flex:0 0 auto">$3.50</span>
+            </div>
+            <div style="display:flex;gap:9px;align-items:flex-start">
+              <span style="width:17px;font-size:12px;font-weight:800;color:#8a929c;flex:0 0 auto">1</span>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+                <span style="font-size:12.5px;font-weight:800;letter-spacing:-.01em">Sopa sola</span>
+                <span style="font-size:11.5px;font-weight:600;color:#8a929c;line-height:1.35">Locro de espinaca · sin cebolla</span>
+              </div>
+              <span style="font-size:12.5px;font-weight:700;flex:0 0 auto">$2.00</span>
+            </div>
+          </div>
+          <div style="margin-top:12px;border-top:1px solid #eef0f3;padding:11px 14px 12px;display:flex;flex-direction:column;gap:9px">
+            <div style="display:flex;align-items:baseline;gap:9px">
+              <span style="font-size:10.5px;font-weight:800;letter-spacing:.08em;color:#98a1ab">TOTAL</span>
+              <span style="font-size:15px;font-weight:800;letter-spacing:-.02em">$5.50</span>
+              <span style="flex:1"></span>
+              <span style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:#1c7a4a;white-space:nowrap;flex:0 0 auto"><span style="font-size:11px">✓</span>Cobrado · Transf.</span>
+            </div>
+            <div style="display:flex;gap:7px">
+              <div style="flex:1;height:40px;border-radius:11px;background:#fff;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;gap:6px;font-size:12.5px;font-weight:700;color:#4a545f;letter-spacing:-.01em"><span style="font-size:12px;color:#8a929c">✎</span>Editar</div>
+              <div style="flex:1.35;height:40px;border-radius:11px;background:#1c7a4a;color:#fff;display:flex;align-items:center;justify-content:center;gap:6px;font-size:12.5px;font-weight:800;letter-spacing:-.01em;box-shadow:0 6px 14px rgba(28,122,74,.22)"><span style="font-size:12px">✓</span>Completar</div>
+              <div style="width:40px;height:40px;border-radius:11px;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;color:#5b6673;font-size:14px;flex:0 0 auto">⋯</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="flex:0 0 auto;background:#fff;border:1px solid #e6e8ec;border-radius:16px;overflow:hidden">
+          <div style="padding:12px 14px 0;display:flex;align-items:center;gap:8px">
+            <span style="font-size:13px;font-weight:800;letter-spacing:-.01em">#002</span>
+            <span style="height:21px;padding:0 8px;border-radius:7px;background:#e9f1fb;border:1px solid #d3e2f5;color:#1d5a9e;display:flex;align-items:center;font-size:10px;font-weight:800;letter-spacing:.07em">LLEVAR</span>
+            <span style="flex:1"></span>
+            <span style="font-size:11px;font-weight:600;color:#98a1ab">10:12</span>
+          </div>
+          <div style="padding:3px 14px 0;display:flex;align-items:baseline;gap:7px">
+            <span style="font-size:14px;font-weight:800;letter-spacing:-.015em">Sin nombre</span>
+            <span style="font-size:11.5px;font-weight:700;color:#a8afb8">— agregar</span>
+          </div>
+          <div style="padding:10px 14px 0;display:flex;gap:9px;align-items:flex-start">
+            <span style="width:17px;font-size:12px;font-weight:800;color:#8a929c;flex:0 0 auto">1</span>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+              <span style="font-size:12.5px;font-weight:800;letter-spacing:-.01em">Segundo solo</span>
+              <span style="font-size:11.5px;font-weight:600;color:#8a929c;line-height:1.35">Pechuga rellena · Mora</span>
+            </div>
+            <span style="font-size:12.5px;font-weight:700;flex:0 0 auto">$2.75</span>
+          </div>
+          <div style="margin-top:12px;border-top:1px solid #eef0f3;padding:11px 14px 12px;display:flex;flex-direction:column;gap:9px">
+            <div style="display:flex;align-items:baseline;gap:9px">
+              <span style="font-size:10.5px;font-weight:800;letter-spacing:.08em;color:#98a1ab">TOTAL</span>
+              <span style="font-size:15px;font-weight:800;letter-spacing:-.02em">$2.75</span>
+              <span style="flex:1"></span>
+              <span style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:#1c7a4a;white-space:nowrap;flex:0 0 auto"><span style="font-size:11px">✓</span>Cobrado · Efectivo</span>
+            </div>
+            <div style="display:flex;gap:7px">
+              <div style="flex:1;height:40px;border-radius:11px;background:#fff;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;gap:6px;font-size:12.5px;font-weight:700;color:#4a545f;letter-spacing:-.01em"><span style="font-size:12px;color:#8a929c">✎</span>Editar</div>
+              <div style="flex:1.35;height:40px;border-radius:11px;background:#1c7a4a;color:#fff;display:flex;align-items:center;justify-content:center;gap:6px;font-size:12.5px;font-weight:800;letter-spacing:-.01em;box-shadow:0 6px 14px rgba(28,122,74,.22)"><span style="font-size:12px">✓</span>Completar</div>
+              <div style="width:40px;height:40px;border-radius:11px;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;color:#5b6673;font-size:14px;flex:0 0 auto">⋯</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="flex:0 0 auto;background:#fff;border:1px solid #e6e8ec;border-radius:16px;overflow:hidden">
+          <div style="padding:12px 14px 0;display:flex;align-items:center;gap:8px">
+            <span style="font-size:13px;font-weight:800;letter-spacing:-.01em">#001</span>
+            <span style="height:21px;padding:0 8px;border-radius:7px;background:#eaf6ef;border:1px solid #cfeadb;color:#1c7a4a;display:flex;align-items:center;font-size:10px;font-weight:800;letter-spacing:.07em">MESA 3</span>
+            <span style="flex:1"></span>
+            <span style="font-size:11px;font-weight:600;color:#98a1ab">10:04</span>
+          </div>
+          <div style="padding:10px 14px 0;display:flex;gap:9px;align-items:flex-start">
+            <span style="width:17px;font-size:12px;font-weight:800;color:#8a929c;flex:0 0 auto">1</span>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+              <span style="font-size:12.5px;font-weight:800;letter-spacing:-.01em">Almuerzo</span>
+              <span style="font-size:11.5px;font-weight:600;color:#8a929c;line-height:1.35">Locro de espinaca · Pechuga rellena · Melón</span>
+            </div>
+            <span style="font-size:12.5px;font-weight:700;flex:0 0 auto">$3.25</span>
+          </div>
+          <div style="margin-top:12px;border-top:1px solid #eef0f3;padding:11px 14px 12px;display:flex;flex-direction:column;gap:9px">
+            <div style="display:flex;align-items:baseline;gap:9px">
+              <span style="font-size:10.5px;font-weight:800;letter-spacing:.08em;color:#98a1ab">TOTAL</span>
+              <span style="font-size:15px;font-weight:800;letter-spacing:-.02em">$3.25</span>
+              <span style="flex:1"></span>
+              <span style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:#1c7a4a;white-space:nowrap;flex:0 0 auto"><span style="font-size:11px">✓</span>Cobrado · Mixto</span>
+            </div>
+            <div style="display:flex;gap:7px">
+              <div style="flex:1;height:40px;border-radius:11px;background:#fff;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;gap:6px;font-size:12.5px;font-weight:700;color:#4a545f;letter-spacing:-.01em"><span style="font-size:12px;color:#8a929c">✎</span>Editar</div>
+              <div style="flex:1.35;height:40px;border-radius:11px;background:#1c7a4a;color:#fff;display:flex;align-items:center;justify-content:center;gap:6px;font-size:12.5px;font-weight:800;letter-spacing:-.01em;box-shadow:0 6px 14px rgba(28,122,74,.22)"><span style="font-size:12px">✓</span>Completar</div>
+              <div style="width:40px;height:40px;border-radius:11px;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;color:#5b6673;font-size:14px;flex:0 0 auto">⋯</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="position:absolute;left:0;right:0;bottom:0;height:78px;background:#fff;border-top:1px solid #e6e8ec;padding:9px 8px 0;display:grid;grid-template-columns:repeat(5,1fr);gap:2px;box-shadow:0 -8px 22px rgba(20,24,29,.07)">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 4px;border-radius:12px;background:#eaf6ef">
+          <span style="font-size:17px;color:#1c7a4a">☰</span><span style="font-size:10.5px;font-weight:800;color:#1c7a4a">Pedidos</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 4px">
+          <span style="font-size:17px;color:#9aa2ac">✓</span><span style="font-size:10.5px;font-weight:700;color:#8a929c">Listos</span>
+        </div>
+        <div style="position:relative;display:flex;align-items:flex-start;justify-content:center">
+          <div style="position:absolute;top:-20px;width:56px;height:56px;border-radius:50%;background:#1c7a4a;color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;border:3px solid #fff;box-shadow:0 8px 18px rgba(28,122,74,.3)">＋</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 4px">
+          <span style="font-size:17px;color:#9aa2ac">▤</span><span style="font-size:10.5px;font-weight:700;color:#8a929c">Caja</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 4px">
+          <span style="font-size:17px;color:#9aa2ac">◫</span><span style="font-size:10.5px;font-weight:700;color:#8a929c">Menú</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================= 2B ========================= -->
+  <div id="2b" style="display:flex;flex-direction:column;gap:10px">
+    <div style="display:flex;flex-direction:column;gap:2px;padding-left:2px;width:390px">
+      <span style="font-size:10.5px;font-weight:800;letter-spacing:.09em;color:#1c7a4a">2B</span>
+      <span style="font-size:13.5px;font-weight:800;letter-spacing:-.01em">Nuevo pedido · paso 1, datos</span>
+      <span style="font-size:12px;color:#8a929c;line-height:1.45">Deja de ser un diálogo centrado con dos acordeones: es una hoja inferior con dos pasos. Nada de cinta roja arriba; lo que falta se dice en el botón.</span>
+    </div>
+
+    <div data-screen-label="2B Nuevo pedido datos" style="position:relative;width:390px;height:844px;background:#f4f5f7;border:1px solid #d6dae0;border-radius:26px;overflow:hidden;box-shadow:0 18px 44px rgba(20,24,29,.14)">
+
+      <div style="filter:blur(1.5px);opacity:.55">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px 6px;font-size:12px;font-weight:700">
+          <span>10:13</span><span style="letter-spacing:.1em;color:#8a929c">▮▮▮ ⌁</span>
+        </div>
+        <div style="height:52px;background:#fff;border-bottom:1px solid #e6e8ec"></div>
+        <div style="height:112px;background:#fff;border-bottom:1px solid #e6e8ec"></div>
+        <div style="padding:12px 14px;display:flex;flex-direction:column;gap:10px">
+          <div style="height:150px;background:#fff;border:1px solid #e6e8ec;border-radius:16px"></div>
+          <div style="height:120px;background:#fff;border:1px solid #e6e8ec;border-radius:16px"></div>
+        </div>
+      </div>
+
+      <div style="position:absolute;inset:0;background:rgba(20,24,29,.42)"></div>
+
+      <div style="position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:22px 22px 0 0;padding:14px 16px 20px;display:flex;flex-direction:column;gap:13px;box-shadow:0 -14px 34px rgba(20,24,29,.18)">
+        <div style="width:38px;height:4px;border-radius:999px;background:#dfe2e7;align-self:center"></div>
+
+        <div style="display:flex;align-items:baseline;gap:9px">
+          <span style="font-size:19px;font-weight:800;letter-spacing:-.025em">Nuevo pedido</span>
+          <span style="flex:1"></span>
+          <span style="font-size:11px;font-weight:800;letter-spacing:.07em;color:#1c7a4a">PASO 1 DE 2</span>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px">
+          <div style="height:50px;border-radius:13px;background:#eaf6ef;border:1.5px solid #1c7a4a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px">
+            <span style="font-size:15px;color:#1c7a4a">▦</span>
+            <span style="font-size:12px;font-weight:800;color:#1c7a4a;letter-spacing:-.01em">Servirse</span>
+          </div>
+          <div style="height:50px;border-radius:13px;background:#fafbfc;border:1px solid #dfe2e7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px">
+            <span style="font-size:15px;color:#8a929c">▧</span>
+            <span style="font-size:12px;font-weight:700;color:#4a545f;letter-spacing:-.01em">Llevar</span>
+          </div>
+          <div style="height:50px;border-radius:13px;background:#fafbfc;border:1px solid #dfe2e7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px">
+            <span style="font-size:15px;color:#8a929c">◷</span>
+            <span style="font-size:12px;font-weight:700;color:#4a545f;letter-spacing:-.01em">Reserva</span>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:7px">
+          <div style="display:flex;align-items:baseline;gap:8px;padding-left:2px">
+            <span style="font-size:11px;font-weight:800;letter-spacing:.09em;color:#5b6673">MESA</span>
+            <span style="flex:1;font-size:11px;font-weight:700;color:#c8102e">obligatorio para servirse</span>
+          </div>
+          <div style="display:flex;gap:7px;flex-wrap:wrap">
+            <div style="height:44px;min-width:52px;padding:0 14px;border-radius:12px;background:#fff;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#c3c8ce;text-decoration:line-through">1</div>
+            <div style="height:44px;min-width:52px;padding:0 14px;border-radius:12px;background:#fff;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800">2</div>
+            <div style="height:44px;min-width:52px;padding:0 14px;border-radius:12px;background:#14181d;color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800">3</div>
+            <div style="height:44px;min-width:52px;padding:0 14px;border-radius:12px;background:#fff;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800">4</div>
+            <div style="height:44px;min-width:52px;padding:0 14px;border-radius:12px;background:#fff;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800">5</div>
+            <div style="height:44px;padding:0 13px;border-radius:12px;background:#fafbfc;border:1px solid #dfe2e7;display:flex;align-items:center;font-size:12.5px;font-weight:700;color:#5b6673">Ver todas</div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:7px">
+          <span style="font-size:11px;font-weight:800;letter-spacing:.09em;color:#5b6673;padding-left:2px">NOMBRE <span style="font-weight:600;letter-spacing:0;color:#a8afb8;text-transform:none">· opcional</span></span>
+          <div style="height:46px;border-radius:12px;background:#fafbfc;border:1px solid #dfe2e7;display:flex;align-items:center;padding:0 13px;font-size:13.5px;font-weight:600;color:#a8afb8">Para llamar cuando esté listo</div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:7px">
+          <span style="font-size:11px;font-weight:800;letter-spacing:.09em;color:#5b6673;padding-left:2px">OBSERVACIÓN GENERAL</span>
+          <div style="height:46px;border-radius:12px;background:#fafbfc;border:1px solid #dfe2e7;display:flex;align-items:center;padding:0 13px;font-size:13.5px;font-weight:600;color:#a8afb8">Ej: sin cebolla, entregar 2 pm</div>
+        </div>
+
+        <div style="height:52px;border-radius:14px;background:#1c7a4a;color:#fff;display:flex;align-items:center;justify-content:center;gap:9px;font-size:15px;font-weight:800;letter-spacing:-.01em;box-shadow:0 8px 18px rgba(28,122,74,.26);margin-top:2px">
+          <span>Elegir productos</span><span style="font-size:13px;opacity:.8">›</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================= 2C ========================= -->
+  <div id="2c" style="display:flex;flex-direction:column;gap:10px">
+    <div style="display:flex;flex-direction:column;gap:2px;padding-left:2px;width:390px">
+      <span style="font-size:10.5px;font-weight:800;letter-spacing:.09em;color:#1c7a4a">2C</span>
+      <span style="font-size:13.5px;font-weight:800;letter-spacing:-.01em">Nuevo pedido · paso 2, productos</span>
+      <span style="font-size:12px;color:#8a929c;line-height:1.45">El resumen siempre visible, no escondido en un acordeón. El botón bloqueado dice qué falta en vez de quedarse gris.</span>
+    </div>
+
+    <div data-screen-label="2C Nuevo pedido productos" style="position:relative;width:390px;height:844px;background:#f4f5f7;border:1px solid #d6dae0;border-radius:26px;overflow:hidden;box-shadow:0 18px 44px rgba(20,24,29,.14)">
+
+      <div style="filter:blur(1.5px);opacity:.55">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px 6px;font-size:12px;font-weight:700">
+          <span>10:13</span><span style="letter-spacing:.1em;color:#8a929c">▮▮▮ ⌁</span>
+        </div>
+        <div style="height:52px;background:#fff;border-bottom:1px solid #e6e8ec"></div>
+        <div style="height:112px;background:#fff;border-bottom:1px solid #e6e8ec"></div>
+        <div style="padding:12px 14px;display:flex;flex-direction:column;gap:10px">
+          <div style="height:150px;background:#fff;border:1px solid #e6e8ec;border-radius:16px"></div>
+        </div>
+      </div>
+
+      <div style="position:absolute;inset:0;background:rgba(20,24,29,.42)"></div>
+
+      <div style="position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:22px 22px 0 0;padding:14px 16px 20px;display:flex;flex-direction:column;gap:13px;box-shadow:0 -14px 34px rgba(20,24,29,.18)">
+        <div style="width:38px;height:4px;border-radius:999px;background:#dfe2e7;align-self:center"></div>
+
+        <div style="display:flex;align-items:center;gap:11px">
+          <div style="width:38px;height:38px;border-radius:11px;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;color:#5b6673;font-size:15px;flex:0 0 auto">‹</div>
+          <div style="min-width:0;flex:1;display:flex;flex-direction:column;gap:1px">
+            <span style="font-size:17px;font-weight:800;letter-spacing:-.025em;line-height:1.2">Productos</span>
+            <span style="font-size:11px;font-weight:600;color:#8a929c;line-height:1.2"><span style="font-weight:800;color:#4a545f">Mesa 3 · servirse</span> · Marisol</span>
+          </div>
+          <span style="font-size:11px;font-weight:800;letter-spacing:.07em;color:#1c7a4a;flex:0 0 auto">PASO 2 DE 2</span>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:7px">
+          <div style="height:62px;border-radius:13px;background:#1c7a4a;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;box-shadow:0 6px 14px rgba(28,122,74,.22)">
+            <span style="font-size:16px">◕</span><span style="font-size:11.5px;font-weight:800;letter-spacing:-.01em">Almuerzo</span>
+          </div>
+          <div style="height:62px;border-radius:13px;background:#fafbfc;border:1px solid #dfe2e7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px">
+            <span style="font-size:16px;color:#8a929c">◠</span><span style="font-size:11.5px;font-weight:700;color:#4a545f">Sopa</span>
+          </div>
+          <div style="height:62px;border-radius:13px;background:#fafbfc;border:1px solid #dfe2e7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px">
+            <span style="font-size:16px;color:#8a929c">◒</span><span style="font-size:11.5px;font-weight:700;color:#4a545f">Segundo</span>
+          </div>
+          <div style="height:62px;border-radius:13px;background:#fafbfc;border:1px solid #dfe2e7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px">
+            <span style="font-size:16px;color:#8a929c">◍</span><span style="font-size:11.5px;font-weight:700;color:#4a545f">Extra</span>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:9px">
+          <div style="display:flex;align-items:baseline;gap:8px;padding-left:2px">
+            <span style="font-size:11px;font-weight:800;letter-spacing:.09em;color:#5b6673">EN EL PEDIDO</span>
+            <span style="flex:1;font-size:11px;font-weight:700;color:#8a929c">2 platos</span>
+          </div>
+
+          <div style="background:#fafbfc;border:1px solid #eef0f3;border-radius:14px;padding:11px 13px;display:flex;gap:10px;align-items:flex-start">
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+              <span style="font-size:13px;font-weight:800;letter-spacing:-.01em">Almuerzo</span>
+              <span style="font-size:11.5px;font-weight:600;color:#8a929c;line-height:1.35">Locro de espinaca · Pechuga rellena · Melón</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:2px;flex:0 0 auto">
+              <div style="width:32px;height:32px;border-radius:9px;background:#fff;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#5b6673">−</div>
+              <span style="width:24px;text-align:center;font-size:13.5px;font-weight:800">1</span>
+              <div style="width:32px;height:32px;border-radius:9px;background:#fff;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#5b6673">＋</div>
+            </div>
+            <span style="width:44px;text-align:right;font-size:13px;font-weight:800;flex:0 0 auto">$3.50</span>
+          </div>
+
+          <div style="background:#fafbfc;border:1px solid #eef0f3;border-radius:14px;padding:11px 13px;display:flex;gap:10px;align-items:flex-start">
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+              <span style="font-size:13px;font-weight:800;letter-spacing:-.01em">Sopa sola</span>
+              <span style="font-size:11.5px;font-weight:600;color:#8a929c;line-height:1.35">Locro de espinaca · sin cebolla</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:2px;flex:0 0 auto">
+              <div style="width:32px;height:32px;border-radius:9px;background:#fff;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#5b6673">−</div>
+              <span style="width:24px;text-align:center;font-size:13.5px;font-weight:800">1</span>
+              <div style="width:32px;height:32px;border-radius:9px;background:#fff;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#5b6673">＋</div>
+            </div>
+            <span style="width:44px;text-align:right;font-size:13px;font-weight:800;flex:0 0 auto">$2.00</span>
+          </div>
+        </div>
+
+        <div style="border-top:1px solid #eef0f3;padding-top:12px;display:flex;align-items:baseline;gap:9px">
+          <span style="font-size:11px;font-weight:800;letter-spacing:.08em;color:#98a1ab">TOTAL</span>
+          <span style="flex:1"></span>
+          <span style="font-size:26px;font-weight:800;letter-spacing:-.03em">$5.50</span>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;gap:8px">
+            <div style="flex:1;height:52px;border-radius:14px;background:#fff;border:1.5px solid #1c7a4a;color:#1c7a4a;display:flex;align-items:center;justify-content:center;font-size:14.5px;font-weight:800;letter-spacing:-.01em">Confirmar</div>
+            <div style="flex:1.25;height:52px;border-radius:14px;background:#1c7a4a;color:#fff;display:flex;align-items:center;justify-content:center;gap:7px;font-size:14.5px;font-weight:800;letter-spacing:-.01em;box-shadow:0 8px 18px rgba(28,122,74,.26)">
+              <span style="font-size:14px">⎙</span><span>Confirmar e imprimir</span>
+            </div>
+          </div>
+          <span style="font-size:10.5px;font-weight:700;color:#8a929c;text-align:center">Se imprime en la cocina y el pedido queda por cobrar</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================= 2D ========================= -->
+  <div id="2d" style="display:flex;flex-direction:column;gap:10px">
+    <div style="display:flex;flex-direction:column;gap:2px;padding-left:2px;width:390px">
+      <span style="font-size:10.5px;font-weight:800;letter-spacing:.09em;color:#1c7a4a">2D</span>
+      <span style="font-size:13.5px;font-weight:800;letter-spacing:-.01em">Agregar almuerzo</span>
+      <span style="font-size:12px;color:#8a929c;line-height:1.45">La píldora roja con “0” leía como error o borrar: ahora las porciones son un contador neutro y el plato agotado se deshabilita completo. Radios → filas de 46 px tocables.</span>
+    </div>
+
+    <div data-screen-label="2D Agregar almuerzo" style="position:relative;width:390px;height:844px;background:#f4f5f7;border:1px solid #d6dae0;border-radius:26px;overflow:hidden;box-shadow:0 18px 44px rgba(20,24,29,.14)">
+
+      <div style="filter:blur(1.5px);opacity:.5">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px 6px;font-size:12px;font-weight:700">
+          <span>10:13</span><span style="letter-spacing:.1em;color:#8a929c">▮▮▮ ⌁</span>
+        </div>
+        <div style="height:52px;background:#fff;border-bottom:1px solid #e6e8ec"></div>
+        <div style="height:112px;background:#fff;border-bottom:1px solid #e6e8ec"></div>
+      </div>
+
+      <div style="position:absolute;inset:0;background:rgba(20,24,29,.42)"></div>
+
+      <div style="position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:22px 22px 0 0;padding:14px 16px 20px;display:flex;flex-direction:column;gap:12px;box-shadow:0 -14px 34px rgba(20,24,29,.18)">
+        <div style="width:38px;height:4px;border-radius:999px;background:#dfe2e7;align-self:center"></div>
+
+        <div style="display:flex;flex-direction:column;gap:1px">
+          <span style="font-size:19px;font-weight:800;letter-spacing:-.025em;line-height:1.2">Agregar almuerzo</span>
+          <span style="font-size:11px;font-weight:600;color:#8a929c;line-height:1.3">Sopa, segundo y jugo · <span style="font-weight:800;color:#c8102e">falta elegir el segundo</span></span>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;align-items:baseline;gap:8px;padding-left:2px">
+            <span style="font-size:11px;font-weight:800;letter-spacing:.09em;color:#5b6673">SOPA</span>
+            <span style="flex:1;font-size:11px;font-weight:700;color:#1c7a4a">elegida</span>
+          </div>
+          <div style="height:48px;border-radius:12px;background:#eaf6ef;border:1.5px solid #1c7a4a;padding:0 13px;display:flex;align-items:center;gap:10px">
+            <span style="width:19px;height:19px;border-radius:50%;background:#1c7a4a;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex:0 0 auto">✓</span>
+            <span style="flex:1;min-width:0;font-size:13.5px;font-weight:800;letter-spacing:-.01em">Locro de espinaca</span>
+            <span style="font-size:11px;font-weight:700;color:#1c7a4a;flex:0 0 auto">18 porciones</span>
+          </div>
+          <div style="height:48px;border-radius:12px;background:#fafbfc;border:1px solid #eef0f3;padding:0 13px;display:flex;align-items:center;gap:10px">
+            <span style="width:19px;height:19px;border-radius:50%;border:1.5px solid #c3c8ce;flex:0 0 auto"></span>
+            <span style="flex:1;min-width:0;font-size:13.5px;font-weight:700;color:#a8afb8;letter-spacing:-.01em">Crema de zapallo</span>
+            <span style="height:22px;padding:0 8px;border-radius:7px;background:#e9ebef;color:#8a929c;display:flex;align-items:center;font-size:10px;font-weight:800;letter-spacing:.07em;flex:0 0 auto">AGOTADA</span>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;align-items:baseline;gap:8px;padding-left:2px">
+            <span style="font-size:11px;font-weight:800;letter-spacing:.09em;color:#5b6673">SEGUNDO</span>
+            <span style="flex:1;font-size:11px;font-weight:700;color:#c8102e">falta elegir</span>
+          </div>
+          <div style="height:48px;border-radius:12px;background:#fff;border:1px solid #dfe2e7;padding:0 13px;display:flex;align-items:center;gap:10px">
+            <span style="width:19px;height:19px;border-radius:50%;border:1.5px solid #c3c8ce;flex:0 0 auto"></span>
+            <span style="flex:1;min-width:0;font-size:13.5px;font-weight:700;letter-spacing:-.01em">Pechuga rellena</span>
+            <span style="font-size:11px;font-weight:700;color:#8a5800;flex:0 0 auto">4 porciones</span>
+          </div>
+          <div style="height:48px;border-radius:12px;background:#fff;border:1px solid #dfe2e7;padding:0 13px;display:flex;align-items:center;gap:10px">
+            <span style="width:19px;height:19px;border-radius:50%;border:1.5px solid #c3c8ce;flex:0 0 auto"></span>
+            <span style="flex:1;min-width:0;font-size:13.5px;font-weight:700;letter-spacing:-.01em">Seco de carne</span>
+            <span style="font-size:11px;font-weight:700;color:#1c7a4a;flex:0 0 auto">12 porciones</span>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;align-items:baseline;gap:8px;padding-left:2px">
+            <span style="font-size:11px;font-weight:800;letter-spacing:.09em;color:#5b6673">JUGO</span>
+            <span style="flex:1;font-size:11px;font-weight:700;color:#1c7a4a">elegido</span>
+          </div>
+          <div style="display:flex;gap:7px">
+            <div style="flex:1;height:46px;border-radius:12px;background:#eaf6ef;border:1.5px solid #1c7a4a;display:flex;align-items:center;justify-content:center;gap:7px">
+              <span style="font-size:13px;font-weight:800;color:#1c7a4a;letter-spacing:-.01em">Melón</span>
+            </div>
+            <div style="flex:1;height:46px;border-radius:12px;background:#fff;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#4a545f">Mora</div>
+            <div style="flex:1;height:46px;border-radius:12px;background:#fff;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#4a545f">Agua</div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:7px">
+          <span style="font-size:11px;font-weight:800;letter-spacing:.09em;color:#5b6673;padding-left:2px">OBSERVACIÓN <span style="font-weight:600;letter-spacing:0;color:#a8afb8;text-transform:none">· opcional</span></span>
+          <div style="height:46px;border-radius:12px;background:#fafbfc;border:1px solid #dfe2e7;display:flex;align-items:center;padding:0 13px;font-size:13.5px;font-weight:600;color:#a8afb8">Ej: sin arroz, presa pechuga</div>
+        </div>
+
+        <div style="border-top:1px solid #eef0f3;padding-top:12px;display:flex;flex-direction:column;gap:7px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="display:flex;align-items:center;gap:2px;flex:0 0 auto">
+              <div style="width:38px;height:38px;border-radius:10px;background:#fff;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#c3c8ce">−</div>
+              <span style="width:30px;text-align:center;font-size:15px;font-weight:800">1</span>
+              <div style="width:38px;height:38px;border-radius:10px;background:#fff;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#5b6673">＋</div>
+            </div>
+            <div style="flex:1;height:52px;border-radius:14px;background:#e9ebef;color:#a8afb8;display:flex;align-items:center;justify-content:center;gap:8px;font-size:15px;font-weight:800;letter-spacing:-.01em">
+              <span>Agregar al pedido</span><span style="font-size:13px">$3.50</span>
+            </div>
+          </div>
+          <span style="font-size:10.5px;font-weight:700;color:#c8102e;text-align:center">Elige un segundo para poder agregarlo</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================= NOTAS ========================= -->
+  <div id="2e" style="width:340px;display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;flex-direction:column;gap:2px;padding-left:2px">
+      <span style="font-size:10.5px;font-weight:800;letter-spacing:.09em;color:#1c7a4a">2E</span>
+      <span style="font-size:13.5px;font-weight:800;letter-spacing:-.01em">Qué cambió y por qué</span>
+    </div>
+
+    <div style="background:#fff;border:1px solid #e6e8ec;border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:13px">
+      <div style="display:flex;flex-direction:column;gap:3px">
+        <span style="font-size:12.5px;font-weight:800;letter-spacing:-.01em">Diálogos centrados → hojas inferiores</span>
+        <span style="font-size:11.5px;font-weight:600;color:#5b6673;line-height:1.5">A 390 px un modal centrado deja el contenido lejos del pulgar y obliga a la ✕ arriba. La hoja llega desde abajo, se cierra deslizando y pone la acción a la altura de la mano.</span>
+      </div>
+      <div style="height:1px;background:#eef0f3"></div>
+      <div style="display:flex;flex-direction:column;gap:3px">
+        <span style="font-size:12.5px;font-weight:800;letter-spacing:-.01em">Acordeones → dos pasos</span>
+        <span style="font-size:11.5px;font-weight:600;color:#5b6673;line-height:1.5">“Datos del pedido” y “Agregar productos” competían colapsados y el total quedaba visible pero vacío. Paso 1 datos, paso 2 productos con el total siempre a la vista.</span>
+      </div>
+      <div style="height:1px;background:#eef0f3"></div>
+      <div style="display:flex;flex-direction:column;gap:3px">
+        <span style="font-size:12.5px;font-weight:800;letter-spacing:-.01em">La cinta roja se fue</span>
+        <span style="font-size:11.5px;font-weight:600;color:#5b6673;line-height:1.5">“Completa los datos y agrega los productos” alarmaba antes de que el mesero hiciera algo. Lo que falta se dice donde se necesita: el resaltado del subheader y la línea bajo el botón bloqueado.</span>
+      </div>
+      <div style="height:1px;background:#eef0f3"></div>
+      <div style="display:flex;flex-direction:column;gap:3px">
+        <span style="font-size:12.5px;font-weight:800;letter-spacing:-.01em">La píldora roja “0”</span>
+        <span style="font-size:11.5px;font-weight:600;color:#5b6673;line-height:1.5">Leía como borrar. Las porciones pasan a texto con semáforo (verde disponible, ámbar quedan pocas) y el plato sin stock se deshabilita entero con etiqueta AGOTADA — no se puede elegir por error.</span>
+      </div>
+      <div style="height:1px;background:#eef0f3"></div>
+      <div style="display:flex;flex-direction:column;gap:3px">
+        <span style="font-size:12.5px;font-weight:800;letter-spacing:-.01em">Cuatro iconos sueltos → Cobrar + ⋯</span>
+        <span style="font-size:11.5px;font-weight:600;color:#5b6673;line-height:1.5">＋ ✎ ✓ 🗑 a 28 px, sin etiqueta y con el basurero pegado al ✓. Queda una acción escrita de 38 px y el resto en la hoja de acciones, con anular bajo ZONA DE RIESGO.</span>
+      </div>
+      <div style="height:1px;background:#eef0f3"></div>
+      <div style="display:flex;flex-direction:column;gap:3px">
+        <span style="font-size:12.5px;font-weight:800;letter-spacing:-.01em">Radios de 14 px → filas de 46–48 px</span>
+        <span style="font-size:11.5px;font-weight:600;color:#5b6673;line-height:1.5">Toda la fila es el área tocable y el jugo, al ser corto, va como tres botones en una línea: se elige el almuerzo completo con tres toques.</span>
+      </div>
+      <div style="height:1px;background:#eef0f3"></div>
+      <div style="display:flex;flex-direction:column;gap:3px">
+        <span style="font-size:12.5px;font-weight:800;letter-spacing:-.01em">Cantidad antes de agregar</span>
+        <span style="font-size:11.5px;font-weight:600;color:#5b6673;line-height:1.5">Dos almuerzos iguales se agregaban dos veces. El contador junto al botón evita repetir la hoja completa, y el precio viaja dentro del botón.</span>
+      </div>
+    </div>
+
+    <div style="background:#fdf3e2;border:1px solid #f2e0bd;border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:4px">
+      <span style="font-size:12.5px;font-weight:800;letter-spacing:-.01em;color:#8a5800">Sigue pendiente</span>
+      <span style="font-size:11.5px;font-weight:600;color:#8a5800;line-height:1.5">Si el cupo de porciones se descuenta por plato o por almuerzo completo. En 2D lo muestro por plato; si es por almuerzo, la cifra se mueve al encabezado de la hoja.</span>
+    </div>
+
+    <div style="background:#fafbfc;border:1px solid #eef0f3;border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:4px">
+      <span style="font-size:12.5px;font-weight:800;letter-spacing:-.01em">Datos de ejemplo</span>
+      <span style="font-size:11.5px;font-weight:600;color:#8a929c;line-height:1.5">Nombres, precios y porciones son de muestra. El README del handoff lo advierte.</span>
+    </div>
+  </div>
+
+</section>
+
+</x-dc>
+</body>
+</html>

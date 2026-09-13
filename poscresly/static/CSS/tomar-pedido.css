@@ -199,7 +199,7 @@ h5 {
 #tomarPedidoModal .form-control:focus,
 #tomarPedidoModal .form-select:focus {
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(168, 0, 24, .1);
+  box-shadow: 0 0 0 3px rgba(var(--primary-color-rgb, 168, 0, 24), .1);
 }
 
 /* =====================================================================

@@ -1,0 +1,55 @@
+{% load static %}
+<!-- Tab bar del módulo Almuerzos · handoff_nuevo_pedido_almuerzos 2A.
+     Pedidos · Listos · ＋ · Caja · Menú. En Pedidos, "Listos" abre el modo
+     de marcar varios como entregados y el ＋ abre la hoja de nuevo pedido;
+     en las demás pantallas llevan a Pedidos con esa acción ya pedida
+     (?listos=1 / ?nuevo=1). `global` = incluida desde base.html (Caja),
+     donde en escritorio manda el sidebar y la barra se oculta. -->
+<link rel="stylesheet" href="{% static 'CSS/almuerzos-tabbar.css' %}?v=1">
+<nav class="almtb{% if global %} almtb-global{% endif %}" id="almTabBar" aria-label="Almuerzos">
+  <a href="{% url 'inicio' %}" class="almtb-tab{% if request.path == '/' %} almtb-tab-active{% endif %}"{% if request.path == '/' %} aria-current="page"{% endif %}>
+    <i class="bi bi-receipt" aria-hidden="true"></i>
+    <span>Pedidos</span>
+  </a>
+
+  {% if request.path == '/' %}
+  <button type="button" class="almtb-tab" id="almTabListos" aria-pressed="false">
+    <i class="bi bi-check2-all" aria-hidden="true"></i>
+    <span>Listos</span>
+  </button>
+  {% else %}
+  <a href="{% url 'inicio' %}?listos=1" class="almtb-tab">
+    <i class="bi bi-check2-all" aria-hidden="true"></i>
+    <span>Listos</span>
+  </a>
+  {% endif %}
+
+  <div class="almtb-fab-slot">
+    {% if request.path == '/' %}
+    <button type="button" class="almtb-fab" id="almTabNuevo" aria-label="Nuevo pedido">
+      <i class="bi bi-plus-lg" aria-hidden="true"></i>
+    </button>
+    {% else %}
+    <a href="{% url 'inicio' %}?nuevo=1" class="almtb-fab" aria-label="Nuevo pedido">
+      <i class="bi bi-plus-lg" aria-hidden="true"></i>
+    </a>
+    {% endif %}
+  </div>
+
+  <a href="{% url 'dashboard_caja' %}" class="almtb-tab{% if '/caja/' in request.path %} almtb-tab-active{% endif %}"{% if '/caja/' in request.path %} aria-current="page"{% endif %}>
+    <i class="bi bi-cash-stack" aria-hidden="true"></i>
+    <span>Caja</span>
+  </a>
+  <a href="{% url 'menu' %}" class="almtb-tab{% if request.path|slice:':6' == '/menu/' %} almtb-tab-active{% endif %}"{% if request.path|slice:':6' == '/menu/' %} aria-current="page"{% endif %}>
+    <i class="bi bi-journal-text" aria-hidden="true"></i>
+    <span>Menú</span>
+  </a>
+</nav>
+<script>
+  // Dentro de .main-content (overflow:hidden) un position:fixed puede quedar
+  // recortado en navegadores móviles: la barra vive siempre al final de body.
+  (function () {
+    var nav = document.getElementById('almTabBar');
+    if (nav && nav.parentNode !== document.body) document.body.appendChild(nav);
+  })();
+</script>

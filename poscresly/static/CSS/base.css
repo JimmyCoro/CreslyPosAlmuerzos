@@ -68,6 +68,8 @@ html, body {
   font-size: 17px;
   flex-shrink: 0;
 }
+/* En Almuerzos la marca es verde, igual que el header de sus pantallas. */
+body.almuerzos-page .brand-icon { background-color: var(--secondary-color); }
 
 .brand-text {
   display: flex;

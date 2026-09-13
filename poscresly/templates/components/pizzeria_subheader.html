@@ -40,6 +40,8 @@
       <button type="button" class="pzsh-action-icon"{% if subheader.accion.id %} id="{{ subheader.accion.id }}"{% endif %} aria-label="{{ subheader.accion.label }}">
         <i class="bi {{ subheader.accion.glifo }}"></i>
       </button>
+      {% elif subheader.accion.tipo == 'boton' %}
+      <button type="button" class="pzsh-action-btn"{% if subheader.accion.id %} id="{{ subheader.accion.id }}"{% endif %}>{{ subheader.accion.label }}</button>
       {% elif subheader.accion %}
       <a href="{{ subheader.accion.url|default:'#' }}" class="pzsh-action-text" style="color:{{ subheader.accion.color|default:'#5b6673' }}">{{ subheader.accion.label }}</a>
       {% endif %}
@@ -57,7 +59,7 @@
       {% elif chip.url %}
       <a href="{{ chip.url }}" class="pzsh-chip{% if chip.active %} pzsh-chip-active{% endif %}"{% if chip.active %} aria-current="page"{% endif %}>{{ chip.label }}{% if chip.count is not None %} <span class="pzsh-chip-count">{{ chip.count }}</span>{% endif %}</a>
       {% else %}
-      <button type="button" class="pzsh-chip{% if chip.active %} pzsh-chip-active{% endif %}" data-filtro="{{ chip.value }}">{{ chip.label }}</button>
+      <button type="button" class="pzsh-chip{% if chip.active %} pzsh-chip-active{% endif %}" data-filtro="{{ chip.value }}">{{ chip.label }}{% if chip.count is not None %} <span class="pzsh-chip-count"{% if chip.count_id %} id="{{ chip.count_id }}"{% endif %}>{{ chip.count }}</span>{% endif %}</button>
       {% endif %}
     {% endfor %}
   </div>

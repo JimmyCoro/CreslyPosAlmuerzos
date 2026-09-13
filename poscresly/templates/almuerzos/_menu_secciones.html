@@ -1,0 +1,46 @@
+<!-- Secciones de lectura (sopas, segundos) con semáforo por plato. Todo
+     llega calculado desde menu/servicio.py::construir_menu — este parcial
+     no cuenta ni decide estados. También lo devuelve ?parcial=1. -->
+{% for cat in menu.categorias %}
+<section class="alm-seccion" aria-labelledby="almSec-{{ cat.clave }}">
+  <div class="alm-sec-head">
+    <h2 class="alm-sec-nombre" id="almSec-{{ cat.clave }}">{{ cat.nombre|upper }}</h2>
+    <span class="alm-sec-meta alm-sec-meta-{{ cat.meta_tono }}">{{ cat.meta }}</span>
+  </div>
+
+  {% if cat.ranuras %}
+  <div class="alm-card">
+    <ul class="alm-lineas">
+      {% for r in cat.ranuras %}
+      <li class="alm-linea alm-linea-{{ r.estado }}">
+        <span class="alm-linea-barra" aria-hidden="true"></span>
+        <span class="alm-linea-nombre">{{ r.plato.nombre }}</span>
+        {% if cat.clave == 'jugo' %}
+        <span class="alm-linea-etiqueta">{% if r.siempre %}SIEMPRE{% else %}DEL DÍA{% endif %}</span>
+        {% elif r.estado == 'agotado' %}
+        <span class="alm-linea-agotado">AGOTADO</span>
+        {% else %}
+        <span class="alm-linea-cifra"><span class="visually-hidden">{% if r.estado == 'por_agotarse' %}Por agotarse, quedan {% else %}Quedan {% endif %}</span>{{ r.restantes }}</span>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% else %}
+  <div class="alm-falta">
+    <span class="alm-falta-titulo">{{ cat.vacio_titulo }}</span>
+    <span class="alm-falta-texto">{{ cat.vacio_texto }}</span>
+  </div>
+  {% endif %}
+</section>
+{% endfor %}
+
+{% if menu.menu_anterior %}
+<a href="{% url 'menu_configurar' %}?copiar=1" class="alm-repetir">
+  <span class="alm-repetir-texto">
+    <span class="alm-repetir-titulo">{{ menu.menu_anterior.titulo }}</span>
+    <span class="alm-repetir-resumen">{{ menu.menu_anterior.resumen }}</span>
+  </span>
+  <i class="bi bi-chevron-right" aria-hidden="true"></i>
+</a>
+{% endif %}

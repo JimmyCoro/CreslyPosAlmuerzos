@@ -5,12 +5,23 @@
   <button type="button" class="pzh-menu-btn" id="pzhMenuToggle" aria-label="Abrir menú">
     <i class="bi bi-list"></i>
   </button>
+  {% if '/pizzeria/' in request.path %}
   <a href="{% url 'pizzeria_inicio' %}" class="pzh-brand">
     <span class="pzh-brand-mark">C</span>
     <span class="pzh-brand-text">
       <span class="pzh-brand-name">Cresly Pizzería</span>
     </span>
   </a>
+  {% else %}
+  <!-- Mismo header en Almuerzos: solo cambia el nombre del módulo; la
+       marca toma el verde por --primary-color de body.almuerzos-page. -->
+  <a href="{% url 'inicio' %}" class="pzh-brand">
+    <span class="pzh-brand-mark">C</span>
+    <span class="pzh-brand-text">
+      <span class="pzh-brand-name">Cresly Almuerzos</span>
+    </span>
+  </a>
+  {% endif %}
   <button type="button" class="pzh-theme-btn" aria-label="Cambiar a tema oscuro (próximamente)" title="Próximamente">
     <i class="bi bi-moon"></i>
   </button>

@@ -44,13 +44,13 @@ def dashboard_caja(request):
         pedidos_transferencia = 0
         
         for pedido in pedidos_hoy:
-            total_pedido = pedido.total
-
-            if pedido.forma_pago == 'Efectivo':
-                total_efectivo += total_pedido
+            # Un pedido mixto suma cada parte a su medio y cuenta en ambos.
+            efectivo, transferencia = pedido.montos_por_medio()
+            if efectivo > 0 or pedido.forma_pago == 'Efectivo':
+                total_efectivo += efectivo
                 pedidos_efectivo += 1
-            elif pedido.forma_pago == 'Transferencia':
-                total_transferencia += total_pedido
+            if transferencia > 0 or pedido.forma_pago == 'Transferencia':
+                total_transferencia += transferencia
                 pedidos_transferencia += 1
     
     # Obtener montos iniciales y finales de la caja si existe
@@ -71,8 +71,8 @@ def dashboard_caja(request):
     if caja_actual:
         gastos_hoy = caja_actual.gastos.all()
     
-    # Total de pedidos
-    total_pedidos_caja = pedidos_efectivo + pedidos_transferencia
+    # Total de pedidos (no la suma por medio: un mixto contaría dos veces)
+    total_pedidos_caja = pedidos_hoy.count()
 
     # Resumen por pedido (items, tipo, forma de pago, total) para la tabla del dashboard
     pedidos_resumen = [
@@ -294,10 +294,9 @@ def cerrar_caja(request):
         total_transferencia = 0
         
         for pedido in pedidos_caja:
-            if pedido.forma_pago == 'Efectivo':
-                total_efectivo += pedido.total
-            elif pedido.forma_pago == 'Transferencia':
-                total_transferencia += pedido.total
+            efectivo, transferencia = pedido.montos_por_medio()
+            total_efectivo += efectivo
+            total_transferencia += transferencia
         
         # Actualizar caja efectivo
         caja_efectivo = caja_abierta.caja_efectivo

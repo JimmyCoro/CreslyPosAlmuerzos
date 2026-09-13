@@ -201,6 +201,20 @@
   cursor: pointer;
 }
 .pzsh-action-icon:hover { color: #14181d; }
+.pzsh-action-btn {
+  min-height: 38px;
+  padding: 0 12px;
+  border-radius: 11px;
+  background: #fff;
+  border: 1px solid #dfe2e7;
+  color: #4a545f;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.pzsh-action-btn:hover { color: #14181d; border-color: #c3c8ce; }
+.pzsh-action-btn:disabled { color: #a8afb8; cursor: default; }
 .pzsh-action-text {
   padding: 0 10px;
   min-height: 38px;

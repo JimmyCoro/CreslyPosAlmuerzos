@@ -12,3 +12,12 @@
     --fuente-titulos: 'Source Sans Pro', sans-serif;
     --fuente-jakarta: 'Plus Jakarta Sans', Helvetica, Arial, sans-serif;
 }
+/* Módulo Almuerzos (Pedidos, Caja, Menú del día): el verde de marca pasa a
+   ser el color principal. body.almuerzos-page lo ponen base.html (toda
+   ruta fuera de /pizzeria/) y las pantallas de Menú. Los componentes ya
+   leen --primary-color, así que no hace falta tocar cada regla. */
+body.almuerzos-page {
+    --primary-color: var(--secondary-color);
+    --primary-color-hover: var(--secondary-color-hover);
+    --primary-color-rgb: 0, 131, 59;
+}

@@ -1,0 +1,126 @@
+/* =====================================================================
+   Tab bar del módulo Almuerzos · handoff_nuevo_pedido_almuerzos 2A
+   Pedidos · Listos · ＋ · Caja · Menú. Blanca, 72 px + safe area, activo
+   con tinte verde y FAB de 56 px elevado 20 px con borde blanco de 3 px.
+   ===================================================================== */
+
+.almtb {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 945;
+  height: calc(72px + env(safe-area-inset-bottom));
+  background: #fff;
+  border-top: 1px solid #e6e8ec;
+  box-shadow: 0 -8px 22px rgba(20, 24, 29, .07);
+  padding: 8px 8px env(safe-area-inset-bottom);
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 116px));
+  justify-content: center;
+  align-items: start;
+  gap: 2px;
+  font-family: 'Plus Jakarta Sans', Helvetica, Arial, sans-serif;
+}
+
+.almtb-tab {
+  position: relative;
+  height: 54px;
+  width: 100%;
+  border: none;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 0 4px;
+  border-radius: 12px;
+  color: #8a929c;
+  font-size: 10.5px;
+  font-weight: 700;
+  line-height: 1.1;
+  text-decoration: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color .15s ease, color .15s ease;
+}
+.almtb-tab .bi { font-size: 19px; line-height: 1; color: #9aa2ac; transition: color .15s ease; }
+.almtb-tab span { white-space: nowrap; }
+.almtb-tab:hover { color: #14181d; }
+.almtb-tab:hover .bi { color: #4a545f; }
+.almtb-tab:active { background: #f4f5f7; }
+
+.almtb-tab-active,
+.almtb-tab[aria-pressed="true"] {
+  background: #e6f3ec;
+  color: var(--secondary-color, #00833B);
+  font-weight: 800;
+}
+.almtb-tab-active .bi,
+.almtb-tab[aria-pressed="true"] .bi,
+.almtb-tab-active:hover,
+.almtb-tab-active:hover .bi { color: var(--secondary-color, #00833B); }
+
+/* Contador sobre el ícono (Listos en modo selección) */
+.almtb-badge {
+  position: absolute;
+  top: 3px;
+  left: calc(50% + 6px);
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--secondary-color, #00833B);
+  color: #fff;
+  border: 2px solid #fff;
+  font-size: 10px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-feature-settings: 'tnum' 1;
+}
+
+.almtb-fab-slot { position: relative; height: 54px; display: flex; justify-content: center; }
+.almtb-fab {
+  position: absolute;
+  top: -20px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  background: var(--secondary-color, #00833B);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  text-decoration: none;
+  box-shadow: 0 8px 18px rgba(0, 131, 59, .3);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform .12s ease, background-color .15s ease;
+}
+.almtb-fab:hover { color: #fff; background: var(--secondary-color-hover, #1b5c39); }
+.almtb-fab:active { transform: scale(.94); }
+
+.almtb-tab:focus-visible,
+.almtb-fab:focus-visible {
+  outline: 2px solid var(--secondary-color, #00833B);
+  outline-offset: 2px;
+}
+
+/* Caja (base.html) tiene sidebar fijo en escritorio: ahí la barra sobra.
+   Por debajo, su contenedor con scroll (.col-der) debe dejar libre el alto
+   de la barra más el FAB para que la última card no quede tapada. */
+@media (min-width: 1024px) {
+  .almtb-global { display: none; }
+}
+@media (max-width: 1023px) {
+  body:has(.almtb-global) .col-der { padding-bottom: calc(100px + env(safe-area-inset-bottom)) !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .almtb-tab, .almtb-tab .bi, .almtb-fab { transition: none; }
+}

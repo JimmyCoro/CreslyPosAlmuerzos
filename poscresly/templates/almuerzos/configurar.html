@@ -1,0 +1,79 @@
+{% extends 'movil/base_movil.html' %}
+{% load static %}
+
+{% block title %}Configurar menú · Cresly Almuerzos{% endblock %}
+{% block body_class %} almuerzos-page{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'CSS/almuerzos-menu.css' %}?v=4">
+{% endblock %}
+
+{% block content %}
+<!-- Configurar menú · handoff_menu_del_dia 1C (pantalla completa) y 1D
+     (hoja inferior). Las ranuras se dibujan en static/JS/almuerzos_configurar.js
+     desde el JSON de abajo; el POST de publicar vuelve a validar todo. -->
+<div class="im-shell alm">
+  {% include 'components/pizzeria_header.html' %}
+  {% include 'components/pizzeria_subheader.html' %}
+
+  <main class="alm-content alm-content-conf" id="almConf">
+    <noscript><p class="alm-falta-texto">Esta pantalla necesita JavaScript.</p></noscript>
+  </main>
+
+  <div class="alm-barra-accion alm-barra-fija">
+    <button type="button" class="alm-btn-primario" id="almPublicar" aria-describedby="almPublicarFalta">Publicar menú</button>
+    <p class="alm-linea-falta" id="almPublicarFalta" aria-live="polite"></p>
+  </div>
+</div>
+
+<!-- 1D · Elegir plato -->
+<div class="alm-hoja-fondo" id="almHojaFondo" hidden></div>
+<div class="alm-hoja" id="almHoja" role="dialog" aria-modal="true" aria-labelledby="almHojaTitulo" hidden>
+  <div class="alm-hoja-asa" aria-hidden="true"></div>
+
+  <div class="alm-hoja-cabeza">
+    <h2 class="alm-hoja-titulo" id="almHojaTitulo" tabindex="-1"></h2>
+    <p class="alm-hoja-pista" id="almHojaPista"></p>
+  </div>
+
+  <label class="alm-buscar">
+    <i class="bi bi-search" aria-hidden="true"></i>
+    <input type="search" id="almHojaBuscar" autocomplete="off" enterkeyhint="search">
+  </label>
+
+  <div class="alm-hoja-cuerpo">
+    <span class="alm-hoja-etiqueta" id="almHojaEtiqueta">LAS MÁS SERVIDAS</span>
+    <div class="alm-platos" id="almHojaPlatos" role="radiogroup" aria-labelledby="almHojaEtiqueta"></div>
+
+    <button type="button" class="alm-crear" id="almCrearAbrir">
+      <i class="bi bi-plus-lg" aria-hidden="true"></i><span id="almCrearTexto"></span>
+    </button>
+    <form class="alm-crear-form" id="almCrearForm" hidden novalidate>
+      <input type="text" id="almCrearNombre" maxlength="100" autocomplete="off" aria-label="Nombre del plato nuevo">
+      <button type="submit" class="alm-crear-ok">Crear</button>
+      <p class="alm-crear-error" id="almCrearError" role="alert"></p>
+    </form>
+  </div>
+
+  <div class="alm-hoja-pie">
+    <div class="alm-porciones" id="almHojaPorciones">
+      <label class="alm-porciones-label" for="almHojaCupo">¿Cuántas porciones salen?</label>
+      <div class="alm-stepper">
+        <button type="button" class="alm-step" data-step="-1" aria-label="Una porción menos">−</button>
+        <input type="text" class="alm-step-cant" id="almHojaCupo" inputmode="numeric" maxlength="3">
+        <button type="button" class="alm-step" data-step="1" aria-label="Una porción más">+</button>
+      </div>
+    </div>
+    <button type="button" class="alm-btn-primario" id="almHojaPoner" disabled></button>
+    <button type="button" class="alm-quitar" id="almHojaQuitar" hidden>Quitar de la ranura</button>
+  </div>
+</div>
+
+<div class="alm-aviso" id="almAviso" role="status" aria-live="polite"></div>
+
+{{ estado|json_script:"almEstado" }}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'JS/almuerzos_configurar.js' %}?v=2"></script>
+{% endblock %}

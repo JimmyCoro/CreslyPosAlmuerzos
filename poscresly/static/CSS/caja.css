@@ -338,6 +338,9 @@
 .prc-pago-transferencia .prc-pago-dot {
   background: var(--primary-color);
 }
+.prc-pago-mixto .prc-pago-dot {
+  background: linear-gradient(90deg, var(--secondary-color) 50%, #2f7fd9 50%);
+}
 .prc-time {
   display: inline-flex;
   align-items: center;

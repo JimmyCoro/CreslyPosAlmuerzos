@@ -296,7 +296,7 @@ body {
 /* CONSOLIDADO EN MEDIA QUERIES UNIFICADAS */
 
 .card-header-sopas {
-    background: linear-gradient(90deg, var(--primary-color) 0%, #d34343 100%);
+    background: linear-gradient(90deg, var(--primary-color) 0%, var(--primary-color-hover) 100%);
     border-color: var(--primary-color);
     color: white;
 }
@@ -1200,7 +1200,7 @@ body {
         top: -16px;
         background-color: var(--primary-color) !important;
         color: #fff !important;
-        box-shadow: 0 4px 10px rgba(168, 0, 24, 0.45);
+        box-shadow: 0 4px 10px rgba(var(--primary-color-rgb, 168, 0, 24), 0.45);
         padding: 0;
     }
 

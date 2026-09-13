@@ -3,6 +3,7 @@ from datetime import date
 from .forms import MenuDiaForm, MenuDiaSopaForm, MenuDiaSegundoForm, MenuDiaJugoForm
 from menu.models import MenuDia, MenuDiaSopa, MenuDiaSegundo, MenuDiaJugo, MenuDiaExtra, Producto, Plato
 from pedidos.models import Pedido
+from menu import servicio
 
 import json
 from django.core.serializers.json import DjangoJSONEncoder
@@ -53,86 +54,6 @@ def crear_formularios_menu(menu, data=None):
             jugo_forms.append(MenuDiaJugoForm(data, prefix=f'jugo{i}'))
     
     return sopa_forms, segundo_forms, jugo_forms
-
-def menu(request):
-    """
-    Vista para mostrar la página del menú del día
-    """
-    hoy = date.today()
-    menu, _ = MenuDia.objects.get_or_create(fecha=hoy)
-    agua_plato = asegurar_jugo_agua(menu)
-    
-    # Manejar POST para configuración del menú
-    if request.method == 'POST':
-        form_postre = MenuDiaForm(request.POST, instance=menu)
-        sopa_forms, segundo_forms, jugo_forms = crear_formularios_menu(menu, request.POST)
-
-        if form_postre.is_valid() and all(f.is_valid() for f in sopa_forms + jugo_forms + segundo_forms):
-            form_postre.save()
-
-            # Guardar sopas (actualizar existentes o crear nuevas)
-            sopas_guardadas = []
-            for form in sopa_forms:
-                if form.cleaned_data.get('sopa'):
-                    obj = form.save(commit=False)
-                    obj.menu = menu
-                    # SIEMPRE sincronizar cantidad_actual con cantidad
-                    obj.cantidad_actual = obj.cantidad
-                    obj.save()
-                    sopas_guardadas.append(obj.pk)
-            
-            # Eliminar sopas que ya no están en el formulario
-            MenuDiaSopa.objects.filter(menu=menu).exclude(pk__in=sopas_guardadas).delete()
-
-            # Guardar segundos (actualizar existentes o crear nuevos)
-            segundos_guardados = []
-            for form in segundo_forms:
-                if form.cleaned_data.get('segundo'):
-                    obj = form.save(commit=False)
-                    obj.menu = menu
-                    # SIEMPRE sincronizar cantidad_actual con cantidad
-                    obj.cantidad_actual = obj.cantidad
-                    obj.save()
-                    segundos_guardados.append(obj.pk)
-            
-            # Eliminar segundos que ya no están en el formulario
-            MenuDiaSegundo.objects.filter(menu=menu).exclude(pk__in=segundos_guardados).delete()
-
-            # Guardar jugos (actualizar existentes o crear nuevos)
-            jugos_guardados = []
-            for form in jugo_forms:
-                if form.cleaned_data.get('jugo'):
-                    obj = form.save(commit=False)
-                    obj.menu = menu
-                    obj.save()
-                    jugos_guardados.append(obj.pk)
-            
-            # Eliminar jugos que ya no están en el formulario
-            MenuDiaJugo.objects.filter(menu=menu).exclude(pk__in=jugos_guardados).exclude(jugo=agua_plato).delete()
-
-            return redirect('menu')
-    else:
-        form_postre = MenuDiaForm(instance=menu)
-        sopa_forms, segundo_forms, jugo_forms = crear_formularios_menu(menu)
-    
-    # Obtener datos del menú del día
-    sopas_dia = MenuDiaSopa.objects.filter(menu=menu).select_related('sopa')
-    segundos_dia = MenuDiaSegundo.objects.filter(menu=menu).select_related('segundo')
-    jugos_dia = MenuDiaJugo.objects.filter(menu=menu).select_related('jugo')
-    extras_dia = MenuDiaExtra.objects.filter(menu=menu).select_related('extra')
-    
-    context = {
-        'form_postre': form_postre,
-        'sopa_forms': sopa_forms,
-        'segundo_forms': segundo_forms,
-        'jugo_forms': jugo_forms,
-        'sopas_dia': sopas_dia,
-        'segundos_dia': segundos_dia,
-        'jugos_dia': jugos_dia,
-        'extras_dia': extras_dia,
-    }
-    
-    return render(request, 'menu.html', context)
 
 def inicio(request):
     hoy = date.today()
@@ -236,7 +157,54 @@ def inicio(request):
         
         pedido.total_calculado = total_calculado
 
+    # -------- Pantalla de pedidos (handoff_nuevo_pedido_almuerzos) --------
+    sopas_dia = list(MenuDiaSopa.objects.filter(menu=menu).select_related('sopa').order_by('id'))
+    segundos_dia = list(MenuDiaSegundo.objects.filter(menu=menu).select_related('segundo').order_by('id'))
+    jugos_dia = list(MenuDiaJugo.objects.filter(menu=menu).select_related('jugo').order_by('id'))
+    extras_dia = list(Plato.objects.filter(tipo='extra').order_by('nombre_plato'))
+
+    def _plato_con_cupo(item, plato):
+        return {
+            'id': plato.id,          # Plato.id: lo que espera guardar_pedido
+            'dia_id': item.id,       # MenuDiaSopa/Segundo.id: lo que devuelve obtener-cantidades-modal
+            'nombre': plato.nombre_plato,
+            'restantes': item.cantidad_actual,
+            'estado': servicio.estado_por_restantes(item.cantidad_actual),
+        }
+
+    menu_pedidos = {
+        'sopas': [_plato_con_cupo(s, s.sopa) for s in sopas_dia],
+        'segundos': [_plato_con_cupo(s, s.segundo) for s in segundos_dia],
+        'jugos': [{'id': j.jugo.id, 'nombre': j.jugo.nombre_plato} for j in jugos_dia],
+        'extras': [{'id': e.id, 'nombre': e.nombre_plato, 'precio': float(e.precio)} for e in extras_dia],
+        'umbral': servicio.UMBRAL_POR_AGOTARSE,
+    }
+
+    por_entregar = pedidos_todos.count()
+    monto_pendiente = sum((p.total or Decimal('0.00')) for p in pedidos_todos)
+    subheader = {
+        'titulo': 'Pedidos',
+        'sub_id': 'almPedSub',
+        'sub_pre': f"{servicio.fecha_corta(hoy)} · ",
+        'sub_hi': f"{por_entregar} por entregar" if por_entregar else 'nada por entregar',
+        'sub_hi_tono': 'ambar' if por_entregar else 'neutro',
+        'sub_post': f" · ${monto_pendiente:.2f}",
+        'acciones': [{'id': 'almPedBuscarBtn', 'glifo': 'bi-search', 'label': 'Buscar pedido'}],
+        'segunda': {
+            'tipo': 'chips',
+            'chip_group_id': 'almPedFiltros',
+            'chips': [
+                {'label': 'Todos', 'value': 'todos', 'active': True, 'count': por_entregar, 'count_id': 'contador-todos'},
+                {'label': 'Servirse', 'value': 'servirse', 'count': pedidos_servirse.count(), 'count_id': 'contador-servirse'},
+                {'label': 'Llevar', 'value': 'llevar', 'count': pedidos_llevar.count(), 'count_id': 'contador-llevar'},
+                {'label': 'Reserva', 'value': 'reservados', 'count': pedidos_reservados.count(), 'count_id': 'contador-reservados'},
+            ],
+        },
+    }
+
     context = {
+        'subheader': subheader,
+        'menu_pedidos': menu_pedidos,
         'form_postre': form_postre,
         'sopa_forms': sopa_forms,
         'segundo_forms': segundo_forms,
@@ -246,7 +214,7 @@ def inicio(request):
         'jugos_dia': MenuDiaJugo.objects.filter(menu=menu),
         'extras_dia': Plato.objects.filter(tipo='extra'),  # Mostrar TODOS los extras siempre
         'mesas': range(1, 16),
-        'precios': json.dumps(precios, cls=DjangoJSONEncoder),  # Convierte el diccionario Python precios a formato JSON 
+        'precios': precios,  # json_script en el template
         'pedidos_todos': pedidos_todos,
         'pedidos_servirse': pedidos_servirse,
         'pedidos_llevar': pedidos_llevar,

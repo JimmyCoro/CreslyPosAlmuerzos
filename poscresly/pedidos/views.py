@@ -289,6 +289,13 @@ def generar_clave_producto(producto):
         return f"extra_{producto.get('extras_ids', '')}"
     return None
 
+def _pago_mixto_json(pedido):
+    """Montos por medio para el front; None si el pago no es mixto."""
+    if pedido.forma_pago != 'Mixto':
+        return {'monto_efectivo': None, 'monto_transferencia': None}
+    efectivo, transferencia = pedido.montos_por_medio()
+    return {'monto_efectivo': float(efectivo), 'monto_transferencia': float(transferencia)}
+
 def calcular_total_pedido(pedido):
     """Calcula el total de un pedido sumando todos sus productos"""
     total = Decimal('0.00')
@@ -375,6 +382,15 @@ def guardar_pedido(request):
         pedido_id_editar = request.POST.get('pedido_id')
         es_agregar_productos = request.POST.get('es_agregar_productos') == 'true'
         imprimir_pedido = request.POST.get('imprimir', 'true') != 'false'
+        # Pago mixto: llega la parte en efectivo; la transferencia es el resto.
+        monto_efectivo = None
+        if request.POST.get('monto_efectivo'):
+            try:
+                monto_efectivo = max(Decimal(request.POST.get('monto_efectivo')), Decimal('0.00'))
+            except Exception:
+                return JsonResponse({'status': 'error', 'message': 'Monto en efectivo inválido'}, status=400)
+        if forma_pago == 'Mixto' and not es_agregar_productos and monto_efectivo is None:
+            return JsonResponse({'status': 'error', 'message': 'Falta el monto en efectivo del pago mixto'}, status=400)
 
         total_pedido = Decimal('0.00')
         productos_carrito = []
@@ -408,12 +424,15 @@ def guardar_pedido(request):
                     # Solo agregar productos, no modificar campos del pedido
                     total_anterior = pedido.total
                     pedido.total = total_anterior + total_pedido  # Sumar al total existente
+                    if pedido.forma_pago == 'Mixto' and monto_efectivo is not None:
+                        pedido.monto_efectivo = monto_efectivo
                     pedido.save()
                 else:
                     # Edición normal - actualizar campos del pedido
                     total_anterior = pedido.total
                     pedido.tipo = tipo_pedido
                     pedido.forma_pago = forma_pago
+                    pedido.monto_efectivo = monto_efectivo if forma_pago == 'Mixto' else None
                     pedido.numero_mesa = mesa if mesa else None
                     pedido.contacto = contacto
                     pedido.subtipo_reservado = (
@@ -429,6 +448,7 @@ def guardar_pedido(request):
                 pedido = Pedido.objects.create(
                     tipo=tipo_pedido,
                     forma_pago=forma_pago,
+                    monto_efectivo=monto_efectivo if forma_pago == 'Mixto' else None,
                     numero_mesa=mesa if mesa else None,
                     contacto=contacto,
                     subtipo_reservado=subtipo_reservado if tipo_pedido.lower() == 'reservado' else None,
@@ -796,6 +816,7 @@ def guardar_pedido(request):
                 'numero_pedido_completo': pedido.numero_pedido_completo,
                 'tipo': pedido.tipo,
                 'forma_pago': pedido.forma_pago,
+                **_pago_mixto_json(pedido),
                 'mesa': pedido.numero_mesa,
                 'contacto': pedido.contacto,
                 'subtipo_reservado': pedido.subtipo_reservado,
@@ -839,11 +860,12 @@ def marcar_pedido_completado(request):
             # Buscar caja abierta actual
             caja = CajaDiaria.objects.filter(estado='abierta').first()
             if caja:
-                if pedido.forma_pago == 'Efectivo':
-                    caja.caja_efectivo.total_ventas += pedido.total
+                efectivo, transferencia = pedido.montos_por_medio()
+                if efectivo > 0:
+                    caja.caja_efectivo.total_ventas += efectivo
                     caja.caja_efectivo.save()
-                elif pedido.forma_pago == 'Transferencia':
-                    caja.caja_transferencia.total_ventas += pedido.total
+                if transferencia > 0:
+                    caja.caja_transferencia.total_ventas += transferencia
                     caja.caja_transferencia.save()
         except Exception:
             pass  # No hay caja abierta, no se suma
@@ -873,6 +895,7 @@ def obtener_pedido(request, pedido_id):
                 'numero_pedido_completo': pedido.numero_pedido_completo,
                 'tipo': pedido.tipo,
                 'forma_pago': pedido.forma_pago,
+                **_pago_mixto_json(pedido),
                 'mesa': pedido.numero_mesa,
                 'contacto': pedido.contacto,
                 'subtipo_reservado': pedido.subtipo_reservado,
@@ -905,6 +928,7 @@ def obtener_pedidos_pendientes(request):
                 'numero_pedido_completo': pedido.numero_pedido_completo,
                 'tipo': pedido.tipo,
                 'forma_pago': pedido.forma_pago,
+                **_pago_mixto_json(pedido),
                 'mesa': pedido.numero_mesa,
                 'contacto': pedido.contacto,
                 'subtipo_reservado': pedido.subtipo_reservado,
@@ -1065,10 +1089,9 @@ def marcar_pedidos_completados(request):
                 total_transferencia = 0
                 
                 for pedido in pedidos_actualizados:
-                    if pedido.forma_pago == 'Efectivo':
-                        total_efectivo += pedido.total
-                    elif pedido.forma_pago == 'Transferencia':
-                        total_transferencia += pedido.total
+                    efectivo, transferencia = pedido.montos_por_medio()
+                    total_efectivo += efectivo
+                    total_transferencia += transferencia
                 
                 # Actualizar totales en caja
                 if total_efectivo > 0:
@@ -1212,6 +1235,7 @@ def obtener_pedidos_por_tipo(request):
                 'numero_pedido_completo': pedido.numero_pedido_completo,
                 'tipo': pedido.tipo,
                 'forma_pago': pedido.forma_pago,
+                **_pago_mixto_json(pedido),
                 'fecha_creacion': pedido.fecha_creacion.isoformat(),
                 'mesa': pedido.numero_mesa,
                 'contacto': pedido.contacto,
@@ -1386,6 +1410,7 @@ def serializar_pedido_para_websocket(pedido):
             'tipo': pedido.tipo,
             'subtipo': pedido.subtipo_reservado,
             'forma_pago': pedido.forma_pago,
+                **_pago_mixto_json(pedido),
             'total': float(pedido.total),
             'estado_pedido': pedido.estado,
             'fecha_creacion': pedido.fecha_creacion.isoformat(),

@@ -1,2221 +1,283 @@
-
-
-{% extends 'base.html' %}
+{% extends 'movil/base_movil.html' %}
 {% load static %}
-{% load math_filters %}
 
-{% block content %}
-<div class="app-topbar">
-  <button class="sidebar-toggle" id="sidebarToggle" aria-label="Abrir menú">
-    <i class="fas fa-bars"></i>
-  </button>
-  <div class="topbar-center">
-    <div class="topbar-search">
-      <i class="fas fa-search topbar-search-icon"></i>
-      <input type="text" class="topbar-search-input" id="buscadorPedidos" placeholder="Buscar pedido, mesa o producto...">
-    </div>
-  </div>
-  {% include 'components/topbar_right.html' %}
-</div>
-<div class="container-fluid contenedor-principal">
-  <div class="row h-100">
-    <div class="col-12 col-inicio d-flex flex-column">
-      <!-- Header de página / Navbar inferior en tablet vertical y celulares -->
-      {% include 'components/bottom_nav.html' %}
-      
-      <!-- Tabs redondeados -->
-      <div class="content-nav-tabs d-flex justify-content-between align-items-center py-1 px-1">
-        <div class="d-flex align-items-center justify-content-evenly w-100 gap-2">
-          <button class="nav-link-tab-rounded active" id="todos-tab" data-tipo="todos" type="button">
-            Todos <span class="badge badge-todos ms-1" id="contador-todos">{{ pedidos_todos.count }}</span>
-          </button>
-          <button class="nav-link-tab-rounded" id="servirse-tab" data-tipo="servirse" type="button">
-            Servirse <span class="badge badge-servirse ms-1" id="contador-servirse">{{ pedidos_servirse.count }}</span>
-          </button>
-          <button class="nav-link-tab-rounded" id="llevar-tab" data-tipo="llevar" type="button">
-            Llevar <span class="badge badge-llevar ms-1" id="contador-llevar">{{ pedidos_llevar.count }}</span>
-          </button>
-          <button class="nav-link-tab-rounded" id="reservados-tab" data-tipo="reservados" type="button">
-            Reservados <span class="badge badge-reservados ms-1" id="contador-reservados">{{ pedidos_reservados.count }}</span>
-          </button>
-        </div>
-      </div>
-      
-      <!-- Contenedor único para todos los pedidos -->
-      <div class="pedidos-scroll">
-        <div class="row g-0" id="contenedor-cards-pedidos">
-          <!-- Aquí van las cards de los pedidos generadas dinámicamente por JavaScript -->
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+{% block title %}Pedidos · Cresly Almuerzos{% endblock %}
+{% block body_class %} almuerzos-page{% endblock %}
 
-{% include 'components/modal_menu_config.html' %}
-{% include 'components/modal_tomar_pedido.html' %}
-{% include 'components/modal_agregar_producto.html' %}
-
-<!-- Templates de formularios -->
-<template id="formulario-almuerzo">
-  <div>
-    <label><strong><i class="fas fa-utensils me-2" style="background: #2196f3; color: white; padding: 0.3rem; border-radius: 4px;"></i>Sopa:</strong></label>
-    <div class="d-flex flex-column gap-0 mb-2">
-      {% for s in sopas_dia %}
-        <button type="button" class="btn btn-sopa" data-id="{{ s.sopa.id }}" data-sopa-dia-id="{{ s.id }}">
-          <div class="d-flex align-items-center justify-content-between w-90 pb-1">
-            <div class="d-flex align-items-center">
-              <div class="checkbox-circle me-3 mb-1"></div>
-              <span>{{ s.sopa.nombre_plato }}</span>
-            </div>
-            <span class="cantidad-disponible" data-sopa-dia-id="{{ s.id }}">
-              <span class="punto-cantidad{% if s.cantidad_actual == 0 %} sin-productos{% elif s.cantidad_actual <= s.cantidad|add:'-1'|multiply:0.5 %} pocos-productos{% endif %}"></span>
-              {{ s.cantidad_actual }} disponibles
-            </span>
-          </div>
-        </button>
-      {% endfor %}
-    </div>
-    <input type="hidden" name="sopa" id="sopa-seleccionada">
-
-    <label><strong><i class="fas fa-coffee me-2" style="background: #4caf50; color: white; padding: 0.3rem; border-radius: 4px;"></i>Segundo:</strong></label>
-    <div class="d-flex flex-column gap-0 mb-2">
-      {% for s in segundos_dia %}
-        <button type="button" class="btn btn-segundo" data-id="{{ s.segundo.id }}" data-segundo-dia-id="{{ s.id }}">
-          <div class="d-flex align-items-center justify-content-between w-100">
-            <div class="d-flex align-items-center">
-              <div class="checkbox-circle me-3"></div>
-              <span>{{ s.segundo.nombre_plato }}</span>
-            </div>
-            <span class="cantidad-disponible" data-segundo-dia-id="{{ s.id }}">
-              <span class="punto-cantidad{% if s.cantidad_actual == 0 %} sin-productos{% elif s.cantidad_actual <= s.cantidad|add:'-1'|multiply:0.5 %} pocos-productos{% endif %}"></span>
-              {{ s.cantidad_actual }}
-            </span>
-          </div>
-        </button>
-      {% endfor %}
-    </div>
-    <input type="hidden" name="segundo" id="segundo-seleccionado">
-
-    <label><strong><i class="fas fa-glass-martini me-" style="background: #ff9800; color: white; padding: 0.3rem; border-radius: 4px;"></i>Jugo:</strong></label>
-    <div class="d-flex flex-column gap-0 mb-2">
-      {% for j in jugos_dia %}
-        <button type="button" class="btn btn-jugo" data-id="{{ j.jugo.id }}">
-          <div class="d-flex align-items-center justify-content-between w-100">
-            <div class="d-flex align-items-center">
-              <div class="checkbox-circle me-3"></div>
-              <span>{{ j.jugo.nombre_plato }}</span>
-            </div>
-          </div>
-        </button>
-      {% endfor %}
-    </div>
-    <input type="hidden" name="jugo" id="jugo-seleccionado">
-  </div>
-</template>
-
-<template id="formulario-sopa">
-  <div>
-    <label><strong><i class="fas fa-utensils me-2" style="background: #2196f3; color: white; padding: 0.3rem; border-radius: 4px;"></i>Sopa:</strong></label>
-    <div class="d-flex flex-column gap-2 mb-3">
-      {% for s in sopas_dia %}
-        <button type="button" class="btn btn-sopa" data-id="{{ s.sopa.id }}" data-sopa-dia-id="{{ s.id }}">
-          <div class="d-flex align-items-center justify-content-between w-100">
-            <div class="d-flex align-items-center">
-              <div class="checkbox-circle me-3"></div>
-              <span>{{ s.sopa.nombre_plato }}</span>
-            </div>
-            <span class="cantidad-disponible" data-sopa-dia-id="{{ s.id }}">
-              <span class="punto-cantidad{% if s.cantidad_actual == 0 %} sin-productos{% elif s.cantidad_actual <= s.cantidad|add:'-1'|multiply:0.5 %} pocos-productos{% endif %}"></span>
-              {{ s.cantidad_actual }} disponibles
-            </span>
-          </div>
-        </button>
-      {% endfor %}
-    </div>
-    <input type="hidden" name="sopa" id="sopa-seleccionada">
-
-    <label><strong><i class="fas fa-glass-martini me-2" style="background: #ff9800; color: white; padding: 0.3rem; border-radius: 4px;"></i>Jugo:</strong></label>
-    <div class="d-flex flex-column gap-2 mb-3">
-      {% for j in jugos_dia %}
-        <button type="button" class="btn btn-jugo" data-id="{{ j.jugo.id }}">
-          <div class="d-flex align-items-center justify-content-between w-100">
-            <div class="d-flex align-items-center">
-              <div class="checkbox-circle me-3"></div>
-              <span>{{ j.jugo.nombre_plato }}</span>
-            </div>
-          </div>
-        </button>
-      {% endfor %}
-    </div>
-    <input type="hidden" name="jugo" id="jugo-seleccionado">
-  </div>
-</template>
-
-<template id="formulario-segundo">
-  <div>
-    <label><strong><i class="fas fa-coffee me-2" style="background: #4caf50; color: white; padding: 0.3rem; border-radius: 4px;"></i>Segundo:</strong></label>
-    <div class="d-flex flex-column gap-2 mb-3">
-      {% for s in segundos_dia %}
-        <button type="button" class="btn btn-segundo" data-id="{{ s.segundo.id }}" data-segundo-dia-id="{{ s.id }}">
-          <div class="d-flex align-items-center justify-content-between w-100">
-            <div class="d-flex align-items-center">
-              <div class="checkbox-circle me-3"></div>
-              <span>{{ s.segundo.nombre_plato }}</span>
-            </div>
-            <span class="cantidad-disponible" data-segundo-dia-id="{{ s.id }}">
-              <span class="punto-cantidad{% if s.cantidad_actual == 0 %} sin-productos{% elif s.cantidad_actual <= s.cantidad|add:'-1'|multiply:0.5 %} pocos-productos{% endif %}"></span>
-              {{ s.cantidad_actual }}
-            </span>
-          </div>
-        </button>
-      {% endfor %}
-    </div>
-    <input type="hidden" name="segundo" id="segundo-seleccionado">
-
-    <label><strong><i class="fas fa-glass-martini me-2" style="background: #ff9800; color: white; padding: 0.3rem; border-radius: 4px;"></i>Jugo:</strong></label>
-    <div class="d-flex flex-column gap-2 mb-3">
-      {% for j in jugos_dia %}
-        <button type="button" class="btn btn-jugo" data-id="{{ j.jugo.id }}">
-          <div class="d-flex align-items-center justify-content-between w-100">
-            <div class="d-flex align-items-center">
-              <div class="checkbox-circle me-3"></div>
-              <span>{{ j.jugo.nombre_plato }}</span>
-            </div>
-          </div>
-        </button>
-      {% endfor %}
-    </div>
-    <input type="hidden" name="jugo" id="jugo-seleccionado">
-  </div>
-</template>
-
-<template id="formulario-extra">
-  <div>
-    <label><strong><i class="fas fa-plus-circle me-2" style="background: #7b1fa2; color: white; padding: 0.3rem; border-radius: 4px;"></i>Extras:</strong></label>
-    <div class="d-flex flex-column gap-2 mb-3">
-      {% for e in extras_dia %}
-        <button type="button" class="btn btn-extra" data-id="{{ e.id }}">
-          <div class="d-flex align-items-center justify-content-between w-100">
-            <div class="d-flex align-items-center">
-              <div class="checkbox-circle me-3"></div>
-              <span>{{ e.nombre_plato }}</span>
-            </div>
-            <span class="text-success fw-bold">${{ e.precio }}</span>
-          </div>
-        </button>
-      {% endfor %}
-    </div>
-    <input type="hidden" name="extras_seleccionados" id="extras-seleccionados">
-  </div>
-</template>
-
-<script>
-const PRECIOS = {{ precios|safe }};
-</script>
-
-<script>
-
-  function mostrarTercerSegundo() {
-    const formTercerSegundo = document.getElementById('form-tercer-segundo');
-    if (formTercerSegundo) {
-      formTercerSegundo.classList.remove('d-none');
-    }
-
-    const boton = event.target;
-    if (boton) {
-      boton.classList.add('d-none');
-    }
-  }
-
-document.addEventListener('DOMContentLoaded', function() {
-  const formaPagoInput = document.getElementById('forma_pago');
-  const tipoPedidoInput = document.getElementById('tipo_pedido');
-  let totalPedido = 0;
-
-  // --- Inicializar Select2 solo al abrir el modal de Configurar Menú ---
-if (menuDiaModal) {
-  menuDiaModal.addEventListener('shown.bs.modal', function () {
-    if (typeof $ !== 'undefined' && $.fn.select2) {
-      setTimeout(function () {
-        $('#menuDiaModal .form-select').each(function () {
-          if (!$(this).hasClass("select2-hidden-accessible")) {
-            $(this).select2({
-              dropdownParent: $('#menuDiaModal .modal-content'),  // 👈 Esto es clave
-              width: '100%'
-            });
-          }
-        });
-        
-        // Verificar si hay datos en el tercer segundo y mostrarlo automáticamente
-        const tercerSegundoForm = document.getElementById('form-tercer-segundo');
-        const tercerSegundoSelect = document.querySelector('#form-tercer-segundo select[name*="segundo"]');
-        const botonAgregarTercerSegundo = document.querySelector('button[onclick="mostrarTercerSegundo()"]');
-        
-        if (tercerSegundoForm && tercerSegundoSelect && botonAgregarTercerSegundo) {
-          // Si el tercer segundo tiene un valor seleccionado, mostrarlo
-          if (tercerSegundoSelect.value && tercerSegundoSelect.value !== '') {
-            tercerSegundoForm.classList.remove('d-none');
-            botonAgregarTercerSegundo.classList.add('d-none');
-          }
-        }
-      }, 100);
-    }
-  });
-  
-  // Actualizar cantidades cuando se cierre el modal de configuración del menú
-  menuDiaModal.addEventListener('hidden.bs.modal', async function () {
-    console.log('=== MODAL DE CONFIGURACIÓN CERRADO - ACTUALIZANDO CANTIDADES ===');
-    // Actualizar cantidades en la columna izquierda
-    await actualizarCantidadesDisponibles();
-    // Actualizar cantidades en el modal de agregar productos si está abierto
-    const modalAgregarProducto = document.getElementById('agregarProductoModal');
-    if (modalAgregarProducto && modalAgregarProducto.classList.contains('show')) {
-      await actualizarCantidadesModal();
-    }
-  });
-}
-
-
-  // --- Forma de pago ---
-  document.querySelectorAll('.btn-forma-pago').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      formaPagoInput.value = this.getAttribute('data-forma-pago');
-      document.querySelectorAll('.btn-forma-pago').forEach(b => b.classList.remove('active'));
-      this.classList.add('active');
-    });
-  });
-
-  // --- Tipo de pedido (tabs) ---
-  document.querySelectorAll('#tipoPedidoTabs button').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      tipoPedidoInput.value = this.textContent.trim();
-    });
-  });
-      const activeTab = document.querySelector('#tipoPedidoTabs button.active');
-    if (activeTab) tipoPedidoInput.value = activeTab.textContent.trim();
-
-    // Usar precios desde el backend (base de datos)
-    window.PRECIOS = PRECIOS;
-    
-    // Debug: verificar que PRECIOS se cargó desde la BD
-    console.log('✅ PRECIOS cargado desde BD:', window.PRECIOS);
-
-  // --- Activar selección de productos ---
-  function activarBotonesSeleccion() {
-    document.querySelectorAll('.btn-sopa').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.btn-sopa').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById('sopa-seleccionada').value = btn.dataset.id;
-      });
-    });
-
-    document.querySelectorAll('.btn-segundo').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.btn-segundo').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById('segundo-seleccionado').value = btn.dataset.id;
-      });
-    });
-
-    document.querySelectorAll('.btn-jugo').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.btn-jugo').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById('jugo-seleccionado').value = btn.dataset.id;
-      });
-    });
-
-    document.querySelectorAll('.btn-extra').forEach(btn => {
-      btn.addEventListener('click', () => {
-        // Toggle selection (permitir múltiple selección)
-        btn.classList.toggle('active');
-        
-        // Actualizar lista de extras seleccionados
-        const extrasSeleccionados = [];
-        document.querySelectorAll('.btn-extra.active').forEach(btnActivo => {
-          extrasSeleccionados.push(btnActivo.dataset.id);
-        });
-        document.getElementById('extras-seleccionados').value = extrasSeleccionados.join(',');
-      });
-    });
-  }
-
-  activarBotonesSeleccion();
-
-  // --- Función para actualizar cantidades en el modal ---
-  async function actualizarCantidadesModal() {
-    try {
-      console.log('=== ACTUALIZANDO CANTIDADES DEL MODAL ===');
-      
-      const response = await fetch('/obtener-cantidades-modal/');
-      const data = await response.json();
-      
-      if (data.status === 'ok') {
-        console.log('Cantidades recibidas:', data);
-        
-        // Actualizar sopas en el modal
-        if (data.sopas) {
-          data.sopas.forEach(sopa => {
-            const sopaElement = document.querySelector(`[data-sopa-dia-id="${sopa.id}"]`);
-            if (sopaElement) {
-              const cantidadSpan = sopaElement.querySelector('.cantidad-disponible');
-              
-              if (cantidadSpan) {
-                // Actualizar número
-                cantidadSpan.innerHTML = sopa.cantidad_actual;
-                
-                // Actualizar color del badge según cantidad
-                cantidadSpan.classList.remove('sin-productos', 'pocos-productos');
-                console.log(`Sopa ${sopa.nombre}: cantidad=${sopa.cantidad_actual}, configurada=${sopa.cantidad_configurada}`);
-                
-                if (sopa.cantidad_actual === 0) {
-                  cantidadSpan.classList.add('sin-productos');
-                  console.log('✅ Aplicando clase sin-productos (rojo)');
-                } else if (sopa.cantidad_actual <= sopa.cantidad_configurada * 0.5) {
-                  cantidadSpan.classList.add('pocos-productos');
-                  console.log('✅ Aplicando clase pocos-productos (amarillo)');
-                } else {
-                  console.log('✅ Manteniendo color verde por defecto');
-                }
-              }
-            }
-          });
-        }
-        
-        // Actualizar segundos en el modal
-        if (data.segundos) {
-          data.segundos.forEach(segundo => {
-            const segundoElement = document.querySelector(`[data-segundo-dia-id="${segundo.id}"]`);
-            if (segundoElement) {
-              const cantidadSpan = segundoElement.querySelector('.cantidad-disponible');
-              
-              if (cantidadSpan) {
-                // Actualizar número
-                cantidadSpan.innerHTML = segundo.cantidad_actual;
-                
-                // Actualizar color del badge según cantidad
-                cantidadSpan.classList.remove('sin-productos', 'pocos-productos');
-                console.log(`Segundo ${segundo.nombre}: cantidad=${segundo.cantidad_actual}, configurada=${segundo.cantidad_configurada}`);
-                
-                if (segundo.cantidad_actual === 0) {
-                  cantidadSpan.classList.add('sin-productos');
-                  console.log('✅ Aplicando clase sin-productos (rojo)');
-                } else if (segundo.cantidad_actual <= segundo.cantidad_configurada * 0.5) {
-                  cantidadSpan.classList.add('pocos-productos');
-                  console.log('✅ Aplicando clase pocos-productos (amarillo)');
-                } else {
-                  console.log('✅ Manteniendo color verde por defecto');
-                }
-              }
-            }
-          });
-        }
-        
-        // Los jugos no tienen cantidades, solo se muestran con ícono de check
-        
-        console.log('✅ Cantidades del modal actualizadas');
-      } else {
-        console.error('❌ Error al obtener cantidades:', data.message);
-      }
-    } catch (error) {
-      console.error('❌ Error al actualizar cantidades del modal:', error);
-    }
-  }
-
-  // --- Abrir modal para agregar producto ---
-  window.abrirModalProducto = function(tipo) {
-    const contenedor = document.getElementById('contenedorFormularioProducto');
-    contenedor.innerHTML = '';
-    const template = document.getElementById(`formulario-${tipo}`);
-    if (template) {
-      contenedor.appendChild(template.content.cloneNode(true));
-      activarBotonesSeleccion();
-      document.getElementById('tipo-producto').value = tipo;
-
-      // Cambiar el título del modal dinámicamente
-      const titulo = document.getElementById('modalAgregarProductoTitulo');
-      if (titulo) {
-        const tipoCapitalizado = tipo.charAt(0).toUpperCase() + tipo.slice(1);
-        titulo.textContent = 'Agregar ' + tipoCapitalizado;
-      }
-
-      // Actualizar cantidades en el modal
-      actualizarCantidadesModal();
-
-      const modal = new bootstrap.Modal(document.getElementById('agregarProductoModal'));
-      modal.show();
-    }
-  };
-
-  // --- Agregar producto al carrito ---
-  const btnAgregarProducto = document.querySelector('#agregarProductoModal .btn.btn-primary');
-  if (btnAgregarProducto) {
-    btnAgregarProducto.addEventListener('click', async () => {
-      const tipo = document.getElementById('tipo-producto').value;
-      const sopa = document.getElementById('sopa-seleccionada')?.value || null;
-      const segundo = document.getElementById('segundo-seleccionado')?.value || null;
-      const jugo = document.getElementById('jugo-seleccionado')?.value || null;
-      const extras = document.getElementById('extras-seleccionados')?.value || null;
-      const observacion = document.getElementById('observacion-producto')?.value.trim();
-
-      console.log('=== DEBUG AGREGAR PRODUCTO ===');
-      console.log('Tipo:', tipo);
-      console.log('Sopa:', sopa);
-      console.log('Segundo:', segundo);
-      console.log('Jugo:', jugo);
-      console.log('Extras:', extras);
-      console.log('Observación:', observacion);
-
-      if ((tipo === 'almuerzo' && (!sopa || !segundo || !jugo)) ||
-          (tipo === 'sopa' && (!sopa || !jugo)) ||
-          (tipo === 'segundo' && (!segundo || !jugo)) ||
-          (tipo === 'extra' && !extras)) {
-        console.log('❌ Validación fallida - faltan componentes');
-        alert('Selecciona todas las opciones necesarias antes de agregar al carrito.');
-        return;
-      }
-
-      console.log('✅ Validación exitosa');
-
-      const sopaText = document.querySelector('.btn-sopa.active span')?.textContent.trim();
-      const segundoText = document.querySelector('.btn-segundo.active span')?.textContent.trim();
-      const jugoText = document.querySelector('.btn-jugo.active span')?.textContent.trim();
-      
-      // Obtener todos los extras seleccionados
-      const extrasTexts = [];
-      document.querySelectorAll('.btn-extra.active span').forEach(span => {
-        extrasTexts.push(span.textContent.trim());
-      });
-
-      console.log('Sopa Text:', sopaText);
-      console.log('Segundo Text:', segundoText);
-      console.log('Jugo Text:', jugoText);
-      console.log('Extras Text:', extrasTexts);
-
-      // Nueva estructura: guardar componentes individuales
-      let tipoProducto = '';
-      let componentes = [];
-      switch (tipo) {
-        case 'almuerzo':
-          tipoProducto = 'Almuerzo';
-          componentes = [sopaText, segundoText, jugoText];
-          break;
-        case 'sopa':
-          tipoProducto = 'Sopa';
-          componentes = [sopaText, jugoText];
-          break;
-        case 'segundo':
-          tipoProducto = 'Segundo';
-          componentes = [segundoText, jugoText];
-          break;
-        case 'extra':
-          tipoProducto = 'Extra';
-          componentes = extrasTexts;
-          break;
-      }
-      let observacionProducto = observacion || '';
-
-      console.log('Tipo Producto:', tipoProducto);
-      console.log('Componentes:', componentes);
-
-      // Calcular el precio desde PRECIOS según tipoPedido
-      const tipoPedidoActual = tipoPedidoInput.value;
-      let precioBase = 0;
-      
-      if (tipo === 'extra') {
-        // Para extras, sumar el precio de todos los extras seleccionados
-        precioBase = 0;
-        const extrasSeleccionados = Array.from(document.querySelectorAll('.btn-extra.active span')).map(span => span.textContent.trim());
-        extrasSeleccionados.forEach(nombre => {
-          const precioExtra = window.PRECIOS.extra?.[nombre] || 0;
-          precioBase += precioExtra;
-        });
-        console.log('=== DEBUG PRECIOS EXTRA ===');
-        console.log('Extras seleccionados:', extrasSeleccionados);
-        console.log('window.PRECIOS.extra:', window.PRECIOS.extra);
-        console.log('Precio Base Final:', precioBase);
-      } else if (tipoPedidoActual === 'Reservado') {
-        // Para pedidos reservados, usar el subtipo seleccionado
-        const subtipoReservado = document.getElementById('subtipo_reservado').value;
-        console.log('=== DEBUG PRECIOS RESERVADO ===');
-        console.log('Tipo:', tipo);
-        console.log('Subtipo Reservado:', subtipoReservado);
-        console.log('window.PRECIOS[tipo]:', window.PRECIOS[tipo]);
-        console.log('window.PRECIOS[tipo][subtipoReservado]:', window.PRECIOS[tipo]?.[subtipoReservado]);
-        
-        // Convertir subtipo a formato con mayúscula inicial
-        const subtipoCapitalizado = subtipoReservado.charAt(0).toUpperCase() + subtipoReservado.slice(1);
-        precioBase = window.PRECIOS[tipo]?.[subtipoCapitalizado] || 0;
-        console.log('Subtipo Capitalizado:', subtipoCapitalizado);
-        console.log('Precio Base Final:', precioBase);
-      } else {
-        precioBase = window.PRECIOS[tipo]?.[tipoPedidoActual] || 0;
-      }
-
-      console.log('Tipo Pedido Actual:', tipoPedidoActual);
-      console.log('Precio Base:', precioBase);
-
-      try {
-        console.log('Enviando petición al servidor...');
-        const response = await fetch("{% url 'agregar_al_carrito' %}", {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'X-CSRFToken': '{{ csrf_token }}'
-          },
-          body: new URLSearchParams({
-            tipo: tipo,
-            sopa_id: sopa,
-            segundo_id: segundo,
-            jugo_id: jugo,
-            extras_ids: extras,
-            cantidad: 1,
-            observacion: observacion
-          })
-        });
-
-        console.log('Respuesta del servidor:', response.status);
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        console.log('Datos de respuesta:', data);
-
-        if (data.status === 'ok') {
-          console.log('✅ Producto agregado exitosamente al backend');
-          let resumenCarrito = document.getElementById('resumenCarrito');
-          let resumenCarritoMovil = document.getElementById('resumenCarritoMovil');
-          let encontrado = false;
-
-          // Inicializar window.carrito si no existe
-          if (!window.carrito) {
-            window.carrito = [];
-          }
-
-          // Función para buscar y actualizar producto en un elemento
-          function buscarYActualizarProducto(elemento) {
-            elemento.querySelectorAll('.resumen-item').forEach(li => {
-              const nombreTipo = li.getAttribute('data-tipo');
-              const nombreComponentes = li.getAttribute('data-componentes');
-              if (nombreTipo === tipoProducto && nombreComponentes === componentes.join('|')) {
-                let cantidadSpan = li.querySelector('.cantidad-producto');
-                let precioSpan = li.querySelector('.resumen-precio');
-                let nuevaCantidad = parseInt(cantidadSpan.textContent) + 1;
-                cantidadSpan.textContent = nuevaCantidad;
-                precioSpan.textContent = `$${(nuevaCantidad * precioBase).toFixed(2)}`;
-                encontrado = true;
-                console.log('✅ Producto existente actualizado');
-                
-                // Actualizar en window.carrito
-                const index = window.carrito.findIndex(item => 
-                  item.tipo === tipoProducto && 
-                  item.componentes.join('|') === componentes.join('|')
-                );
-                if (index !== -1) {
-                  window.carrito[index].cantidad = nuevaCantidad;
-                }
-              }
-            });
-          }
-
-          // Buscar en ambos elementos
-          buscarYActualizarProducto(resumenCarrito);
-          if (resumenCarritoMovil) {
-            buscarYActualizarProducto(resumenCarritoMovil);
-          }
-
-          if (!encontrado) {
-            console.log('✅ Creando nuevo producto en el carrito');
-            const li = document.createElement('li');
-            li.classList.add('resumen-item');
-            li.setAttribute('data-tipo', tipoProducto);
-            li.setAttribute('data-componentes', componentes.join('|'));
-            // Generar detalles en línea y en lista vertical
-            let detallesLinea = componentes.filter(Boolean).join(' + ');
-            let detallesHTML = `
-              <span class="detalles-linea">${detallesLinea}</span>
-              <ul class="resumen-lista-vertical">${componentes.map(parte => `<li>${parte}</li>`).join('')}</ul>
-            `;
-            let nombreHTML = `<span class=\"nombre-tipo\">${tipoProducto}</span> ${detallesHTML}`;
-            li.innerHTML = `
-              <div class=\"row align-items-center g-0\">
-                <div class=\"col-9\">
-                  ${nombreHTML}
-                  <div class=\"resumen-desc\">${observacionProducto}</div>
-                </div>
-                <div class=\"col-3 d-md-flex\">
-                  <span class=\"resumen-precio\">$${precioBase.toFixed(2)}</span>
-                  <div class=\"resumen-cantidad\">
-                    <button class=\"btn-restar\" aria-label=\"Restar\">-</button>
-                    <span class=\"cantidad-producto\">1</span>
-                    <button class=\"btn-sumar\" aria-label=\"Sumar\">+</button>
-                  </div>
-                </div>
-              </div>
-            `;
-            resumenCarrito.appendChild(li);
-            
-            // También agregar al resumen móvil si existe
-            if (resumenCarritoMovil) {
-              const liMovil = li.cloneNode(true);
-              resumenCarritoMovil.appendChild(liMovil);
-            }
-            
-                      // Agregar a window.carrito
-          const nuevoItem = {
-            tipo: tipoProducto,
-            componentes: componentes,
-            cantidad: 1,
-            precio_unitario: precioBase,
-            observacion: observacionProducto,
-            sopa_id: sopa,
-            segundo_id: segundo,
-            jugo_id: jugo,
-            extras_ids: (tipoProducto === 'Extra') ? (extras || '') : null
-          };
-          window.carrito.push(nuevoItem);
-          console.log('=== NUEVO PRODUCTO AGREGADO DURANTE EDICIÓN ===');
-          console.log('Nuevo item:', nuevoItem);
-          console.log('window.carrito después de agregar:', window.carrito);
-          console.log('Cantidad total en window.carrito:', window.carrito.length);
-          }
-
-          // Asignar funcionalidad a los botones de sumar/restar
-          asignarEventosSumarRestar();
-
-          actualizarTotalPedido();
-
-          const modal = bootstrap.Modal.getInstance(document.getElementById('agregarProductoModal'));
-          modal.hide();
-
-          console.log('✅ Proceso completado exitosamente');
-
-        } else {
-          console.error('❌ Error del servidor:', data.message);
-          alert('Error al agregar: ' + (data.message || 'Error desconocido'));
-        }
-
-      } catch (error) {
-        console.error('❌ Error al agregar producto:', error);
-        alert('Error inesperado al agregar producto: ' + error.message);
-      }
-    });
-  }
-
-});
-
-// Script para los botones de subtipo en modo reserva
-document.addEventListener('DOMContentLoaded', function() {
-  const subtipoBtns = document.querySelectorAll('.card-modo-reserva .btn-subtipo');
-  subtipoBtns.forEach(btn => {
-    btn.addEventListener('click', function() {
-      subtipoBtns.forEach(b => b.classList.remove('active'));
-      this.classList.add('active');
-      // Si quieres guardar el valor seleccionado en el input hidden:
-      document.getElementById('subtipo_reservado').value = this.getAttribute('data-subtipo');
-    });
-  });
-});
-
-// --- Función de Validación Centralizada ---
-function validarPedido(tipoPedido) {
-  const errores = [];
-  
-  // Validar forma de pago
-  const formaPago = document.getElementById('forma_pago').value;
-  if (!formaPago) {
-    errores.push('Por favor, seleccione una forma de pago');
-  }
-  
-  // Validar según el tipo de pedido
-  if (tipoPedido === 'Servirse') {
-    const mesa = document.getElementById('mesa').value || '';
-    if (!mesa) {
-      errores.push('Por favor, seleccione una mesa');
-    }
-    // Nombre es opcional para servirse
-  } else if (tipoPedido === 'Llevar') {
-    const contacto = document.getElementById('nombre_llevar')?.value.trim();
-    if (!contacto) {
-      errores.push('Por favor, ingrese un nombre o teléfono');
-    }
-  } else if (tipoPedido === 'Reservado') {
-    const contacto = document.getElementById('nombre_reservado')?.value.trim();
-    if (!contacto) {
-      errores.push('Por favor, ingrese un nombre o teléfono');
-    }
-  }
-  
-  // Validar que hay productos en el carrito
-  const resumenCarrito = document.getElementById('resumenCarrito');
-  if (resumenCarrito.children.length === 0) {
-    errores.push('Debe agregar al menos un producto al pedido');
-  }
-  
-  return {
-    esValido: errores.length === 0,
-    errores: errores
-  };
-}
-
-// --- Función para obtener datos del pedido ---
-function obtenerDatosPedido() {
-  const tipoPedido = document.getElementById('tipo_pedido').value;
-  const formaPago = document.getElementById('forma_pago').value;
-  let mesa = '';
-  let cliente = '';
-
-  if (tipoPedido === 'Servirse') {
-    mesa = document.getElementById('mesa').value || '';
-    cliente = document.getElementById('nombre_servirse')?.value || '';
-  } else if (tipoPedido === 'Llevar') {
-    cliente = document.getElementById('nombre_llevar')?.value.trim();
-  } else if (tipoPedido === 'Reservado') {
-    cliente = document.getElementById('nombre_reservado')?.value.trim();
-  }
-
-  // Productos y total desde window.carrito (fuente de verdad más confiable)
-  const productos = [];
-  let total = 0;
-  
-  // Usar window.carrito en lugar del DOM para evitar desincronización
-  if (window.carrito && Array.isArray(window.carrito)) {
-    window.carrito.forEach(item => {
-      const precioTotal = item.cantidad * item.precio_unitario;
-      productos.push({
-        tipo: item.tipo,
-        componentes: item.componentes || [],
-        cantidad: item.cantidad,
-        precioUnitario: item.precio_unitario,
-        precioTotal: precioTotal,
-        observacion: item.observacion || '',
-        sopa_id: item.sopa_id || null,
-        segundo_id: item.segundo_id || null,
-            jugo_id: item.jugo_id || null,
-            extras_ids: item.extras_ids || null
-      });
-      total += precioTotal;
-    });
-  } else {
-    // Fallback al DOM si window.carrito no está disponible
-    document.querySelectorAll('#resumenCarrito .resumen-item').forEach(li => {
-      const tipo = li.getAttribute('data-tipo');
-      const componentes = li.getAttribute('data-componentes').split('|');
-      const cantidad = parseInt(li.querySelector('.cantidad-producto').textContent);
-      const precioTotal = parseFloat(li.querySelector('.resumen-precio').textContent.replace('$', '').trim());
-      const precioUnitario = precioTotal / cantidad;
-      const observacion = li.querySelector('.resumen-desc')?.textContent || '';
-      productos.push({
-        tipo,
-        componentes,
-        cantidad,
-        precioUnitario,
-        precioTotal,
-        observacion
-      });
-      total += precioTotal;
-    });
-  }
-
-  const pedidoId = window.pedidoEditando || '';
-  return { tipo: tipoPedido, mesa, cliente, productos, total, formaPago, pedidoId };
-}
-
-
-
-// Agregar función para actualizar el total general
-function actualizarTotalPedido() {
-  let total = 0;
-  document.querySelectorAll('#resumenCarrito .resumen-item').forEach(li => {
-    const precioSpan = li.querySelector('.resumen-precio');
-    const match = precioSpan.textContent.match(/\$(\d+(?:\.\d+)?)/);
-    if (match) {
-      total += parseFloat(match[1]);
-    }
-  });
-  
-  // Actualizar ambos totales
-  const totalDesktop = document.getElementById('total-pedido');
-  const totalMovil = document.getElementById('total-pedido-movil');
-  
-  if (totalDesktop) {
-    totalDesktop.textContent = `$${total.toFixed(2)}`;
-  }
-  if (totalMovil) {
-    totalMovil.textContent = `$${total.toFixed(2)}`;
-  }
-}
-
-let contadorPedidos = 1; // Para el número incremental temporal
-
-// Función DEPRECATED - Ya no se usa
-// function crearCardPedido(pedido, numeroPedido) { ... }
-
-// Función para sincronizar elementos entre desktop y móvil
-function sincronizarElementos(nombreTipo, nombreComponentes, cantidad, precioUnitario) {
-  const resumenCarrito = document.getElementById('resumenCarrito');
-  const resumenCarritoMovil = document.getElementById('resumenCarritoMovil');
-  
-  // Buscar el elemento correspondiente en el otro contenedor
-  const contenedorOrigen = resumenCarritoMovil;
-  const contenedorDestino = resumenCarrito;
-  
-  // Buscar en ambos contenedores
-  [resumenCarrito, resumenCarritoMovil].forEach(contenedor => {
-    if (contenedor) {
-      contenedor.querySelectorAll('.resumen-item').forEach(li => {
-        const tipo = li.getAttribute('data-tipo');
-        const componentes = li.getAttribute('data-componentes');
-        
-        if (tipo === nombreTipo && componentes === nombreComponentes) {
-          const cantidadSpan = li.querySelector('.cantidad-producto');
-          const precioSpan = li.querySelector('.resumen-precio');
-          
-          if (cantidadSpan && precioSpan) {
-            cantidadSpan.textContent = cantidad;
-            precioSpan.textContent = `$${(cantidad * precioUnitario).toFixed(2)}`;
-          }
-        }
-      });
-    }
-  });
-}
-
-// Función para eliminar elemento correspondiente
-function eliminarElementoCorrespondiente(nombreTipo, nombreComponentes) {
-  const resumenCarrito = document.getElementById('resumenCarrito');
-  const resumenCarritoMovil = document.getElementById('resumenCarritoMovil');
-  
-  [resumenCarrito, resumenCarritoMovil].forEach(contenedor => {
-    if (contenedor) {
-      contenedor.querySelectorAll('.resumen-item').forEach(li => {
-        const tipo = li.getAttribute('data-tipo');
-        const componentes = li.getAttribute('data-componentes');
-        
-        if (tipo === nombreTipo && componentes === nombreComponentes) {
-          li.remove();
-        }
-      });
-    }
-  });
-}
-
-// Función para asignar eventos a los botones sumar/restar
-function asignarEventosSumarRestar() {
-  const resumenCarrito = document.getElementById('resumenCarrito');
-  const resumenCarritoMovil = document.getElementById('resumenCarritoMovil');
-  
-  // Función para asignar eventos a un elemento específico
-  function asignarEventosAElemento(elemento) {
-    elemento.querySelectorAll('.resumen-item').forEach(li => {
-    const btnSumar = li.querySelector('.btn-sumar');
-    const btnRestar = li.querySelector('.btn-restar');
-    const cantidadSpan = li.querySelector('.cantidad-producto');
-    const precioSpan = li.querySelector('.resumen-precio');
-    const nombreTipo = li.getAttribute('data-tipo');
-    const nombreComponentes = li.getAttribute('data-componentes');
-    
-    // Calcular precio unitario
-    let precioUnitario = 0;
-    const match = precioSpan.textContent.match(/\$(\d+(?:\.\d+)?)/);
-    if (match) {
-      precioUnitario = parseFloat(match[1]) / parseInt(cantidadSpan.textContent);
-    }
-    
-    // Asignar eventos
-    btnSumar.onclick = () => {
-      let cantidad = parseInt(cantidadSpan.textContent) + 1;
-      cantidadSpan.textContent = cantidad;
-      precioSpan.textContent = `$${(cantidad * precioUnitario).toFixed(2)}`;
-      
-      // Sincronizar con el elemento correspondiente (desktop/móvil)
-      sincronizarElementos(nombreTipo, nombreComponentes, cantidad, precioUnitario);
-      
-      // Sincronizar memoria
-      if (Array.isArray(window.carrito)) {
-        const item = window.carrito.find(p => p.tipo === nombreTipo && (p.componentes || []).join('|') === nombreComponentes);
-        if (item) {
-          item.cantidad = cantidad;
-        }
-      }
-      actualizarTotalPedido();
-    };
-    btnRestar.onclick = () => {
-      let cantidad = parseInt(cantidadSpan.textContent) - 1;
-      if (cantidad <= 0) {
-          // Eliminar del DOM y de la memoria
-          li.remove();
-          // También eliminar el elemento correspondiente (desktop/móvil)
-          eliminarElementoCorrespondiente(nombreTipo, nombreComponentes);
-          if (Array.isArray(window.carrito)) {
-            window.carrito = window.carrito.filter(p => !(p.tipo === nombreTipo && (p.componentes || []).join('|') === nombreComponentes));
-          }
-      } else {
-        cantidadSpan.textContent = cantidad;
-        precioSpan.textContent = `$${(cantidad * precioUnitario).toFixed(2)}`;
-        
-        // Sincronizar con el elemento correspondiente (desktop/móvil)
-        sincronizarElementos(nombreTipo, nombreComponentes, cantidad, precioUnitario);
-        
-        // Sincronizar memoria
-        if (Array.isArray(window.carrito)) {
-          const item = window.carrito.find(p => p.tipo === nombreTipo && (p.componentes || []).join('|') === nombreComponentes);
-          if (item) {
-            item.cantidad = cantidad;
-          }
-        }
-      }
-      actualizarTotalPedido();
-    };
-  });
-  }
-  
-  // Asignar eventos a ambos elementos
-  asignarEventosAElemento(resumenCarrito);
-  if (resumenCarritoMovil) {
-    asignarEventosAElemento(resumenCarritoMovil);
-  }
-}
-
-function agregarEventosCardPedido(cardNode) {
-  // Aceptar tanto el contenedor de columna como el nodo .pedido-card
-  const card = cardNode?.classList?.contains('pedido-card')
-    ? cardNode
-    : cardNode?.querySelector?.('.pedido-card');
-  if (!card) return;
-
-  // Checkbox de selección múltiple
-  const checkbox = card.querySelector('.checkbox-pedido');
-  if (checkbox) {
-    checkbox.addEventListener('change', function() {
-      const pedidoId = this.value;
-      const checked = this.checked;
-      
-      manejarSeleccionMultiple(pedidoId, checked);
-    });
-  }
-
-  // Botón Eliminar
-  card.querySelector('.btn-eliminar').addEventListener('click', async function() {
-    const pedidoId = card.getAttribute('data-pedido-id');
-    if (!pedidoId) {
-      alert('Error: No se encontró el ID del pedido');
-      return;
-    }
-    
-    // Mostrar confirmación antes de eliminar
-    if (confirm('¿Estás seguro de que quieres eliminar este pedido? Esta acción no se puede deshacer.')) {
-      try {
-        const response = await fetch('/eliminar-pedido/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'X-CSRFToken': '{{ csrf_token }}'
-          },
-          body: new URLSearchParams({
-            pedido_id: pedidoId
-          })
-        });
-        
-        const data = await response.json();
-        
-        if (data.status === 'ok') {
-          // Eliminar la card del DOM
-          card.remove();
-          alert('Pedido eliminado correctamente');
-          
-                  // Actualizar contadores de tabs automáticamente
-        actualizarContadoresTabs();
-        } else {
-          alert('Error al eliminar el pedido: ' + (data.message || 'Error desconocido'));
-        }
-      } catch (error) {
-        console.error('Error al eliminar pedido:', error);
-        alert('Error inesperado al eliminar el pedido: ' + error.message);
-      }
-    }
-  });
-
-  // Botón Editar
-  card.querySelector('.btn-editar').addEventListener('click', async function() {
-    const pedidoId = card.getAttribute('data-pedido-id');
-    if (!pedidoId) {
-      alert('Error: No se encontró el ID del pedido');
-      return;
-    }
-
-    try {
-      // Obtener datos del pedido
-      const response = await fetch(`/obtener-pedido/${pedidoId}/`);
-      const data = await response.json();
-      
-      if (data.status === 'ok') {
-        const pedido = data.pedido;
-        
-        console.log('=== CARGANDO PEDIDO PARA EDITAR ===');
-        console.log('Pedido recibido:', pedido);
-        console.log('Productos del pedido:', pedido.productos);
-        console.log('Cantidad de productos:', pedido.productos ? pedido.productos.length : 0);
-        
-        // Limpiar el carrito actual (DOM y memoria)
-        document.getElementById('resumenCarrito').innerHTML = '';
-        const resumenMovil = document.getElementById('resumenCarritoMovil');
-        if (resumenMovil) {
-          resumenMovil.innerHTML = '';
-        }
-        window.carrito = [];
-        console.log('Carrito limpiado, window.carrito:', window.carrito);
-        
-        // Agregar productos al carrito
-        pedido.productos.forEach((producto, index) => {
-          console.log(`Agregando producto ${index + 1} al carrito:`, producto);
-          
-          const componentes = (producto.componentes || []).filter(Boolean);
-          
-          // Generar detalles en línea y en lista vertical (igual que en producto nuevo)
-          let detallesLinea = componentes.filter(Boolean).join(' + ');
-          let detallesHTML = `
-            <span class="detalles-linea">${detallesLinea}</span>
-            <ul class="resumen-lista-vertical">${componentes.map(parte => `<li>${parte}</li>`).join('')}</ul>
-          `;
-          let nombreHTML = `<span class="nombre-tipo">${producto.tipo}</span> ${detallesHTML}`;
-          
-          // Crear li para el carrito DESKTOP
-          const li = document.createElement('li');
-          li.classList.add('resumen-item');
-          li.setAttribute('data-tipo', producto.tipo);
-          li.setAttribute('data-componentes', componentes.join('|'));
-          
-          li.innerHTML = `
-            <div class="row align-items-center g-0">
-              <div class="col-9">
-                ${nombreHTML}
-                <div class="resumen-desc">${producto.observacion || ''}</div>
-              </div>
-              <div class="col-3 d-md-flex">
-                <span class="resumen-precio">$${(producto.cantidad * producto.precio_unitario).toFixed(2)}</span>
-                <div class="resumen-cantidad">
-                  <button class="btn-restar" aria-label="Restar">-</button>
-                  <span class="cantidad-producto">${producto.cantidad}</span>
-                  <button class="btn-sumar" aria-label="Sumar">+</button>
-                </div>
-              </div>
-            </div>
-          `;
-          document.getElementById('resumenCarrito').appendChild(li);
-          
-          // Crear li para el carrito MÓVIL
-          if (resumenMovil) {
-            const liMovil = document.createElement('li');
-            liMovil.classList.add('resumen-item');
-            liMovil.setAttribute('data-tipo', producto.tipo);
-            liMovil.setAttribute('data-componentes', componentes.join('|'));
-            
-            liMovil.innerHTML = `
-              <div class="row align-items-center g-0">
-                <div class="col-9">
-                  ${nombreHTML}
-                  <div class="resumen-desc">${producto.observacion || ''}</div>
-                </div>
-                <div class="col-3 d-md-flex">
-                  <span class="resumen-precio">$${(producto.cantidad * producto.precio_unitario).toFixed(2)}</span>
-                  <div class="resumen-cantidad">
-                    <button class="btn-restar" aria-label="Restar">-</button>
-                    <span class="cantidad-producto">${producto.cantidad}</span>
-                    <button class="btn-sumar" aria-label="Sumar">+</button>
-                  </div>
-                </div>
-              </div>
-            `;
-            resumenMovil.appendChild(liMovil);
-          }
-
-          // Sincronizar estructura en memoria para guardado posterior
-          const itemCarrito = {
-            tipo: producto.tipo,
-            componentes: componentes,
-            cantidad: Number(producto.cantidad) || 1,
-            precio_unitario: Number(producto.precio_unitario) || 0,
-            observacion: producto.observacion || '',
-            sopa_id: producto.sopa_id || null,
-            segundo_id: producto.segundo_id || null,
-            jugo_id: producto.jugo_id || null
-          };
-          window.carrito.push(itemCarrito);
-          console.log(`Producto ${index + 1} agregado a window.carrito:`, itemCarrito);
-        });
-        
-        console.log('window.carrito después de cargar productos:', window.carrito);
-        console.log('Cantidad de productos en window.carrito:', window.carrito.length);
-        
-        // Asignar eventos a los botones sumar/restar
-        asignarEventosSumarRestar();
-        
-        // Asegurar que los eventos se asignen también a los elementos móviles
-        setTimeout(() => {
-          asignarEventosSumarRestar();
-        }, 100);
-        
-        actualizarTotalPedido();
-        
-        // Llenar el formulario del modal
-        document.getElementById('tipo_pedido').value = pedido.tipo;
-        
-        // Actualizar tabs según el tipo de pedido
-        document.querySelectorAll('.nav-link').forEach(tab => {
-          tab.classList.remove('active');
-        });
-        document.querySelectorAll('.tab-pane').forEach(pane => {
-          pane.classList.remove('show', 'active');
-        });
-        
-        if (pedido.tipo === 'Servirse') {
-          document.getElementById('mesa').value = pedido.mesa || '';
-          document.getElementById('nombre_servirse').value = pedido.contacto || '';
-          document.querySelector('.nav-link[data-bs-target="#servirse"]').classList.add('active');
-          document.querySelector('#servirse').classList.add('show', 'active');
-        } else if (pedido.tipo === 'Llevar') {
-          document.getElementById('nombre_llevar').value = pedido.contacto || '';
-          document.querySelector('.nav-link[data-bs-target="#llevar"]').classList.add('active');
-          document.querySelector('#llevar').classList.add('show', 'active');
-        } else if (pedido.tipo === 'Reservado') {
-          document.getElementById('nombre_reservado').value = pedido.contacto || '';
-          document.querySelector('.nav-link[data-bs-target="#reservado"]').classList.add('active');
-          document.querySelector('#reservado').classList.add('show', 'active');
-          
-          // Establecer el subtipo de reservado si existe
-          if (pedido.subtipo_reservado) {
-            const subtipoNormalizado = pedido.subtipo_reservado.toLowerCase();
-            document.getElementById('subtipo_reservado').value = subtipoNormalizado;
-            
-            // Actualizar botones de subtipo visualmente
-            document.querySelectorAll('.btn-subtipo').forEach(btn => {
-              btn.classList.remove('active');
-            });
-            const btnSubtipo = document.querySelector(`.btn-subtipo[data-subtipo="${subtipoNormalizado}"]`);
-            if (btnSubtipo) {
-              btnSubtipo.classList.add('active');
-            }
-          }
-        }
-        
-        // Establecer forma de pago
-        document.getElementById('forma_pago').value = pedido.forma_pago;
-        // Actualizar botones de forma de pago visualmente
-        document.querySelectorAll('.btn-forma-pago').forEach(btn => {
-          btn.classList.remove('active');
-        });
-        if (pedido.forma_pago === 'Efectivo') {
-          document.querySelector('.btn-forma-pago:first-child').classList.add('active');
-        } else if (pedido.forma_pago === 'Transferencia') {
-          document.querySelector('.btn-forma-pago:last-child').classList.add('active');
-        }
-        
-        // Marcar que estamos editando
-        window.pedidoEditando = pedidoId;
-        
-        // Abrir el modal
-        const modal = new bootstrap.Modal(document.getElementById('tomarPedidoModal'));
-        modal.show();
-        
-      } else {
-        alert('Error al cargar el pedido: ' + (data.message || 'Error desconocido'));
-      }
-    } catch (error) {
-      console.error('Error al cargar pedido:', error);
-      alert('Error inesperado al cargar el pedido');
-    }
-  });
-
-  // Botón Agregar Producto
-  card.querySelector('.btn-agregar-producto').addEventListener('click', async function() {
-    const pedidoId = card.getAttribute('data-pedido-id');
-    if (!pedidoId) {
-      alert('Error: No se encontró el ID del pedido');
-      return;
-    }
-
-    try {
-      // Obtener datos del pedido existente
-      const response = await fetch(`/obtener-pedido/${pedidoId}/`);
-      const data = await response.json();
-      
-      if (data.status === 'ok') {
-        const pedido = data.pedido;
-        
-        console.log('=== CARGANDO PEDIDO PARA AGREGAR PRODUCTOS ===');
-        console.log('Pedido recibido:', pedido);
-        
-        // Marcar que estamos agregando productos a un pedido existente
-        window.pedidoAgregandoProductos = pedidoId;
-        
-        // Limpiar el carrito para agregar nuevos productos
-        document.getElementById('resumenCarrito').innerHTML = '';
-        document.getElementById('total-pedido').textContent = '$0.00';
-        window.carrito = [];
-        
-        // Llenar el formulario con los datos del pedido existente
-        document.getElementById('tipo_pedido').value = pedido.tipo;
-        
-        // Actualizar tabs según el tipo de pedido
-        document.querySelectorAll('.nav-link').forEach(tab => {
-          tab.classList.remove('active');
-        });
-        document.querySelectorAll('.tab-pane').forEach(pane => {
-          pane.classList.remove('show', 'active');
-        });
-        
-        if (pedido.tipo === 'Servirse') {
-          document.getElementById('mesa').value = pedido.mesa || '';
-          document.getElementById('nombre_servirse').value = pedido.contacto || '';
-          document.querySelector('.nav-link[data-bs-target="#servirse"]').classList.add('active');
-          document.querySelector('#servirse').classList.add('show', 'active');
-        } else if (pedido.tipo === 'Llevar') {
-          document.getElementById('nombre_llevar').value = pedido.contacto || '';
-          document.querySelector('.nav-link[data-bs-target="#llevar"]').classList.add('active');
-          document.querySelector('#llevar').classList.add('show', 'active');
-        } else if (pedido.tipo === 'Reservado') {
-          document.getElementById('nombre_reservado').value = pedido.contacto || '';
-          document.querySelector('.nav-link[data-bs-target="#reservado"]').classList.add('active');
-          document.querySelector('#reservado').classList.add('show', 'active');
-          
-          // Establecer el subtipo de reservado si existe
-          if (pedido.subtipo_reservado) {
-            const subtipoNormalizado = pedido.subtipo_reservado.toLowerCase();
-            document.getElementById('subtipo_reservado').value = subtipoNormalizado;
-            
-            // Actualizar botones de subtipo visualmente
-            document.querySelectorAll('.btn-subtipo').forEach(btn => {
-              btn.classList.remove('active');
-            });
-            const btnSubtipo = document.querySelector(`.btn-subtipo[data-subtipo="${subtipoNormalizado}"]`);
-            if (btnSubtipo) {
-              btnSubtipo.classList.add('active');
-            }
-          }
-        }
-        
-        // Establecer forma de pago
-        document.getElementById('forma_pago').value = pedido.forma_pago;
-        // Actualizar botones de forma de pago visualmente
-        document.querySelectorAll('.btn-forma-pago').forEach(btn => {
-          btn.classList.remove('active');
-        });
-        if (pedido.forma_pago === 'Efectivo') {
-          document.querySelector('.btn-forma-pago:first-child').classList.add('active');
-        } else if (pedido.forma_pago === 'Transferencia') {
-          document.querySelector('.btn-forma-pago:last-child').classList.add('active');
-        }
-        
-        // Establecer observaciones generales
-        document.getElementById('observaciones_generales').value = pedido.observaciones_generales || '';
-        
-        // Abrir modal de agregar productos
-        const modal = new bootstrap.Modal(document.getElementById('tomarPedidoModal'));
-        modal.show();
-        
-      } else {
-        alert('Error al cargar el pedido: ' + (data.message || 'Error desconocido'));
-      }
-    } catch (error) {
-      console.error('Error al cargar pedido:', error);
-      alert('Error inesperado al cargar el pedido');
-    }
-  });
-
-  // Botón Marcar Listo
-  card.querySelector('.btn-guardar').addEventListener('click', async function() {
-    const pedidoId = card.getAttribute('data-pedido-id');
-    if (!pedidoId) {
-      alert('Error: No se encontró el ID del pedido');
-      return;
-    }
-
-    try {
-      const response = await fetch("{% url 'marcar_pedido_completado' %}", {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'X-CSRFToken': '{{ csrf_token }}'
-        },
-        body: new URLSearchParams({
-          pedido_id: pedidoId
-        })
-      });
-      
-      const data = await response.json();
-      if (data.status === 'ok') {
-        alert('Pedido marcado como completado');
-        card.remove();
-      } else {
-        alert('Error al marcar pedido: ' + (data.message || 'Error desconocido'));
-      }
-    } catch (error) {
-      console.error('Error al marcar pedido:', error);
-      alert('Error inesperado al marcar el pedido');
-    }
-  });
-}
-
-function guardarPedidoFrontend(conImpresion = true) {
-  if (window._guardandoPedido) {
-    return;
-  }
-
-  const pedido = obtenerDatosPedido();
-  
-  // Validar pedido usando la función centralizada
-  const validacion = validarPedido(pedido.tipo);
-  if (!validacion.esValido) {
-    alert(validacion.errores.join('\n'));
-    return;
-  }
-  
-  // Obtener productos del carrito (usar window.carrito directamente)
-  const productosCarrito = window.carrito || [];
-  
-  console.log('=== DEBUG ENVÍO AL BACKEND ===');
-  console.log('window.carrito:', window.carrito);
-  console.log('productosCarrito:', productosCarrito);
-  console.log('JSON.stringify(productosCarrito):', JSON.stringify(productosCarrito));
-  console.log('Tipo de pedido:', pedido.tipo);
-  console.log('Subtipo reservado:', document.getElementById('subtipo_reservado').value);
-  
-  // Determinar si estamos agregando productos a un pedido existente
-  const esAgregarProductos = window.pedidoAgregandoProductos;
-  const pedidoId = window.pedidoEditando || esAgregarProductos || '';
-  
-  window._guardandoPedido = true;
-  const botonesConfirmar = document.querySelectorAll('#tomarPedidoModal .btn-confirmar, #tomarPedidoModal .btn-confirmar-imprimir');
-  botonesConfirmar.forEach((btn) => {
-    btn.disabled = true;
-  });
-
-  // Enviar pedido al backend
-  fetch("{% url 'guardar_pedido' %}", {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'X-CSRFToken': '{{ csrf_token }}'
-    },
-    body: new URLSearchParams({
-      tipo_pedido: pedido.tipo,
-      forma_pago: pedido.formaPago,
-      mesa: pedido.mesa,
-      cliente: pedido.cliente,
-      subtipo_reservado: document.getElementById('subtipo_reservado').value,
-      // Debug del subtipo
-      debug_subtipo: document.getElementById('subtipo_reservado').value,
-      observaciones_generales: document.getElementById('observaciones_generales').value,
-      productos_carrito: JSON.stringify(productosCarrito),
-      pedido_id: pedidoId,
-      es_agregar_productos: esAgregarProductos ? 'true' : 'false',
-      imprimir: conImpresion ? 'true' : 'false'
-    })
-  })
-  .then(response => {
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    return response.json();
-  })
-  .then(data => {
-    if (data.status === 'ok') {
-      const cardHTML = crearCardPedidoDesdeBD(data.pedido_data);
-      const contenedor = document.getElementById('contenedor-cards-pedidos');
-
-      // Si estamos editando o agregando productos, reemplazar la card existente
-      const existingCard = contenedor.querySelector(`.pedido-card[data-pedido-id="${data.pedido_data.id}"]`);
-      
-      if (existingCard) {
-        const wrapper = existingCard.parentElement; // div.col-*
-        wrapper.outerHTML = cardHTML;
-        
-        const newCardNode = contenedor.querySelector(`.pedido-card[data-pedido-id="${data.pedido_data.id}"]`)?.parentElement || null;
-        if (newCardNode) agregarEventosCardPedido(newCardNode);
-      } else {
-        contenedor.insertAdjacentHTML('beforeend', cardHTML);
-        const nuevaCard = contenedor.lastElementChild;
-        agregarEventosCardPedido(nuevaCard);
-      }
-      
-      // Guardar ID del pedido para reimprimir
-      window.ultimoPedidoId = data.pedido_data.id;
-      
-      // Limpiar el modal y el carrito
-      document.getElementById('resumenCarrito').innerHTML = '';
-      document.getElementById('total-pedido').textContent = '$0.00';
-      window.carrito = []; // Limpiar el carrito global
-      window.pedidoEditando = null;
-      window.pedidoAgregandoProductos = null; // Limpiar flag de agregar productos
-      
-      // Cerrar el modal
-      const modal = bootstrap.Modal.getInstance(document.getElementById('tomarPedidoModal'));
-      modal.hide();
-      
-      // Usar el mensaje del backend
-      alert(data.message || 'Operación completada correctamente');
-      
-              // Actualizar cantidades disponibles después de guardar pedido
-        actualizarCantidadesDisponibles();
-        
-        // Actualizar contadores de tabs automáticamente
-        actualizarContadoresTabs();
-
-    } else {
-      alert('Error al guardar el pedido: ' + (data.message || 'Error desconocido'));
-    }
-  })
-  .catch(error => {
-    console.error('Error al guardar pedido:', error);
-    alert('Error inesperado al guardar el pedido: ' + error.message);
-  })
-  .finally(() => {
-    window._guardandoPedido = false;
-    document.querySelectorAll('#tomarPedidoModal .btn-confirmar, #tomarPedidoModal .btn-confirmar-imprimir').forEach((btn) => {
-      btn.disabled = false;
-    });
-  });
-}
-
-
-function crearCardPedidoDesdeBD(pedidoData) {
-  console.log('=== CREAR CARD DESDE BD ===');
-  console.log('Datos del pedido:', pedidoData);
-  console.log('Tipo de pedido:', pedidoData.tipo);
-  console.log('Subtipo reservado:', pedidoData.subtipo_reservado);
-  console.log('¿Es pedido reservado?', pedidoData.tipo === 'Reservado');
-  console.log('¿Tiene subtipo?', !!pedidoData.subtipo_reservado);
-  console.log('Productos:', pedidoData.productos);
-  console.log('Cantidad de productos:', pedidoData.productos ? pedidoData.productos.length : 0);
-  
-  const horaActual = new Date(pedidoData.fecha_creacion).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  
-  // Icono y color según forma de pago
-  let formaPagoIcono = '';
-  let formaPagoColor = '';
-  if (pedidoData.forma_pago === 'Efectivo') {
-    formaPagoIcono = '<div class="forma-pago-icon efectivo-icon"><i class="bi bi-cash-stack"></i></div>';
-    formaPagoColor = 'text-success';
-  } else if (pedidoData.forma_pago === 'Transferencia') {
-    formaPagoIcono = '<div class="forma-pago-icon transferencia-icon"><i class="bi bi-credit-card-2-front"></i></div>';
-    formaPagoColor = 'text-primary';
-  }
-
-  // Generar HTML de productos
-  let productosHTML = '';
-  console.log('Generando HTML de productos...');
-  console.log('productosHTML inicial:', productosHTML);
-  
-  if (pedidoData.productos && pedidoData.productos.length > 0) {
-    console.log('Entrando al bucle forEach con', pedidoData.productos.length, 'productos');
-    pedidoData.productos.forEach((producto, index) => {
-      console.log(`Procesando producto ${index + 1}:`, producto);
-      // Si hay componentes específicos, usarlos junto con el tipo; si no, usar solo el tipo
-      let descripcionProducto = producto.tipo;
-      if (producto.componentes && producto.componentes.length > 0) {
-        descripcionProducto = producto.tipo + ' - ' + producto.componentes.filter(Boolean).join(' + ');
-      }
-      
-      const nuevoHTML = `
-        <div class="pc-item">
-          <div class="pc-item-left">
-            <span class="pc-item-qty">${producto.cantidad}</span>
-            <div class="pc-item-info">
-              <span class="pc-item-tipo">${producto.tipo}</span>
-              ${producto.componentes && producto.componentes.filter(Boolean).length > 0 ? `<span class="pc-item-comp">${producto.componentes.filter(Boolean).join(' + ')}</span>` : ''}
-              ${producto.observacion ? `<span class="pc-item-obs"><i class="fas fa-sticky-note"></i> ${producto.observacion}</span>` : ''}
-            </div>
-          </div>
-          <span class="pc-item-price">$${(producto.cantidad * producto.precio_unitario).toFixed(2)}</span>
-        </div>
-      `;
-      
-      console.log(`Nuevo HTML a agregar:`, nuevoHTML);
-      productosHTML += nuevoHTML;
-      console.log(`HTML después del producto ${index + 1}:`, productosHTML);
-      console.log(`Longitud de productosHTML:`, productosHTML.length);
-    });
-    console.log('Saliendo del bucle forEach');
-  } else {
-    console.log('No hay productos para procesar');
-  }
-  
-  console.log('HTML final de productos:', productosHTML);
-  console.log('Longitud final de productosHTML:', productosHTML.length);
-
-  // Debug del subtipo reservado
-  console.log('=== DEBUG SUBTIPO RESERVADO ===');
-  console.log('Tipo de pedido:', pedidoData.tipo);
-  console.log('Subtipo reservado:', pedidoData.subtipo_reservado);
-  console.log('¿Es Reservado?', pedidoData.tipo === 'reservado');
-  console.log('¿Tiene subtipo?', !!pedidoData.subtipo_reservado);
-  console.log('Condición completa:', pedidoData.tipo === 'reservado' && pedidoData.subtipo_reservado);
-
-  // Construir el cardHTML de forma más segura
-  const cardHTML = '<div class="col-12 col-md-4 col-xl-3">' +
-    '<div class="card pedido-card pedido-tipo-' + pedidoData.tipo.toLowerCase() + '" data-pedido-id="' + pedidoData.id + '">' +
-      '<div class="card-body">' +
-
-        '<div class="pc-head">' +
-          '<label class="pc-head-left">' +
-            '<input type="checkbox" class="form-check-input checkbox-pedido" value="' + pedidoData.id + '">' +
-            '<span class="pc-num">#' + (pedidoData.numero_pedido_completo || pedidoData.numero_dia?.toString().padStart(3, '0') || pedidoData.id.toString().padStart(3, '0')) + '</span>' +
-          '</label>' +
-          '<div class="pc-head-right">' +
-            '<span class="pc-badge pc-badge-' + pedidoData.tipo.toLowerCase() + '">' + pedidoData.tipo + '</span>' +
-            '<span class="pc-time"><i class="fas fa-clock"></i> ' + horaActual + '</span>' +
-          '</div>' +
-        '</div>' +
-
-        '<div class="pc-meta">' +
-          (pedidoData.mesa ? '<span class="pc-mesa">Mesa ' + pedidoData.mesa + '</span>' : '') +
-          (pedidoData.contacto ? '<span class="pc-contacto">' + pedidoData.contacto + '</span>' : '') +
-          (pedidoData.tipo === 'Reservado' && pedidoData.subtipo_reservado ?
-            '<span class="pc-subtipo"><i class="bi bi-arrow-right-short"></i> ' + pedidoData.subtipo_reservado.charAt(0).toUpperCase() + pedidoData.subtipo_reservado.slice(1) + '</span>' : '') +
-          (pedidoData.observaciones_generales ?
-            '<span class="pc-obs"><i class="fas fa-sticky-note"></i> ' + pedidoData.observaciones_generales + '</span>' : '') +
-        '</div>' +
-
-        (productosHTML ? '<div class="pc-productos">' + productosHTML + '</div>' : '') +
-
-        '<div class="pc-bottom">' +
-          '<div class="pc-total">' +
-            '<span class="pc-total-lbl">Total</span>' +
-            '<span class="pc-total-val">$' + pedidoData.total.toFixed(2) + '</span>' +
-          '</div>' +
-          '<div class="pc-footer-row">' +
-            '<div>' + formaPagoIcono + '</div>' +
-            '<div class="d-flex gap-1">' +
-              '<button class="btn btn-primary btn-agregar-producto" title="Agregar productos"><i class="fas fa-plus"></i></button>' +
-              '<button class="btn btn-light btn-editar" title="Editar pedido"><i class="fas fa-pen"></i></button>' +
-              '<button class="btn btn-success btn-guardar" title="Marcar como completado"><i class="fas fa-check"></i></button>' +
-              '<button class="btn btn-danger btn-eliminar" title="Eliminar pedido"><i class="fas fa-trash"></i></button>' +
-            '</div>' +
-          '</div>' +
-        '</div>' +
-
-      '</div>' +
-    '</div>' +
-  '</div>';
-  
-  console.log('=== CARD HTML GENERADO ===');
-  console.log('productosHTML en cardHTML:', productosHTML);
-  console.log('Longitud de productosHTML en cardHTML:', productosHTML.length);
-  console.log('Verificación final - productosHTML contiene:', productosHTML.includes('Almuerzo') ? 'Almuerzo' : 'NO Almuerzo');
-  console.log('Verificación final - productosHTML contiene:', productosHTML.includes('Sopa') ? 'Sopa' : 'NO Sopa');
-  console.log('cardHTML completo:', cardHTML);
-  
-  return cardHTML;
-}
-
-
-
-// --- Función para limpiar formulario del modal ---
-// Función para cargar pedidos existentes desde la base de datos
-async function cargarPedidosExistentes() {
-  try {
-    console.log('=== CARGANDO PEDIDOS EXISTENTES ===');
-    
-    // Cargar pedidos del tipo actual (todos por defecto)
-    await cargarPedidosPorTipo('todos');
-    
-    console.log('Pedidos cargados exitosamente');
-  } catch (error) {
-    console.error('Error al cargar pedidos existentes:', error);
-    console.error('Detalles del error:', error.message);
-  }
-}
-
-// Función para cargar pedidos por tipo
-async function cargarPedidosPorTipo(tipo) {
-  try {
-    console.log(`=== CARGANDO PEDIDOS ${tipo.toUpperCase()} ===`);
-    
-    const response = await fetch(`/obtener-pedidos-por-tipo/?tipo=${tipo}`);
-    const data = await response.json();
-    
-    if (data.status === 'ok') {
-      console.log(`Pedidos ${tipo} recibidos:`, data.pedidos);
-      
-      const contenedor = document.getElementById('contenedor-cards-pedidos');
-      contenedor.innerHTML = ''; // Limpiar contenedor
-      
-      // Generar cards para cada pedido
-      data.pedidos.forEach((pedido, index) => {
-        console.log(`Procesando pedido ${index + 1}:`, pedido.id);
-        const cardHTML = crearCardPedidoDesdeBD(pedido);
-        contenedor.insertAdjacentHTML('beforeend', cardHTML);
-      });
-      
-      // Agregar eventos a todas las cards
-      contenedor.querySelectorAll('.pedido-card').forEach(card => {
-        agregarEventosCardPedido(card);
-      });
-      
-      // Actualizar contador
-      const contador = document.getElementById(`contador-${tipo}`);
-      if (contador) {
-        contador.textContent = data.cantidad;
-      }
-      
-      // Actualizar tipo actual
-      window.tipoActual = tipo;
-      
-      console.log(`Pedidos ${tipo} cargados exitosamente`);
-    } else {
-      console.error(`Error al cargar pedidos ${tipo}:`, data.message);
-    }
-  } catch (error) {
-    console.error(`Error al cargar pedidos ${tipo}:`, error);
-  }
-}
-
-
-
-// Función para actualizar cantidades disponibles en tiempo real
-async function actualizarCantidadesDisponibles() {
-  try {
-    console.log('=== ACTUALIZANDO CANTIDADES DISPONIBLES ===');
-    
-    const response = await fetch('/obtener-cantidades-actualizadas/');
-    const data = await response.json();
-    
-    if (data.status === 'ok') {
-      console.log('Cantidades actualizadas recibidas:', data);
-      
-      // Actualizar sopas
-      data.sopas.forEach(sopa => {
-        console.log(`Procesando sopa ID ${sopa.id}: ${sopa.nombre}`);
-        const sopaElement = document.querySelector(`[data-sopa-id="${sopa.id}"]`);
-        console.log(`Buscando elemento con data-sopa-id="${sopa.id}"`);
-        console.log(`Elementos sopa en DOM:`, document.querySelectorAll('[data-sopa-id]'));
-        if (sopaElement) {
-          console.log(`✅ Elemento sopa encontrado para ID ${sopa.id}`);
-          const cantidadSpan = sopaElement.querySelector('.cantidad-sopa');
-          const puntoSpan = sopaElement.querySelector('.punto-cantidad');
-          
-          if (cantidadSpan) {
-            // Actualizar solo el texto del número, manteniendo el punto
-            const puntoSpan = cantidadSpan.querySelector('.punto-cantidad');
-            if (puntoSpan) {
-              // Limpiar el contenido y agregar el punto actualizado + el número
-              cantidadSpan.innerHTML = '';
-              cantidadSpan.appendChild(puntoSpan);
-              cantidadSpan.appendChild(document.createTextNode(' ' + sopa.cantidad_actual));
-            } else {
-              cantidadSpan.textContent = sopa.cantidad_actual;
-            }
-          }
-          
-          if (puntoSpan) {
-            console.log(`Actualizando punto para sopa ${sopa.nombre}: cantidad_actual=${sopa.cantidad_actual}, cantidad_configurada=${sopa.cantidad_configurada}`);
-            // Actualizar color del punto
-            puntoSpan.classList.remove('sin-productos', 'pocos-productos');
-            if (sopa.cantidad_actual === 0) {
-              puntoSpan.classList.add('sin-productos');
-              console.log(`  → Agregada clase 'sin-productos' (rojo)`);
-            } else if (sopa.cantidad_actual <= sopa.cantidad_configurada * 0.5) {
-              puntoSpan.classList.add('pocos-productos');
-              console.log(`  → Agregada clase 'pocos-productos' (naranja)`);
-            } else {
-              console.log(`  → Sin clases especiales (verde)`);
-            }
-          } else {
-            console.log(`No se encontró punto para sopa ${sopa.nombre}`);
-          }
-        }
-      });
-      
-      // Actualizar segundos
-      data.segundos.forEach(segundo => {
-        console.log(`Procesando segundo ID ${segundo.id}: ${segundo.nombre}`);
-        const segundoElement = document.querySelector(`[data-segundo-id="${segundo.id}"]`);
-        console.log(`Buscando elemento con data-segundo-id="${segundo.id}"`);
-        console.log(`Elementos segundo en DOM:`, document.querySelectorAll('[data-segundo-id]'));
-        if (segundoElement) {
-          console.log(`✅ Elemento segundo encontrado para ID ${segundo.id}`);
-          const cantidadSpan = segundoElement.querySelector('.cantidad-segundo');
-          const puntoSpan = segundoElement.querySelector('.punto-cantidad');
-          
-          if (cantidadSpan) {
-            // Actualizar solo el texto del número, manteniendo el punto
-            const puntoSpan = cantidadSpan.querySelector('.punto-cantidad');
-            if (puntoSpan) {
-              // Limpiar el contenido y agregar el punto actualizado + el número
-              cantidadSpan.innerHTML = '';
-              cantidadSpan.appendChild(puntoSpan);
-              cantidadSpan.appendChild(document.createTextNode(' ' + segundo.cantidad_actual));
-            } else {
-              cantidadSpan.textContent = segundo.cantidad_actual;
-            }
-          }
-          
-          if (puntoSpan) {
-            console.log(`Actualizando punto para segundo ${segundo.nombre}: cantidad_actual=${segundo.cantidad_actual}, cantidad_configurada=${segundo.cantidad_configurada}`);
-            // Actualizar color del punto
-            puntoSpan.classList.remove('sin-productos', 'pocos-productos');
-            if (segundo.cantidad_actual === 0) {
-              puntoSpan.classList.add('sin-productos');
-              console.log(`  → Agregada clase 'sin-productos' (rojo)`);
-            } else if (segundo.cantidad_actual <= segundo.cantidad_configurada * 0.5) {
-              puntoSpan.classList.add('pocos-productos');
-              console.log(`  → Agregada clase 'pocos-productos' (naranja)`);
-            } else {
-              console.log(`  → Sin clases especiales (verde)`);
-            }
-          } else {
-            console.log(`No se encontró punto para segundo ${segundo.nombre}`);
-          }
-        }
-      });
-      
-      console.log('Cantidades actualizadas exitosamente');
-    } else {
-      console.error('Error al obtener cantidades actualizadas:', data.message);
-    }
-  } catch (error) {
-    console.error('Error al actualizar cantidades:', error);
-  }
-}
-
-function limpiarFormularioPedido() {
-  // Limpiar campos de entrada
-  document.getElementById('nombre_servirse').value = '';
-  document.getElementById('nombre_llevar').value = '';
-  document.getElementById('nombre_reservado').value = '';
-  document.getElementById('mesa').value = '';
-  document.getElementById('observaciones_generales').value = '';
-  
-  // Establecer valores por defecto
-  document.getElementById('tipo_pedido').value = 'Servirse';
-  document.getElementById('forma_pago').value = 'Efectivo';
-  document.getElementById('subtipo_reservado').value = 'servirse';
-  
-  // Activar tab "Servirse" por defecto
-  document.querySelectorAll('.nav-link').forEach(tab => {
-    tab.classList.remove('active');
-  });
-  document.querySelector('.nav-link[data-bs-target="#servirse"]').classList.add('active');
-  
-  document.querySelectorAll('.tab-pane').forEach(pane => {
-    pane.classList.remove('show', 'active');
-  });
-  document.querySelector('#servirse').classList.add('show', 'active');
-  
-  // Activar botón "Efectivo" por defecto
-  document.querySelectorAll('.btn-forma-pago').forEach(btn => {
-    btn.classList.remove('active');
-  });
-  document.querySelector('.btn-forma-pago:first-child').classList.add('active');
-  
-  // Limpiar carrito (DOM y memoria)
-  document.getElementById('resumenCarrito').innerHTML = '';
-  document.getElementById('total-pedido').textContent = '$0.00';
-  
-  // Limpiar también el carrito móvil si existe
-  const resumenCarritoMovil = document.getElementById('resumenCarritoMovil');
-  const totalMovil = document.getElementById('total-pedido-movil');
-  if (resumenCarritoMovil) {
-    resumenCarritoMovil.innerHTML = '';
-  }
-  if (totalMovil) {
-    totalMovil.textContent = '$0.00';
-  }
-  
-  window.carrito = []; // Limpiar la memoria del carrito
-  
-  // Establecer tipo de pedido por defecto
-  document.getElementById('tipo_pedido').value = 'Servirse';
-}
-
-// Variables globales para selección múltiple
-window.pedidosSeleccionados = new Set();
-window.tipoActual = 'todos';
-
-// Función para limpiar todas las clases seleccionado de las cards
-function limpiarClasesSeleccionado() {
-  const cards = document.querySelectorAll('.pedido-card.seleccionado');
-  cards.forEach(card => {
-    card.classList.remove('seleccionado');
-  });
-}
-
-// Función para manejar selección múltiple
-function manejarSeleccionMultiple(pedidoId, checked) {
-  if (checked) {
-    window.pedidosSeleccionados.add(pedidoId);
-  } else {
-    window.pedidosSeleccionados.delete(pedidoId);
-  }
-  
-  // Aplicar/quitar clase seleccionado a la card correspondiente
-  const card = document.querySelector(`.pedido-card[data-pedido-id="${pedidoId}"]`);
-  if (card) {
-    if (checked) {
-      card.classList.add('seleccionado');
-    } else {
-      card.classList.remove('seleccionado');
-    }
-  }
-  
-  // Actualizar botón de marcar como listos
-  const btnMarcarListos = document.getElementById('btn-marcar-listos');
-  const btnSeleccionarTodos = document.getElementById('btn-seleccionar-todos');
-  
-  if (window.pedidosSeleccionados.size > 0) {
-    btnMarcarListos.classList.remove('disabled');
-    btnMarcarListos.disabled = false;
-    btnSeleccionarTodos.classList.add('active');
-  } else {
-    btnMarcarListos.classList.add('disabled');
-    btnMarcarListos.disabled = true;
-    btnSeleccionarTodos.classList.remove('active');
-  }
-}
-
-// Función para seleccionar/deseleccionar todos los pedidos visibles
-function seleccionarTodosPedidos() {
-  const contenedor = document.getElementById('contenedor-cards-pedidos');
-  const checkboxes = contenedor.querySelectorAll('.checkbox-pedido');
-  const btnSeleccionar = document.getElementById('btn-seleccionar-todos');
-  const icon = btnSeleccionar.querySelector('i');
-  
-  // Cambiar icono
-  if (icon.classList.contains('fa-square')) {
-    icon.classList.remove('fa-square');
-    icon.classList.add('fa-check-square');
-    btnSeleccionar.classList.add('active');
-    checkboxes.forEach(checkbox => {
-      checkbox.checked = true;
-      manejarSeleccionMultiple(checkbox.value, true);
-    });
-  } else {
-    icon.classList.remove('fa-check-square');
-    icon.classList.add('fa-square');
-    btnSeleccionar.classList.remove('active');
-    checkboxes.forEach(checkbox => {
-      checkbox.checked = false;
-      manejarSeleccionMultiple(checkbox.value, false);
-    });
-  }
-}
-
-// Función para marcar múltiples pedidos como listos
-async function marcarPedidosCompletados() {
-  try {
-    const pedidosIds = Array.from(window.pedidosSeleccionados);
-    
-    if (pedidosIds.length === 0) {
-      alert('No hay pedidos seleccionados');
-      return;
-    }
-    
-    if (!confirm(`¿Estás seguro de que quieres marcar ${pedidosIds.length} pedidos como completados?`)) {
-      return;
-    }
-    
-    const response = await fetch('/marcar-pedidos-completados/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': '{{ csrf_token }}'
-      },
-      body: JSON.stringify({
-        pedido_ids: pedidosIds
-      })
-    });
-    
-    const data = await response.json();
-    
-    if (data.status === 'ok') {
-      alert(data.message);
-      
-      // Limpiar selección
-      window.pedidosSeleccionados.clear();
-      limpiarClasesSeleccionado(); // Limpiar clases seleccionado de las cards
-      const btnMarcarListos = document.getElementById('btn-marcar-listos');
-      const btnSeleccionarTodos = document.getElementById('btn-seleccionar-todos');
-      btnMarcarListos.classList.add('disabled');
-      btnMarcarListos.disabled = true;
-      btnSeleccionarTodos.classList.remove('active');
-      
-      // Resetear icono del botón seleccionar todos
-      const icon = btnSeleccionarTodos.querySelector('i');
-      icon.classList.remove('fa-check-square');
-      icon.classList.add('fa-square');
-      
-      // Recargar pedidos del tipo actual
-              await cargarPedidosPorTipo(window.tipoActual);
-        
-        // Actualizar contadores después de marcar como completados
-        actualizarContadoresTabs();
-      
-      // Enviar mensaje WebSocket para notificar a otros dispositivos
-      if (window.wsManager && window.wsManager.isConnected()) {
-        console.log('[WEBSOCKET] Enviando notificación de pedidos marcados como completados');
-        window.wsManager.sendMessage({
-          type: 'pedidos_marcados_completados',
-          pedidos_ids: pedidosIds,
-          cantidad: pedidosIds.length
-        });
-      }
-      
-    } else {
-      alert('Error: ' + data.message);
-    }
-    
-  } catch (error) {
-    console.error('Error al marcar pedidos como completados:', error);
-    alert('Error inesperado al marcar pedidos como completados');
-  }
-}
-
-// Función para actualizar contadores de tabs automáticamente (scope global)
-window.actualizarContadoresTabs = async function() {
-  try {
-    console.log('=== ACTUALIZANDO CONTADORES DE TABS ===');
-    
-    // Obtener contadores actualizados del backend
-    const response = await fetch('/obtener-contadores-tabs/');
-    const data = await response.json();
-    
-    if (data.status === 'ok') {
-      // Actualizar contador "Todos"
-      const contadorTodos = document.getElementById('contador-todos');
-      if (contadorTodos) {
-        contadorTodos.textContent = data.contadores.todos;
-      }
-      
-      // Actualizar contador "Servirse"
-      const contadorServirse = document.getElementById('contador-servirse');
-      if (contadorServirse) {
-        contadorServirse.textContent = data.contadores.servirse;
-      }
-      
-      // Actualizar contador "Llevar"
-      const contadorLlevar = document.getElementById('contador-llevar');
-      if (contadorLlevar) {
-        contadorLlevar.textContent = data.contadores.llevar;
-      }
-      
-      // Actualizar contador "Reservados"
-      const contadorReservados = document.getElementById('contador-reservados');
-      if (contadorReservados) {
-        contadorReservados.textContent = data.contadores.reservados;
-      }
-      
-      console.log('✅ Contadores actualizados:', data.contadores);
-    } else {
-      console.error('❌ Error al obtener contadores:', data.message);
-    }
-  } catch (error) {
-    console.error('❌ Error al actualizar contadores:', error);
-  }
-};
-
-document.addEventListener('DOMContentLoaded', function() {
-  // ===== BUSCADOR DE PEDIDOS =====
-  const buscador = document.getElementById('buscadorPedidos');
-  if (buscador) {
-    buscador.addEventListener('input', function() {
-      const query = this.value.trim().toLowerCase();
-      const contenedor = document.getElementById('contenedor-cards-pedidos');
-      if (!contenedor) return;
-      contenedor.querySelectorAll('.pedido-card').forEach(card => {
-        const col = card.parentElement;
-        if (!query) { col.style.display = ''; return; }
-        const mesa     = (card.querySelector('.pc-mesa')?.textContent || '').toLowerCase();
-        const contacto = (card.querySelector('.pc-contacto')?.textContent || '').toLowerCase();
-        const num      = (card.querySelector('.pc-num')?.textContent || '').toLowerCase();
-        const obs      = (card.querySelector('.pc-obs')?.textContent || '').toLowerCase();
-        const match = mesa.includes(query) || contacto.includes(query) || num.includes(query) || obs.includes(query);
-        col.style.display = match ? '' : 'none';
-      });
-    });
-  }
-
-  // Agregar event listeners a los botones de confirmar
-  document.querySelectorAll('#tomarPedidoModal .btn-confirmar').forEach(btn => {
-    btn.removeAttribute('onclick');
-    btn.addEventListener('click', () => guardarPedidoFrontend(false));
-  });
-  document.querySelectorAll('#tomarPedidoModal .btn-confirmar-imprimir').forEach(btn => {
-    btn.removeAttribute('onclick');
-    btn.addEventListener('click', () => guardarPedidoFrontend(true));
-  });
-  
-      // Cargar pedidos existentes desde la base de datos
-    cargarPedidosExistentes();
-    
-    // Actualizar contadores iniciales
-    actualizarContadoresTabs();
-  
-  // Eventos para botones de selección múltiple
-  document.getElementById('btn-seleccionar-todos').addEventListener('click', seleccionarTodosPedidos);
-  
-  // Eventos para botones de marcar como listos
-  document.getElementById('btn-marcar-listos').addEventListener('click', marcarPedidosCompletados);
-  
-  // Eventos para los tabs
-  document.querySelectorAll('.nav-link-tab-rounded').forEach(tab => {
-    tab.addEventListener('click', async function() {
-      // Remover clase active de todos los tabs
-      document.querySelectorAll('.nav-link-tab-rounded').forEach(t => t.classList.remove('active'));
-      // Agregar clase active al tab clickeado
-      this.classList.add('active');
-      
-      // Obtener el tipo del tab
-      const tipo = this.getAttribute('data-tipo');
-      console.log('=== CAMBIANDO TAB ===');
-      console.log('Tipo seleccionado:', tipo);
-      
-      // Limpiar selección al cambiar de tab
-      window.pedidosSeleccionados.clear();
-      limpiarClasesSeleccionado(); // Limpiar clases seleccionado de las cards
-      const btnMarcarListos = document.getElementById('btn-marcar-listos');
-      btnMarcarListos.classList.add('disabled');
-      btnMarcarListos.disabled = true;
-      
-      // Resetear icono del botón marcar todo
-      const btnSeleccionar = document.getElementById('btn-seleccionar-todos');
-      const icon = btnSeleccionar.querySelector('i');
-      icon.classList.remove('fa-check-square');
-      icon.classList.add('fa-square');
-      
-              // Cargar pedidos del tipo seleccionado
-        await cargarPedidosPorTipo(tipo);
-        
-        // Actualizar contadores después de cambiar de tab
-        actualizarContadoresTabs();
-    });
-  });
-  
-
-  
-  // Limpiar formulario cuando se abre el modal solo si NO estamos editando ni agregando productos
-  const tomarPedidoModal = document.getElementById('tomarPedidoModal');
-  tomarPedidoModal.addEventListener('show.bs.modal', function () {
-    if (!window.pedidoEditando && !window.pedidoAgregandoProductos) {
-      limpiarFormularioPedido();
-    }
-  });
-
-  // Forzar limpieza al iniciar un nuevo pedido desde el botón principal
-  document.querySelectorAll('.btn-tomar-pedido').forEach(btn => {
-    btn.addEventListener('click', function () {
-      window.pedidoEditando = null;
-      window.pedidoAgregandoProductos = null;
-      limpiarFormularioPedido();
-    });
-  });
-  
-  // Actualizar tipo de pedido cuando se cambia de tab
-  document.querySelectorAll('.nav-link[data-bs-toggle="tab"]').forEach(tab => {
-    tab.addEventListener('shown.bs.tab', function (event) {
-      const target = event.target.getAttribute('data-bs-target');
-      if (target === '#servirse') {
-        document.getElementById('tipo_pedido').value = 'Servirse';
-      } else if (target === '#llevar') {
-        document.getElementById('tipo_pedido').value = 'Llevar';
-      } else if (target === '#reservado') {
-        document.getElementById('tipo_pedido').value = 'Reservado';
-        // Asegurar que el subtipo de reservado esté inicializado
-        if (!document.getElementById('subtipo_reservado').value) {
-          document.getElementById('subtipo_reservado').value = 'Servirse';
-        }
-      }
-    });
-  });
-  
-  // Actualizar forma de pago cuando se cambia de botón
-  document.querySelectorAll('.btn-forma-pago').forEach(btn => {
-    btn.addEventListener('click', function() {
-      document.querySelectorAll('.btn-forma-pago').forEach(b => b.classList.remove('active'));
-      this.classList.add('active');
-      const formaPago = this.getAttribute('data-forma-pago');
-      document.getElementById('forma_pago').value = formaPago;
-    });
-  });
-  
-  // Manejar el cierre del modal para guardar automáticamente
-  tomarPedidoModal.addEventListener('hidden.bs.modal', function () {
-    // Resetear flags de edición y agregar productos
-    window.pedidoEditando = null;
-    window.pedidoAgregandoProductos = null;
-    // Verificar si hay productos en el carrito antes de guardar
-    const resumenCarrito = document.getElementById('resumenCarrito');
-    if (resumenCarrito.children.length > 0) {
-      // Preguntar al usuario si quiere guardar los cambios
-      if (confirm('¿Deseas guardar los cambios del pedido?')) {
-        guardarPedidoFrontend();
-      } else {
-        // Limpiar el carrito si no quiere guardar (DOM y memoria)
-        document.getElementById('resumenCarrito').innerHTML = '';
-        document.getElementById('total-pedido').textContent = '$0.00';
-        
-        // Limpiar también el carrito móvil si existe
-        const resumenCarritoMovil = document.getElementById('resumenCarritoMovil');
-        const totalMovil = document.getElementById('total-pedido-movil');
-        if (resumenCarritoMovil) {
-          resumenCarritoMovil.innerHTML = '';
-        }
-        if (totalMovil) {
-          totalMovil.textContent = '$0.00';
-        }
-        
-        window.carrito = []; // Limpiar la memoria del carrito
-      }
-    }
-  });
-  
-  // Función para actualizar contadores de tabs automáticamente (scope global)
-  window.actualizarContadoresTabs = async function() {
-    try {
-      console.log('=== ACTUALIZANDO CONTADORES DE TABS ===');
-      
-      // Obtener contadores actualizados del backend
-      const response = await fetch('/obtener-contadores-tabs/');
-      const data = await response.json();
-      
-      if (data.status === 'ok') {
-        // Actualizar contador "Todos"
-        const contadorTodos = document.getElementById('contador-todos');
-        if (contadorTodos) {
-          contadorTodos.textContent = data.contadores.todos;
-        }
-        
-        // Actualizar contador "Servirse"
-        const contadorServirse = document.getElementById('contador-servirse');
-        if (contadorServirse) {
-          contadorServirse.textContent = data.contadores.servirse;
-        }
-        
-        // Actualizar contador "Llevar"
-        const contadorLlevar = document.getElementById('contador-llevar');
-        if (contadorLlevar) {
-          contadorLlevar.textContent = data.contadores.llevar;
-        }
-        
-        // Actualizar contador "Reservados"
-        const contadorReservados = document.getElementById('contador-reservados');
-        if (contadorReservados) {
-          contadorReservados.textContent = data.contadores.reservados;
-        }
-        
-        console.log('✅ Contadores actualizados:', data.contadores);
-      } else {
-        console.error('❌ Error al obtener contadores:', data.message);
-      }
-    } catch (error) {
-      console.error('❌ Error al actualizar contadores:', error);
-    }
-  };
-});
-</script>
-
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'CSS/almuerzos-menu.css' %}?v=4">
+<link rel="stylesheet" href="{% static 'CSS/almuerzos-pedidos.css' %}?v=1">
 {% endblock %}
 
+{% block content %}
+<!-- Pedidos del día · pizzeria/handoff_nuevo_pedido_almuerzos (2A, 3A/3B/3D,
+     2D, 3E). Toda la lógica vive en static/JS/almuerzos_pedidos.js y habla con
+     los mismos endpoints de pedidos/views.py de siempre. -->
+<div class="im-shell alm almp">
+  {% include 'components/pizzeria_header.html' %}
+  {% include 'components/pizzeria_subheader.html' %}
+
+  <main class="almp-content" id="almpContent">
+    <div class="alm-buscar almp-buscar" id="almpBuscar" hidden>
+      <i class="bi bi-search" aria-hidden="true"></i>
+      <input type="search" id="buscadorPedidos" placeholder="Número, mesa, nombre o plato" aria-label="Buscar pedido" autocomplete="off">
+      <button type="button" class="almp-buscar-cerrar" id="almpBuscarCerrar" aria-label="Cerrar búsqueda">
+        <i class="bi bi-x-lg" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <div class="almp-lista" id="contenedor-cards-pedidos" aria-live="polite" aria-busy="true">
+      {% for i in "123" %}
+      <div class="almp-card almp-card-esqueleto" aria-hidden="true"></div>
+      {% endfor %}
+    </div>
+
+    <div class="almp-vacio" id="almpVacio" hidden>
+      <span class="almp-vacio-icono" aria-hidden="true"><i class="bi bi-receipt"></i></span>
+      <p class="almp-vacio-titulo" id="almpVacioTitulo">Nada por entregar</p>
+      <p class="almp-vacio-texto" id="almpVacioTexto">Toca ＋ para tomar el primer pedido.</p>
+    </div>
+  </main>
+
+  <!-- Modo Listos: marcar varios pedidos como entregados -->
+  <div class="almp-lote" id="almpLote" hidden>
+    <div class="almp-lote-card">
+      <p class="almp-lote-texto" id="almpLoteTexto" aria-live="polite">Toca los pedidos que ya se entregaron</p>
+      <div class="almp-lote-botones">
+        <button type="button" class="almp-btn-sec" id="almpLoteSalir">Cancelar</button>
+        <button type="button" class="almp-btn-sec" id="btn-seleccionar-todos">Todos</button>
+        <button type="button" class="almp-btn-verde" id="btn-marcar-listos" disabled>Marcar listos</button>
+      </div>
+    </div>
+  </div>
+
+  {% include 'components/almuerzos_tab_bar.html' %}
+</div>
+
+<!-- ============ 3A · Hoja única de pedido (cliente + productos + pago) ============ -->
+<div class="alm-hoja-fondo" data-fondo-de="almpHojaPedido" hidden></div>
+<section class="alm-hoja almp-hoja-pedido" id="almpHojaPedido" role="dialog" aria-modal="true" aria-labelledby="almpPedTitulo" hidden>
+  <header class="almp-hoja-cabeza" data-arrastre>
+    <div class="alm-hoja-asa" aria-hidden="true"></div>
+    <div class="almp-cabeza-fila">
+      <div class="almp-cabeza-textos">
+        <h2 class="almp-hoja-titulo" id="almpPedTitulo" tabindex="-1">Nuevo pedido</h2>
+        <p class="almp-hoja-sub" id="almpPedSub"></p>
+      </div>
+      <span class="almp-cabeza-total" id="almpPedTotal">$0.00</span>
+    </div>
+  </header>
+
+  <div class="almp-hoja-cuerpo" id="almpPedCuerpo">
+    <!-- CLIENTE -->
+    <section class="almp-bloque" id="almpBloqueCliente" aria-labelledby="almpEtqCliente">
+      <div class="almp-bloque-head">
+        <h3 class="almp-etq" id="almpEtqCliente">CLIENTE</h3>
+        <span class="almp-bloque-meta" id="almpClienteMeta"></span>
+      </div>
+      <div class="almp-seg almp-seg-3" role="group" aria-label="Tipo de pedido" id="tipoPedidoTabs">
+        <button type="button" class="almp-seg-btn" data-tipo="Servirse" aria-pressed="true">Servirse</button>
+        <button type="button" class="almp-seg-btn" data-tipo="Llevar" aria-pressed="false">Llevar</button>
+        <button type="button" class="almp-seg-btn" data-tipo="Reservado" aria-pressed="false">Reserva</button>
+      </div>
+      <div class="almp-seg almp-seg-2 almp-subtipo" role="group" aria-label="Cómo se servirá la reserva" id="almpSubtipo" hidden>
+        <span class="almp-subtipo-lbl">SE SIRVE</span>
+        <button type="button" class="almp-seg-btn almp-seg-sm" data-subtipo="servirse" aria-pressed="true">Aquí</button>
+        <button type="button" class="almp-seg-btn almp-seg-sm" data-subtipo="llevar" aria-pressed="false">Para llevar</button>
+      </div>
+      <div class="almp-cliente-fila">
+        <label class="almp-campo almp-campo-mesa" id="almpCampoMesa">
+          <span class="almp-campo-lbl">MESA</span>
+          <select id="mesa" class="almp-campo-select" aria-label="Número de mesa">
+            <option value="">—</option>
+            {% for mesa in mesas %}<option value="{{ mesa }}">{{ mesa }}</option>{% endfor %}
+          </select>
+          <i class="bi bi-chevron-down almp-campo-icono" aria-hidden="true"></i>
+        </label>
+        <label class="almp-campo" id="almpCampoNombre">
+          <input type="text" id="almpNombre" class="almp-campo-input" placeholder="Nombre (opcional)" autocomplete="off" maxlength="100" aria-label="Nombre o teléfono del cliente">
+          <i class="bi bi-pencil almp-campo-icono" aria-hidden="true"></i>
+        </label>
+      </div>
+      <label class="almp-campo almp-campo-obs">
+        <input type="text" id="observaciones_generales" class="almp-campo-input" placeholder="Observación general · ej: sin cebolla" autocomplete="off" aria-label="Observación general del pedido">
+        <i class="bi bi-pencil almp-campo-icono" aria-hidden="true"></i>
+      </label>
+    </section>
+
+    <!-- PRODUCTOS -->
+    <section class="almp-bloque" id="almpBloqueProductos" aria-labelledby="almpEtqProductos">
+      <div class="almp-bloque-head">
+        <h3 class="almp-etq" id="almpEtqProductos">PRODUCTOS</h3>
+        <span class="almp-bloque-meta almp-meta-suave" id="almpProductosMeta"></span>
+      </div>
+      <ul class="almp-carrito" id="resumenCarrito"></ul>
+      <div class="almp-agregar" role="group" aria-label="Agregar producto">
+        <button type="button" class="almp-agregar-btn almp-agregar-principal" data-producto="almuerzo"><i class="bi bi-plus-lg" aria-hidden="true"></i>Almuerzo</button>
+        <button type="button" class="almp-agregar-btn" data-producto="sopa"><i class="bi bi-plus-lg" aria-hidden="true"></i>Sopa</button>
+        <button type="button" class="almp-agregar-btn" data-producto="segundo"><i class="bi bi-plus-lg" aria-hidden="true"></i>Segundo</button>
+        <button type="button" class="almp-agregar-btn" data-producto="extra"><i class="bi bi-plus-lg" aria-hidden="true"></i>Extra</button>
+      </div>
+    </section>
+
+    <!-- FORMA DE PAGO -->
+    <section class="almp-bloque" id="almpBloquePago" aria-labelledby="almpEtqPago">
+      <div class="almp-bloque-head">
+        <h3 class="almp-etq" id="almpEtqPago">FORMA DE PAGO</h3>
+        <span class="almp-bloque-meta" id="almpPagoMeta"></span>
+      </div>
+      <div class="almp-seg almp-seg-3 almp-pago" role="group" aria-label="Forma de pago">
+        <button type="button" class="almp-pago-btn btn-forma-pago" data-forma-pago="Efectivo" aria-pressed="false"><i class="bi bi-cash" aria-hidden="true"></i>Efectivo</button>
+        <button type="button" class="almp-pago-btn btn-forma-pago" data-forma-pago="Transferencia" aria-pressed="false"><i class="bi bi-arrow-left-right" aria-hidden="true"></i>Transferencia</button>
+        <button type="button" class="almp-pago-btn btn-forma-pago" data-forma-pago="Mixto" aria-pressed="false"><i class="bi bi-pie-chart" aria-hidden="true"></i>Mixto</button>
+      </div>
+
+      <!-- 3B · Efectivo: recibe / vuelto en línea -->
+      <div class="almp-efectivo" id="almpEfectivo" hidden>
+        <div class="almp-montos">
+          <label class="almp-monto">
+            <span class="almp-monto-lbl">RECIBE</span>
+            <span class="almp-monto-signo" aria-hidden="true">$</span>
+            <input type="text" inputmode="decimal" id="almpRecibe" class="almp-monto-input" placeholder="0.00" autocomplete="off" aria-label="Monto recibido en efectivo">
+          </label>
+          <div class="almp-monto almp-monto-vuelto" id="almpVueltoCaja">
+            <span class="almp-monto-lbl" id="almpVueltoLbl">VUELTO</span>
+            <span class="almp-monto-valor" id="almpVuelto" aria-live="polite">—</span>
+          </div>
+        </div>
+        <div class="almp-atajos" id="almpAtajosBillete" role="group" aria-label="Atajos de billete"></div>
+      </div>
+
+      <!-- 3D · Mixto: reparto con "por asignar" -->
+      <div class="almp-mixto" id="almpMixto" hidden>
+        <div class="almp-reparto">
+          <label class="almp-reparto-fila">
+            <i class="bi bi-cash almp-reparto-icono" aria-hidden="true"></i>
+            <span class="almp-reparto-nombre">Efectivo</span>
+            <span class="almp-monto-signo" aria-hidden="true">$</span>
+            <input type="text" inputmode="decimal" id="almpMixtoEfectivo" class="almp-reparto-input" placeholder="0.00" autocomplete="off" aria-label="Parte en efectivo">
+          </label>
+          <label class="almp-reparto-fila">
+            <i class="bi bi-arrow-left-right almp-reparto-icono" aria-hidden="true"></i>
+            <span class="almp-reparto-nombre">Transferencia</span>
+            <span class="almp-monto-signo" aria-hidden="true">$</span>
+            <input type="text" inputmode="decimal" id="almpMixtoTransf" class="almp-reparto-input" placeholder="0.00" autocomplete="off" aria-label="Parte por transferencia">
+          </label>
+          <div class="almp-reparto-resto" id="almpPorAsignar" aria-live="polite">
+            <span class="almp-reparto-resto-lbl" id="almpPorAsignarLbl">POR ASIGNAR</span>
+            <span class="almp-reparto-resto-valor" id="almpPorAsignarValor">$0.00</span>
+          </div>
+        </div>
+        <div class="almp-atajos">
+          <button type="button" class="almp-atajo" id="almpRestoEfectivo">Resto en efectivo</button>
+          <button type="button" class="almp-atajo" id="almpRestoTransf">Resto transferido</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <footer class="almp-hoja-pie">
+    <div class="almp-pie-botones">
+      <button type="button" class="almp-btn-sin-ticket btn-confirmar" id="almpGuardarSinTicket" title="Guardar sin imprimir">
+        <i class="bi bi-check2" aria-hidden="true"></i><span>Sin ticket</span>
+      </button>
+      <button type="button" class="alm-btn-primario almp-btn-cobrar btn-confirmar-imprimir" id="almpGuardar">
+        <i class="bi bi-printer" aria-hidden="true"></i><span id="almpGuardarTexto">Cobrar e imprimir</span><span class="almp-btn-monto" id="almpGuardarMonto">$0.00</span>
+      </button>
+    </div>
+    <p class="almp-pie-linea" id="almpPedLinea" aria-live="polite"></p>
+  </footer>
+</section>
+
+<!-- ============ 2D · Agregar producto ============ -->
+<div class="alm-hoja-fondo almp-fondo-2" data-fondo-de="almpHojaProducto" hidden></div>
+<section class="alm-hoja almp-hoja-producto" id="almpHojaProducto" role="dialog" aria-modal="true" aria-labelledby="almpProdTitulo" hidden>
+  <header class="almp-hoja-cabeza almp-cabeza-simple" data-arrastre>
+    <div class="alm-hoja-asa" aria-hidden="true"></div>
+    <h2 class="almp-hoja-titulo" id="almpProdTitulo" tabindex="-1">Agregar almuerzo</h2>
+    <p class="almp-hoja-sub" id="almpProdSub"></p>
+  </header>
+  <div class="almp-hoja-cuerpo" id="almpProdCuerpo"></div>
+  <footer class="almp-hoja-pie">
+    <div class="almp-pie-botones">
+      <div class="almp-stepper almp-stepper-lg" role="group" aria-label="Cantidad">
+        <button type="button" class="almp-step" id="almpProdMenos" aria-label="Uno menos"><i class="bi bi-dash-lg" aria-hidden="true"></i></button>
+        <span class="almp-step-n" id="almpProdCantidad" aria-live="polite">1</span>
+        <button type="button" class="almp-step" id="almpProdMas" aria-label="Uno más"><i class="bi bi-plus-lg" aria-hidden="true"></i></button>
+      </div>
+      <button type="button" class="alm-btn-primario almp-btn-cobrar" id="btnAgregarProducto">
+        <span>Agregar al pedido</span><span class="almp-btn-monto" id="almpProdPrecio">$0.00</span>
+      </button>
+    </div>
+    <p class="almp-pie-linea" id="almpProdLinea" aria-live="polite"></p>
+  </footer>
+</section>
+
+<!-- ============ 3E · Acciones del pedido ============ -->
+<div class="alm-hoja-fondo" data-fondo-de="almpHojaAcciones" hidden></div>
+<section class="alm-hoja almp-hoja-acciones" id="almpHojaAcciones" role="dialog" aria-modal="true" aria-labelledby="almpAccTitulo" hidden>
+  <header class="almp-hoja-cabeza almp-cabeza-simple" data-arrastre>
+    <div class="alm-hoja-asa" aria-hidden="true"></div>
+    <h2 class="almp-hoja-titulo almp-titulo-sm" id="almpAccTitulo" tabindex="-1">Pedido</h2>
+    <p class="almp-hoja-sub" id="almpAccSub"></p>
+  </header>
+  <div class="almp-hoja-cuerpo almp-acc-cuerpo">
+    <div class="almp-acc-grupo">
+      <h3 class="almp-etq almp-etq-suave">EL PEDIDO</h3>
+      <button type="button" class="almp-acc-fila" data-accion="editar">
+        <i class="bi bi-pencil" aria-hidden="true"></i>
+        <span class="almp-acc-textos"><span class="almp-acc-nombre">Editar el pedido</span><span class="almp-acc-sub">Cliente, platos y pago</span></span>
+        <i class="bi bi-chevron-right almp-acc-flecha" aria-hidden="true"></i>
+      </button>
+      <button type="button" class="almp-acc-fila" data-accion="agregar">
+        <i class="bi bi-plus-lg" aria-hidden="true"></i>
+        <span class="almp-acc-textos"><span class="almp-acc-nombre">Agregar productos</span><span class="almp-acc-sub">Se suman y la cocina recibe solo lo nuevo</span></span>
+        <i class="bi bi-chevron-right almp-acc-flecha" aria-hidden="true"></i>
+      </button>
+      <button type="button" class="almp-acc-fila" data-accion="completar">
+        <i class="bi bi-check2" aria-hidden="true"></i>
+        <span class="almp-acc-textos"><span class="almp-acc-nombre">Completar pedido</span><span class="almp-acc-sub">Pasa a listos y sale de esta lista</span></span>
+        <i class="bi bi-chevron-right almp-acc-flecha" aria-hidden="true"></i>
+      </button>
+      <button type="button" class="almp-acc-fila" data-accion="pago">
+        <i class="bi bi-pie-chart" aria-hidden="true"></i>
+        <span class="almp-acc-textos"><span class="almp-acc-nombre">Cambiar forma de pago</span><span class="almp-acc-sub" id="almpAccPagoSub">Ahora: —</span></span>
+        <i class="bi bi-chevron-right almp-acc-flecha" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <div class="almp-riesgo">
+      <h3 class="almp-etq almp-etq-riesgo">ZONA DE RIESGO</h3>
+      <div class="almp-riesgo-card">
+        <p class="almp-riesgo-titulo">Eliminar el pedido</p>
+        <p class="almp-riesgo-texto" id="almpRiesgoTexto">Las porciones vuelven al menú del día. No se puede deshacer.</p>
+        <button type="button" class="almp-btn-riesgo" id="almpEliminar">Eliminar pedido</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="alm-aviso" id="almpAviso" role="status" aria-live="polite"></div>
+
+{{ precios|json_script:"alm-precios" }}
+{{ menu_pedidos|json_script:"alm-menu" }}
+<script id="alm-config" type="application/json">{
+  "csrf": "{{ csrf_token }}",
+  "fecha": "{{ subheader.sub_pre }}",
+  "urls": {
+    "pedidos": "{% url 'obtener_pedidos_por_tipo' %}",
+    "pedido": "{% url 'obtener_pedido' 0 %}",
+    "guardar": "{% url 'guardar_pedido' %}",
+    "carrito": "{% url 'agregar_al_carrito' %}",
+    "completar": "{% url 'marcar_pedido_completado' %}",
+    "completarVarios": "{% url 'marcar_pedidos_completados' %}",
+    "eliminar": "{% url 'eliminar_pedido' %}",
+    "cantidades": "{% url 'obtener_cantidades_modal' %}",
+    "menu": "{% url 'menu' %}"
+  }
+}</script>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'JS/almuerzos_pedidos.js' %}?v=1"></script>
+{% endblock %}

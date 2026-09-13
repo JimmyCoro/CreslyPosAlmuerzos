@@ -1,0 +1,37 @@
+{% extends 'movil/base_movil.html' %}
+{% load static %}
+
+{% block title %}Menú del día · Cresly Almuerzos{% endblock %}
+{% block body_class %} almuerzos-page{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'CSS/almuerzos-menu.css' %}?v=4">
+{% endblock %}
+
+{% block content %}
+<!-- Menú del día · handoff_menu_del_dia 1A/1B. Solo lectura: la edición
+     vive en Configurar menú (⋯ del subheader o el botón de 1A). -->
+<div class="im-shell alm">
+  {% include 'components/pizzeria_header.html' %}
+  {% include 'components/pizzeria_subheader.html' %}
+
+  <main class="alm-content{% if not menu.publicado %} alm-content-barra{% endif %}"
+        id="almMenu" data-parcial-url="{% url 'menu' %}?parcial=1">
+    <div id="almSecciones" aria-live="polite">
+      {% include 'almuerzos/_menu_secciones.html' %}
+    </div>
+  </main>
+
+  {% if not menu.publicado %}
+  <div class="alm-barra-accion alm-barra-sobre-tabs" id="almBarraConfigurar">
+    <a href="{% url 'menu_configurar' %}" class="alm-btn-primario">Configurar el menú</a>
+  </div>
+  {% endif %}
+
+  {% include 'components/almuerzos_tab_bar.html' %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'JS/almuerzos_menu.js' %}?v=1"></script>
+{% endblock %}

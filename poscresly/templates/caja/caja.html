@@ -150,7 +150,7 @@
               <span class="dash-legend-amount">${{ total_efectivo|floatformat:2 }}</span>
             </div>
             <div class="dash-legend-item">
-              <span class="dash-legend-dot" style="background:#A80018"></span>
+              <span class="dash-legend-dot" style="background:#4a545f"></span>
               <span class="dash-legend-label">Transferencia</span>
               <span class="dash-legend-amount">${{ total_transferencia|floatformat:2 }}</span>
             </div>
@@ -350,12 +350,12 @@ document.addEventListener('DOMContentLoaded', function() {
         labels: datosHoras.map(d => d.hora),
         datasets: [{
           data: datosHoras.map(d => d.ventas),
-          borderColor: '#A80018',
-          backgroundColor: 'rgba(168, 0, 24, 0.12)',
+          borderColor: '#00833B',
+          backgroundColor: 'rgba(0, 131, 59, 0.12)',
           borderWidth: 2.5,
           fill: true,
           tension: 0.4,
-          pointBackgroundColor: '#A80018',
+          pointBackgroundColor: '#00833B',
           pointBorderColor: '#fff',
           pointBorderWidth: 2,
           pointRadius: 4,
@@ -400,7 +400,7 @@ document.addEventListener('DOMContentLoaded', function() {
         labels: ['Efectivo', 'Transferencia'],
         datasets: [{
           data: [efectivo, transferencia],
-          backgroundColor: ['#00833B', '#A80018'],
+          backgroundColor: ['#00833B', '#4a545f'],
           borderWidth: 0,
           hoverOffset: 6
         }]

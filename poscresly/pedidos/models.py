@@ -1,6 +1,7 @@
 from django.db import models, transaction
 from menu.models import MenuDiaSopa, MenuDiaSegundo, MenuDiaJugo, Plato
 from django.utils import timezone
+from decimal import Decimal
 
 class Pedido( models.Model):
     
@@ -12,7 +13,8 @@ class Pedido( models.Model):
 
     FORMA_PAGO = [
         ('Efectivo', 'Efectivo'),
-        ('Transferencia', 'Transferencia')
+        ('Transferencia', 'Transferencia'),
+        ('Mixto', 'Mixto'),
     ]
 
     ESTADOS = [
@@ -31,6 +33,10 @@ class Pedido( models.Model):
     observaciones_generales = models.TextField(blank=True, null=True)  # Observaciones generales del pedido
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0)  # Total del pedido
     numero_dia = models.PositiveIntegerField(default=1)  # Número de pedido del día (se reinicia cada día)
+    # Solo para forma_pago='Mixto': la parte en efectivo. La transferencia es
+    # siempre total - monto_efectivo (ver montos_por_medio), así el reparto
+    # nunca queda descuadrado cuando cambia el total.
+    monto_efectivo = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
 
     def __str__(self):
         return f"{self.tipo} - {self.forma_pago} - {self.fecha} - {self.estado}"
@@ -51,6 +57,20 @@ class Pedido( models.Model):
 
         super().save(*args, **kwargs)
     
+    def montos_por_medio(self):
+        """(efectivo, transferencia) del total. Única fuente para caja."""
+        total = self.total or Decimal('0.00')
+        if self.forma_pago == 'Transferencia':
+            return Decimal('0.00'), total
+        if self.forma_pago == 'Mixto':
+            efectivo = min(max(self.monto_efectivo or Decimal('0.00'), Decimal('0.00')), total)
+            return efectivo, total - efectivo
+        return total, Decimal('0.00')
+
+    @property
+    def monto_transferencia(self):
+        return self.montos_por_medio()[1] if self.forma_pago == 'Mixto' else None
+
     @property
     def numero_pedido_completo(self):
         """Retorna el número de pedido del día formateado: 001, 002, 003..."""
