@@ -16,7 +16,6 @@ class Mesa(models.Model):
         ('libre', 'Libre'),
         ('reservada', 'Reservada'),
         ('ocupada', 'Ocupada'),
-        ('por_cobrar', 'Por cobrar'),
     ]
     FORMAS = [
         ('redonda', 'Redonda'),
@@ -200,7 +199,6 @@ class PedidoPizzeria(models.Model):
     ]
     ESTADOS = [
         ('abierto', 'Abierto'),
-        ('por_cobrar', 'Por cobrar'),
         ('cobrado', 'Cobrado'),
         ('anulado', 'Anulado'),
     ]
@@ -489,17 +487,22 @@ class ItemPreparacion(models.Model):
     de PedidoPizza/PedidoCombo/PedidoProductoSimple: un combo puede generar
     varios ItemPreparacion (uno por estación de cocina)."""
 
+    # Ordenados de más retrasado a más avanzado: el índice es la gravedad que
+    # usa la lista de Órdenes para decidir el estado de la orden completa.
     ESTADOS = [
-        ('en_proceso', 'En proceso'),
-        ('cocinando', 'Cocinando'),
-        ('listo', 'Listo'),
-        ('completo', 'Completo'),
+        ('pendiente', 'Pendiente'),
+        ('cocina', 'En cocina'),
+        ('servido', 'Servido'),
     ]
 
     pedido = models.ForeignKey(PedidoPizzeria, on_delete=models.CASCADE, related_name='items_preparacion')
     descripcion = models.CharField(max_length=200)
     cantidad = models.PositiveIntegerField(default=1)
-    estado = models.CharField(max_length=20, choices=ESTADOS, default='en_proceso')
+    estado = models.CharField(max_length=20, choices=ESTADOS, default='pendiente')
+    enviado_en = models.DateTimeField(
+        null=True, blank=True,
+        help_text='Cuándo pasó a cocina. El tiempo en cocina de la lista de Órdenes corre desde aquí.',
+    )
     grupo = models.CharField(
         max_length=200, blank=True, default='',
         help_text='Nombre del combo al que pertenece este ítem (ej: "Mega Combo 1"), vacío si es un ítem suelto.',
@@ -521,6 +524,15 @@ class ItemPreparacion(models.Model):
 
     def __str__(self):
         return f"{self.pedido} - {self.descripcion}"
+
+    def save(self, *args, **kwargs):
+        # enviado_en se mantiene aquí y no en cada vista que cambia el estado,
+        # para que el reloj de cocina sea correcto venga de donde venga el cambio.
+        if self.estado == 'pendiente':
+            self.enviado_en = None
+        elif self.enviado_en is None:
+            self.enviado_en = timezone.now()
+        super().save(*args, **kwargs)
 
     @property
     def linea(self):
@@ -554,6 +566,7 @@ class CajaPizzeria(models.Model):
     cerrada_por = models.ForeignKey(
         settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name='cajas_pizzeria_cerradas',
     )
+    conteo_cierre = models.JSONField(null=True, blank=True, help_text='Arqueo final: cantidad por denominación.')
 
     class Meta:
         verbose_name = 'Caja pizzería'
@@ -647,6 +660,11 @@ class MovimientoCajaPizzeria(models.Model):
         help_text='Lo que debía quedar en el cajón justo después; se guarda al registrar, no se recalcula.',
     )
     anulado = models.BooleanField(default=False)
+    anulado_motivo = models.CharField(max_length=200, blank=True)
+    anulado_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name='+',
+    )
+    anulado_en = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         verbose_name = 'Movimiento de caja pizzería'

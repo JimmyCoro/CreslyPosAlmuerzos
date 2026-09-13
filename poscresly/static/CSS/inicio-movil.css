@@ -113,7 +113,7 @@ body.im-body .sidebar-overlay.active { pointer-events: auto; }
 .im-venta-stat-value { font-size: 17px; font-weight: 800; letter-spacing: -.02em; }
 .im-venta-stat-label { font-size: 11px; color: var(--im-muted-3); font-weight: 600; }
 
-/* ===== Tarjeta 2 — Por cobrar ===== */
+/* ===== Tarjeta 2 — Sin cobrar ===== */
 .im-card-cobrar {
   background: var(--im-surface);
   border: 1px solid var(--im-brand-tint-border);

@@ -242,8 +242,6 @@
 .pzm-legend-libre .pzm-dot { background: var(--pzm-green); }
 .pzm-legend-ocupada { background: var(--pzm-red-soft-bg); color: var(--pzm-brand-dark); }
 .pzm-legend-ocupada .pzm-dot { background: var(--pzm-brand); }
-.pzm-legend-cobrar { background: var(--pzm-amber-soft-bg); color: var(--pzm-amber-dark); }
-.pzm-legend-cobrar .pzm-dot { background: var(--pzm-amber); }
 .pzm-legend-reservada { background: var(--pzm-blue-soft-bg); color: var(--pzm-blue-dark); }
 .pzm-legend-reservada .pzm-dot { background: var(--pzm-blue); }
 .pzm-legend-inactiva { background: #f3f4f6; color: #6b7280; }
@@ -253,7 +251,7 @@
 /* ===== Resumen de mesas que piden atención ===== */
 .pzm-stats {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 10px;
 }
 
@@ -289,7 +287,6 @@
 
 .pzm-stat-reservada { --pzm-estado: #5b6673; }
 .pzm-stat-ocupada { --pzm-estado: #1d5a9e; background: #f5f8fc; border-color: #d8e4f2; }
-.pzm-stat-por_cobrar { --pzm-estado: var(--pzm-brand); background: #fdf3f5; border-color: #f4d3d9; }
 
 .pzm-zone { display: flex; flex-direction: column; gap: 10px; }
 /* El filtro de mapa_mesas.html oculta mesas/zonas con el atributo
@@ -329,7 +326,7 @@
 
 /* Fondo blanco en todos los estados: la señal es la barra superior y la
    palabra, no el tinte de la tarjeta. Así la grilla se lee tranquila y el
-   rojo queda reservado para lo que de verdad urge (cuenta por cobrar). */
+   rojo queda reservado para lo que de verdad urge. */
 .pzm-table { background: #fff; border-color: var(--pzm-border); }
 
 .pzm-table::before {
@@ -344,7 +341,6 @@
 
 .pzm-table-libre { --pzm-estado: var(--pzm-green); }
 .pzm-table-ocupada { --pzm-estado: #1d5a9e; }
-.pzm-table-por_cobrar { --pzm-estado: var(--pzm-brand); }
 .pzm-table-reservada { --pzm-estado: #98a1ab; }
 
 .pzm-table-top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
@@ -361,9 +357,6 @@
 
 .pzm-table-bottom { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .pzm-table-amount { font-size: 17px; font-weight: 800; letter-spacing: -.03em; color: var(--pzm-ink); }
-/* Una cuenta por cobrar va entera en rojo (monto y espera): es lo que urge. */
-.pzm-table-por_cobrar .pzm-table-amount,
-.pzm-table-por_cobrar .pzm-table-sub { color: var(--pzm-brand); }
 /* La mesa reservada todavía no está en uso: su número se apaga. */
 .pzm-table-reservada .pzm-table-num { color: var(--pzm-muted-2); }
 .pzm-table-sub { font-size: 11px; color: #98a1ab; font-weight: 600; white-space: nowrap; }
@@ -875,7 +868,6 @@
 }
 
 .oc-status-dot-abierto { background: #f59e0b; }
-.oc-status-dot-por_cobrar { background: var(--primary-color); }
 .oc-status-dot-cobrado { background: var(--secondary-color); }
 .oc-status-dot-anulado { background: #9ca3af; }
 
@@ -897,7 +889,7 @@
 
 /* Variantes de color para .pzm-metric — genéricas y reutilizables en
    cualquier pantalla con tarjetas de métrica, sin acoplarlas al
-   significado libre/ocupada/por-cobrar de Mapa de mesas. */
+   significado libre/ocupada/reservada de Mapa de mesas. */
 .pzm-metric-tone-ink { background: var(--pzm-ink); border-color: var(--pzm-ink); color: #fff; }
 .pzm-metric-tone-ink .pzm-metric-label,
 .pzm-metric-tone-ink .pzm-metric-sub { color: #98a1ab; }

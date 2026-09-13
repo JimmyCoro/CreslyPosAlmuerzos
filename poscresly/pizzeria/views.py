@@ -159,7 +159,7 @@ def mapa_mesas(request):
     mesas = list(Mesa.objects.filter(activa=True).order_by('numero'))
     pedidos_abiertos = {
         p.mesa_id: p
-        for p in PedidoPizzeria.objects.filter(estado__in=['abierto', 'por_cobrar'], mesa__isnull=False)
+        for p in PedidoPizzeria.objects.filter(estado='abierto', mesa__isnull=False)
     }
 
     zonas = {}
@@ -186,7 +186,7 @@ def mapa_mesas(request):
     ]
 
     pedidos_llevar_abiertos = list(PedidoPizzeria.objects.filter(
-        estado__in=['abierto', 'por_cobrar'], tipo='llevar'
+        estado='abierto', tipo='llevar'
     ).order_by('-fecha_creacion'))
     total_llevar = sum((p.total for p in pedidos_llevar_abiertos), Decimal('0'))
 
@@ -194,30 +194,15 @@ def mapa_mesas(request):
     libres = sum(1 for m in mesas if m.estado == 'libre')
     reservadas = sum(1 for m in mesas if m.estado == 'reservada')
     en_servicio = sum(1 for m in mesas if m.estado == 'ocupada')
-    en_cuenta = [m for m in mesas if m.estado == 'por_cobrar']
-    monto_por_cobrar = sum(
-        (m.pedido_abierto.total for m in en_cuenta if m.pedido_abierto), Decimal('0')
-    )
-
-    # Lo primero que necesita saber el cajero es cuánta plata está sin cobrar;
-    # si no hay nada pendiente, la línea vuelve a la disponibilidad de mesas.
-    if en_cuenta:
-        sub = {
-            'sub_hi': f'${monto_por_cobrar:.2f}',
-            'sub_hi_tono': 'rojo',
-            'sub_post': f' por cobrar en {len(en_cuenta)} mesa{"s" if len(en_cuenta) != 1 else ""}',
-        }
-    else:
-        sub = {
-            'sub_hi': f'{libres} libre{"s" if libres != 1 else ""}',
-            'sub_hi_tono': 'verde',
-            'sub_post': f' de {total_mesas}',
-        }
+    sub = {
+        'sub_hi': f'{libres} libre{"s" if libres != 1 else ""}',
+        'sub_hi_tono': 'verde',
+        'sub_post': f' de {total_mesas}',
+    }
 
     estadisticas = [
         {'clave': 'reservada', 'valor': reservadas, 'etiqueta': 'Reservada'},
         {'clave': 'ocupada', 'valor': en_servicio, 'etiqueta': 'En servicio'},
-        {'clave': 'por_cobrar', 'valor': len(en_cuenta), 'etiqueta': 'Cuenta'},
     ]
 
     # Sin fila de chips: las zonas ya se leen como secciones de la grilla, y la
@@ -357,7 +342,7 @@ def cambiar_estado_mesa_pizzeria(request, mesa_id):
         return JsonResponse({'status': 'error', 'message': 'Estado inválido'}, status=400)
 
     mesa = get_object_or_404(Mesa, pk=mesa_id)
-    if PedidoPizzeria.objects.filter(mesa_id=mesa_id, estado__in=['abierto', 'por_cobrar']).exists():
+    if PedidoPizzeria.objects.filter(mesa_id=mesa_id, estado='abierto').exists():
         return JsonResponse({'status': 'error', 'message': 'Esta mesa tiene un pedido abierto, no se puede cambiar el estado manualmente'}, status=400)
 
     mesa.estado = estado
@@ -608,18 +593,201 @@ def _agrupar_items_preparacion(items_preparacion):
     return bloques
 
 
-def _listar_ordenes_en_curso(pedidos_qs):
-    ordenes = []
-    for pedido in pedidos_qs:
-        items, items_preparacion, total_items = _construir_items_pedido(pedido)
-        bloques = _agrupar_items_preparacion(items_preparacion)
-        ordenes.append({
-            'pedido': pedido,
-            'items': items,
-            'bloques': bloques,
-            'total_items': total_items,
-        })
-    return ordenes
+# ===== LISTA DE ÓRDENES (handoff_ordenes) =====
+
+# Estado de la orden según su platillo más retrasado; "completo" es el estado
+# extra de la orden cuando todos sus platillos ya están servidos.
+ESTADO_ORDEN_POR_PEOR_ITEM = {'pendiente': 'pendiente', 'cocina': 'cocina', 'servido': 'completo'}
+
+CANALES_ORDENES = [
+    ('todas', 'Todas'),
+    ('mesa', 'Servir'),
+    ('llevar', 'Llevar'),
+    ('delivery', 'Delivery'),
+]
+SESION_CANAL_ORDENES = 'pz_ordenes_canal'
+
+GLIFO_CANAL = {'mesa': 'bi-grid-3x3-gap', 'llevar': 'bi-bag', 'delivery': 'bi-scooter'}
+
+
+def _plural(n, singular, plural):
+    return singular if n == 1 else plural
+
+
+def _hora_corta(fecha):
+    """"9:14 pm" si es de hoy, "ayer 9:14 pm" o "12/09 9:14 pm" si no —
+    el handoff pide no imprimir la fecha completa en órdenes de hoy."""
+    local = timezone.localtime(fecha)
+    hora = f"{local.hour % 12 or 12}:{local.minute:02d} {'am' if local.hour < 12 else 'pm'}"
+    dias = (timezone.localdate() - local.date()).days
+    if dias == 0:
+        return hora
+    if dias == 1:
+        return f'ayer {hora}'
+    return f'{local:%d/%m} {hora}'
+
+
+def _titulo_orden(pedido):
+    """Destino primero, número después: el mesero busca la mesa, no el folio."""
+    numero = f'#{pedido.numero_pedido_completo}'
+    if pedido.tipo == 'mesa':
+        mesa = f'Mesa {pedido.mesa.nombre or pedido.mesa.numero}' if pedido.mesa else 'Mesa'
+        return f'{mesa} · {numero}'
+    if pedido.tipo == 'delivery':
+        return f'Delivery · {numero}'
+    return f'Para llevar · {numero}'
+
+
+def _parece_telefono(texto):
+    return bool(re.fullmatch(r'[\d\s()+-]{6,}', texto or ''))
+
+
+def _datos_cliente_orden(pedido):
+    """Líneas de la cabecera con lo que se llenó en "datos del cliente" de
+    Nueva orden: mesa → personas y nombre; para llevar → quién retira;
+    delivery → teléfono, nombre, forma de pago y dirección."""
+    lineas = []
+    contacto = (pedido.contacto or '').strip()
+
+    if pedido.tipo == 'mesa':
+        partes = []
+        if pedido.personas:
+            partes.append(f"{pedido.personas} {_plural(pedido.personas, 'persona', 'personas')}")
+        if contacto:
+            partes.append(contacto)
+        if partes:
+            lineas.append({'icono': 'bi-people', 'texto': ' · '.join(partes)})
+
+    elif pedido.tipo == 'llevar':
+        if contacto:
+            icono = 'bi-telephone' if _parece_telefono(contacto) else 'bi-person'
+            lineas.append({'icono': icono, 'texto': contacto})
+        else:
+            lineas.append({'icono': 'bi-person', 'texto': 'Sin datos de quién retira', 'tenue': True})
+
+    elif pedido.tipo == 'delivery':
+        telefono, _, nombre = contacto.partition(' - ')
+        partes = [p for p in (telefono.strip(), nombre.strip()) if p]
+        if pedido.pago_delivery:
+            partes.append(pedido.get_pago_delivery_display().lower())
+        if partes:
+            lineas.append({'icono': 'bi-telephone', 'texto': ' · '.join(partes)})
+        direccion = ' '.join((pedido.observaciones or '').split())
+        if direccion:
+            lineas.append({'icono': 'bi-geo-alt', 'texto': direccion})
+        if not lineas:
+            lineas.append({'icono': 'bi-telephone', 'texto': 'Sin datos del cliente', 'tenue': True})
+
+    return lineas
+
+
+def _tarjeta_orden(pedido):
+    """Todo lo que pinta la tarjeta, calculado aquí para que el template no
+    recorra los ítems para contar ni decidir colores."""
+    items = list(pedido.items_preparacion.all())
+    gravedad = [valor for valor, _ in ItemPreparacion.ESTADOS]
+    conteo = {estado: sum(1 for i in items if i.estado == estado) for estado in gravedad}
+
+    estado_peor = min((i.estado for i in items), key=gravedad.index) if items else None
+    estado_orden = ESTADO_ORDEN_POR_PEOR_ITEM.get(estado_peor)
+    cerrada = pedido.estado in ('cobrado', 'anulado')
+
+    if cerrada:
+        grupo, tono = 'cerradas', 'neutro'
+    elif estado_orden == 'completo':
+        grupo, tono = 'completas', 'verde'
+    else:
+        grupo = 'en_curso'
+        tono = {'pendiente': 'rojo', 'cocina': 'ambar'}.get(estado_orden, 'neutro')
+
+    # Derecha de la tarjeta: estado escrito, o minutos en cocina, que dicen más.
+    derecha_tiempo = False
+    if cerrada:
+        derecha = pedido.get_estado_display().upper()
+    elif estado_orden == 'cocina':
+        # Los platillos pasados a cocina antes de existir enviado_en no tienen
+        # hora: se muestra el estado escrito en vez de un tiempo inventado.
+        envios = [i.enviado_en for i in items if i.estado == 'cocina' and i.enviado_en]
+        if envios:
+            minutos = max(0, int((timezone.now() - min(envios)).total_seconds() // 60))
+            horas, resto = divmod(minutos, 60)
+            derecha = f'{horas} h {resto:02d}' if horas else f'{minutos} min'
+            derecha_tiempo = True
+        else:
+            derecha = 'EN COCINA'
+    elif estado_orden == 'completo':
+        derecha = 'COMPLETO'
+    elif estado_orden == 'pendiente':
+        derecha = 'PENDIENTE'
+    else:
+        derecha = pedido.get_estado_display().upper()
+
+    # Sub-línea: resumen de estados cuando hay mezcla, o los platillos.
+    resumen = []
+    if not items:
+        resumen.append({'texto': 'Sin platillos', 'tono': 'tenue'})
+    elif sum(1 for n in conteo.values() if n) > 1:
+        etiquetas = {
+            'servido': ('servido', 'servidos', 'verde'),
+            'cocina': ('en cocina', 'en cocina', 'ambar'),
+            'pendiente': ('pendiente', 'pendientes', 'rojo'),
+        }
+        for estado in ('servido', 'cocina', 'pendiente'):
+            if conteo[estado]:
+                singular, plural, tono_estado = etiquetas[estado]
+                resumen.append({
+                    'texto': f'{conteo[estado]} {_plural(conteo[estado], singular, plural)}',
+                    'tono': tono_estado,
+                })
+    elif estado_orden == 'completo':
+        resumen.append({'texto': 'todo servido', 'tono': 'verde'})
+    else:
+        cabecera = list(dict.fromkeys((i.grupo or i.nombre_corto) for i in items))
+        resumen.append({'texto': ', '.join(cabecera[:2]), 'tono': None})
+        resumen.append({'texto': f"· {len(items)} {_plural(len(items), 'línea', 'líneas')}", 'tono': 'tenue'})
+    for indice, segmento in enumerate(resumen):
+        segmento['sep'] = '' if indice == 0 else (' ' if segmento['texto'].startswith('·') else ' · ')
+
+    return {
+        'pedido': pedido,
+        'titulo': _titulo_orden(pedido),
+        'glifo': GLIFO_CANAL.get(pedido.tipo, 'bi-receipt'),
+        'grupo': grupo,
+        'tono': tono,
+        'derecha': derecha,
+        'derecha_tiempo': derecha_tiempo,
+        'cliente': _datos_cliente_orden(pedido),
+        'resumen': resumen,
+        'bloques': _agrupar_items_preparacion(items),
+    }
+
+
+def _grupos_ordenes(pedidos):
+    """Agrupa por estado y no por hora: las completas (todo servido, solo
+    falta cobrar) quedan siempre arriba. Dentro de cada grupo, la más antigua
+    primero (es la que más lleva esperando); las cerradas, la más reciente
+    primero."""
+    definicion = [
+        ('completas', 'COMPLETAS'),
+        ('en_curso', 'EN CURSO'),
+        ('cerradas', 'CERRADAS'),
+    ]
+    tarjetas = [_tarjeta_orden(p) for p in pedidos]
+    grupos = []
+    for clave, titulo in definicion:
+        del_grupo = sorted(
+            (t for t in tarjetas if t['grupo'] == clave),
+            key=lambda t: t['pedido'].fecha_creacion,
+            reverse=(clave == 'cerradas'),
+        )
+        if not del_grupo:
+            continue
+        n = len(del_grupo)
+        sufijo = f"{n} {_plural(n, 'orden', 'órdenes')}"
+        if clave == 'completas':
+            sufijo += f" · ${sum((t['pedido'].total for t in del_grupo), Decimal('0')):.2f}"
+        grupos.append({'clave': clave, 'titulo': titulo, 'sufijo': sufijo, 'tarjetas': del_grupo})
+    return grupos
 
 
 def _tiempo_relativo_corto(fecha):
@@ -842,93 +1010,121 @@ def _filtrar_ordenes_busqueda(pedidos, q):
     PedidoPizzeria. Si el número de pedido buscado no es numérico se ignora
     esa parte y solo se busca por cliente."""
     if q:
-        filtro = Q(contacto__icontains=q)
+        filtro = Q(contacto__icontains=q) | Q(mesa__nombre__icontains=q)
         if q.lstrip('#').isdigit():
-            filtro |= Q(numero_dia=int(q.lstrip('#')))
+            numero = int(q.lstrip('#'))
+            filtro |= Q(numero_dia=numero) | Q(mesa__numero=numero)
         pedidos = pedidos.filter(filtro)
     return pedidos
 
 
-def _subheader_ordenes(titulo, abiertos_qs, palabra='abiertas'):
-    """Subheader compartido por Órdenes y Delivery: cuenta y dinero
-    pendiente siempre sobre el set de abiertos/por-cobrar, sin importar
-    si hay una búsqueda activa filtrando la grilla de abajo."""
-    count = abiertos_qs.count()
-    total_pendiente = abiertos_qs.aggregate(total=Sum('total'))['total'] or Decimal('0')
-    palabra_singular = 'abierta' if palabra == 'abiertas' else palabra
-    return {
-        'titulo': titulo,
-        'sub_pre': f'{count} {palabra_singular if count == 1 else palabra} · ',
-        'sub_hi': f'${total_pendiente:.2f}',
-        'sub_hi_tono': 'rojo',
-        'sub_post': ' sin cobrar',
-        'accion': {'tipo': 'icono', 'glifo': 'bi-search', 'label': 'Buscar', 'id': 'pzshBuscarOrdenes'},
-        'segunda': {
-            'tipo': 'chips',
-            'chip_group_id': 'pzshEstadoOrdenes',
-            'chips': [
-                {'label': 'Todas', 'value': '', 'active': True},
-                {'label': 'Abiertas', 'value': 'abierto', 'active': False},
-                {'label': 'Por cobrar', 'value': 'por_cobrar', 'active': False},
-            ],
-        },
+def _subheader_ordenes(activos_qs):
+    """Cuántas órdenes siguen abiertas y cuánto dinero falta cobrar de ellas.
+    Siempre sobre todo el turno, sin importar la pestaña o la búsqueda."""
+    abiertas = activos_qs.aggregate(n=Count('id'), total=Sum('total'))
+    subheader = {
+        'titulo': 'Órdenes',
+        'acciones': [{'id': 'orBuscarToggle', 'glifo': 'bi-search', 'label': 'Buscar orden'}],
     }
+    if abiertas['n']:
+        subheader.update({
+            'sub_pre': f"{abiertas['n']} {_plural(abiertas['n'], 'orden activa', 'órdenes activas')} · ",
+            'sub_hi': f"${abiertas['total'] or Decimal('0'):.2f}",
+            'sub_hi_tono': 'rojo',
+            'sub_post': ' sin cobrar',
+        })
+    else:
+        subheader['sub_pre'] = 'Sin órdenes activas'
+    return subheader
+
+
+def _render_ordenes(request, canal):
+    q = request.GET.get('q', '').strip()
+    activos = PedidoPizzeria.objects.filter(estado='abierto')
+
+    # La búsqueda también encuentra órdenes cerradas; sin búsqueda, solo el turno activo.
+    pedidos = _filtrar_ordenes_busqueda(PedidoPizzeria.objects.all(), q) if q else activos
+    if canal != 'todas':
+        pedidos = pedidos.filter(tipo=canal)
+    pedidos = pedidos.select_related('mesa').prefetch_related('items_preparacion')
+    if q:
+        pedidos = pedidos.order_by('-fecha_creacion')[:50]
+
+    por_tipo = activos.aggregate(
+        todas=Count('id'),
+        mesa=Count('id', filter=Q(tipo='mesa')),
+        llevar=Count('id', filter=Q(tipo='llevar')),
+        delivery=Count('id', filter=Q(tipo='delivery')),
+    )
+    url_lista = reverse('pizzeria_ordenes')
+    pestanas = [
+        {'clave': clave, 'etiqueta': etiqueta, 'conteo': por_tipo[clave],
+         'url': f'{url_lista}?canal={clave}', 'activa': clave == canal}
+        for clave, etiqueta in CANALES_ORDENES
+    ]
+
+    ultima_cerrada = None
+    grupos = _grupos_ordenes(pedidos)
+    if not grupos and not q and not por_tipo['todas']:
+        cerrada = PedidoPizzeria.objects.filter(estado='cobrado').order_by('-fecha_creacion').first()
+        if cerrada:
+            ultima_cerrada = f'Última cerrada: #{cerrada.numero_pedido_completo} a las {_hora_corta(cerrada.fecha_creacion)}'
+
+    vacio = {
+        'todas': 'No hay órdenes activas ahora mismo',
+        'mesa': 'No hay órdenes para servir ahora mismo',
+        'llevar': 'No hay órdenes para llevar ahora mismo',
+        'delivery': 'No hay órdenes de delivery ahora mismo',
+    }[canal]
+
+    contexto = {
+        'grupos': grupos,
+        'canal': canal,
+        'q': q,
+        'mensaje_vacio': 'No se encontraron órdenes con esa búsqueda' if q else vacio,
+        'ultima_cerrada': ultima_cerrada,
+    }
+    # Refresco en vivo (pizzeria_ordenes.js): solo los grupos, no la página entera.
+    if request.GET.get('parcial'):
+        return render(request, 'pizzeria/_ordenes_grupos.html', contexto)
+
+    contexto.update({
+        'pestanas': pestanas,
+        'subheader': _subheader_ordenes(activos),
+        'breadcrumbs': [{'label': 'Órdenes', 'url': None}],
+    })
+    return render(request, 'pizzeria/ordenes.html', contexto)
 
 
 @login_required(login_url=LOGIN_URL)
 def ordenes_en_curso(request):
-    q = request.GET.get('q', '').strip()
-    hay_busqueda = bool(q)
-
-    if hay_busqueda:
-        pedidos = PedidoPizzeria.objects.all()
+    # La pestaña queda en la sesión: al volver de una orden, el mesero cae
+    # en la misma lista que dejó.
+    canales = dict(CANALES_ORDENES)
+    canal = request.GET.get('canal')
+    if canal in canales:
+        request.session[SESION_CANAL_ORDENES] = canal
     else:
-        pedidos = PedidoPizzeria.objects.filter(estado__in=['abierto', 'por_cobrar'])
-    pedidos = _filtrar_ordenes_busqueda(pedidos, q)
-    pedidos = pedidos.select_related('mesa').prefetch_related('items_preparacion').order_by('-fecha_creacion')
-
-    return render(request, 'pizzeria/ordenes.html', {
-        'ordenes': _listar_ordenes_en_curso(pedidos),
-        'es_delivery': False,
-        'q': q,
-        'hay_busqueda': hay_busqueda,
-        'subheader': _subheader_ordenes('Órdenes', PedidoPizzeria.objects.filter(estado__in=['abierto', 'por_cobrar'])),
-        'breadcrumbs': [{'label': 'Órdenes', 'url': None}],
-    })
+        canal = request.session.get(SESION_CANAL_ORDENES, 'todas')
+        if canal not in canales:
+            canal = 'todas'
+    return _render_ordenes(request, canal)
 
 
 @login_required(login_url=LOGIN_URL)
 def ordenes_delivery(request):
-    q = request.GET.get('q', '').strip()
-    hay_busqueda = bool(q)
-
-    if hay_busqueda:
-        pedidos = PedidoPizzeria.objects.filter(tipo='delivery')
-    else:
-        pedidos = PedidoPizzeria.objects.filter(estado__in=['abierto', 'por_cobrar'], tipo='delivery')
-    pedidos = _filtrar_ordenes_busqueda(pedidos, q)
-    pedidos = pedidos.select_related('mesa').prefetch_related('items_preparacion').order_by('-fecha_creacion')
-
-    return render(request, 'pizzeria/ordenes.html', {
-        'ordenes': _listar_ordenes_en_curso(pedidos),
-        'es_delivery': True,
-        'q': q,
-        'hay_busqueda': hay_busqueda,
-        'subheader': _subheader_ordenes(
-            'Delivery',
-            PedidoPizzeria.objects.filter(estado__in=['abierto', 'por_cobrar'], tipo='delivery'),
-            palabra='en curso',
-        ),
-        'breadcrumbs': [{'label': 'Delivery', 'url': None}],
-    })
+    # Delivery es una pestaña más de Órdenes; esta ruta se mantiene para los
+    # enlaces del menú lateral y abre la lista con esa pestaña activa.
+    request.session[SESION_CANAL_ORDENES] = 'delivery'
+    return _render_ordenes(request, 'delivery')
 
 
 @login_required(login_url=LOGIN_URL)
 def inicio_pizzeria(request):
-    pedidos_abiertos = PedidoPizzeria.objects.filter(estado__in=['abierto', 'por_cobrar'])
+    pedidos_abiertos = PedidoPizzeria.objects.filter(estado='abierto')
     pagos_hoy = PagoPedido.objects.filter(pedido__estado='cobrado', creado_en__date=timezone.localdate())
     ventas_hoy = pagos_hoy.aggregate(total=Sum('monto'))['total'] or Decimal('0')
-    total_por_cobrar = pedidos_abiertos.aggregate(total=Sum('total'))['total'] or Decimal('0')
+    total_sin_cobrar = pedidos_abiertos.aggregate(total=Sum('total'))['total'] or Decimal('0')
 
     pedidos_cobrados_hoy = pagos_hoy.values('pedido').distinct().count()
     ticket_promedio = (ventas_hoy / pedidos_cobrados_hoy) if pedidos_cobrados_hoy else Decimal('0')
@@ -937,9 +1133,9 @@ def inicio_pizzeria(request):
 
     return render(request, 'pizzeria/inicio.html', {
         'total_pedidos_abiertos': pedidos_abiertos.count(),
-        'total_mesas_ocupadas': mesas_activas.filter(estado__in=['ocupada', 'por_cobrar']).count(),
+        'total_mesas_ocupadas': mesas_activas.filter(estado='ocupada').count(),
         'ventas_hoy': ventas_hoy,
-        'total_por_cobrar': total_por_cobrar,
+        'total_sin_cobrar': total_sin_cobrar,
         'mesas_total': mesas_activas.count(),
         'pedidos_cobrados_hoy': pedidos_cobrados_hoy,
         'ticket_promedio': ticket_promedio,
@@ -950,7 +1146,7 @@ def inicio_pizzeria(request):
 @login_required(login_url=LOGIN_URL)
 def inicio_movil(request):
     """Home móvil de alta fidelidad (ver pizzeria/handoff_inicio_movil/README.md):
-    venta del turno actual, cuánto falta por cobrar, y cómo está repartido el
+    venta del turno actual, cuánto falta cobrar, y cómo está repartido el
     dinero en caja entre efectivo/transferencia/tarjeta."""
     METODOS_CAJA = [
         ('Efectivo', 'efectivo', '#c8102e'),
@@ -1003,10 +1199,10 @@ def inicio_movil(request):
     efectivo_total = totales_metodo.get('Efectivo', {'total': Decimal('0')})['total']
     efectivo_en_gaveta = efectivo_total + fondo_inicial_efectivo
 
-    pedidos_abiertos = PedidoPizzeria.objects.filter(estado__in=['abierto', 'por_cobrar'])
-    total_por_cobrar = pedidos_abiertos.aggregate(total=Sum('total'))['total'] or Decimal('0')
+    pedidos_abiertos = PedidoPizzeria.objects.filter(estado='abierto')
+    total_sin_cobrar = pedidos_abiertos.aggregate(total=Sum('total'))['total'] or Decimal('0')
     ordenes_abiertas = pedidos_abiertos.count()
-    mesas_ocupadas = Mesa.objects.filter(activa=True, estado__in=['ocupada', 'por_cobrar']).count()
+    mesas_ocupadas = Mesa.objects.filter(activa=True, estado='ocupada').count()
 
     if turno_abierto:
         subheader = {
@@ -1034,7 +1230,7 @@ def inicio_movil(request):
         'ventas_turno_total': total_ventas_turno,
         'ordenes_cobradas_turno': ordenes_cobradas_turno,
         'ticket_promedio_turno': ticket_promedio_turno,
-        'total_por_cobrar': total_por_cobrar,
+        'total_sin_cobrar': total_sin_cobrar,
         'ordenes_abiertas': ordenes_abiertas,
         'mesas_ocupadas': mesas_ocupadas,
         'caja_metodos': caja_metodos,
@@ -1052,8 +1248,8 @@ def detalle_orden_pizzeria(request, pedido_id):
     )
     items, items_preparacion, total_items = _construir_items_pedido(pedido)
     bloques = _agrupar_items_preparacion(items_preparacion)
-    listos = sum(1 for i in items_preparacion if i.estado in ('listo', 'completo'))
-    progreso_pct = round(listos / len(items_preparacion) * 100) if items_preparacion else 0
+    servidos = sum(1 for i in items_preparacion if i.estado == 'servido')
+    progreso_pct = round(servidos / len(items_preparacion) * 100) if items_preparacion else 0
 
     padre = _lista_padre_pedido(pedido)
     tipo_labels_ui = {
@@ -1062,7 +1258,7 @@ def detalle_orden_pizzeria(request, pedido_id):
         'delivery': 'Delivery',
     }
     mesero_nombre = pedido.mesero.get_full_name() or pedido.mesero.username
-    estado_tono = {'abierto': 'neutro', 'por_cobrar': 'rojo', 'cobrado': 'verde', 'anulado': 'neutro'}
+    estado_tono = {'abierto': 'neutro', 'cobrado': 'verde', 'anulado': 'neutro'}
     estado_pill_tono = estado_tono.get(pedido.estado, 'neutro')
     subheader = {
         'titulo': f'Pedido #{pedido.numero_pedido_completo}',
@@ -1073,14 +1269,14 @@ def detalle_orden_pizzeria(request, pedido_id):
         'sub_hi_tono': _sub_hi_tono_pedido(pedido),
         'acciones': [{'id': 'accBtnAbrir', 'glifo': 'bi-three-dots', 'label': 'Más acciones'}],
     }
-    lineas_en_cocina = sum(1 for i in items_preparacion if i.estado in ('cocinando', 'listo'))
+    lineas_en_cocina = sum(1 for i in items_preparacion if i.estado == 'cocina')
 
     return render(request, 'pizzeria/detalle_orden.html', {
         'pedido': pedido,
         'items': items,
         'bloques': bloques,
         'total_items': total_items,
-        'listos': listos,
+        'servidos': servidos,
         'progreso_pct': progreso_pct,
         'entrega': _tarjeta_entrega(pedido),
         'grupos_acciones': _grupos_acciones_pedido(pedido),
@@ -1098,25 +1294,15 @@ def detalle_orden_pizzeria(request, pedido_id):
 @login_required(login_url=LOGIN_URL)
 def cobrar_orden_pizzeria(request, pedido_id):
     pedido = get_object_or_404(PedidoPizzeria.objects.select_related('mesa', 'mesero'), pk=pedido_id)
-    if pedido.estado not in ('abierto', 'por_cobrar'):
+    if pedido.estado != 'abierto':
         return redirect('pizzeria_detalle_orden', pedido_id=pedido.id)
-
-    if pedido.estado == 'abierto':
-        pedido.estado = 'por_cobrar'
-        pedido.save()
-        if pedido.mesa:
-            pedido.mesa.estado = 'por_cobrar'
-            pedido.mesa.save()
-            _enviar_mensaje_websocket_pizzeria('mesa_actualizada', {
-                'mesa_id': pedido.mesa.id, 'estado': 'por_cobrar', 'pedido_id': pedido.id,
-            })
-        _enviar_mensaje_websocket_pizzeria('pedido_pizzeria_actualizado', _serializar_pedido(pedido))
+    if not _hay_caja_abierta():
+        return redirect('pizzeria_caja_abrir')
 
     items_cobro = _construir_items_cobro(pedido)
     total_items = sum(item['cantidad'] for item in items_cobro)
-    subtotal = pedido.total
-    iva = _total_con_iva(subtotal) - subtotal
-    total_con_iva = _total_con_iva(subtotal)
+    total_con_iva = _total_con_iva(pedido.total)
+    subtotal, iva = _desglose_iva(total_con_iva)
 
     tipo_labels_ui = {
         'mesa': f'Mesa {pedido.mesa.nombre or pedido.mesa.numero}' if pedido.mesa else 'Mesa',
@@ -1152,9 +1338,9 @@ def cobrar_orden_pizzeria(request, pedido_id):
         'entrega': _tarjeta_entrega(pedido),
         'subheader': subheader,
         'grupos_acciones': _grupos_acciones_cobro(pedido),
-        'lineas_en_cocina': sum(1 for i in pedido.items_preparacion.all() if i.estado in ('cocinando', 'listo')),
+        'lineas_en_cocina': sum(1 for i in pedido.items_preparacion.all() if i.estado == 'cocina'),
         'motivos_anulacion': MOTIVOS_ANULACION,
-        'estado_pill_tono': {'abierto': 'neutro', 'por_cobrar': 'rojo', 'cobrado': 'verde', 'anulado': 'neutro'}.get(pedido.estado, 'neutro'),
+        'estado_pill_tono': {'abierto': 'neutro', 'cobrado': 'verde', 'anulado': 'neutro'}.get(pedido.estado, 'neutro'),
         'breadcrumbs': [
             _lista_padre_pedido(pedido),
             {'label': f'Pedido #{pedido.numero_pedido_completo}', 'url': reverse('pizzeria_detalle_orden', args=[pedido.id])},
@@ -1257,8 +1443,10 @@ def _cobrar_dividir_contexto(request, pedido):
 @login_required(login_url=LOGIN_URL)
 def cobrar_dividir_pizzeria(request, pedido_id):
     pedido = get_object_or_404(PedidoPizzeria.objects.select_related('mesa', 'mesero'), pk=pedido_id)
-    if pedido.estado not in ('abierto', 'por_cobrar'):
+    if pedido.estado != 'abierto':
         return redirect('pizzeria_detalle_orden', pedido_id=pedido.id)
+    if not _hay_caja_abierta():
+        return redirect('pizzeria_caja_abrir')
     return render(request, 'pizzeria/cobrar_dividir.html', _cobrar_dividir_contexto(request, pedido))
 
 
@@ -1366,8 +1554,10 @@ def cobrar_dividir_repartir_igual(request, pedido_id):
 @login_required(login_url=LOGIN_URL)
 def cobrar_persona_pizzeria(request, pedido_id, numero):
     pedido = get_object_or_404(PedidoPizzeria.objects.select_related('mesa', 'mesero'), pk=pedido_id)
-    if pedido.estado not in ('abierto', 'por_cobrar'):
+    if pedido.estado != 'abierto':
         return redirect('pizzeria_detalle_orden', pedido_id=pedido.id)
+    if not _hay_caja_abierta():
+        return redirect('pizzeria_caja_abrir')
 
     draft = _obtener_draft_dividir(request, pedido)
     idx = numero - 1
@@ -1447,10 +1637,13 @@ def cobrar_persona_pizzeria(request, pedido_id, numero):
 def avanzar_estado_item_preparacion(request, item_id):
     try:
         item = get_object_or_404(ItemPreparacion, pk=item_id)
+        # Servido es el estado final: avanzar no da la vuelta a pendiente.
+        # Corregir un marcado se hace eligiendo el estado en la hoja del platillo.
         secuencia = [estado for estado, _ in ItemPreparacion.ESTADOS]
-        siguiente_idx = (secuencia.index(item.estado) + 1) % len(secuencia)
-        item.estado = secuencia[siguiente_idx]
-        item.save()
+        siguiente_idx = min(secuencia.index(item.estado) + 1, len(secuencia) - 1)
+        if secuencia[siguiente_idx] != item.estado:
+            item.estado = secuencia[siguiente_idx]
+            item.save()
 
         return JsonResponse({
             'status': 'ok',
@@ -1507,15 +1700,14 @@ def detalle_item_preparacion(request, item_id):
 
     puede_quitar = False
     if linea is not None:
-        puede_quitar = all(h.estado == 'en_proceso' for h in _hermanos_item_preparacion(item))
+        puede_quitar = all(h.estado == 'pendiente' for h in _hermanos_item_preparacion(item))
 
     secuencia = [v for v, _ in ItemPreparacion.ESTADOS]
     idx = secuencia.index(item.estado)
     siguiente_estado = secuencia[idx + 1] if idx + 1 < len(secuencia) else None
     siguiente_etiqueta = {
-        'en_proceso': 'Empezar a cocinar',
-        'cocinando': 'Marcar como listo',
-        'listo': 'Marcar como servido',
+        'pendiente': 'Enviar a cocina',
+        'cocina': 'Marcar como servido',
     }.get(item.estado)
 
     precio_unitario = float(linea.precio_unitario) if linea is not None else 0
@@ -1854,10 +2046,10 @@ def imprimir_precuenta_pizzeria(request, pedido_id):
     if not items:
         return JsonResponse({'status': 'error', 'message': 'El pedido no tiene platillos'}, status=400)
 
-    subtotal = pedido.total
-    total_con_iva = _total_con_iva(subtotal)
+    total_con_iva = _total_con_iva(pedido.total)
+    subtotal, iva = _desglose_iva(total_con_iva)
     precuenta = generar_precuenta_pizza(
-        pedido, items, subtotal, total_con_iva - subtotal, int(IVA_TASA * 100), total_con_iva,
+        pedido, items, subtotal, iva, int(IVA_TASA * 100), total_con_iva,
     )
     _enviar_trabajo_impresion_pizzeria(pedido, precuenta)
     return JsonResponse({'status': 'ok', 'message': 'Precuenta enviada a la impresora'})
@@ -1873,7 +2065,7 @@ def quitar_item_preparacion(request, item_id):
         if linea is None:
             return JsonResponse({'status': 'error', 'message': 'Este platillo no se puede quitar'}, status=400)
 
-        if any(h.estado != 'en_proceso' for h in _hermanos_item_preparacion(item)):
+        if any(h.estado != 'pendiente' for h in _hermanos_item_preparacion(item)):
             return JsonResponse(
                 {'status': 'error', 'message': 'Ya se empezó a preparar este platillo, no se puede quitar'},
                 status=400,
@@ -2084,7 +2276,7 @@ def tomar_pedido_pizzeria(request, mesa_id=None):
         items_pedido_abierto, _, _ = _construir_items_pedido(pedido_abierto)
     elif mesa:
         pedido_abierto = PedidoPizzeria.objects.filter(
-            mesa=mesa, estado__in=['abierto', 'por_cobrar']
+            mesa=mesa, estado='abierto'
         ).first()
     else:
         pedido_abierto = None
@@ -2222,7 +2414,7 @@ def guardar_pedido_pizzeria(request):
                 mesa = None
                 if tipo == 'mesa' and mesa_id:
                     mesa = get_object_or_404(Mesa.objects.select_for_update(), pk=mesa_id)
-                    if PedidoPizzeria.objects.filter(mesa_id=mesa_id, estado__in=['abierto', 'por_cobrar']).exists():
+                    if PedidoPizzeria.objects.filter(mesa_id=mesa_id, estado='abierto').exists():
                         return JsonResponse({'status': 'error', 'message': 'Esta mesa ya tiene un pedido abierto'}, status=400)
                 pedido = PedidoPizzeria.objects.create(
                     tipo=tipo,
@@ -2536,15 +2728,22 @@ TOLERANCIA_MONTO = Decimal('0.01')
 # IVA — handoff_cobrar. No existe todavía una configuración de negocio en el
 # proyecto (se buscó y no hay modelo ni setting de impuestos), así que la
 # tasa queda fija acá, en un único lugar, hasta que exista esa configuración.
-# `pedido.total` (y el total de cada línea/persona) sigue siendo el
-# SUBTOTAL sin IVA en toda la app (Mesas, Órdenes, Detalle de orden) — el
-# IVA se calcula solo dentro del flujo de cobro, sobre ese subtotal, y es
-# el monto real que se valida/registra en caja al confirmar.
+# Los precios guardados en la BD YA INCLUYEN IVA, así que `pedido.total` (y el
+# total de cada línea/persona) es el monto final a cobrar. El IVA solo se
+# desglosa (se extrae del total) para mostrarlo en pantalla y en la precuenta.
 IVA_TASA = Decimal('0.15')
 
 
-def _total_con_iva(subtotal):
-    return (subtotal * (Decimal('1') + IVA_TASA)).quantize(Decimal('0.01'))
+def _total_con_iva(monto):
+    """El monto ya incluye IVA: se devuelve tal cual, redondeado a centavos."""
+    return (monto or Decimal('0')).quantize(Decimal('0.01'))
+
+
+def _desglose_iva(total):
+    """Separa un total con IVA incluido en (subtotal sin IVA, IVA)."""
+    total = _total_con_iva(total)
+    subtotal = (total / (Decimal('1') + IVA_TASA)).quantize(Decimal('0.01'))
+    return subtotal, total - subtotal
 
 
 def _caja_tarjeta(caja):
@@ -2556,14 +2755,12 @@ def _caja_tarjeta(caja):
     return tarjeta
 
 
-def _asegurar_caja_abierta_pizzeria():
-    caja = CajaPizzeria.objects.filter(estado='abierta').first()
-    if not caja:
-        caja = CajaPizzeria.objects.create(fecha=date.today(), estado='abierta')
-        CajaPizzeriaEfectivo.objects.create(caja=caja, monto_inicial=0)
-        CajaPizzeriaTransferencia.objects.create(caja=caja, monto_inicial=0)
-        CajaPizzeriaTarjeta.objects.create(caja=caja, monto_inicial=0)
-    return caja
+def _hay_caja_abierta():
+    return CajaPizzeria.objects.filter(estado='abierta').exists()
+
+
+class CajaCerradaError(Exception):
+    """Sin caja abierta no se cobra: el POS manda a abrir caja (handoff_caja §4.3)."""
 
 
 def _monto_decimal(valor):
@@ -2673,7 +2870,9 @@ def procesar_cobro_pedido(request, pedido_id):
                 for metodo, monto in pagos:
                     pagos_a_crear.append((None, metodo, monto))
 
-            caja = _asegurar_caja_abierta_pizzeria()
+            caja = CajaPizzeria.objects.select_for_update().filter(estado='abierta').first()
+            if caja is None:
+                raise CajaCerradaError()
             totales_metodo = {'Efectivo': Decimal('0.00'), 'Transferencia': Decimal('0.00'), 'Tarjeta': Decimal('0.00')}
             for persona, metodo, monto in pagos_a_crear:
                 PagoPedido.objects.create(pedido=pedido, persona=persona, metodo=metodo, monto=monto)
@@ -2711,6 +2910,11 @@ def procesar_cobro_pedido(request, pedido_id):
                 pedido.mesa.estado = 'libre'
                 pedido.mesa.save()
 
+    except CajaCerradaError:
+        return JsonResponse({
+            'status': 'error', 'message': 'La caja está cerrada. Ábrela antes de cobrar.',
+            'redirect': reverse('pizzeria_caja_abrir'),
+        }, status=409)
     except ValueError as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
     except Exception as e:
@@ -2807,7 +3011,7 @@ def obtener_pedido_pizzeria(request, pedido_id):
 @login_required(login_url=LOGIN_URL)
 def obtener_pedidos_abiertos_pizzeria(request):
     pedidos = PedidoPizzeria.objects.filter(
-        estado__in=['abierto', 'por_cobrar']
+        estado='abierto'
     ).select_related('mesa', 'mesero')
     return JsonResponse({'status': 'ok', 'pedidos': [_serializar_pedido(p) for p in pedidos]})
 

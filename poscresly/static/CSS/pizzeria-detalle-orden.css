@@ -146,9 +146,9 @@
   touch-action: manipulation;
   transition: background .12s ease, border-color .12s ease;
 }
-/* Solo "Cocinando" tiñe la fila entera — el resto de estados solo
+/* Solo "En cocina" tiñe la fila entera — el resto de estados solo
    cambian el pill de la derecha (ver README, "Los cuatro estados"). */
-.do-linea-cocinando { background: var(--do-amber-tint-fila); border-color: var(--do-amber-tint-border); }
+.do-linea-cocina { background: var(--do-amber-tint-fila); border-color: var(--do-amber-tint-border); }
 
 .do-linea-badge {
   width: 26px;
@@ -187,21 +187,18 @@
 .do-linea-estado-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
 .do-linea-estado-label { font-size: 12px; font-weight: 800; }
 
-.do-linea-estado-en_proceso { background: var(--do-page); }
-.do-linea-estado-en_proceso .do-linea-estado-dot { background: var(--do-muted-2); }
-.do-linea-estado-en_proceso .do-linea-estado-label { color: var(--do-text-2); }
+/* Mismos colores que el semáforo de la lista de Órdenes (pizzeria-ordenes.css). */
+.do-linea-estado-pendiente { background: var(--do-brand-tint-bg); }
+.do-linea-estado-pendiente .do-linea-estado-dot { background: var(--do-brand); }
+.do-linea-estado-pendiente .do-linea-estado-label { color: var(--do-brand-dark); }
 
-.do-linea-estado-cocinando { background: var(--do-amber-tint-bg); }
-.do-linea-estado-cocinando .do-linea-estado-dot { background: var(--do-amber); }
-.do-linea-estado-cocinando .do-linea-estado-label { color: var(--do-amber-dark); }
+.do-linea-estado-cocina { background: var(--do-amber-tint-bg); }
+.do-linea-estado-cocina .do-linea-estado-dot { background: var(--do-amber); }
+.do-linea-estado-cocina .do-linea-estado-label { color: var(--do-amber-dark); }
 
-.do-linea-estado-listo { background: var(--do-green-tint); }
-.do-linea-estado-listo .do-linea-estado-dot { background: var(--do-green); }
-.do-linea-estado-listo .do-linea-estado-label { color: var(--do-green-dark); }
-
-.do-linea-estado-completo { background: var(--do-blue-tint); }
-.do-linea-estado-completo .do-linea-estado-dot { background: var(--do-blue); }
-.do-linea-estado-completo .do-linea-estado-label { color: var(--do-blue-dark); }
+.do-linea-estado-servido { background: var(--do-green-tint); }
+.do-linea-estado-servido .do-linea-estado-dot { background: var(--do-green); }
+.do-linea-estado-servido .do-linea-estado-label { color: var(--do-green-dark); }
 
 /* Último estado: ya no se puede avanzar tocando el pill, así que no es
    un <button> interactivo (ver detalle_orden.html) — se ve igual pero sin
@@ -335,10 +332,9 @@
 .do-hoja-estado-opcion-activa .do-hoja-estado-dot { background: #fff; }
 .do-hoja-estado-opcion-activa .do-hoja-estado-label { color: #fff; font-weight: 800; }
 
-.do-hoja-estado-opcion-activa[data-estado="en_proceso"] { background: var(--do-muted-2); box-shadow: 0 6px 14px rgba(138, 146, 156, .24); }
-.do-hoja-estado-opcion-activa[data-estado="cocinando"] { background: var(--do-amber); box-shadow: 0 6px 14px rgba(217, 144, 0, .24); }
-.do-hoja-estado-opcion-activa[data-estado="listo"] { background: var(--do-green); box-shadow: 0 6px 14px rgba(35, 160, 95, .24); }
-.do-hoja-estado-opcion-activa[data-estado="completo"] { background: var(--do-blue); box-shadow: 0 6px 14px rgba(47, 127, 217, .24); }
+.do-hoja-estado-opcion-activa[data-estado="pendiente"] { background: var(--do-brand); box-shadow: 0 6px 14px rgba(200, 16, 46, .24); }
+.do-hoja-estado-opcion-activa[data-estado="cocina"] { background: var(--do-amber); box-shadow: 0 6px 14px rgba(217, 144, 0, .24); }
+.do-hoja-estado-opcion-activa[data-estado="servido"] { background: var(--do-green); box-shadow: 0 6px 14px rgba(35, 160, 95, .24); }
 
 .do-hoja-siguiente-btn {
   width: 100%;

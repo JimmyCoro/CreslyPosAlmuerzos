@@ -8,5 +8,5 @@ def bottom_nav(request):
     if not request.path.startswith('/pizzeria/') or not request.user.is_authenticated:
         return {}
     return {
-        'pz_ordenes_abiertas': PedidoPizzeria.objects.filter(estado__in=['abierto', 'por_cobrar']).count(),
+        'pz_ordenes_abiertas': PedidoPizzeria.objects.filter(estado='abierto').count(),
     }

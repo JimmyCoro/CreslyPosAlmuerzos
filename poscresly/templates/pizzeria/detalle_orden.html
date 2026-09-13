@@ -3,7 +3,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'CSS/pizzeria-cart-bar.css' %}">
-<link rel="stylesheet" href="{% static 'CSS/pizzeria-detalle-orden.css' %}?v=4">
+<link rel="stylesheet" href="{% static 'CSS/pizzeria-detalle-orden.css' %}?v=5">
 {% endblock %}
 
 {% block content %}
@@ -62,7 +62,7 @@
       {% if total_items %}
       <div class="do-progreso">
         <span class="do-progreso-label">COCINA</span>
-        <span class="do-progreso-conteo">{{ listos }} de {{ total_items }} listos</span>
+        <span class="do-progreso-conteo">{{ servidos }} de {{ total_items }} servido{{ total_items|pluralize }}</span>
         <div class="do-progreso-track"><div class="do-progreso-fill" style="width: {{ progreso_pct }}%"></div></div>
       </div>
       {% endif %}
@@ -99,7 +99,7 @@
   </div>
 </div>
 
-{% if pedido.estado == 'abierto' or pedido.estado == 'por_cobrar' %}
+{% if pedido.estado == 'abierto' %}
 <div class="do-barra-acciones" id="diBarraAcciones">
   <a href="{% url 'pizzeria_nueva_orden' %}?pedido_id={{ pedido.id }}" class="do-btn-agregar" aria-label="Agregar platillos">
     <i class="bi bi-plus-lg"></i>

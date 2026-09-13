@@ -5,14 +5,20 @@
     const el = (origen.closest && origen.closest('.pzm-table')) || origen;
     const pedidoId = el.dataset.pedidoId;
     if (pedidoId) {
-      pzVerPedido(pedidoId, el.dataset.mesaId);
+      // Mesa con pedido abierto: se va directo al detalle de su orden.
+      window.location.href = window.PZ_URLS.detalleOrden.replace('/0/', '/' + pedidoId + '/');
+      return;
+    }
+    if (el.dataset.estado === 'libre') {
+      // Mesa libre: "Abrir" empieza directamente un pedido nuevo para esa mesa.
+      window.location.href = `${window.PZ_URLS.nuevaOrden}?mesa_id=${el.dataset.mesaId}`;
       return;
     }
     pzAbrirAccionesMesa(el);
   }
 
-  const PZMA_DOT_COLOR = { libre: '#23a05f', reservada: '#3b6fd6', ocupada: '#c8102e', por_cobrar: '#d99000' };
-  const PZM_ESTADO_LABEL_LARGO = { libre: 'Libre', reservada: 'Reservada', ocupada: 'Ocupada', por_cobrar: 'Por cobrar' };
+  const PZMA_DOT_COLOR = { libre: '#23a05f', reservada: '#3b6fd6', ocupada: '#c8102e' };
+  const PZM_ESTADO_LABEL_LARGO = { libre: 'Libre', reservada: 'Reservada', ocupada: 'Ocupada' };
   let pzmaMesaActual = null;
 
   function pzAbrirAccionesMesa(el) {
@@ -168,7 +174,7 @@
   }
 
   // Palabra corta del estado en la tarjeta (debe coincidir con _mesa_card.html).
-  const PZM_ESTADO_CORTO = { libre: 'Libre', reservada: 'Reserva', ocupada: 'Servicio', por_cobrar: 'Cuenta' };
+  const PZM_ESTADO_CORTO = { libre: 'Libre', reservada: 'Reserva', ocupada: 'Servicio' };
 
   function escapeHtml(str) {
     return String(str == null ? '' : str).replace(/[&<>"']/g, function (c) {
@@ -181,7 +187,7 @@
   // cubre, así que al cambiar de estado cambia la estructura. Es el espejo en
   // JS de _mesa_card.html; si se toca uno hay que tocar el otro.
   function actualizarTarjetaMesa(mesaEl, estado, reserva) {
-    mesaEl.classList.remove('pzm-table-libre', 'pzm-table-reservada', 'pzm-table-ocupada', 'pzm-table-por_cobrar');
+    mesaEl.classList.remove('pzm-table-libre', 'pzm-table-reservada', 'pzm-table-ocupada');
     mesaEl.classList.add(`pzm-table-${estado}`);
     mesaEl.dataset.estado = estado;
 
@@ -262,10 +268,9 @@
 
   // ===== ÓRDENES EN CURSO: estado de preparación por ítem =====
   const ESTADO_ICONOS = {
-    en_proceso: 'fa-hourglass-half',
-    cocinando: 'fa-fire-burner',
-    listo: 'fa-check',
-    completo: 'fa-check-double',
+    pendiente: 'fa-hourglass-half',
+    cocina: 'fa-fire-burner',
+    servido: 'fa-check-double',
   };
 
   function pzAvanzarEstadoItem(boton) {

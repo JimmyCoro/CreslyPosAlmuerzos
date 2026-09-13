@@ -4,7 +4,7 @@
 {% block title %}Abrir caja · Cresly POS{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'CSS/pizzeria-caja.css' %}?v=1">
+<link rel="stylesheet" href="{% static 'CSS/pizzeria-caja.css' %}?v=2">
 {% endblock %}
 
 {% block content %}
@@ -68,8 +68,9 @@
     <p class="cj-linea-falta" id="cjAbrirFalta" aria-live="polite"{% if not error %} hidden{% endif %}>{{ error }}</p>
   </div>
 </form>
+<div class="cj-aviso cj-aviso-barra" id="cjAviso" role="status" aria-live="polite"></div>
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'JS/pizzeria_caja.js' %}?v=1"></script>
+<script src="{% static 'JS/pizzeria_caja.js' %}?v=2"></script>
 {% endblock %}

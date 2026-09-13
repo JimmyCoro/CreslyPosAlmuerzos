@@ -298,6 +298,7 @@
       })
         .then((r) => r.json())
         .then((data) => {
+          if (data.redirect) { alert(data.message); window.location.href = data.redirect; return; }
           if (data.status !== 'ok') { alert('Error: ' + data.message); btn.disabled = false; widgetPedido.puedeConfirmar(); return; }
           window.location.href = config.urlOrdenes;
         })

@@ -258,4 +258,145 @@
     });
     actualizarMov();
   }
+
+  // ===== Cerrar caja: conteo contra lo esperado =====
+  const conteoCierre = document.getElementById('cjConteoCierre');
+  if (conteoCierre && CJ) {
+    const boton = document.getElementById('cjBtnCerrar');
+    const linea = document.getElementById('cjCierreFalta');
+    const contadoEl = document.getElementById('cjCierreContado');
+    const resultado = document.getElementById('cjCierreResultado');
+    const etiqueta = document.getElementById('cjCierreEtiqueta');
+    const difEl = document.getElementById('cjCierreDiferencia');
+    const motivo = document.getElementById('cjCierreMotivo');
+    const motivoLabel = document.getElementById('cjCierreMotivoLabel');
+    let total = 0;
+    let enviando = false;
+
+    // Solo da feedback inmediato; el backend vuelve a sumar y compara.
+    function actualizarCierre(nuevoTotal) {
+      if (typeof nuevoTotal === 'number') total = nuevoTotal;
+      const dif = total - CJ.esperadoCentavos;
+      const estado = dif === 0 ? 'cuadro' : (dif < 0 ? 'faltante' : 'sobrante');
+      contadoEl.textContent = dinero(total);
+      resultado.dataset.resultado = estado;
+      etiqueta.textContent = { cuadro: 'CUADRA', faltante: 'FALTANTE', sobrante: 'SOBRANTE' }[estado];
+      difEl.textContent = dif === 0 ? '$0.00' : `${dif < 0 ? '−' : '+'} ${dinero(Math.abs(dif))}`;
+
+      const pideMotivo = dif !== 0;
+      motivoLabel.textContent = pideMotivo ? 'MOTIVO DE LA DIFERENCIA' : 'MOTIVO (OPCIONAL)';
+      const hayMotivo = motivo.value.trim().length > 0;
+      let mensaje = '';
+      if (total === 0 && CJ.esperadoCentavos > 0 && !hayMotivo) mensaje = 'Cuenta el efectivo del cajón';
+      else if (pideMotivo && !hayMotivo) mensaje = 'Falta el motivo de la diferencia';
+      linea.textContent = mensaje;
+      boton.disabled = Boolean(mensaje) || enviando;
+      boton.textContent = `Cerrar caja con ${dinero(total)}`;
+    }
+    const conteo = iniciarConteo(conteoCierre, actualizarCierre);
+    motivo.addEventListener('input', () => actualizarCierre());
+
+    boton.addEventListener('click', () => {
+      if (boton.disabled) return;
+      enviando = true;
+      boton.disabled = true;
+      enviar(CJ.urls.cerrar, {
+        turno_id: CJ.turnoId,
+        conteo: conteo.conteo(),
+        motivo: motivo.value,
+        esperado_centavos: CJ.esperadoCentavos,
+      })
+        .then((data) => {
+          if (data.status !== 'ok') throw new Error(data.message);
+          try { sessionStorage.setItem('cjAviso', data.message); } catch (e) { /* sin aviso */ }
+          window.location.href = data.redirect;
+        })
+        .catch((err) => {
+          enviando = false;
+          linea.textContent = err.message || 'No se pudo cerrar la caja';
+          boton.disabled = false;
+        });
+    });
+    actualizarCierre(0);
+  }
+
+  // ===== Movimientos: hoja ⋯ y confirmación de anulación =====
+  const hojaAcc = document.getElementById('cjHojaAccionesMov');
+  const hojaConf = document.getElementById('cjHojaConfirmarAnular');
+  if (hojaAcc && hojaConf && CJ) {
+    const acc = bootstrap.Offcanvas.getOrCreateInstance(hojaAcc);
+    const conf = bootstrap.Offcanvas.getOrCreateInstance(hojaConf);
+    const boton = document.getElementById('cjBtnConfirmarAnular');
+    const linea = document.getElementById('cjConfAnularFalta');
+    const otro = document.getElementById('cjConfMotivoOtro');
+    const chips = hojaConf.querySelectorAll('.cj-chip-motivo');
+    let fila = null;
+    let motivo = '';
+    let enviando = false;
+
+    document.querySelectorAll('[data-cj-mov]').forEach((el) => el.addEventListener('click', () => {
+      fila = el;
+      document.getElementById('cjAccMovTitulo').textContent = el.dataset.titulo;
+      document.getElementById('cjAccMovSub').textContent = el.dataset.sub;
+      document.getElementById('cjAccMovMonto').textContent = el.dataset.monto;
+      acc.show();
+    }));
+
+    function motivoFinal() {
+      if (motivo !== 'Otro') return motivo;
+      return otro.value.trim() ? `Otro: ${otro.value.trim()}` : '';
+    }
+    function actualizarConf() {
+      let mensaje = '';
+      if (fila && fila.dataset.bloqueo) mensaje = fila.dataset.bloqueo;
+      else if (!motivoFinal()) mensaje = 'Falta el motivo';
+      linea.textContent = mensaje;
+      boton.disabled = Boolean(mensaje) || enviando;
+    }
+
+    // Una hoja a la vez: la confirmación se abre cuando la de acciones terminó de cerrarse.
+    document.getElementById('cjAccMovAnular').addEventListener('click', () => {
+      hojaAcc.addEventListener('hidden.bs.offcanvas', () => {
+        motivo = '';
+        otro.value = '';
+        otro.hidden = true;
+        chips.forEach((c) => c.setAttribute('aria-checked', 'false'));
+        document.getElementById('cjConfAnularTitulo').textContent = fila.dataset.confirmaTitulo;
+        document.getElementById('cjConfAnularTexto').textContent = fila.dataset.confirmaTexto;
+        actualizarConf();
+        document.body.classList.add('cj-confirmando');
+        conf.show();
+      }, { once: true });
+      acc.hide();
+    });
+    hojaConf.addEventListener('hidden.bs.offcanvas', () => document.body.classList.remove('cj-confirmando'));
+
+    chips.forEach((c) => c.addEventListener('click', () => {
+      motivo = c.dataset.motivo;
+      chips.forEach((o) => o.setAttribute('aria-checked', String(o === c)));
+      otro.hidden = motivo !== 'Otro';
+      if (motivo === 'Otro') otro.focus();
+      actualizarConf();
+    }));
+    otro.addEventListener('input', actualizarConf);
+
+    boton.addEventListener('click', () => {
+      if (boton.disabled || !fila) return;
+      enviando = true;
+      boton.disabled = true;
+      enviar(CJ.urls.anular.replace('/0/', `/${fila.dataset.cjMov}/`), {
+        turno_id: CJ.turnoId,
+        motivo: motivoFinal(),
+      })
+        .then((data) => {
+          if (data.status !== 'ok') throw new Error(data.message);
+          exitoYRecargar(data.message);
+        })
+        .catch((err) => {
+          enviando = false;
+          linea.textContent = err.message || 'No se pudo anular el movimiento';
+          boton.disabled = false;
+        });
+    });
+  }
 })();

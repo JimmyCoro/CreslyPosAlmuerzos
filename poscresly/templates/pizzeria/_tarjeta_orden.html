@@ -1,0 +1,44 @@
+{% with pedido=tarjeta.pedido %}
+<article class="or-card or-tono-{{ tarjeta.tono }}" data-pedido-id="{{ pedido.id }}">
+  {% comment %}
+    La cabecera despliega y pliega (pizzeria_ordenes.js). Para entrar a la
+    orden se toca el cuerpo, donde están los productos: así nunca se navega
+    sin haber visto antes qué lleva.
+  {% endcomment %}
+  <button type="button" class="or-card-cabecera" aria-expanded="false" aria-controls="orDetalle{{ pedido.id }}">
+    <span class="or-glifo" aria-hidden="true"><i class="bi {{ tarjeta.glifo }}"></i></span>
+    <span class="or-card-main">
+      <span class="or-card-titulo">{{ tarjeta.titulo }}</span>
+      {% for dato in tarjeta.cliente %}
+      <span class="or-card-cliente{% if dato.tenue %} or-card-cliente-tenue{% endif %}"><i class="bi {{ dato.icono }}" aria-hidden="true"></i><span>{{ dato.texto }}</span></span>
+      {% endfor %}
+      <span class="or-card-sub">{% for segmento in tarjeta.resumen %}<span>{{ segmento.sep }}</span><span{% if segmento.tono %} class="or-sub-{{ segmento.tono }}"{% endif %}>{{ segmento.texto }}</span>{% endfor %}</span>
+    </span>
+    <span class="or-card-der">
+      <span class="or-card-monto">${{ pedido.total|floatformat:2 }}</span>
+      <span class="or-card-estado{% if tarjeta.derecha_tiempo %} or-card-tiempo{% endif %}">{{ tarjeta.derecha }}</span>
+    </span>
+  </button>
+
+  <div class="or-card-detalle" id="orDetalle{{ pedido.id }}" hidden>
+    <a href="{% url 'pizzeria_detalle_orden' pedido.id %}" class="or-card-cuerpo" aria-label="Ver la orden {{ tarjeta.titulo }}">
+      <span class="or-lineas">
+        {% for bloque in tarjeta.bloques %}
+        <span class="or-bloque">
+          {% if bloque.grupo %}<span class="or-combo">{{ bloque.grupo }}</span>{% endif %}
+          {% for item in bloque.items %}
+          <span class="or-linea or-linea-{{ item.estado }}">
+            <span class="or-barra" aria-hidden="true"></span>
+            <span class="or-linea-texto">{{ item.cantidad }} · {{ item.nombre_corto }}{% if item.modificadores %}<span class="or-linea-mods"> · {{ item.modificadores }}</span>{% endif %}</span>
+            <span class="or-linea-estado">{{ item.get_estado_display|upper }}</span>
+          </span>
+          {% endfor %}
+        </span>
+        {% empty %}
+        <span class="or-lineas-vacio">Esta orden todavía no tiene platillos</span>
+        {% endfor %}
+      </span>
+    </a>
+  </div>
+</article>
+{% endwith %}

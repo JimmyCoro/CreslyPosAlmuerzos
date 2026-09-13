@@ -50,7 +50,6 @@
 
 .pzg-estado-libre { background: #23a05f; --pzg-mesa-shadow: rgba(35, 160, 95, .32); }
 .pzg-estado-ocupada { background: #c8102e; --pzg-mesa-shadow: rgba(200, 16, 46, .32); }
-.pzg-estado-por_cobrar { background: #d99000; --pzg-mesa-shadow: rgba(217, 144, 0, .32); }
 
 .pzg-floor-empty {
   position: absolute;

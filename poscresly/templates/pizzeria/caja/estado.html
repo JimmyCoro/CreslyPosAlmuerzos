@@ -4,7 +4,7 @@
 {% block title %}Caja · Cresly POS{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'CSS/pizzeria-caja.css' %}?v=1">
+<link rel="stylesheet" href="{% static 'CSS/pizzeria-caja.css' %}?v=2">
 {% endblock %}
 
 {% block content %}
@@ -103,6 +103,9 @@
       <button type="button" class="cj-btn-sec" data-bs-toggle="offcanvas" data-bs-target="#cjHojaMovimiento" aria-controls="cjHojaMovimiento">
         <i class="bi bi-plus-slash-minus" aria-hidden="true"></i> Ingreso o gasto
       </button>
+      <a href="{% url 'pizzeria_caja_cerrar' %}" class="cj-btn-sec cj-btn-cierre">
+        <i class="bi bi-lock" aria-hidden="true"></i> Cerrar turno
+      </a>
     </div>
 
   </main>
@@ -128,5 +131,5 @@
     },
   };
 </script>
-<script src="{% static 'JS/pizzeria_caja.js' %}?v=1"></script>
+<script src="{% static 'JS/pizzeria_caja.js' %}?v=2"></script>
 {% endblock %}

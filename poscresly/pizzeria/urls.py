@@ -56,4 +56,7 @@ urlpatterns = [
     path('caja/turno/cortes/', views_caja.cortes_caja, name='pizzeria_caja_cortes'),
     path('caja/turno/retiro/', views_caja.registrar_retiro, name='pizzeria_caja_retiro'),
     path('caja/turno/movimiento/', views_caja.registrar_movimiento, name='pizzeria_caja_movimiento'),
+    path('caja/turno/movimiento/<int:movimiento_id>/anular/', views_caja.anular_movimiento, name='pizzeria_caja_anular_movimiento'),
+    path('caja/turno/cerrar/', views_caja.cerrar_caja, name='pizzeria_caja_cerrar'),
+    path('caja/turno/cerrar/confirmar/', views_caja.registrar_cierre, name='pizzeria_caja_cerrar_confirmar'),
 ]

@@ -129,6 +129,7 @@
       })
         .then((r) => r.json())
         .then((data) => {
+          if (data.redirect) { alert(data.message); window.location.href = data.redirect; return; }
           if (data.status !== 'ok') { alert('Error: ' + data.message); btn.disabled = false; return; }
           window.location.href = "{% url 'pizzeria_ordenes' %}";
         })

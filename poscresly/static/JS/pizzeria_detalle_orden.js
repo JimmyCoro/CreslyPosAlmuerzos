@@ -267,7 +267,7 @@
       .catch((err) => alert(err && err.message ? err.message : 'Error inesperado al quitar el platillo'));
   }
 
-  // ===== Tap en un estado de la fila de cuatro: salta directo, incluso
+  // ===== Tap en un estado de la fila de tres: salta directo, incluso
   // hacia atrás (corregir un error de marcado). =====
   function seleccionarEstado(estado) {
     if (estado === currentItem.estado) return;

@@ -21,6 +21,7 @@ from .models import (
     CajaPizzeriaTransferencia,
     MovimientoCajaPizzeria,
     PagoPedido,
+    PedidoPizzeria,
 )
 from .views import LOGIN_URL
 
@@ -231,6 +232,35 @@ def _leer_json(request):
         return None
 
 
+def _leer_conteo(data):
+    """Vuelve a sumar el conteo del cliente. Devuelve (conteo, total, error)."""
+    conteo = data.get('conteo') or {}
+    if not isinstance(conteo, dict):
+        return None, None, 'Conteo inválido'
+    conteo_limpio = {}
+    total = Decimal('0.00')
+    for clave, cantidad in conteo.items():
+        if clave not in VALOR_DENOMINACION:
+            return None, None, 'Denominación inválida'
+        try:
+            cantidad = int(cantidad)
+        except (TypeError, ValueError):
+            return None, None, 'Cantidad inválida'
+        if cantidad < 0 or cantidad > 10000:
+            return None, None, 'Cantidad inválida'
+        if cantidad:
+            conteo_limpio[clave] = cantidad
+            total += VALOR_DENOMINACION[clave] * cantidad
+    return conteo_limpio, total, ''
+
+
+def _texto_conteo(conteo):
+    etiquetas = {clave: etiqueta for clave, etiqueta, _ in BILLETES + MONEDAS}
+    return ' · '.join(
+        f'{conteo[clave]} × {etiquetas[clave]}' for clave in VALOR_DENOMINACION if (conteo or {}).get(clave)
+    )
+
+
 # ===== Pantallas =====
 
 def _subheader(titulo, sub_pre='', sub_hi='', tono='neutro', sub_post='', back=None, chips=None):
@@ -374,7 +404,16 @@ def abrir_caja(request):
 FILTROS_MOVIMIENTOS = [('todos', 'Todos'), ('retiro', 'Retiros'), ('gasto', 'Gastos'), ('ingreso', 'Ingresos')]
 
 
-def _fila_movimiento(mov):
+MOTIVOS_ANULACION = ['Monto equivocado', 'Registrado dos veces', 'No se hizo', 'Otro']
+NOMBRE_TIPO = {'retiro': 'retiro', 'gasto': 'gasto', 'ingreso': 'ingreso'}
+
+
+def _esperado_si_se_anula(mov, esperado):
+    """Lo que debería haber en el cajón si este movimiento no hubiera ocurrido."""
+    return esperado - mov.monto if mov.tipo == 'ingreso' else esperado + mov.monto
+
+
+def _fila_movimiento(mov, esperado):
     autor = _nombre_corto(mov.autor)
     partes = [_hora(mov.creado_en)] + ([autor] if autor else [])
     if mov.tipo == 'retiro':
@@ -384,14 +423,31 @@ def _fila_movimiento(mov):
         etiqueta = 'Gasto' if mov.tipo == 'gasto' else 'Ingreso'
         titulo = f'{etiqueta} · {mov.detalle or mov.get_categoria_display() or "sin detalle"}'
         signo = '−' if mov.tipo == 'gasto' else '+'
-    return {
+    fila = {
+        'id': mov.id,
         'tipo': mov.tipo,
         'titulo': titulo,
         'sub': ' · '.join(partes),
         'monto': f'{signo} {_dinero(mov.monto)}',
         'saldo': f'quedan {_dinero(mov.saldo_posterior)}',
         'fecha': timezone.localtime(mov.creado_en).date(),
+        'anulado': mov.anulado,
     }
+    if mov.anulado:
+        quien = _nombre_corto(mov.anulado_por)
+        fila['sub'] = 'Anulado' + (f' por {quien}' if quien else '') + (f' · «{mov.anulado_motivo}»' if mov.anulado_motivo else '')
+        fila['saldo'] = 'anulado'
+        return fila
+
+    nuevo_esperado = _esperado_si_se_anula(mov, esperado)
+    fila['hoja_sub'] = ' · '.join(partes + [_texto_conteo(mov.conteo)] if mov.conteo else partes)
+    fila['confirma_titulo'] = f'Anular {NOMBRE_TIPO[mov.tipo]} de {_dinero(mov.monto)}'
+    fila['confirma_texto'] = (
+        f'El cajón pasa a esperar {_dinero(nuevo_esperado)} en vez de {_dinero(esperado)}. '
+        'El movimiento queda en el registro como anulado. Esta acción no se puede deshacer.'
+    )
+    fila['bloqueo'] = 'Anularlo deja el cajón en negativo' if nuevo_esperado < 0 else ''
+    return fila
 
 
 @login_required(login_url=LOGIN_URL)
@@ -404,11 +460,14 @@ def movimientos_caja(request):
     if filtro not in dict(FILTROS_MOVIMIENTOS):
         filtro = 'todos'
 
-    movimientos = caja.movimientos.filter(anulado=False).select_related('autor')
+    turno = _resumen_turno(caja)
+    esperado = turno['esperado_en_caja']
+    # Los anulados se siguen viendo (tachados): son la pista de cualquier descuadre.
+    movimientos = caja.movimientos.select_related('autor', 'anulado_por')
     total = movimientos.count() + 1
     if filtro != 'todos':
         movimientos = movimientos.filter(tipo=filtro)
-    filas = [_fila_movimiento(m) for m in movimientos]
+    filas = [_fila_movimiento(m, esperado) for m in movimientos]
 
     if filtro == 'todos':
         filas.append({
@@ -435,13 +494,50 @@ def movimientos_caja(request):
         }
         for clave, etiqueta in FILTROS_MOVIMIENTOS
     ]
-    turno = _resumen_turno(caja)
     return render(request, 'pizzeria/caja/movimientos.html', {
         'grupos': grupos,
         'filtro': filtro,
+        'caja': caja,
+        'motivos_anulacion': MOTIVOS_ANULACION,
         'subheader': _subheader(
-            'Movimientos', sub_pre='Turno de hoy · saldo ', sub_hi=_dinero(turno['esperado_en_caja']),
+            'Movimientos', sub_pre='Turno de hoy · saldo ', sub_hi=_dinero(esperado),
             back=reverse('pizzeria_caja'), chips=chips,
+        ),
+    })
+
+
+def _desglose_cajon(turno):
+    """Filas de la resta en el orden en que se comprueba a mano (handoff §4.2)."""
+    filas = [{'label': 'Fondo de apertura', 'monto': _dinero(turno['fondo_inicial']), 'tono': ''}]
+    filas.append({'label': 'Cobrado en efectivo', 'monto': f"+ {_dinero(turno['ventas_efectivo'])}", 'tono': 'entra'})
+    if turno['total_ingresos']:
+        filas.append({'label': 'Ingresos', 'monto': f"+ {_dinero(turno['total_ingresos'])}", 'tono': 'entra'})
+    filas.append({'label': 'Retirado a bóveda', 'monto': f"− {_dinero(turno['total_retirado'])}", 'tono': 'sale'})
+    filas.append({'label': 'Gastos del turno', 'monto': f"− {_dinero(turno['total_gastos'])}", 'tono': 'sale'})
+    return filas
+
+
+@login_required(login_url=LOGIN_URL)
+def cerrar_caja(request):
+    caja = _caja_abierta()
+    if caja is None:
+        return redirect('pizzeria_caja_abrir')
+
+    turno = _resumen_turno(caja)
+    ordenes_abiertas = PedidoPizzeria.objects.filter(estado='abierto').count()
+    cajero = _nombre_corto(caja.abierta_por)
+    return render(request, 'pizzeria/caja/cerrar.html', {
+        'caja': caja,
+        'turno': turno,
+        'desglose': _desglose_cajon(turno),
+        'esperado_centavos': int(turno['esperado_en_caja'] * 100),
+        'denominaciones': _denominaciones(),
+        'ordenes_abiertas': ordenes_abiertas,
+        'cerrador_nombre': _nombre_completo(request.user),
+        'turno_texto': f"Abierto {_hora(caja.fecha_apertura)}" + (f' por {cajero}' if cajero else ''),
+        'subheader': _subheader(
+            'Cerrar caja', sub_pre='Cuenta el cajón · debe haber ', sub_hi=_dinero(turno['esperado_en_caja']),
+            back=reverse('pizzeria_caja'),
         ),
     })
 
@@ -532,20 +628,9 @@ def registrar_retiro(request):
     if data is None:
         return _error('Datos inválidos')
 
-    conteo_limpio = {}
-    total = Decimal('0.00')
-    for clave, cantidad in (data.get('conteo') or {}).items():
-        if clave not in VALOR_DENOMINACION:
-            return _error('Denominación inválida')
-        try:
-            cantidad = int(cantidad)
-        except (TypeError, ValueError):
-            return _error('Cantidad inválida')
-        if cantidad < 0 or cantidad > 10000:
-            return _error('Cantidad inválida')
-        if cantidad:
-            conteo_limpio[clave] = cantidad
-            total += VALOR_DENOMINACION[clave] * cantidad
+    conteo_limpio, total, error = _leer_conteo(data)
+    if error:
+        return _error(error)
     if total <= 0:
         return _error('Cuenta lo que vas a retirar')
 
@@ -596,3 +681,83 @@ def registrar_movimiento(request):
         )
     etiqueta = 'Gasto' if tipo == 'gasto' else 'Ingreso'
     return JsonResponse({'status': 'ok', 'message': f'{etiqueta} de {_dinero(monto)} registrado'})
+
+
+@login_required(login_url=LOGIN_URL)
+@require_http_methods(['POST'])
+def registrar_cierre(request):
+    """Arqueo final. Diferencia = contado − esperado; si no cuadra, se exige motivo."""
+    data = _leer_json(request)
+    if data is None:
+        return _error('Datos inválidos')
+
+    conteo_limpio, contado, error = _leer_conteo(data)
+    if error:
+        return _error(error)
+    motivo = (data.get('motivo') or '').strip()[:200]
+
+    with transaction.atomic():
+        caja = _caja_para_movimiento(data.get('turno_id'))
+        if caja is None:
+            return _error('Este turno ya está cerrado. Recarga la pantalla.', status=409)
+        esperado = _resumen_turno(caja)['esperado_en_caja']
+        # El cajero contó contra la cifra que veía; si entró un cobro o un movimiento
+        # mientras contaba, la comparación ya no vale.
+        if data.get('esperado_centavos') != int(esperado * 100):
+            return _error('Cambió lo que debe haber en el cajón mientras contabas. Recarga y revisa.', status=409)
+        diferencia = contado - esperado
+        if diferencia != 0 and not motivo:
+            return _error('Falta el motivo de la diferencia')
+
+        efectivo = CajaPizzeriaEfectivo.objects.filter(caja=caja).first()
+        if efectivo is None:
+            efectivo = CajaPizzeriaEfectivo(caja=caja, monto_inicial=Decimal('0.00'))
+        efectivo.monto_final = contado
+        efectivo.save()
+
+        caja.estado = 'cerrada'
+        caja.fecha_cierre = timezone.now()
+        caja.cerrada_por = request.user
+        caja.conteo_cierre = conteo_limpio
+        if motivo:
+            # _motivo_cierre lee el texto que sigue a "Cierre:".
+            caja.observaciones = f'{caja.observaciones}\nCierre: {motivo}'.strip()
+        caja.save()
+
+    if diferencia == 0:
+        mensaje = 'Caja cerrada · cuadró'
+    else:
+        tipo = 'faltante' if diferencia < 0 else 'sobrante'
+        mensaje = f'Caja cerrada con {tipo} de {_dinero(abs(diferencia))}'
+    return JsonResponse({'status': 'ok', 'message': mensaje, 'redirect': reverse('pizzeria_caja_abrir')})
+
+
+@login_required(login_url=LOGIN_URL)
+@require_http_methods(['POST'])
+def anular_movimiento(request, movimiento_id):
+    data = _leer_json(request)
+    if data is None:
+        return _error('Datos inválidos')
+    motivo = (data.get('motivo') or '').strip()[:200]
+    if not motivo:
+        return _error('Falta el motivo')
+
+    with transaction.atomic():
+        caja = _caja_para_movimiento(data.get('turno_id'))
+        if caja is None:
+            return _error('Este turno ya está cerrado. Recarga la pantalla.', status=409)
+        mov = caja.movimientos.select_for_update().filter(pk=movimiento_id).first()
+        if mov is None:
+            return _error('Movimiento no encontrado', status=404)
+        if mov.anulado:
+            return _error('Este movimiento ya estaba anulado', status=409)
+        esperado = _resumen_turno(caja)['esperado_en_caja']
+        if _esperado_si_se_anula(mov, esperado) < 0:
+            return _error('Anularlo deja el cajón en negativo')
+        mov.anulado = True
+        mov.anulado_motivo = motivo
+        mov.anulado_por = request.user
+        mov.anulado_en = timezone.now()
+        mov.save(update_fields=['anulado', 'anulado_motivo', 'anulado_por', 'anulado_en'])
+
+    return JsonResponse({'status': 'ok', 'message': f'{NOMBRE_TIPO[mov.tipo].capitalize()} de {_dinero(mov.monto)} anulado'})

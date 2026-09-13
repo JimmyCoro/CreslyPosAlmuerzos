@@ -1,0 +1,96 @@
+{% extends 'movil/base_movil.html' %}
+{% load static %}
+
+{% block title %}Cerrar caja · Cresly POS{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'CSS/pizzeria-caja.css' %}?v=2">
+{% endblock %}
+
+{% block content %}
+<div class="im-shell cj">
+
+  {% include 'components/pizzeria_header.html' %}
+  {% include 'components/pizzeria_alerta.html' %}
+  {% include 'components/pizzeria_subheader.html' %}
+
+  <main class="cj-content cj-content-barra cj-content-cierre">
+
+    {% if ordenes_abiertas %}
+    <div class="cj-cinta" role="status">
+      <span class="cj-cinta-dot" aria-hidden="true"></span>
+      <span>Hay <strong>{{ ordenes_abiertas }} orden{{ ordenes_abiertas|pluralize:"es" }} sin cobrar</strong>. Si se cobra{{ ordenes_abiertas|pluralize:"n" }} después, entra{{ ordenes_abiertas|pluralize:"n" }} en el siguiente turno.</span>
+    </div>
+    {% endif %}
+
+    <section class="cj-card" aria-labelledby="cjDesgloseLabel">
+      <span class="cj-label" id="cjDesgloseLabel">EFECTIVO EN EL CAJÓN</span>
+      <dl class="cj-desglose">
+        {% for fila in desglose %}
+        <div class="cj-desglose-fila">
+          <dt>{{ fila.label }}</dt>
+          <dd class="{% if fila.tono %}cj-desglose-{{ fila.tono }}{% endif %}">{{ fila.monto }}</dd>
+        </div>
+        {% endfor %}
+        <div class="cj-desglose-fila cj-desglose-total">
+          <dt>Debe haber</dt>
+          <dd>${{ turno.esperado_en_caja|floatformat:2 }}</dd>
+        </div>
+      </dl>
+    </section>
+
+    <section class="cj-card" aria-labelledby="cjConteoLabel">
+      <span class="cj-label" id="cjConteoLabel">CUENTA EL CAJÓN</span>
+      {% include 'pizzeria/caja/_conteo.html' with conteo_id='cjConteoCierre' %}
+
+      <div class="cj-totales">
+        <div class="cj-total-fila">
+          <span class="cj-total-label">Contaste</span>
+          <span class="cj-total-cifra" id="cjCierreContado">$0.00</span>
+        </div>
+        <div class="cj-resultado" id="cjCierreResultado" data-resultado="pendiente" aria-live="polite">
+          <span class="cj-resultado-texto">
+            <span class="cj-resultado-etiqueta" id="cjCierreEtiqueta">DIFERENCIA</span>
+            <span class="cj-resultado-sub" id="cjCierreSub">Contra ${{ turno.esperado_en_caja|floatformat:2 }} que debe haber</span>
+          </span>
+          <strong class="cj-resultado-cifra" id="cjCierreDiferencia">—</strong>
+        </div>
+      </div>
+
+      <div id="cjCierreMotivoBloque">
+        <label class="cj-campo-label" for="cjCierreMotivo" id="cjCierreMotivoLabel">MOTIVO (OPCIONAL)</label>
+        <textarea id="cjCierreMotivo" class="cj-input cj-textarea" maxlength="200" rows="2"
+                  placeholder="Qué pasó con la diferencia" autocomplete="off"></textarea>
+      </div>
+    </section>
+
+    <section class="cj-card cj-card-suave">
+      <span class="cj-contexto-titulo">{{ turno_texto }}</span>
+      <p class="cj-contexto">
+        Lo que cuentes queda como fondo propuesto del siguiente turno. Si vas a llevar dinero a bóveda, retíralo antes de cerrar.
+        Cierra {{ cerrador_nombre }}.
+      </p>
+    </section>
+
+  </main>
+
+  <div class="cj-barra-accion">
+    <button type="button" class="cj-btn-primario" id="cjBtnCerrar" disabled>Cerrar caja</button>
+    <p class="cj-linea-falta" id="cjCierreFalta" aria-live="polite">Cuenta el efectivo del cajón</p>
+  </div>
+
+</div>
+<div class="cj-aviso" id="cjAviso" role="status" aria-live="polite"></div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  window.CJ = {
+    turnoId: {{ caja.id }},
+    esperadoCentavos: {{ esperado_centavos }},
+    urls: { cerrar: "{% url 'pizzeria_caja_cerrar_confirmar' %}" },
+  };
+</script>
+<script src="{% static 'JS/pizzeria_caja.js' %}?v=2"></script>
+{% endblock %}

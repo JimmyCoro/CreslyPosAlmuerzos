@@ -1,0 +1,58 @@
+{% comment %}
+Hoja ⋯ de un movimiento y su confirmación de anulación (handoff_caja §4.4 +
+patrón de handoff_hoja_acciones). La acción destructiva va sola, al final,
+bajo ZONA DE RIESGO, y siempre con confirmación y motivo.
+{% endcomment %}
+<div class="offcanvas offcanvas-bottom cj-hoja" tabindex="-1" id="cjHojaAccionesMov" aria-labelledby="cjAccMovTitulo">
+  <div class="cj-hoja-asa" aria-hidden="true"></div>
+  <div class="offcanvas-body cj-hoja-body cj-acc-body">
+    <div class="cj-acc-cab">
+      <span class="cj-acc-cab-texto">
+        <h2 class="cj-hoja-titulo" id="cjAccMovTitulo"></h2>
+        <span class="cj-acc-cab-sub" id="cjAccMovSub"></span>
+      </span>
+      <strong class="cj-acc-cab-monto" id="cjAccMovMonto"></strong>
+    </div>
+
+    <div class="cj-acc-grupo">
+      <span class="cj-acc-grupo-titulo cj-acc-riesgo">ZONA DE RIESGO</span>
+      <button type="button" class="cj-acc-fila cj-acc-fila-riesgo" id="cjAccMovAnular">
+        <i class="bi bi-x-lg cj-acc-glifo" aria-hidden="true"></i>
+        <span class="cj-acc-fila-texto">
+          <span class="cj-acc-fila-label">Anular movimiento</span>
+          <span class="cj-acc-fila-sub">Pide confirmación y motivo</span>
+        </span>
+        <i class="bi bi-chevron-right cj-acc-chev" aria-hidden="true"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="offcanvas offcanvas-bottom cj-hoja" tabindex="-1" id="cjHojaConfirmarAnular" aria-labelledby="cjConfAnularTitulo">
+  <div class="cj-hoja-asa" aria-hidden="true"></div>
+  <div class="offcanvas-body cj-hoja-body cj-conf-body">
+    <div class="cj-conf-cab">
+      <span class="cj-conf-glifo" aria-hidden="true"><i class="bi bi-x-lg"></i></span>
+      <span class="cj-conf-cab-texto">
+        <h2 class="cj-hoja-titulo cj-conf-titulo" id="cjConfAnularTitulo"></h2>
+        <p class="cj-conf-texto" id="cjConfAnularTexto"></p>
+      </span>
+    </div>
+
+    <span class="cj-campo-label" id="cjConfMotivoLabel">MOTIVO</span>
+    <div class="cj-chips" role="radiogroup" aria-labelledby="cjConfMotivoLabel">
+      {% for motivo in motivos_anulacion %}
+      <button type="button" class="cj-chip cj-chip-motivo" role="radio" aria-checked="false" data-motivo="{{ motivo }}">{{ motivo }}</button>
+      {% endfor %}
+    </div>
+    <input type="text" id="cjConfMotivoOtro" class="cj-input" maxlength="180" placeholder="Escribe el motivo" autocomplete="off" hidden aria-label="Motivo">
+
+    <div class="cj-conf-botones">
+      <button type="button" class="cj-btn-primario" id="cjBtnConfirmarAnular" disabled>
+        <i class="bi bi-x-lg" aria-hidden="true"></i> Sí, anular
+      </button>
+      <p class="cj-linea-falta" id="cjConfAnularFalta" aria-live="polite">Falta el motivo</p>
+      <button type="button" class="cj-btn-volver" data-bs-dismiss="offcanvas">Volver</button>
+    </div>
+  </div>
+</div>

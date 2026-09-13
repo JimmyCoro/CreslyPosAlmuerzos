@@ -1,0 +1,18 @@
+{% for grupo in grupos %}
+<section class="or-grupo" aria-labelledby="orGrupo-{{ grupo.clave }}">
+  <h2 class="or-grupo-header" id="orGrupo-{{ grupo.clave }}">
+    <span class="or-grupo-titulo">{{ grupo.titulo }}</span>
+    <span class="or-grupo-sufijo">{{ grupo.sufijo }}</span>
+  </h2>
+  <div class="or-grupo-lista">
+    {% for tarjeta in grupo.tarjetas %}
+      {% include 'pizzeria/_tarjeta_orden.html' %}
+    {% endfor %}
+  </div>
+</section>
+{% empty %}
+<div class="or-vacio">
+  <p class="or-vacio-texto">{{ mensaje_vacio }}</p>
+  {% if ultima_cerrada %}<p class="or-vacio-sub">{{ ultima_cerrada }}</p>{% endif %}
+</div>
+{% endfor %}

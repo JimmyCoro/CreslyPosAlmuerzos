@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'CSS/pizzeria-mapa.css' %}?v=17">
+<link rel="stylesheet" href="{% static 'CSS/pizzeria-ordenes.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -22,103 +22,52 @@
 <div class="container-fluid contenedor-principal">
   <div class="col-12 col-der">
 
-    <div class="dash-header pz-header pzsh-superseded">
-      <div>
-        {% if es_delivery %}
-        <h4 class="dash-title">Delivery - Pizzería</h4>
-        <p class="dash-subtitle">{% if hay_busqueda %}Resultados de la búsqueda{% else %}Pedidos a domicilio que siguen abiertos{% endif %}</p>
-        {% else %}
-        <h4 class="dash-title">Órdenes en curso - Pizzería</h4>
-        <p class="dash-subtitle">{% if hay_busqueda %}Resultados de la búsqueda{% else %}Todos los pedidos de mesa y para llevar que siguen abiertos{% endif %}</p>
-        {% endif %}
+    <div class="or-page">
+
+      <div class="or-desktop-header pzsh-superseded">
+        <div>
+          <h4 class="or-desktop-titulo">Órdenes</h4>
+          <p class="or-desktop-sub">{{ subheader.sub_pre }}{% if subheader.sub_hi %}<strong>{{ subheader.sub_hi }}</strong>{{ subheader.sub_post }}{% endif %}</p>
+        </div>
+        <div class="or-desktop-acciones">
+          <button type="button" class="or-icon-btn" id="orBuscarToggleDesktop" aria-label="Buscar orden">
+            <i class="bi bi-search"></i>
+          </button>
+          <a href="{% url 'pizzeria_nueva_orden' %}" class="or-btn-nueva">
+            <i class="bi bi-plus-lg"></i>Nueva orden
+          </a>
+        </div>
       </div>
-      <div class="pz-header-actions">
-        <a href="{% url 'pizzeria_nueva_orden' %}" class="btn btn-pz-primary">
-          <i class="fas fa-plus me-2"></i>Nueva orden
+
+      <nav class="or-tabs" aria-label="Canal de las órdenes">
+        {% for pestana in pestanas %}
+        <a href="{{ pestana.url }}" class="or-tab{% if pestana.activa %} or-tab-activa{% endif %}"{% if pestana.activa %} aria-current="page"{% endif %}>
+          <span class="or-tab-etiqueta">{{ pestana.etiqueta }}</span>
+          <span class="or-tab-conteo">{{ pestana.conteo }}</span>
         </a>
-      </div>
-    </div>
+        {% endfor %}
+      </nav>
 
-    <form method="get" class="oc-busqueda" id="ocBusquedaForm">
-      <div class="oc-busqueda-texto">
-        <label for="ocBusquedaInput" class="visually-hidden">Buscar por número o cliente</label>
-        <i class="fas fa-search" aria-hidden="true"></i>
-        <input type="text" name="q" value="{{ q }}" placeholder="Buscar por número o cliente..." id="ocBusquedaInput" autocomplete="off" {% if q %}autofocus{% endif %}>
-      </div>
-      {% if hay_busqueda %}
-      <a href="{% if es_delivery %}{% url 'pizzeria_delivery' %}{% else %}{% url 'pizzeria_ordenes' %}{% endif %}" class="oc-busqueda-limpiar">Limpiar</a>
-      {% endif %}
-    </form>
-    <script>
-      (function () {
-        var input = document.getElementById('ocBusquedaInput');
-        var form = document.getElementById('ocBusquedaForm');
-        var timeoutId = null;
-
-        // Búsqueda automática: al tipear se recarga la página con el
-        // resultado filtrado (no hay endpoint AJAX propio para esto), así
-        // que para que la escritura no se sienta cortada, al recargar se
-        // devuelve el foco al campo con el cursor al final.
-        if (input.value) {
-          input.focus();
-          var largo = input.value.length;
-          input.setSelectionRange(largo, largo);
-        }
-
-        input.addEventListener('input', function () {
-          clearTimeout(timeoutId);
-          timeoutId = setTimeout(function () { form.requestSubmit(); }, 450);
-        });
-      })();
-    </script>
-
-    <script>
-      // Botón ⌕ del subheader: no duplica el buscador, solo lo enfoca.
-      (function () {
-        var btn = document.getElementById('pzshBuscarOrdenes');
-        var input = document.getElementById('ocBusquedaInput');
-        if (btn && input) {
-          btn.addEventListener('click', function () {
-            input.scrollIntoView({ block: 'center', behavior: 'smooth' });
-            input.focus();
-          });
-        }
-      })();
-
-      // Filtro por estado de los chips del subheader — client-side sobre
-      // las cards ya renderizadas (abierto/por_cobrar/cobrado/anulado).
-      (function () {
-        var grupo = document.getElementById('pzshEstadoOrdenes');
-        if (!grupo) return;
-        grupo.addEventListener('click', function (ev) {
-          var chip = ev.target.closest('.pzsh-chip');
-          if (!chip) return;
-          grupo.querySelectorAll('.pzsh-chip').forEach(function (c) { c.classList.remove('pzsh-chip-active'); });
-          chip.classList.add('pzsh-chip-active');
-          var estado = chip.dataset.filtro;
-          document.querySelectorAll('.oc-card').forEach(function (card) {
-            card.hidden = !!estado && card.dataset.estado !== estado;
-          });
-        });
-      })();
-    </script>
-
-    <div class="pedidos-dia-grid oc-grid">
-      {% for orden in ordenes %}
-        {% include 'pizzeria/_orden_card.html' %}
-      {% empty %}
-      <div class="pedidos-dia-empty">
-        {% if hay_busqueda %}
-        <i class="fas fa-search me-2"></i>No se encontraron pedidos con esa búsqueda
-        {% elif es_delivery %}
-        <i class="fas fa-motorcycle me-2"></i>No hay pedidos delivery en curso ahora mismo
-        {% else %}
-        <i class="fas fa-receipt me-2"></i>No hay órdenes en curso ahora mismo
+      <form method="get" class="or-busqueda" id="orBusqueda"{% if not q %} hidden{% endif %}>
+        <input type="hidden" name="canal" value="{{ canal }}">
+        <label for="orBusquedaInput" class="visually-hidden">Buscar por número, mesa o teléfono</label>
+        <div class="or-busqueda-caja">
+          <i class="bi bi-search" aria-hidden="true"></i>
+          <input type="search" name="q" value="{{ q }}" id="orBusquedaInput" placeholder="Número, mesa o teléfono" autocomplete="off" enterkeyhint="search">
+        </div>
+        {% if q %}
+        <a href="?canal={{ canal }}" class="or-busqueda-limpiar">Limpiar</a>
         {% endif %}
+      </form>
+
+      <div id="orLista" aria-live="polite">
+        {% include 'pizzeria/_ordenes_grupos.html' %}
       </div>
-      {% endfor %}
+
     </div>
 
   </div>
 </div>
+
+<script src="{% static 'JS/pizzeria_ordenes.js' %}"></script>
 {% endblock %}

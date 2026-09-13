@@ -33,8 +33,8 @@
 
     <a href="{% url 'pizzeria_ordenes' %}" class="im-card-cobrar">
       <div class="im-cobrar-info">
-        <span class="im-cobrar-label">POR COBRAR</span>
-        <span class="im-cobrar-monto">${{ total_por_cobrar|floatformat:2 }}</span>
+        <span class="im-cobrar-label">SIN COBRAR</span>
+        <span class="im-cobrar-monto">${{ total_sin_cobrar|floatformat:2 }}</span>
         <span class="im-cobrar-sub">{{ ordenes_abiertas }} {% if ordenes_abiertas == 1 %}orden abierta{% else %}órdenes abiertas{% endif %} · {{ mesas_ocupadas }} mesa{{ mesas_ocupadas|pluralize }}</span>
       </div>
       <span class="im-cobrar-chevron"><i class="bi bi-chevron-right"></i></span>

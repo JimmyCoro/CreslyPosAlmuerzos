@@ -169,12 +169,10 @@
   window.PZ_PEDIDO = {{ pedido.id }};
   window.CSRF_TOKEN = "{{ csrf_token }}";
   {% comment %}
-  El backend valida los pagos contra el total CON IVA (ver procesar_cobro_pedido).
-  Esta pantalla de escritorio no desglosa IVA todavía, así que Subtotal y Total a
-  pagar muestran el mismo monto, ahora ya con IVA.
+  Los precios de la BD ya incluyen IVA: el total a pagar es la suma de precios
+  y el IVA solo se desglosa para mostrarlo (ver procesar_cobro_pedido).
   {% endcomment %}
   window.PZ_TOTAL_PEDIDO = {{ total_con_iva }};
-  window.PZ_IVA_TASA = {{ iva_pct }} / 100;
   window.PZ_URLS = {
     procesarCobro: "{% url 'pizzeria_procesar_cobro' pedido.id %}",
     cancelarPedido: "{% url 'pizzeria_cancelar_pedido' pedido.id %}",
@@ -182,7 +180,7 @@
     ordenes: "{% url 'pizzeria_ordenes' %}",
   };
 </script>
-<script src="{% static 'JS/pizzeria_cobrar_orden.js' %}?v=2"></script>
+<script src="{% static 'JS/pizzeria_cobrar_orden.js' %}?v=3"></script>
 <script src="{% static 'JS/pizzeria_hoja_acciones.js' %}?v=2"></script>
 <script src="{% static 'JS/pizzeria_cobrar_movil.js' %}?v=2"></script>
 <script>

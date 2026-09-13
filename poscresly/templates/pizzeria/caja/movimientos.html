@@ -4,7 +4,7 @@
 {% block title %}Movimientos · Caja · Cresly POS{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'CSS/pizzeria-caja.css' %}?v=1">
+<link rel="stylesheet" href="{% static 'CSS/pizzeria-caja.css' %}?v=2">
 {% endblock %}
 
 {% block content %}
@@ -32,4 +32,18 @@
   {% include 'components/pizzeria_bottom_nav.html' %}
 
 </div>
+
+{% include 'pizzeria/caja/_hoja_acciones_movimiento.html' %}
+<div class="cj-aviso" id="cjAviso" role="status" aria-live="polite"></div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  window.CJ = {
+    turnoId: {{ caja.id }},
+    urls: { anular: "{% url 'pizzeria_caja_anular_movimiento' 0 %}" },
+  };
+</script>
+<script src="{% static 'JS/pizzeria_caja.js' %}?v=2"></script>
 {% endblock %}

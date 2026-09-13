@@ -8,7 +8,7 @@
     type="button"
     class="do-linea-estado do-linea-estado-{{ item.estado }}"
     data-item-id="{{ item.id }}"
-    {% if item.estado == 'completo' %}disabled{% endif %}
+    {% if item.estado == 'servido' %}disabled{% endif %}
     onclick="doAvanzarItem(event, this)">
     <span class="do-linea-estado-dot"></span>
     <span class="do-linea-estado-label">{{ item.get_estado_display }}</span>

@@ -1,0 +1,298 @@
+/* =====================================================================
+   Órdenes · móvil (poscresly/pizzeria/handoff_ordenes, bloques 2A/2B)
+   Header y subheader ya viven en components/pizzeria_header.html y
+   pizzeria_subheader.html. Aquí: pestañas de canal, grupos por estado,
+   tarjetas plegables y el semáforo por platillo (pendiente · en cocina ·
+   servido). La orden toma el color de su platillo más retrasado y pasa a
+   verde ("completo") cuando todo está servido.
+   ===================================================================== */
+:root {
+  --or-ink: #14181d;
+  --or-text-2: #4a545f;
+  --or-text-3: #5b6673;
+  --or-muted: #8a929c;
+  --or-faint: #a8afb8;
+  --or-faint-2: #c3c8ce;
+  --or-surface: #ffffff;
+  --or-page: #f4f5f7;
+  --or-border: #e6e8ec;
+  --or-border-soft: #eef0f3;
+  --or-border-input: #dfe2e7;
+  --or-brand: #c8102e;
+  --or-brand-tint: #fdecef;
+  --or-brand-border: #f4d3d9;
+  --or-green: #23a05f;
+  --or-green-text: #1c7a4a;
+  --or-green-tint: #eaf6ef;
+  --or-amber: #d99000;
+  --or-amber-text: #8a5800;
+  --or-amber-tint: #fdf3e2;
+}
+
+.or-page {
+  max-width: 640px;
+  margin: 0 auto;
+  font-family: var(--fuente-jakarta);
+  font-feature-settings: 'tnum' 1;
+  color: var(--or-ink);
+}
+
+/* ----- Encabezado de escritorio (en móvil lo sustituye el subheader) ----- */
+.or-desktop-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 0 2px 14px;
+}
+.or-desktop-titulo { margin: 0; font-size: 20px; font-weight: 800; letter-spacing: -.02em; }
+.or-desktop-sub { margin: 2px 0 0; font-size: 12.5px; font-weight: 600; color: var(--or-muted); }
+.or-desktop-sub strong { color: var(--or-brand); font-weight: 800; }
+.or-desktop-acciones { display: flex; align-items: center; gap: 8px; }
+.or-icon-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  border: 1px solid var(--or-border-input);
+  background: var(--or-surface);
+  color: var(--or-text-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.or-btn-nueva {
+  height: 38px;
+  padding: 0 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 11px;
+  background: var(--or-brand);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+  box-shadow: 0 8px 18px rgba(200, 16, 46, .24);
+}
+.or-btn-nueva:hover { color: #fff; background: #a90d27; }
+
+/* ----- Pestañas de canal (46 px) ----- */
+.or-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding: 0 6px;
+  background: var(--or-surface);
+  border: 1px solid var(--or-border);
+  border-radius: 14px;
+  margin-bottom: 14px;
+}
+.or-tab {
+  min-height: 46px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  border-bottom: 2.5px solid transparent;
+  text-decoration: none;
+  touch-action: manipulation;
+}
+.or-tab-etiqueta { font-size: 12.5px; font-weight: 700; color: var(--or-muted); line-height: 1.1; }
+.or-tab-conteo { font-size: 10.5px; font-weight: 700; color: var(--or-faint); line-height: 1.1; }
+.or-tab-activa { border-bottom-color: var(--or-brand); }
+.or-tab-activa .or-tab-etiqueta,
+.or-tab-activa .or-tab-conteo { color: var(--or-brand); font-weight: 800; }
+.or-tab:focus-visible { outline: 2px solid var(--or-brand); outline-offset: -2px; border-radius: 10px; }
+
+/* En celular las pestañas se pegan al subheader, a todo el ancho. */
+@media (max-width: 767.98px) {
+  .or-tabs {
+    top: -5px;
+    margin: -5px -10px 14px;
+    border-width: 0 0 1px;
+    border-radius: 0;
+  }
+}
+
+/* ----- Búsqueda ----- */
+.or-busqueda { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; }
+.or-busqueda-caja {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 12px;
+  background: var(--or-surface);
+  border: 1px solid var(--or-border-input);
+  border-radius: 12px;
+  color: var(--or-muted);
+}
+.or-busqueda-caja input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font: 600 16px/1.2 var(--fuente-jakarta);
+  color: var(--or-ink);
+}
+.or-busqueda-caja:focus-within { border-color: var(--or-brand); box-shadow: 0 0 0 3px var(--or-brand-tint); }
+.or-busqueda-limpiar { font-size: 12.5px; font-weight: 800; color: var(--or-brand); text-decoration: none; padding: 10px 4px; }
+
+/* ----- Grupos de estado ----- */
+.or-grupo + .or-grupo { margin-top: 16px; }
+.or-grupo-header {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0;
+  padding: 0 2px 9px;
+}
+.or-grupo-titulo { font-size: 11px; font-weight: 800; letter-spacing: .09em; color: var(--or-text-3); }
+.or-grupo-sufijo { font-size: 11px; font-weight: 600; color: var(--or-faint); }
+.or-grupo-lista { display: flex; flex-direction: column; gap: 8px; }
+
+/* ----- Tarjeta ----- */
+.or-card {
+  --or-tono: var(--or-faint-2);
+  --or-tono-tint: var(--or-page);
+  --or-tono-text: var(--or-text-3);
+  background: var(--or-surface);
+  border: 1px solid var(--or-border);
+  border-left: 3px solid var(--or-tono);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.or-tono-rojo { --or-tono: var(--or-brand); --or-tono-tint: var(--or-brand-tint); --or-tono-text: var(--or-brand); }
+.or-tono-ambar { --or-tono: var(--or-amber); --or-tono-tint: var(--or-amber-tint); --or-tono-text: var(--or-amber-text); }
+.or-tono-verde { --or-tono: var(--or-green); --or-tono-tint: var(--or-green-tint); --or-tono-text: var(--or-green-text); }
+
+.or-card-cabecera {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 12px 14px 12px 11px;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  color: inherit;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.or-card-cabecera:active { background: #fafbfc; }
+.or-card-cabecera:focus-visible { outline: 2px solid var(--or-brand); outline-offset: -2px; border-radius: 12px; }
+
+.or-glifo {
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  background: var(--or-tono-tint);
+  color: var(--or-tono-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex: 0 0 auto;
+}
+
+.or-card-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.or-card-titulo {
+  font-size: 13.5px;
+  font-weight: 800;
+  letter-spacing: -.01em;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Datos del cliente: mesa y personas, quién retira, o teléfono y dirección del delivery. */
+.or-card-cliente {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--or-text-2);
+  line-height: 1.35;
+}
+.or-card-cliente i { font-size: 11px; color: var(--or-muted); flex: 0 0 auto; }
+.or-card-cliente span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.or-card-cliente-tenue { font-weight: 600; color: var(--or-faint); }
+.or-card-cliente-tenue i { color: var(--or-faint); }
+
+.or-card-sub {
+  margin-top: 1px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--or-muted);
+  line-height: 1.35;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.or-sub-verde { font-weight: 800; color: var(--or-green-text); }
+.or-sub-ambar { font-weight: 800; color: var(--or-amber-text); }
+.or-sub-rojo { font-weight: 800; color: var(--or-brand); }
+.or-sub-tenue { font-weight: 700; color: var(--or-faint); }
+
+.or-card-der { flex: 0 0 auto; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.or-card-monto { font-size: 17px; font-weight: 800; letter-spacing: -.025em; line-height: 1.2; }
+.or-card-estado { font-size: 10.5px; font-weight: 800; letter-spacing: .06em; color: var(--or-tono-text); white-space: nowrap; }
+.or-card-tiempo { font-size: 11px; font-weight: 700; letter-spacing: 0; }
+
+.or-card-abierta .or-card-cabecera { padding-bottom: 10px; }
+
+/* ----- Detalle desplegado: el cuerpo entero es la puerta a la orden ----- */
+.or-card-cuerpo {
+  display: block;
+  margin: 0 8px 6px;
+  border-radius: 11px;
+  color: inherit;
+  text-decoration: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: background .12s ease;
+}
+.or-card-cuerpo:hover { color: inherit; background: #fafbfc; }
+.or-card-cuerpo:active { background: var(--or-page); }
+.or-card-cuerpo:focus-visible { outline: 2px solid var(--or-brand); outline-offset: 0; }
+
+.or-lineas { padding: 10px 6px 10px 52px; display: flex; flex-direction: column; gap: 9px; }
+.or-bloque { display: flex; flex-direction: column; gap: 6px; }
+.or-combo { font-size: 12.5px; font-weight: 800; letter-spacing: -.01em; }
+.or-linea { display: flex; align-items: center; gap: 9px; min-width: 0; }
+.or-barra { width: 3px; height: 15px; border-radius: 2px; background: var(--or-faint-2); flex: 0 0 auto; }
+.or-linea-texto {
+  flex: 1;
+  min-width: 0;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: -.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.or-linea-mods { font-weight: 600; color: var(--or-muted); }
+.or-linea-estado { font-size: 10.5px; font-weight: 800; letter-spacing: .06em; flex: 0 0 auto; }
+
+.or-linea-pendiente .or-barra { background: var(--or-brand); }
+.or-linea-pendiente .or-linea-estado { color: var(--or-brand); }
+.or-linea-cocina .or-barra { background: var(--or-amber); }
+.or-linea-cocina .or-linea-estado { color: var(--or-amber-text); }
+.or-linea-servido .or-barra { background: var(--or-green); }
+.or-linea-servido .or-linea-estado { color: var(--or-green-text); }
+
+.or-lineas-vacio { display: block; font-size: 12px; font-weight: 600; color: var(--or-muted); }
+
+/* ----- Estados vacíos ----- */
+.or-vacio { padding: 48px 16px; text-align: center; }
+.or-vacio-texto { margin: 0; font-size: 12.5px; font-weight: 600; color: var(--or-muted); }
+.or-vacio-sub { margin: 4px 0 0; font-size: 11.5px; font-weight: 600; color: var(--or-faint); }

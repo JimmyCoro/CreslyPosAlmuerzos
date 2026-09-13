@@ -165,7 +165,7 @@
 .pzsh-pill-tono-oscuro { background: #14181d; color: #fff; }
 .pzsh-pill-tono-delivery { background: #fdecef; color: #a90d27; border: 1px solid #f4d3d9; }
 /* rojo/verde: mismos tokens que --pzm-red-soft-*/--pzm-green-soft-* de
-   pizzeria-mapa.css (Mesas) — para pills de estado de pedido (por cobrar/
+   pizzeria-mapa.css (Mesas) — para pills de estado de pedido (abierto/
    cobrado) con el mismo código de color que ya usa el resto de la app. */
 .pzsh-pill-tono-rojo { background: #fdecef; color: #a90d27; }
 .pzsh-pill-tono-verde { background: #eaf6ef; color: #1c7a4a; }
