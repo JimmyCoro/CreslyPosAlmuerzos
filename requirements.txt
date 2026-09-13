@@ -56,3 +56,5 @@ virtualenv==20.25.0
 Werkzeug==3.0.3
 whitenoise==6.7.0
 zope.interface==8.0.1
+uvicorn[standard]==0.52.4
+uvicorn-worker==0.4.0

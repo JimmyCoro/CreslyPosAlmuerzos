@@ -22,8 +22,8 @@ python manage.py migrate
 # Estáticos
 python manage.py collectstatic --noinput
 
-# Servidor de producción (ASGI/WebSockets)
-daphne -b 0.0.0.0 -p 8000 poscresly.asgi:application
+# Servidor de producción (ASGI/WebSockets) — lo lanza start.sh en la raíz
+gunicorn poscresly.asgi:application -k uvicorn_worker.UvicornWorker -w 3 -b 0.0.0.0:8000
 ```
 
 ## Deploy
@@ -40,7 +40,7 @@ git push origin desarrollo
 git checkout master && git merge desarrollo && git push origin master && git checkout desarrollo
 ```
 
-Railway ejecuta automáticamente `collectstatic`, `migrate` y reinicia `daphne`.
+Railway ejecuta `collectstatic` en el build y luego `start.sh`, que corre `migrate` y arranca gunicorn con workers Uvicorn: 3 procesos si hay `REDIS_URL`, 1 si no (sin Redis los WebSockets no se comparten entre procesos). `WEB_CONCURRENCY` fija el número manualmente.
 
 ## Arquitectura
 
