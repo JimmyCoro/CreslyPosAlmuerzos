@@ -1,6 +1,5 @@
-const CACHE_NAME = "cresly-pos-v30";
+const CACHE_NAME = "cresly-pos-v33";
 const CORE_ASSETS = [
-  "/",
   "/static/manifest.json",
   "/static/offline.html",
   "/static/icons/icon-192.png",
@@ -38,15 +37,11 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  // Las páginas nunca se guardan en caché: llevan datos de la sesión y, tras
+  // cerrar sesión, no deben poder verse offline.
   if (request.mode === "navigate") {
     event.respondWith(
-      fetch(request)
-        .then((response) => {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
-          return response;
-        })
-        .catch(() => caches.match("/static/offline.html"))
+      fetch(request).catch(() => caches.match("/static/offline.html"))
     );
     return;
   }

@@ -22,7 +22,7 @@
     </div>
   </main>
 
-  {% if not menu.publicado %}
+  {% if not menu.publicado and es_admin %}
   <div class="alm-barra-accion alm-barra-sobre-tabs" id="almBarraConfigurar">
     <a href="{% url 'menu_configurar' %}" class="alm-btn-primario">Configurar el menú</a>
   </div>

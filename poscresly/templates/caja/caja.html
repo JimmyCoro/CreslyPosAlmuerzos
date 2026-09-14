@@ -37,7 +37,7 @@
           &nbsp;·&nbsp; Monto inicial ${{ monto_inicial_efectivo|floatformat:2 }}
         </span>
       </div>
-      <button class="btn btn-cerrar-caja" onclick="cerrarCaja()">Cerrar caja</button>
+      {% if es_admin %}<button class="btn btn-cerrar-caja" onclick="cerrarCaja()">Cerrar caja</button>{% endif %}
     </div>
     {% elif caja_hoy and caja_hoy.estado == 'cerrada' %}
     <div class="caja-banner caja-banner-cerrada">

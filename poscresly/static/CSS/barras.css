@@ -53,17 +53,11 @@
   text-decoration: none;
   color: inherit;
 }
+/* La C del logo (static/IMG/logo-c.png, fondo transparente). */
 .pzh-brand-mark {
-  width: 30px;
-  height: 30px;
-  border-radius: 9px;
-  background: var(--primary-color, #A80018);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  font-weight: 800;
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
   flex: 0 0 auto;
 }
 .pzh-brand-text { min-width: 0; display: flex; flex-direction: column; }
@@ -104,6 +98,46 @@
   flex-shrink: 0;
 }
 .pzh-caret { font-size: 8px; color: #8a929c; }
+
+/* Menú de cuenta (se abre desde .pzh-user) */
+.pzh-cuenta {
+  position: absolute;
+  top: 48px;
+  right: 10px;
+  z-index: 40;
+  min-width: 230px;
+  max-width: calc(100vw - 20px);
+  background: #fff;
+  border: 1px solid #e6e8ec;
+  border-radius: 14px;
+  box-shadow: 0 14px 34px rgba(20, 24, 29, .16);
+  padding: 6px;
+}
+.pzh-cuenta-cab { display: flex; flex-direction: column; gap: 2px; padding: 9px 10px 10px; border-bottom: 1px solid #eef0f3; margin-bottom: 4px; }
+.pzh-cuenta-nombre { font-size: 13.5px; font-weight: 800; color: #14181d; }
+.pzh-cuenta-rol { font-size: 11.5px; font-weight: 600; color: #6b7480; }
+.pzh-cuenta form { margin: 0; }
+.pzh-cuenta-item {
+  width: 100%;
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #14181d;
+  text-decoration: none;
+  text-align: left;
+  cursor: pointer;
+}
+.pzh-cuenta-item i { font-size: 15px; color: #5b6673; }
+.pzh-cuenta-item:hover { background: #f4f5f7; color: #14181d; }
+.pzh-cuenta-salir, .pzh-cuenta-salir i { color: #c8102e; }
+.pzh-cuenta-salir:hover { color: #c8102e; }
 
 /* ===== Subheader dinámico ===== */
 .pzsh {

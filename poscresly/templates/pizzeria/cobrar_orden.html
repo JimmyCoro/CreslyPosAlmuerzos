@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="{% static 'CSS/pizzeria-mapa.css' %}?v=17">
 <link rel="stylesheet" href="{% static 'CSS/pizzeria-cobrar.css' %}">
 <link rel="stylesheet" href="{% static 'CSS/pizzeria-cart-bar.css' %}">
-<link rel="stylesheet" href="{% static 'CSS/pizzeria-cobrar-movil.css' %}?v=3">
+<link rel="stylesheet" href="{% static 'CSS/pizzeria-cobrar-movil.css' %}?v=4">
 {% endblock %}
 
 {% block content %}
@@ -115,6 +115,15 @@
   <div class="col-12 col-der">
   <div class="cbm-page">
 
+    {% if permite_adelantado %}
+    <button type="button" class="cbm-chip-adelantado" id="cbmChipAdelantado" hidden aria-label="Quitar cobro por adelantado">
+      <i class="bi bi-clock-history" aria-hidden="true"></i>
+      <span>Cobro por adelantado</span>
+      <span class="cbm-chip-adelantado-estado">activo</span>
+      <i class="bi bi-x-lg cbm-chip-adelantado-x" aria-hidden="true"></i>
+    </button>
+    {% endif %}
+
     <button type="button" class="cbm-detalle" id="cbmDetalleBtn" onclick="cbmToggleDetalle()">
       <div class="cbm-detalle-info">
         <span class="cbm-detalle-label">DETALLE</span>
@@ -125,6 +134,12 @@
     <div class="cbm-detalle-lista" id="cbmDetalleLista"></div>
 
     <div class="cbm-tarjeta">
+      {% if permite_adelantado %}
+      <div class="cbm-aviso-adelantado" id="cbmAvisoAdelantado" hidden>
+        <span class="cbm-aviso-adelantado-titulo"><i class="bi bi-clock-history" aria-hidden="true"></i>COBRO POR ADELANTADO</span>
+        <p>La orden queda pagada y sigue en curso. Solo se podrá cerrar cuando todo esté servido. Toca el chip de arriba para quitarlo.</p>
+      </div>
+      {% endif %}
       <div class="cbm-totales">
         <div class="cbm-total-fila"><span>Subtotal</span><span>${{ subtotal|floatformat:2 }}</span></div>
         <div class="cbm-total-fila"><span>IVA {{ iva_pct }}%</span><span>${{ iva|floatformat:2 }}</span></div>
@@ -154,6 +169,7 @@
         <span id="cbmBtnConfirmarTexto">Confirmar cobro</span>
       </button>
       <span class="cbm-linea-bloqueo" id="cbmLineaBloqueo" hidden></span>
+      <span class="cbm-linea-adelantado" id="cbmLineaAdelantado" hidden>La orden sigue en curso hasta servir todo</span>
     </div>
 
   </div>
@@ -182,7 +198,7 @@
 </script>
 <script src="{% static 'JS/pizzeria_cobrar_orden.js' %}?v=3"></script>
 <script src="{% static 'JS/pizzeria_hoja_acciones.js' %}?v=2"></script>
-<script src="{% static 'JS/pizzeria_cobrar_movil.js' %}?v=2"></script>
+<script src="{% static 'JS/pizzeria_cobrar_movil.js' %}?v=3"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     cbmInit({

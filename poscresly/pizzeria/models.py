@@ -214,6 +214,11 @@ class PedidoPizzeria(models.Model):
         settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='pedidos_pizzeria'
     )
     estado = models.CharField(max_length=20, choices=ESTADOS, default='abierto')
+    pagado_adelantado_en = models.DateTimeField(
+        null=True, blank=True,
+        help_text='Cuándo se cobró por adelantado. La orden sigue abierta (mesa ocupada, cocina '
+                  'en curso) hasta que se cierra con todo servido; entonces pasa a cobrado.',
+    )
     forma_pago = models.CharField(max_length=15, choices=FORMA_PAGO, blank=True, null=True)
     fecha_creacion = models.DateTimeField(default=timezone.now)
     numero_dia = models.PositiveIntegerField(default=1)
@@ -256,6 +261,11 @@ class PedidoPizzeria(models.Model):
     @property
     def numero_pedido_completo(self):
         return f"{self.numero_dia:03d}"
+
+    @property
+    def pagado_por_adelantado(self):
+        """Pagada pero todavía en curso: no admite más cobros ni cambios de precio."""
+        return self.estado == 'abierto' and self.pagado_adelantado_en is not None
 
     @property
     def resumen_forma_pago(self):
@@ -436,6 +446,16 @@ class AsignacionItemCobro(models.Model):
         return f"{self.persona} - {self.cantidad}x {linea}"
 
 
+class PagoPedidoQuerySet(models.QuerySet):
+    def contables(self):
+        """Pagos cuyo dinero ya entró a la caja: los de órdenes cobradas y los de
+        órdenes pagadas por adelantado que siguen en curso."""
+        return self.filter(
+            models.Q(pedido__estado='cobrado')
+            | models.Q(pedido__estado='abierto', pedido__pagado_adelantado_en__isnull=False)
+        )
+
+
 class PagoPedido(models.Model):
     """Una línea de pago (método + monto) contra un pedido, opcionalmente
     ligada a una PersonaCobro cuando la cuenta está dividida. Un pedido puede
@@ -453,6 +473,8 @@ class PagoPedido(models.Model):
     metodo = models.CharField(max_length=15, choices=METODOS)
     monto = models.DecimalField(max_digits=10, decimal_places=2)
     creado_en = models.DateTimeField(auto_now_add=True)
+
+    objects = PagoPedidoQuerySet.as_manager()
 
     class Meta:
         verbose_name = 'Pago de pedido'

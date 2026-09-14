@@ -1,0 +1,11 @@
+{% extends 'auth/_base_auth.html' %}
+
+{% block title %}Sin permiso{% endblock %}
+
+{% block content %}
+<span class="au-glifo" aria-hidden="true"><i class="bi bi-lock"></i></span>
+<h1 class="au-titulo">{{ mensaje }}</h1>
+<p class="au-texto">Ingresaste como <strong>{{ request.user.get_full_name|default:request.user.username }}</strong> ({{ rol_nombre }}). Si necesitas hacerlo, pídeselo a un administrador.</p>
+<a class="au-btn" href="/pizzeria/">Ir al inicio</a>
+<p class="au-pie"><a class="au-link" href="javascript:history.back()">Volver</a></p>
+{% endblock %}

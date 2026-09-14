@@ -261,6 +261,10 @@
   text-decoration: none;
 }
 .do-btn-cobrar:hover { color: #fff; background: var(--do-brand-dark); }
+/* Cerrar una orden pagada por adelantado: verde, porque ya no hay cobro. */
+.do-btn-cerrar { background: #1c7a4a; box-shadow: 0 8px 18px rgba(28, 122, 74, .26); }
+.do-btn-cerrar:hover { background: #166239; }
+.do-btn-cerrar:disabled { opacity: .6; }
 .do-btn-cobrar-disabled,
 .do-btn-cobrar-disabled:hover {
   background: var(--do-segmented-bg);

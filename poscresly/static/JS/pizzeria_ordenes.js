@@ -110,6 +110,7 @@
   }
 
   setInterval(refrescar, REFRESCO_MS);
+  document.addEventListener('pz:orden-cerrada', refrescar);
   document.addEventListener('visibilitychange', function () {
     if (!document.hidden) refrescar();
   });

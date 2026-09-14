@@ -1,0 +1,122 @@
+/* Configuración → Usuarios. Se apoya en pizzeria-caja.css (tokens --cj-*,
+   tarjetas, filas, campos y barra de acción); aquí solo lo propio. */
+
+.us-btn-nuevo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+}
+.us-btn-nuevo:hover { color: #fff; }
+
+.us-aviso {
+  margin: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 11px 13px;
+  border-radius: 12px;
+  background: #e8f5ec;
+  color: #0f6b34;
+  font-size: 13px;
+  font-weight: 700;
+}
+.us-aviso i { margin-top: 1px; }
+.us-aviso-error { background: #fdecee; color: #a50d26; }
+
+.us-avatar {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #eef0f3;
+  color: #4a545f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 800;
+}
+.us-avatar-admin { background: #14181d; color: #fff; }
+.us-inactivo .us-avatar, .us-inactivo .cj-fila-titulo { opacity: .5; }
+.us-tag {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: #eef0f3;
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #4a545f;
+  vertical-align: 1px;
+}
+
+.us-guia { margin: 4px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 5px; }
+.us-guia li { font-size: 12px; font-weight: 600; color: var(--cj-muted); line-height: 1.45; }
+
+.us-campo { display: flex; flex-direction: column; gap: 6px; }
+.us-campo .cj-campo-label { margin-top: 0; }
+.us-input-error { border-color: var(--cj-brand); }
+.us-error { margin: 0; font-size: 12px; font-weight: 700; color: var(--cj-brand); }
+.us-ayuda { margin: 0; font-size: 11.5px; font-weight: 600; color: var(--cj-muted); line-height: 1.4; }
+
+.us-roles { display: flex; flex-direction: column; gap: 8px; }
+.us-rol, .us-switch {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+.us-rol {
+  padding: 12px 13px;
+  border: 1.5px solid var(--cj-border-input);
+  border-radius: 13px;
+}
+.us-rol:has(input:checked) { border-color: var(--cj-ink); background: var(--cj-surface-2); }
+.us-rol input { width: 18px; height: 18px; flex-shrink: 0; accent-color: #14181d; margin: 0; }
+.us-rol-texto, .us-switch-texto { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.us-rol-nombre { font-size: 13.5px; font-weight: 800; color: var(--cj-ink); }
+.us-rol-desc { font-size: 11.5px; font-weight: 600; color: var(--cj-muted); line-height: 1.4; }
+
+.us-switch input {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 46px;
+  height: 28px;
+  flex-shrink: 0;
+  margin: 0;
+  border-radius: 999px;
+  background: #d6dae0;
+  position: relative;
+  cursor: pointer;
+  transition: background .15s ease;
+}
+.us-switch input::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .2);
+  transition: transform .15s ease;
+}
+.us-switch input:checked { background: #0f8a43; }
+.us-switch input:checked::after { transform: translateX(18px); }
+.us-switch input:focus-visible, .us-rol input:focus-visible { outline: 2px solid var(--cj-ink); outline-offset: 2px; }
+
+.us-link-fila {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 40px;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--cj-ink);
+  text-decoration: none;
+}
+.us-link-fila:hover { color: var(--cj-ink); }
+.us-link-fila i { color: var(--cj-dim); }

@@ -8,18 +8,22 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#f4f5f7">
   <title>{% block title %}Inicio · Cresly POS{% endblock %}</title>
+  <script src="{% static 'JS/ultima_pantalla.js' %}"></script>
 
+  <link rel="icon" href="{% static 'icons/icon-192.png' %}">
+  <link rel="apple-touch-icon" href="{% static 'icons/icon-192.png' %}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link rel="stylesheet" href="{% static 'CSS/base.css' %}?v=5">
+  <link rel="stylesheet" href="{% static 'CSS/base.css' %}?v=7">
   <link rel="stylesheet" href="{% static 'CSS/inicio-movil.css' %}?v=4">
-  <link rel="stylesheet" href="{% static 'CSS/barras.css' %}?v=7">
+  <link rel="stylesheet" href="{% static 'CSS/barras.css' %}?v=9">
   <link rel="stylesheet" href="{% static 'CSS/pizzeria-bottom-nav.css' %}?v=5">
   {% block extra_css %}{% endblock %}
+  <script src="{% static 'JS/sesion.js' %}"></script>
 </head>
 <body class="im-body{% block body_class %}{% endblock %}">
   <!-- Mismo sidebar que el resto de la app (components/navbar.html), no

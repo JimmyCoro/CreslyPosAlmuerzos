@@ -243,6 +243,50 @@
 .or-sub-rojo { font-weight: 800; color: var(--or-brand); }
 .or-sub-tenue { font-weight: 700; color: var(--or-faint); }
 
+/* Pagada por adelantado: azul (como el modo en Cobrar) y no verde, para que
+   no se confunda con el verde de "todo servido". */
+.or-card-titulo-fila { display: flex; align-items: center; gap: 7px; min-width: 0; }
+/* El título manda: si no cabe todo, se recorta la etiqueta y no "Mesa 2 · #002". */
+.or-card-titulo-fila .or-card-titulo { flex: 0 0 auto; max-width: 100%; }
+.or-card-pagado {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: #e8f1fb;
+  color: #1d5c9e;
+  /* En minúsculas cabe entero junto a "Mesa 12 · #003" en un celular de 390 px. */
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: -.005em;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+.or-card-monto-pagado { color: var(--or-muted); }
+.or-card-metodo { font-size: 11px; font-weight: 700; color: var(--or-green-text); white-space: nowrap; }
+
+.or-card-cerrar-fila { display: flex; justify-content: flex-end; padding: 0 14px 12px; }
+.or-card-cerrar {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 11px;
+  background: var(--or-brand);
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  touch-action: manipulation;
+}
+.or-card-cerrar:active { filter: brightness(.92); }
+.or-card-cerrar:disabled { opacity: .6; }
+.or-card-cerrar:focus-visible { outline: 2px solid var(--or-brand); outline-offset: 2px; }
+
 .or-card-der { flex: 0 0 auto; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
 .or-card-monto { font-size: 17px; font-weight: 800; letter-spacing: -.025em; line-height: 1.2; }
 .or-card-estado { font-size: 10.5px; font-weight: 800; letter-spacing: .06em; color: var(--or-tono-text); white-space: nowrap; }
@@ -268,27 +312,24 @@
 .or-lineas { padding: 10px 6px 10px 52px; display: flex; flex-direction: column; gap: 9px; }
 .or-bloque { display: flex; flex-direction: column; gap: 6px; }
 .or-combo { font-size: 12.5px; font-weight: 800; letter-spacing: -.01em; }
-.or-linea { display: flex; align-items: center; gap: 9px; min-width: 0; }
-.or-barra { width: 3px; height: 15px; border-radius: 2px; background: var(--or-faint-2); flex: 0 0 auto; }
+/* Sin etiqueta de estado (lo dice la barra): el texto usa todo el ancho y
+   baja de línea en vez de cortarse, para leer sabores y temperatura completos. */
+.or-linea { display: flex; align-items: stretch; gap: 9px; min-width: 0; }
+.or-barra { width: 3px; min-height: 15px; border-radius: 2px; background: var(--or-faint-2); flex: 0 0 auto; }
 .or-linea-texto {
   flex: 1;
   min-width: 0;
   font-size: 12.5px;
   font-weight: 700;
   letter-spacing: -.01em;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
 }
 .or-linea-mods { font-weight: 600; color: var(--or-muted); }
-.or-linea-estado { font-size: 10.5px; font-weight: 800; letter-spacing: .06em; flex: 0 0 auto; }
 
 .or-linea-pendiente .or-barra { background: var(--or-brand); }
-.or-linea-pendiente .or-linea-estado { color: var(--or-brand); }
 .or-linea-cocina .or-barra { background: var(--or-amber); }
-.or-linea-cocina .or-linea-estado { color: var(--or-amber-text); }
 .or-linea-servido .or-barra { background: var(--or-green); }
-.or-linea-servido .or-linea-estado { color: var(--or-green-text); }
 
 .or-lineas-vacio { display: block; font-size: 12px; font-weight: 600; color: var(--or-muted); }
 

@@ -3,7 +3,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'CSS/pizzeria-cart-bar.css' %}">
-<link rel="stylesheet" href="{% static 'CSS/pizzeria-detalle-orden.css' %}?v=5">
+<link rel="stylesheet" href="{% static 'CSS/pizzeria-detalle-orden.css' %}?v=6">
 {% endblock %}
 
 {% block content %}
@@ -99,7 +99,20 @@
   </div>
 </div>
 
-{% if pedido.estado == 'abierto' %}
+{% if pedido.pagado_por_adelantado %}
+{% comment %}Ya pagada: no se agregan platillos ni se cobra otra vez; solo se cierra con todo servido.{% endcomment %}
+<div class="do-barra-acciones" id="diBarraAcciones">
+  {% if servidos == total_items_cocina %}
+  <button type="button" class="do-btn-cobrar do-btn-cerrar" data-cerrar-orden="{% url 'pizzeria_cerrar_orden_adelantada' pedido.id %}">
+    <i class="bi bi-check2-circle"></i><span>Cerrar orden · pagada por adelantado</span>
+  </button>
+  {% else %}
+  <span class="do-btn-cobrar do-btn-cobrar-disabled">
+    <i class="bi bi-check2-circle"></i><span>Pagada · falta servir {{ faltan_servir }}</span>
+  </span>
+  {% endif %}
+</div>
+{% elif pedido.estado == 'abierto' %}
 <div class="do-barra-acciones" id="diBarraAcciones">
   <a href="{% url 'pizzeria_nueva_orden' %}?pedido_id={{ pedido.id }}" class="do-btn-agregar" aria-label="Agregar platillos">
     <i class="bi bi-plus-lg"></i>
@@ -150,4 +163,5 @@
 <script src="{% static 'JS/pizzeria_cart_bar.js' %}"></script>
 <script src="{% static 'JS/pizzeria_detalle_orden.js' %}?v=3"></script>
 <script src="{% static 'JS/pizzeria_hoja_acciones.js' %}?v=2"></script>
+<script src="{% static 'JS/pizzeria_cerrar_orden.js' %}"></script>
 {% endblock %}

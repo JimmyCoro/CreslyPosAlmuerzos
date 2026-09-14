@@ -1,9 +1,10 @@
 {% comment %}
 Fila de movimiento (handoff_caja §4.4). Si se puede anular, la fila entera abre
 la hoja ⋯ del movimiento; los textos de la hoja ya vienen armados de la vista.
+Anular es solo de administradores: para un empleado la fila es de lectura.
 {% endcomment %}
 <li>
-  {% if fila.id and not fila.anulado %}
+  {% if fila.id and not fila.anulado and es_admin %}
   <button type="button" class="cj-mov cj-mov-{{ fila.tipo }} cj-mov-accion"
           data-cj-mov="{{ fila.id }}"
           data-titulo="{{ fila.titulo }}"
@@ -27,7 +28,7 @@ la hoja ⋯ del movimiento; los textos de la hoja ya vienen armados de la vista.
       <span class="cj-mov-monto">{{ fila.monto }}</span>
       <span class="cj-mov-saldo">{{ fila.saldo }}</span>
     </span>
-  {% if fila.id and not fila.anulado %}
+  {% if fila.id and not fila.anulado and es_admin %}
     <i class="bi bi-three-dots cj-mov-mas" aria-hidden="true"></i>
   </button>
   {% else %}

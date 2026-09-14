@@ -1,0 +1,86 @@
+{% extends 'movil/base_movil.html' %}
+{% load static %}
+
+{% block title %}{% if modo == 'crear' %}Nuevo usuario{% else %}Editar usuario{% endif %} · Cresly POS{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'CSS/pizzeria-caja.css' %}?v=2">
+<link rel="stylesheet" href="{% static 'CSS/usuarios.css' %}?v=1">
+{% endblock %}
+
+{% block content %}
+<form method="post" class="im-shell cj" novalidate>
+  {% csrf_token %}
+  {% include 'components/pizzeria_header.html' %}
+  {% include 'components/pizzeria_subheader.html' %}
+
+  <main class="cj-content cj-content-barra">
+    {% if form.non_field_errors %}
+    <p class="us-aviso us-aviso-error" role="alert"><i class="bi bi-exclamation-circle" aria-hidden="true"></i>{{ form.non_field_errors|first }}</p>
+    {% endif %}
+
+    <section class="cj-card">
+      <span class="cj-label">DATOS</span>
+      {% include 'configuracion/_campo.html' with campo=form.first_name %}
+      {% include 'configuracion/_campo.html' with campo=form.last_name %}
+      {% if modo == 'crear' %}
+      {% include 'configuracion/_campo.html' with campo=form.username autocap='none' %}
+      {% endif %}
+    </section>
+
+    {% if form.rol %}
+    <section class="cj-card">
+      <span class="cj-label" id="usRolLabel">ROL</span>
+      <div class="us-roles" role="radiogroup" aria-labelledby="usRolLabel">
+        {% for opcion in form.rol %}
+        <label class="us-rol">
+          {{ opcion.tag }}
+          <span class="us-rol-texto">
+            <span class="us-rol-nombre">{{ opcion.choice_label }}</span>
+            <span class="us-rol-desc">{% if opcion.data.value == 'Administrador' %}Todo, incluido cerrar caja, anular movimientos, mesas, menú y usuarios.{% else %}Toma pedidos, cobra, abre caja y registra retiros y gastos.{% endif %}</span>
+          </span>
+        </label>
+        {% endfor %}
+      </div>
+      {% for e in form.rol.errors %}<p class="us-error">{{ e }}</p>{% endfor %}
+    </section>
+    {% elif usuario.is_superuser %}
+    <section class="cj-card cj-card-suave">
+      <span class="cj-contexto-titulo">Superusuario</span>
+      <p class="cj-contexto">Esta es la cuenta principal del sistema: siempre es administrador.</p>
+    </section>
+    {% endif %}
+
+    {% if modo == 'crear' %}
+    <section class="cj-card">
+      <span class="cj-label">ACCESO</span>
+      {% include 'configuracion/_campo.html' with campo=form.password autocap='none' %}
+    </section>
+    {% else %}
+    <section class="cj-card">
+      <span class="cj-label">ACCESO</span>
+      <label class="us-switch">
+        <span class="us-switch-texto">
+          <span class="us-rol-nombre">Cuenta activa</span>
+          <span class="us-rol-desc">Si la desactivas, no podrá ingresar. Su historial se conserva.</span>
+        </span>
+        <input type="checkbox" name="{{ form.is_active.html_name }}" id="{{ form.is_active.id_for_label }}" role="switch"
+               {% if form.is_active.value %}checked{% endif %}>
+      </label>
+      {% for e in form.is_active.errors %}<p class="us-error">{{ e }}</p>{% endfor %}
+      <div class="cj-sep"></div>
+      {% if usuario.pk == request.user.pk %}
+      <a href="{% url 'cambiar_password' %}" class="us-link-fila">Cambiar mi contraseña <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
+      {% else %}
+      <a href="{% url 'usuario_password' usuario.pk %}" class="us-link-fila">Restablecer contraseña <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
+      {% endif %}
+      <p class="us-ayuda">Usuario: <strong>{{ usuario.username }}</strong>{% if usuario.last_login %} · último ingreso {{ usuario.last_login|date:"d/m/Y H:i" }}{% endif %}</p>
+    </section>
+    {% endif %}
+  </main>
+
+  <div class="cj-barra-accion">
+    <button type="submit" class="cj-btn-primario">{% if modo == 'crear' %}Crear usuario{% else %}Guardar cambios{% endif %}</button>
+  </div>
+</form>
+{% endblock %}

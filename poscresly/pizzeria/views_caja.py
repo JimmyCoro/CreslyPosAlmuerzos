@@ -14,6 +14,8 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 
+from inicio.permisos import rol_de, solo_admin
+
 from .models import (
     CajaPizzeria,
     CajaPizzeriaEfectivo,
@@ -118,7 +120,7 @@ def _fondo_inicial(caja):
 
 
 def _resumen_turno(caja):
-    pagos = PagoPedido.objects.filter(pedido__estado='cobrado', creado_en__gte=caja.fecha_apertura)
+    pagos = PagoPedido.objects.contables().filter(creado_en__gte=caja.fecha_apertura)
     if caja.fecha_cierre:
         pagos = pagos.filter(creado_en__lte=caja.fecha_cierre)
     por_metodo = {row['metodo']: row['total'] for row in pagos.values('metodo').annotate(total=Sum('monto'))}
@@ -392,7 +394,7 @@ def abrir_caja(request):
         'error': error,
         'anterior': contexto_anterior,
         'cajero_nombre': _nombre_completo(request.user),
-        'cajero_rol': 'Administrador' if request.user.is_superuser else 'Cajero',
+        'cajero_rol': rol_de(request.user),
         'turno_texto': f'{_fecha_corta(ahora)} · {_hora(ahora)}',
         'subheader': _subheader(
             'Abrir caja', sub_hi='Falta el fondo inicial', tono='rojo', sub_post=' para empezar a cobrar',
@@ -518,6 +520,7 @@ def _desglose_cajon(turno):
 
 
 @login_required(login_url=LOGIN_URL)
+@solo_admin
 def cerrar_caja(request):
     caja = _caja_abierta()
     if caja is None:
@@ -684,6 +687,7 @@ def registrar_movimiento(request):
 
 
 @login_required(login_url=LOGIN_URL)
+@solo_admin
 @require_http_methods(['POST'])
 def registrar_cierre(request):
     """Arqueo final. Diferencia = contado − esperado; si no cuadra, se exige motivo."""
@@ -733,6 +737,7 @@ def registrar_cierre(request):
 
 
 @login_required(login_url=LOGIN_URL)
+@solo_admin
 @require_http_methods(['POST'])
 def anular_movimiento(request, movimiento_id):
     data = _leer_json(request)

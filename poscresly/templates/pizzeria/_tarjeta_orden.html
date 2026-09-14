@@ -8,15 +8,20 @@
   <button type="button" class="or-card-cabecera" aria-expanded="false" aria-controls="orDetalle{{ pedido.id }}">
     <span class="or-glifo" aria-hidden="true"><i class="bi {{ tarjeta.glifo }}"></i></span>
     <span class="or-card-main">
-      <span class="or-card-titulo">{{ tarjeta.titulo }}</span>
+      <span class="or-card-titulo-fila">
+        <span class="or-card-titulo">{{ tarjeta.titulo }}</span>
+        {% if tarjeta.adelantado %}<span class="or-card-pagado">Pagado por adelantado</span>{% endif %}
+      </span>
       {% for dato in tarjeta.cliente %}
       <span class="or-card-cliente{% if dato.tenue %} or-card-cliente-tenue{% endif %}"><i class="bi {{ dato.icono }}" aria-hidden="true"></i><span>{{ dato.texto }}</span></span>
       {% endfor %}
       <span class="or-card-sub">{% for segmento in tarjeta.resumen %}<span>{{ segmento.sep }}</span><span{% if segmento.tono %} class="or-sub-{{ segmento.tono }}"{% endif %}>{{ segmento.texto }}</span>{% endfor %}</span>
     </span>
     <span class="or-card-der">
-      <span class="or-card-monto">${{ pedido.total|floatformat:2 }}</span>
-      <span class="or-card-estado{% if tarjeta.derecha_tiempo %} or-card-tiempo{% endif %}">{{ tarjeta.derecha }}</span>
+      {% comment %}Ya pagada: el monto pasa a gris y debajo va con qué se pagó.{% endcomment %}
+      <span class="or-card-monto{% if tarjeta.adelantado %} or-card-monto-pagado{% endif %}">${{ pedido.total|floatformat:2 }}</span>
+      {% if tarjeta.metodo_pago %}<span class="or-card-metodo">{{ tarjeta.metodo_pago }}</span>{% endif %}
+      {% if tarjeta.derecha %}<span class="or-card-estado{% if tarjeta.derecha_tiempo %} or-card-tiempo{% endif %}">{{ tarjeta.derecha }}</span>{% endif %}
     </span>
   </button>
 
@@ -29,8 +34,8 @@
           {% for item in bloque.items %}
           <span class="or-linea or-linea-{{ item.estado }}">
             <span class="or-barra" aria-hidden="true"></span>
-            <span class="or-linea-texto">{{ item.cantidad }} · {{ item.nombre_corto }}{% if item.modificadores %}<span class="or-linea-mods"> · {{ item.modificadores }}</span>{% endif %}</span>
-            <span class="or-linea-estado">{{ item.get_estado_display|upper }}</span>
+            {% comment %}El estado lo da la barra de color; el texto oculto es para lectores de pantalla.{% endcomment %}
+            <span class="or-linea-texto">{{ item.cantidad }} · {{ item.nombre_corto }}{% if item.modificadores %}<span class="or-linea-mods"> · {{ item.modificadores }}</span>{% endif %}<span class="visually-hidden">, {{ item.get_estado_display|lower }}</span></span>
           </span>
           {% endfor %}
         </span>
@@ -39,6 +44,14 @@
         {% endfor %}
       </span>
     </a>
+    {% if tarjeta.cerrar_url %}
+    {% comment %}Solo al desplegar: cerrar es el último paso, después de revisar lo servido.{% endcomment %}
+    <div class="or-card-cerrar-fila">
+      <button type="button" class="or-card-cerrar" data-cerrar-orden="{{ tarjeta.cerrar_url }}">
+        <i class="bi bi-check-lg" aria-hidden="true"></i>Cerrar orden
+      </button>
+    </div>
+    {% endif %}
   </div>
 </article>
 {% endwith %}

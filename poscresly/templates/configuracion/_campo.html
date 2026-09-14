@@ -1,0 +1,10 @@
+{% comment %}Campo de texto con el look de caja. Recibe `campo` (BoundField) y opcional `tipo`.{% endcomment %}
+<div class="us-campo">
+  <label class="cj-campo-label" for="{{ campo.id_for_label }}">{{ campo.label }}</label>
+  <input class="cj-input{% if campo.errors %} us-input-error{% endif %}" type="{{ tipo|default:'text' }}"
+         id="{{ campo.id_for_label }}" name="{{ campo.html_name }}" value="{{ campo.value|default_if_none:'' }}"
+         {% if campo.field.required %}required{% endif %} autocomplete="off" autocapitalize="{{ autocap|default:'words' }}" spellcheck="false"
+         {% if campo.help_text %}aria-describedby="{{ campo.id_for_label }}_ayuda"{% endif %}>
+  {% for e in campo.errors %}<p class="us-error">{{ e }}</p>{% endfor %}
+  {% if campo.help_text %}<p class="us-ayuda" id="{{ campo.id_for_label }}_ayuda">{{ campo.help_text }}</p>{% endif %}
+</div>

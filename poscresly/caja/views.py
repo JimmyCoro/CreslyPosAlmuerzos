@@ -10,6 +10,7 @@ from pedidos.models import Pedido
 from pedidos.views import obtener_productos_pedido
 from menu.models import MenuDia
 from collections import defaultdict
+from inicio.permisos import solo_admin
 
 def dashboard_caja(request):
     """Vista principal de caja - Dashboard"""
@@ -259,6 +260,7 @@ def abrir_caja(request):
         })
 
 @csrf_exempt
+@solo_admin
 @require_http_methods(["POST"])
 def cerrar_caja(request):
     """Cerrar caja del día"""

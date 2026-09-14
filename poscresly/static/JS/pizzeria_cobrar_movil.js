@@ -221,7 +221,7 @@
       elBtn.classList.toggle('cbm-btn-confirmar-on', r.ok);
       elBtn.classList.toggle('cbm-btn-confirmar-off', !r.ok);
       elBtnTexto.innerHTML = r.ok
-        ? `<i class="bi bi-check-lg"></i> ${cfg.textoConfirmar || 'Confirmar cobro'} · $${fmt(cfg.objetivo)}`
+        ? `<i class="bi ${cfg.iconoConfirmar || 'bi-check-lg'}"></i> ${cfg.textoConfirmar || 'Confirmar cobro'} · $${fmt(cfg.objetivo)}`
         : (cfg.textoConfirmar || 'Confirmar cobro');
       elLineaBloqueo.hidden = r.ok;
       elLineaBloqueo.textContent = r.motivo;
@@ -279,12 +279,57 @@
         <span class="cbm-detalle-item-precio">$${fmt(item.precio_unitario * item.cantidad)}</span>
       </div>`).join('');
 
-    widgetPedido = crearWidget({
+    // El widget lee textoConfirmar/iconoConfirmar en cada repintado, así que
+    // basta con cambiarlos aquí y pedirle que se actualice.
+    const cfgWidget = {
       objetivo: config.objetivo,
       textoConfirmar: 'Confirmar cobro',
       idSubLinea: 'cbmSubLinea',
-      subLineaBase: document.getElementById('cbmSubLinea') ? document.getElementById('cbmSubLinea').textContent.trim() : '',
+      subLineaBase: document.getElementById('cbmSubLinea') ? document.getElementById('cbmSubLinea').innerHTML.trim() : '',
+    };
+    widgetPedido = crearWidget(cfgWidget);
+
+    // ===== Cobro por adelantado =====
+    // Se activa con el ícono del subheader y se quita con ese mismo ícono o
+    // con el chip. Solo existe si la orden tiene algo por servir (vista).
+    let adelantado = false;
+    const btnAdelantado = document.getElementById('cbmBtnAdelantado');
+    const chipAdelantado = document.getElementById('cbmChipAdelantado');
+    const avisoAdelantado = document.getElementById('cbmAvisoAdelantado');
+    const lineaAdelantado = document.getElementById('cbmLineaAdelantado');
+
+    function pintarAdelantado() {
+      if (btnAdelantado) {
+        btnAdelantado.setAttribute('aria-pressed', String(adelantado));
+        btnAdelantado.setAttribute('aria-label', adelantado ? 'Quitar cobro por adelantado' : 'Cobro por adelantado');
+      }
+      if (chipAdelantado) chipAdelantado.hidden = !adelantado;
+      if (avisoAdelantado) avisoAdelantado.hidden = !adelantado;
+      cfgWidget.textoConfirmar = adelantado ? 'Cobrar por adelantado' : 'Confirmar cobro';
+      cfgWidget.iconoConfirmar = adelantado ? 'bi-clock-history' : null;
+      const r = widgetPedido.puedeConfirmar();
+      // La nota va en el mismo sitio que el motivo de bloqueo: solo una a la vez.
+      if (lineaAdelantado) lineaAdelantado.hidden = !(adelantado && r.ok);
+    }
+
+    if (btnAdelantado) {
+      btnAdelantado.addEventListener('click', function () { adelantado = !adelantado; pintarAdelantado(); });
+      pintarAdelantado();
+    }
+    if (chipAdelantado) {
+      chipAdelantado.addEventListener('click', function () {
+        adelantado = false;
+        pintarAdelantado();
+        if (btnAdelantado) btnAdelantado.focus();
+      });
+    }
+    // Los cambios de método o monto repintan el botón; la nota de adelantado
+    // debe seguirle el paso.
+    document.getElementById('cbmMetodos').addEventListener('click', function () { setTimeout(pintarAdelantado, 0); });
+    document.getElementById('cbmBloqueMetodo').addEventListener('input', function () {
+      if (lineaAdelantado) lineaAdelantado.hidden = !(adelantado && !document.getElementById('cbmBtnConfirmar').disabled);
     });
+    document.getElementById('cbmBloqueMetodo').addEventListener('click', function () { setTimeout(pintarAdelantado, 0); });
 
     window.cbmConfirmarCobro = function () {
       const r = widgetPedido.puedeConfirmar();
@@ -294,7 +339,7 @@
       fetch(config.urlProcesar, {
         method: 'POST',
         headers: { 'X-CSRFToken': window.CSRF_TOKEN, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ dividir: false, pagos: widgetPedido.obtenerPagos() }),
+        body: JSON.stringify({ dividir: false, adelantado: adelantado, pagos: widgetPedido.obtenerPagos() }),
       })
         .then((r) => r.json())
         .then((data) => {

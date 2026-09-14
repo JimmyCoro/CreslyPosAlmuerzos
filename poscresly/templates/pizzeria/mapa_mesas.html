@@ -28,9 +28,11 @@
           <h1 class="pzm-title">Mapa de mesas · Pizzería</h1>
           <p class="pzm-subtitle">Toca una mesa libre para tomar un pedido, u ocupada para ver su cuenta.</p>
         </div>
+        {% if es_admin %}
         <div class="pzm-actions">
           <a href="{% url 'pizzeria_gestionar_mesas' %}" class="pzm-btn pzm-btn-outline"><i class="fas fa-sliders"></i>Gestionar mesas</a>
         </div>
+        {% endif %}
       </div>
 
       <div class="pzm-search" id="pzmBuscarCaja" hidden>
@@ -67,7 +69,7 @@
           </div>
           {% empty %}
           <div class="pzm-empty-zone">
-            No hay mesas configuradas todavía. <a href="{% url 'pizzeria_gestionar_mesas' %}">Créalas desde Gestionar mesas</a>.
+            No hay mesas configuradas todavía.{% if es_admin %} <a href="{% url 'pizzeria_gestionar_mesas' %}">Créalas desde Gestionar mesas</a>.{% else %} Pide a un administrador que las cree.{% endif %}
           </div>
           {% endfor %}
         </div>

@@ -32,7 +32,7 @@
           &nbsp;·&nbsp; Monto inicial ${{ monto_inicial_efectivo|floatformat:2 }}
         </span>
       </div>
-      <button class="btn btn-cerrar-caja" onclick="pzCajaCerrar()">Cerrar caja</button>
+      {% if es_admin %}<button class="btn btn-cerrar-caja" onclick="pzCajaCerrar()">Cerrar caja</button>{% endif %}
     </div>
     {% else %}
     <div class="caja-banner caja-banner-cerrada">

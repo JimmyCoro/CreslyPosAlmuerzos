@@ -76,6 +76,14 @@ Railway ejecuta `collectstatic` en el build y luego `start.sh`, que corre `migra
 - `MenuDia` + `MenuDiaSopa / MenuDiaSegundo / MenuDiaJugo` — menú del día con control de cantidades disponibles
 - `Plato` — catálogo de platos (sopas, segundos, jugos, postres, extras)
 
+### Usuarios, roles y login
+
+- **Toda la app pide sesión**: `inicio/middleware.py::LoginObligatorioMiddleware`. Solo quedan abiertos `/login/`, `/logout/`, `/static/` y `/admin/`. Sin sesión, las navegaciones van a `/login/?next=` y los fetch reciben un `401 {login_url}`, que `static/JS/sesion.js` convierte en una redirección.
+- **Roles**: dos grupos de Django, `Administrador` y `Empleado` (creados por la migración `inicio/0002`). Un superusuario cuenta como admin. Se consultan con `inicio/permisos.py` (`es_admin`, `@solo_admin`) y en plantillas con `{% if es_admin %}` (context processor `rol_usuario`).
+- **Solo admin**: cerrar turno de caja, anular movimientos, gestionar mesas, configurar o publicar el menú y la sección `/configuracion/usuarios/`. Al proteger una vista nueva, oculta también su botón en la plantilla.
+- **Cuentas**: el admin crea usuarios con una contraseña temporal (`PerfilUsuario.debe_cambiar_password`), y el empleado la cambia en su primer ingreso. Las cuentas se desactivan, nunca se borran.
+- No meter un `<form>` dentro de `components/pizzeria_header.html`: varias pantallas lo incluyen dentro de su propio `<form>`.
+
 ### WebSockets
 
 Dos consumers en `pedidos/consumers.py`:

@@ -73,6 +73,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'inicio.middleware.LoginObligatorioMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -91,6 +92,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'pizzeria.context_processors.bottom_nav',
+                'inicio.permisos.rol_usuario',
             ],
         },
     },
@@ -186,6 +188,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Configuración de sesiones
 SESSION_ENGINE = os.getenv('DJANGO_SESSION_ENGINE', 'django.contrib.sessions.backends.cached_db')
 SESSION_COOKIE_AGE = 86400  # 24 horas en segundos
+
+# Toda la app pide sesión (inicio.middleware.LoginObligatorioMiddleware).
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = '/pizzeria/'
 
 # Configuración de Django Channels
 REDIS_URL = os.getenv('REDIS_URL')

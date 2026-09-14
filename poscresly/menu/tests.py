@@ -1,11 +1,14 @@
 import json
 from datetime import date, timedelta
 
+from django.contrib.auth import get_user_model
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from . import servicio
 from .models import MenuDia, MenuDiaJugo, MenuDiaSegundo, MenuDiaSopa, Plato
+
+User = get_user_model()
 
 
 @override_settings(STORAGES={
@@ -14,7 +17,8 @@ from .models import MenuDia, MenuDiaJugo, MenuDiaSegundo, MenuDiaSopa, Plato
 })
 class MenuDelDiaTests(TestCase):
     def setUp(self):
-        self.sopas = [Plato.objects.create(nombre_plato=n, tipo='sopa') for n in ('Crema de zapallo', 'Sancocho')]
+        self.client.force_login(User.objects.create_superuser('admin', password='x'))
+        self.sopas =[Plato.objects.create(nombre_plato=n, tipo='sopa') for n in ('Crema de zapallo', 'Sancocho')]
         self.segundos = [Plato.objects.create(nombre_plato=n, tipo='segundo')
                          for n in ('Pollo al horno', 'Seco de carne', 'Tallarín')]
         self.jugo = Plato.objects.create(nombre_plato='Maracuyá', tipo='jugo')

@@ -6,6 +6,8 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.views.decorators.http import require_GET, require_POST
 
+from inicio.permisos import es_admin, solo_admin
+
 from . import servicio
 
 
@@ -33,11 +35,12 @@ def menu_dia(request):
             'url': reverse('menu_configurar'),
             'glifo': 'bi-three-dots',
             'label': 'Cambiar el menú',
-        }],
+        }] if es_admin(request.user) else [],
     }
     return render(request, 'almuerzos/menu.html', {'menu': menu, 'subheader': subheader})
 
 
+@solo_admin
 @require_GET
 def configurar_menu(request):
     """1C — pantalla completa. Las ranuras se arman en el navegador a partir
@@ -74,6 +77,7 @@ def _json(request):
         return None
 
 
+@solo_admin
 @require_POST
 def publicar_menu(request):
     datos = _json(request)
@@ -86,6 +90,7 @@ def publicar_menu(request):
     return JsonResponse({'ok': True, 'url': reverse('menu')})
 
 
+@solo_admin
 @require_POST
 def crear_plato(request):
     datos = _json(request)

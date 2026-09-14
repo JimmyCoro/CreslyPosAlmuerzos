@@ -1,0 +1,113 @@
+/* Login, cambio de contraseña y "sin permiso": una tarjeta centrada con la
+   misma tipografía y grises que el resto de la app (barras.css / caja). */
+*, *::before, *::after { box-sizing: border-box; }
+
+.au-body {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  background: #f4f5f7;
+  color: #14181d;
+  font-family: 'Plus Jakarta Sans', Helvetica, Arial, sans-serif;
+}
+
+.au-card {
+  width: 100%;
+  max-width: 400px;
+  background: #fff;
+  border: 1px solid #e6e8ec;
+  border-radius: 20px;
+  padding: 26px 22px 22px;
+  box-shadow: 0 18px 40px rgba(20, 24, 29, .07);
+}
+
+/* Logo completo centrado; el alto queda reservado por width/height del <img>. */
+.au-marca {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eef0f3;
+}
+.au-logo { display: block; width: 100%; max-width: 290px; height: auto; }
+.au-marca-sub { font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: #8a929c; }
+
+.au-glifo {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  background: #f4f5f7;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; color: #5b6673;
+  margin-bottom: 12px;
+}
+
+.au-titulo { margin: 0 0 6px; font-size: 20px; font-weight: 800; letter-spacing: -.01em; }
+.au-texto { margin: 0 0 18px; font-size: 13.5px; font-weight: 500; line-height: 1.5; color: #4a545f; }
+
+.au-error {
+  display: flex; align-items: flex-start; gap: 8px;
+  margin: 0 0 16px;
+  padding: 10px 12px;
+  border-radius: 11px;
+  background: #fdecee;
+  color: #a50d26;
+  font-size: 13px; font-weight: 700;
+}
+.au-error i { margin-top: 1px; }
+
+.au-form { display: flex; flex-direction: column; }
+.au-label { font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #6b7480; margin: 0 0 6px; }
+.au-input {
+  width: 100%;
+  min-height: 48px;
+  border: 1.5px solid #d6dae0;
+  border-radius: 12px;
+  padding: 0 14px;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  color: #14181d;
+  background: #fff;
+  margin-bottom: 14px;
+}
+.au-input:focus { outline: none; border-color: #14181d; }
+.au-input-error { border-color: #c8102e; }
+.au-campo-error { margin: -8px 0 10px; font-size: 12px; font-weight: 700; color: #c8102e; }
+.au-ayuda { margin: -8px 0 14px; font-size: 11.5px; font-weight: 600; color: #6b7480; }
+
+.au-pass { position: relative; }
+.au-pass .au-input { padding-right: 48px; }
+.au-ver {
+  position: absolute; top: 0; right: 0;
+  width: 48px; height: 48px;
+  border: 0; background: none;
+  color: #6b7480; font-size: 17px;
+  cursor: pointer;
+}
+
+.au-btn {
+  width: 100%;
+  min-height: 52px;
+  margin-top: 6px;
+  border: 0;
+  border-radius: 14px;
+  background: #c8102e;
+  color: #fff;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 800;
+  text-decoration: none;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+}
+.au-btn:active { background: #a50d26; }
+.au-btn:focus-visible, .au-ver:focus-visible, .au-link:focus-visible { outline: 2px solid #14181d; outline-offset: 2px; }
+
+.au-pie { margin: 16px 0 0; text-align: center; font-size: 12px; font-weight: 600; color: #6b7480; }
+.au-link { background: none; border: 0; padding: 0; font: inherit; color: #4a545f; font-weight: 700; text-decoration: underline; cursor: pointer; }

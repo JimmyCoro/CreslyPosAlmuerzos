@@ -5,6 +5,10 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 
 class MesasConsumer(AsyncWebsocketConsumer):
     async def connect(self):
+        user = self.scope.get("user")
+        if user is None or not user.is_authenticated:
+            await self.close(code=4003)
+            return
         await self.accept()
         await self.channel_layer.group_add("pizzeria_mesas", self.channel_name)
         await self.send(text_data=json.dumps({

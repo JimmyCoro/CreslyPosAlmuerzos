@@ -238,6 +238,52 @@
 .cbm-btn-confirmar-on { background: var(--do-brand); color: #fff; box-shadow: 0 8px 18px rgba(200, 16, 46, .26); }
 .cbm-btn-confirmar-off { background: var(--do-segmented-bg); color: var(--do-muted-2); }
 .cbm-btn-confirmar:disabled { cursor: not-allowed; }
+/* ===== Cobro por adelantado =====
+   Azul y no rojo: es un modo del cobro, no un error ni la acción principal. */
+.cbm-page { --cbm-adelantado: #1d5c9e; --cbm-adelantado-tint: #e8f1fb; --cbm-adelantado-borde: #c9ddf3; }
+#cbmBtnAdelantado[aria-pressed="true"] {
+  background: #e8f1fb;
+  border-color: #c9ddf3;
+  color: #1d5c9e;
+}
+.cbm-chip-adelantado {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--cbm-adelantado);
+  color: #fff;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 800;
+  touch-action: manipulation;
+}
+.cbm-chip-adelantado-estado { font-weight: 600; opacity: .85; }
+.cbm-chip-adelantado-x { font-size: 10px; opacity: .8; margin-left: 2px; }
+.cbm-chip-adelantado:focus-visible { outline: 2px solid var(--cbm-adelantado); outline-offset: 2px; }
+
+.cbm-aviso-adelantado {
+  background: var(--cbm-adelantado-tint);
+  border: 1px solid var(--cbm-adelantado-borde);
+  border-radius: 12px;
+  padding: 11px 13px;
+  color: var(--cbm-adelantado);
+}
+.cbm-aviso-adelantado-titulo {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: .06em;
+}
+.cbm-aviso-adelantado p { margin: 5px 0 0; font-size: 12.5px; font-weight: 600; line-height: 1.45; color: #274b72; }
+.cbm-linea-adelantado { display: block; text-align: center; font-size: 11px; font-weight: 700; color: var(--do-muted); margin-top: 8px; }
+
 .cbm-linea-bloqueo { display: block; text-align: center; font-size: 11px; font-weight: 700; color: var(--do-brand); margin-top: 8px; }
 .cbm-linea-bloqueo-sub { font-size: 11px; font-weight: 600; color: var(--do-muted-3); margin-top: 6px; }
 

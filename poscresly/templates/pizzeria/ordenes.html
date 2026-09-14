@@ -69,5 +69,7 @@
   </div>
 </div>
 
+<script>window.CSRF_TOKEN = "{{ csrf_token }}";</script>
 <script src="{% static 'JS/pizzeria_ordenes.js' %}"></script>
+<script src="{% static 'JS/pizzeria_cerrar_orden.js' %}"></script>
 {% endblock %}

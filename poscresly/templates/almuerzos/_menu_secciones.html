@@ -35,7 +35,7 @@
 </section>
 {% endfor %}
 
-{% if menu.menu_anterior %}
+{% if menu.menu_anterior and es_admin %}
 <a href="{% url 'menu_configurar' %}?copiar=1" class="alm-repetir">
   <span class="alm-repetir-texto">
     <span class="alm-repetir-titulo">{{ menu.menu_anterior.titulo }}</span>

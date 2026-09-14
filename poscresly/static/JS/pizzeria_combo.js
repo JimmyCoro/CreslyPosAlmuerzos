@@ -238,6 +238,10 @@
 
     // Sin sabor la ranura sigue pendiente aunque ya tenga temperatura: si
     // devolviera " · helada" se pintaría como llena.
+    function bebidaCompleta(b) {
+      return !!(b && b.saborId && b.temperatura);
+    }
+
     function textoBebida(paso, b) {
       if (!b || !b.saborId) return '';
       const temp = TEMPERATURAS.find(t => t.valor === b.temperatura);
@@ -568,19 +572,24 @@
       render();
     }
 
-    function vistaRanurasUnidades(paso, valores, textoDe) {
+    // `completaDe` es opcional: por defecto una ranura con texto está llena;
+    // una bebida con sabor pero sin temperatura sigue pendiente (borde
+    // punteado), y lo que falta ya lo dice en rojo el título del paso.
+    function vistaRanurasUnidades(paso, valores, textoDe, completaDe) {
       const fila = document.createElement('div');
       fila.className = 'cmb-ranuras' + (unidadesDe(paso) > 2 ? ' cmb-ranuras-wrap' : '');
       for (let i = 0; i < unidadesDe(paso); i++) {
         const texto = textoDe(valores[i]);
+        const completa = completaDe ? completaDe(valores[i]) : !!texto;
+        const valor = texto ? escapeHtml(texto) : 'Elige abajo';
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'cmb-ranura'
-          + (texto ? ' cmb-ranura-llena' : ' cmb-ranura-pendiente')
+          + (completa ? ' cmb-ranura-llena' : ' cmb-ranura-pendiente')
           + (ranuraEnEdicion(paso) === i ? ' cmb-ranura-editando' : '');
         btn.innerHTML = `
           <span class="cmb-ranura-label">${escapeHtml(etiquetaRanura(paso, i).toUpperCase())}</span>
-          <span class="cmb-ranura-valor">${texto ? escapeHtml(texto) : 'Elige abajo'}</span>`;
+          <span class="cmb-ranura-valor">${valor}</span>`;
         btn.addEventListener('click', function () {
           estado.ranuraActiva[paso.id] = i;
           render();
@@ -592,9 +601,11 @@
 
     // El toque cae en la primera ranura vacía; si están todas llenas, en la que
     // el cajero haya fijado tocándola.
+    // Una bebida no queda lista hasta tener sabor y temperatura: si bastara el
+    // sabor, la temperatura que se toca después caería en la bebida siguiente.
     function ranuraEnEdicion(paso) {
       const valores = paso.tipo === 'bebida'
-        ? estado.bebidas.map(b => (b && b.saborId ? b.saborId : null))
+        ? estado.bebidas.map(b => (bebidaCompleta(b) ? b.saborId : null))
         : estado[paso.id];
       const vacia = valores.findIndex((v, i) => i < unidadesDe(paso) && !v);
       if (vacia !== -1) return vacia;
@@ -982,7 +993,7 @@
 
       if (tieneInterruptor(paso)) wrap.appendChild(vistaInterruptor(paso));
       if (distintas) {
-        wrap.appendChild(vistaRanurasUnidades(paso, estado.bebidas, b => textoBebida(paso, b)));
+        wrap.appendChild(vistaRanurasUnidades(paso, estado.bebidas, b => textoBebida(paso, b), bebidaCompleta));
       }
 
       // En "iguales" se edita la unidad 0 y el cambio se copia a todas; en
@@ -992,7 +1003,13 @@
 
       const aplicar = function (cambio) {
         if (distintas) {
+          const estabaCompleta = bebidaCompleta(estado.bebidas[idx]);
           Object.assign(estado.bebidas[idx], cambio);
+          // Al completar una bebida se fija la siguiente, igual que en los
+          // grupos de un solo campo, para cuando ya no queden pendientes.
+          if (!estabaCompleta && bebidaCompleta(estado.bebidas[idx])) {
+            estado.ranuraActiva[paso.id] = (idx + 1) % unidadesDe(paso);
+          }
         } else {
           estado.bebidas.forEach(b => Object.assign(b, cambio));
         }

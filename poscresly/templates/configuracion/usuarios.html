@@ -1,0 +1,49 @@
+{% extends 'movil/base_movil.html' %}
+{% load static %}
+
+{% block title %}Usuarios · Cresly POS{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'CSS/pizzeria-caja.css' %}?v=2">
+<link rel="stylesheet" href="{% static 'CSS/usuarios.css' %}?v=1">
+{% endblock %}
+
+{% block content %}
+<div class="im-shell cj">
+  {% include 'components/pizzeria_header.html' %}
+  {% include 'components/pizzeria_subheader.html' %}
+
+  <main class="cj-content">
+    {% for m in messages %}
+    <p class="us-aviso" role="status"><i class="bi bi-check-circle" aria-hidden="true"></i>{{ m }}</p>
+    {% endfor %}
+
+    <a href="{% url 'usuario_crear' %}" class="cj-btn-primario us-btn-nuevo">
+      <i class="bi bi-person-plus" aria-hidden="true"></i> Nuevo usuario
+    </a>
+
+    <section class="cj-lista" aria-label="Usuarios">
+      {% for f in filas %}
+      <a href="{% url 'usuario_editar' f.user.pk %}" class="cj-fila{% if f.inactivo %} us-inactivo{% endif %}">
+        <span class="us-avatar{% if f.admin %} us-avatar-admin{% endif %}" aria-hidden="true">{{ f.nombre|first|upper }}</span>
+        <span class="cj-fila-texto">
+          <span class="cj-fila-titulo">{{ f.nombre }}{% if f.yo %} <span class="us-tag">Tú</span>{% endif %}</span>
+          <span class="cj-fila-sub">{{ f.sub }}</span>
+        </span>
+        <i class="bi bi-chevron-right cj-fila-chev" aria-hidden="true"></i>
+      </a>
+      {% endfor %}
+    </section>
+
+    <section class="cj-card cj-card-suave">
+      <span class="cj-contexto-titulo">Cómo manejar las cuentas</span>
+      <ul class="us-guia">
+        <li>Una cuenta por persona. Así cada cobro y movimiento de caja queda a su nombre.</li>
+        <li>Crea la cuenta con una contraseña temporal y entrégasela. Al entrar, elegirá una propia.</li>
+        <li>Si alguien olvida su contraseña, restablécela desde su ficha.</li>
+        <li>Cuando alguien deja de trabajar, desactiva su cuenta. No se borra, para no perder su historial.</li>
+      </ul>
+    </section>
+  </main>
+</div>
+{% endblock %}

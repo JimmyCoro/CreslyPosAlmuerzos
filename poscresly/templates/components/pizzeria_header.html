@@ -1,22 +1,30 @@
+{% load static %}
 <!-- Header fijo · handoff_header. Byte-idéntico en toda la app: menú,
      marca, tema (sin lógica todavía) y usuario. No recibe contexto por
-     vista — todo lo que muestra es fijo o viene de request.user. -->
+     vista — todo lo que muestra es fijo o viene de request.user.
+     Marca: solo la C del logo (a 34 px el logo completo no se lee). -->
 <header class="pzh-header">
   <button type="button" class="pzh-menu-btn" id="pzhMenuToggle" aria-label="Abrir menú">
     <i class="bi bi-list"></i>
   </button>
   {% if '/pizzeria/' in request.path %}
   <a href="{% url 'pizzeria_inicio' %}" class="pzh-brand">
-    <span class="pzh-brand-mark">C</span>
+    <img class="pzh-brand-mark" src="{% static 'IMG/logo-c.png' %}" alt="" width="34" height="34">
     <span class="pzh-brand-text">
       <span class="pzh-brand-name">Cresly Pizzería</span>
     </span>
   </a>
+  {% elif '/configuracion/' in request.path %}
+  <a href="{% url 'pizzeria_inicio' %}" class="pzh-brand">
+    <img class="pzh-brand-mark" src="{% static 'IMG/logo-c.png' %}" alt="" width="34" height="34">
+    <span class="pzh-brand-text">
+      <span class="pzh-brand-name">Cresly · Configuración</span>
+    </span>
+  </a>
   {% else %}
-  <!-- Mismo header en Almuerzos: solo cambia el nombre del módulo; la
-       marca toma el verde por --primary-color de body.almuerzos-page. -->
+  <!-- Mismo header en Almuerzos: solo cambia el nombre del módulo. -->
   <a href="{% url 'inicio' %}" class="pzh-brand">
-    <span class="pzh-brand-mark">C</span>
+    <img class="pzh-brand-mark" src="{% static 'IMG/logo-c.png' %}" alt="" width="34" height="34">
     <span class="pzh-brand-text">
       <span class="pzh-brand-name">Cresly Almuerzos</span>
     </span>
@@ -25,10 +33,25 @@
   <button type="button" class="pzh-theme-btn" aria-label="Cambiar a tema oscuro (próximamente)" title="Próximamente">
     <i class="bi bi-moon"></i>
   </button>
-  <button type="button" class="pzh-user" aria-label="Cuenta">
+  <button type="button" class="pzh-user" id="pzhUserBtn" aria-label="Cuenta" aria-haspopup="true" aria-expanded="false" aria-controls="pzhCuenta">
     <span class="pzh-avatar">{{ request.user.get_full_name|default:request.user.username|first|upper }}</span>
     <i class="bi bi-chevron-down pzh-caret"></i>
   </button>
+  <div class="pzh-cuenta" id="pzhCuenta" hidden>
+    <div class="pzh-cuenta-cab">
+      <span class="pzh-cuenta-nombre">{{ request.user.get_full_name|default:request.user.username }}</span>
+      <span class="pzh-cuenta-rol">{{ request.user.username }} · {{ rol_nombre }}</span>
+    </div>
+    {% if es_admin %}
+    <a href="{% url 'usuarios' %}" class="pzh-cuenta-item"><i class="bi bi-people"></i>Usuarios</a>
+    {% endif %}
+    <a href="{% url 'cambiar_password' %}" class="pzh-cuenta-item"><i class="bi bi-key"></i>Cambiar contraseña</a>
+    <!-- Sin <form> aquí: este header vive dentro de pantallas que ya son un
+         <form> (Abrir caja, Usuarios) y un form anidado cierra el de afuera.
+         El POST se arma en JS, fuera del header. -->
+    <button type="button" class="pzh-cuenta-item pzh-cuenta-salir" id="pzhSalir"
+            data-url="{% url 'logout' %}" data-csrf="{{ csrf_token }}"><i class="bi bi-box-arrow-right"></i>Cerrar sesión</button>
+  </div>
 </header>
 
 <script>
@@ -39,5 +62,33 @@
     // Referencia diferida a propósito: este script corre antes de que
     // static/JS/sidebar.js (al final del body) defina openSidebar.
     if (btn) btn.addEventListener('click', function () { openSidebar(); });
+
+    // Menú de cuenta: se abre con el avatar y se cierra al tocar fuera o con Esc.
+    var userBtn = document.getElementById('pzhUserBtn');
+    var cuenta = document.getElementById('pzhCuenta');
+    if (!userBtn || !cuenta) return;
+    function cerrar() { cuenta.hidden = true; userBtn.setAttribute('aria-expanded', 'false'); }
+    userBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var abrir = cuenta.hidden;
+      cuenta.hidden = !abrir;
+      userBtn.setAttribute('aria-expanded', abrir ? 'true' : 'false');
+    });
+    document.addEventListener('click', function (e) { if (!cuenta.contains(e.target)) cerrar(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') cerrar(); });
+
+    var salir = document.getElementById('pzhSalir');
+    salir.addEventListener('click', function () {
+      var f = document.createElement('form');
+      f.method = 'post';
+      f.action = salir.dataset.url;
+      var t = document.createElement('input');
+      t.type = 'hidden';
+      t.name = 'csrfmiddlewaretoken';
+      t.value = salir.dataset.csrf;
+      f.appendChild(t);
+      document.body.appendChild(f);
+      f.submit();
+    });
   })();
 </script>

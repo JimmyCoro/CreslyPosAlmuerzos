@@ -8,6 +8,12 @@ from .models import Pedido
 
 class PedidosConsumer(AsyncWebsocketConsumer):
     async def connect(self):
+        # Sin sesión iniciada no se reciben pedidos (AuthMiddlewareStack llena scope["user"]).
+        user = self.scope.get("user")
+        if user is None or not user.is_authenticated:
+            await self.close(code=4003)
+            return
+
         # Aceptar la conexión WebSocket
         await self.accept()
         
@@ -21,7 +27,7 @@ class PedidosConsumer(AsyncWebsocketConsumer):
         }))
 
     async def disconnect(self, close_code):
-        # Salir del grupo "pedidos"
+        # Salir del grupo "pedidos" (no hace nada si connect() rechazó la conexión)
         await self.channel_layer.group_discard("pedidos", self.channel_name)
 
     async def receive(self, text_data):

@@ -5,7 +5,6 @@ from datetime import date
 from decimal import Decimal
 from urllib.parse import quote
 
-from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.http import JsonResponse
@@ -16,6 +15,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.db import IntegrityError, transaction
 from django.db.models import Count, Q, Sum
+
+from inicio.permisos import es_admin, solo_admin
 
 from .impresion import generar_comanda_pizza, generar_precuenta_pizza
 from .models import (
@@ -48,7 +49,7 @@ from .models import (
 )
 from .pricing import calcular_precio_combo, calcular_precio_pizza, calcular_recargo_premium
 
-LOGIN_URL = 'pizzeria_login'
+LOGIN_URL = 'login'
 
 
 def _alitas_cantidad_producto(nombre):
@@ -122,26 +123,15 @@ def _serializar_combo_catalogo(c):
 
 # ===== AUTENTICACIÓN =====
 
+# El login es uno solo para toda la app (inicio/views_auth.py); estas rutas
+# quedan para no romper marcadores guardados en las tablets.
+
 def pizzeria_login(request):
-    if request.user.is_authenticated:
-        return redirect('pizzeria_inicio')
-
-    error = None
-    if request.method == 'POST':
-        username = request.POST.get('username', '').strip()
-        password = request.POST.get('password', '')
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            return redirect('pizzeria_inicio')
-        error = 'Usuario o contraseña incorrectos'
-
-    return render(request, 'pizzeria/login.html', {'error': error})
+    return redirect('login')
 
 
 def pizzeria_logout(request):
-    logout(request)
-    return redirect('pizzeria_login')
+    return redirect('login')
 
 
 # ===== MAPA DE MESAS =====
@@ -212,9 +202,12 @@ def mapa_mesas(request):
         **sub,
         'acciones': [
             {'glifo': 'bi-search', 'label': 'Buscar mesa', 'id': 'pzmBuscarToggle'},
-            {'glifo': 'bi-three-dots', 'label': 'Gestionar mesas', 'url': reverse('pizzeria_gestionar_mesas')},
         ],
     }
+    if es_admin(request.user):
+        subheader['acciones'].append(
+            {'glifo': 'bi-three-dots', 'label': 'Gestionar mesas', 'url': reverse('pizzeria_gestionar_mesas')}
+        )
 
     return render(request, 'pizzeria/mapa_mesas.html', {
         'zonas': zonas_lista,
@@ -252,6 +245,7 @@ def _serializar_mesa(mesa):
 
 
 @login_required(login_url=LOGIN_URL)
+@solo_admin
 def gestionar_mesas(request):
     mesas = Mesa.objects.all().order_by('numero')
     return render(request, 'pizzeria/gestionar_mesas.html', {
@@ -268,6 +262,7 @@ def gestionar_mesas(request):
 @csrf_exempt
 @require_http_methods(["POST"])
 @login_required(login_url=LOGIN_URL)
+@solo_admin
 def crear_mesa_pizzeria(request):
     try:
         numero = request.POST.get('numero')
@@ -293,6 +288,7 @@ def crear_mesa_pizzeria(request):
 @csrf_exempt
 @require_http_methods(["POST"])
 @login_required(login_url=LOGIN_URL)
+@solo_admin
 def actualizar_mesa_pizzeria(request, mesa_id):
     mesa = get_object_or_404(Mesa, pk=mesa_id)
     try:
@@ -320,6 +316,7 @@ def actualizar_mesa_pizzeria(request, mesa_id):
 @csrf_exempt
 @require_http_methods(["POST"])
 @login_required(login_url=LOGIN_URL)
+@solo_admin
 def mover_mesa_pizzeria(request, mesa_id):
     try:
         mesa = get_object_or_404(Mesa, pk=mesa_id)
@@ -686,7 +683,6 @@ def _tarjeta_orden(pedido):
     recorra los ítems para contar ni decidir colores."""
     items = list(pedido.items_preparacion.all())
     gravedad = [valor for valor, _ in ItemPreparacion.ESTADOS]
-    conteo = {estado: sum(1 for i in items if i.estado == estado) for estado in gravedad}
 
     estado_peor = min((i.estado for i in items), key=gravedad.index) if items else None
     estado_orden = ESTADO_ORDEN_POR_PEOR_ITEM.get(estado_peor)
@@ -700,56 +696,51 @@ def _tarjeta_orden(pedido):
         grupo = 'en_curso'
         tono = {'pendiente': 'rojo', 'cocina': 'ambar'}.get(estado_orden, 'neutro')
 
-    # Derecha de la tarjeta: estado escrito, o minutos en cocina, que dicen más.
+    # Derecha de la tarjeta, bajo el monto. El estado de la orden ya lo dice el
+    # color de la tarjeta, así que solo se escribe lo que el color no cuenta:
+    # los minutos en cocina y si una cerrada se cobró o se anuló.
+    derecha = ''
     derecha_tiempo = False
     if cerrada:
         derecha = pedido.get_estado_display().upper()
     elif estado_orden == 'cocina':
         # Los platillos pasados a cocina antes de existir enviado_en no tienen
-        # hora: se muestra el estado escrito en vez de un tiempo inventado.
+        # hora: sin hora no se inventa un tiempo.
         envios = [i.enviado_en for i in items if i.estado == 'cocina' and i.enviado_en]
         if envios:
             minutos = max(0, int((timezone.now() - min(envios)).total_seconds() // 60))
             horas, resto = divmod(minutos, 60)
             derecha = f'{horas} h {resto:02d}' if horas else f'{minutos} min'
             derecha_tiempo = True
-        else:
-            derecha = 'EN COCINA'
-    elif estado_orden == 'completo':
-        derecha = 'COMPLETO'
-    elif estado_orden == 'pendiente':
-        derecha = 'PENDIENTE'
-    else:
-        derecha = pedido.get_estado_display().upper()
 
-    # Sub-línea: resumen de estados cuando hay mezcla, o los platillos.
+    # Sub-línea: los platillos (el combo cuenta como uno), no su estado.
     resumen = []
     if not items:
         resumen.append({'texto': 'Sin platillos', 'tono': 'tenue'})
-    elif sum(1 for n in conteo.values() if n) > 1:
-        etiquetas = {
-            'servido': ('servido', 'servidos', 'verde'),
-            'cocina': ('en cocina', 'en cocina', 'ambar'),
-            'pendiente': ('pendiente', 'pendientes', 'rojo'),
-        }
-        for estado in ('servido', 'cocina', 'pendiente'):
-            if conteo[estado]:
-                singular, plural, tono_estado = etiquetas[estado]
-                resumen.append({
-                    'texto': f'{conteo[estado]} {_plural(conteo[estado], singular, plural)}',
-                    'tono': tono_estado,
-                })
-    elif estado_orden == 'completo':
+    elif pedido.pagado_por_adelantado and estado_orden == 'completo':
+        # Pagada y servida: lo único que falta es cerrarla.
         resumen.append({'texto': 'todo servido', 'tono': 'verde'})
+        resumen.append({'texto': 'listo para cerrar', 'tono': None})
     else:
         cabecera = list(dict.fromkeys((i.grupo or i.nombre_corto) for i in items))
-        resumen.append({'texto': ', '.join(cabecera[:2]), 'tono': None})
-        resumen.append({'texto': f"· {len(items)} {_plural(len(items), 'línea', 'líneas')}", 'tono': 'tenue'})
+        resumen.append({'texto': ', '.join(cabecera), 'tono': None})
     for indice, segmento in enumerate(resumen):
-        segmento['sep'] = '' if indice == 0 else (' ' if segmento['texto'].startswith('·') else ' · ')
+        segmento['sep'] = '' if indice == 0 else ' · '
 
+    # Pagada por adelantado: sigue en la lista para controlar el servicio, y
+    # con todo servido ofrece cerrarla (ahí sí sale de la lista).
+    adelantado = pedido.pagado_por_adelantado
     return {
         'pedido': pedido,
+        'adelantado': adelantado,
+        # forma_pago queda vacía cuando se pagó con varios métodos.
+        'metodo_pago': (
+            {'Transferencia': 'Transf.'}.get(pedido.forma_pago, pedido.forma_pago) or 'Mixto'
+        ) if adelantado else None,
+        'cerrar_url': (
+            reverse('pizzeria_cerrar_orden_adelantada', args=[pedido.id])
+            if adelantado and estado_orden == 'completo' else None
+        ),
         'titulo': _titulo_orden(pedido),
         'glifo': GLIFO_CANAL.get(pedido.tipo, 'bi-receipt'),
         'grupo': grupo,
@@ -785,7 +776,12 @@ def _grupos_ordenes(pedidos):
         n = len(del_grupo)
         sufijo = f"{n} {_plural(n, 'orden', 'órdenes')}"
         if clave == 'completas':
-            sufijo += f" · ${sum((t['pedido'].total for t in del_grupo), Decimal('0')):.2f}"
+            # Lo que falta cobrar: las pagadas por adelantado ya no suman.
+            por_cobrar = sum(
+                (t['pedido'].total for t in del_grupo if not t['adelantado']), Decimal('0'),
+            )
+            if por_cobrar:
+                sufijo += f" · ${por_cobrar:.2f}"
         grupos.append({'clave': clave, 'titulo': titulo, 'sufijo': sufijo, 'tarjetas': del_grupo})
     return grupos
 
@@ -884,7 +880,7 @@ def _grupos_acciones_pedido(pedido):
     fidelidad visual, pero al tocarla se avisa que no está lista en vez de
     fallar en silencio o simular algo que no pasa de verdad. Las que sí
     tienen endpoint real (anular, llamar) quedan con disponible=True."""
-    ya_pagada = pedido.estado == 'cobrado'
+    ya_pagada = pedido.estado == 'cobrado' or pedido.pagado_por_adelantado
     grupos = []
 
     if pedido.tipo == 'delivery':
@@ -1000,9 +996,11 @@ def _grupos_acciones_cobro(pedido):
 
 
 def _lista_padre_pedido(pedido):
+    # Delivery no es una sección aparte: es la pestaña Delivery de Órdenes.
+    url = reverse('pizzeria_ordenes')
     if pedido.tipo == 'delivery':
-        return {'label': 'Delivery', 'url': reverse('pizzeria_delivery')}
-    return {'label': 'Órdenes', 'url': reverse('pizzeria_ordenes')}
+        url += '?canal=delivery'
+    return {'label': 'Órdenes', 'url': url}
 
 
 def _filtrar_ordenes_busqueda(pedidos, q):
@@ -1021,7 +1019,9 @@ def _filtrar_ordenes_busqueda(pedidos, q):
 def _subheader_ordenes(activos_qs):
     """Cuántas órdenes siguen abiertas y cuánto dinero falta cobrar de ellas.
     Siempre sobre todo el turno, sin importar la pestaña o la búsqueda."""
-    abiertas = activos_qs.aggregate(n=Count('id'), total=Sum('total'))
+    abiertas = activos_qs.aggregate(
+        n=Count('id'), total=Sum('total', filter=Q(pagado_adelantado_en__isnull=True)),
+    )
     subheader = {
         'titulo': 'Órdenes',
         'acciones': [{'id': 'orBuscarToggle', 'glifo': 'bi-search', 'label': 'Buscar orden'}],
@@ -1111,20 +1111,16 @@ def ordenes_en_curso(request):
     return _render_ordenes(request, canal)
 
 
-@login_required(login_url=LOGIN_URL)
-def ordenes_delivery(request):
-    # Delivery es una pestaña más de Órdenes; esta ruta se mantiene para los
-    # enlaces del menú lateral y abre la lista con esa pestaña activa.
-    request.session[SESION_CANAL_ORDENES] = 'delivery'
-    return _render_ordenes(request, 'delivery')
-
 
 @login_required(login_url=LOGIN_URL)
 def inicio_pizzeria(request):
     pedidos_abiertos = PedidoPizzeria.objects.filter(estado='abierto')
-    pagos_hoy = PagoPedido.objects.filter(pedido__estado='cobrado', creado_en__date=timezone.localdate())
+    pagos_hoy = PagoPedido.objects.contables().filter(creado_en__date=timezone.localdate())
     ventas_hoy = pagos_hoy.aggregate(total=Sum('monto'))['total'] or Decimal('0')
-    total_sin_cobrar = pedidos_abiertos.aggregate(total=Sum('total'))['total'] or Decimal('0')
+    total_sin_cobrar = (
+        pedidos_abiertos.filter(pagado_adelantado_en__isnull=True).aggregate(total=Sum('total'))['total']
+        or Decimal('0')
+    )
 
     pedidos_cobrados_hoy = pagos_hoy.values('pedido').distinct().count()
     ticket_promedio = (ventas_hoy / pedidos_cobrados_hoy) if pedidos_cobrados_hoy else Decimal('0')
@@ -1165,9 +1161,7 @@ def inicio_movil(request):
         fondo_inicial_efectivo = Decimal('0')
         hora_apertura = None
     else:
-        pagos_turno = PagoPedido.objects.filter(
-            pedido__estado='cobrado', creado_en__gte=caja_actual.fecha_apertura,
-        )
+        pagos_turno = PagoPedido.objects.contables().filter(creado_en__gte=caja_actual.fecha_apertura)
         fondo_inicial_efectivo = caja_actual.caja_efectivo.monto_inicial
         hora_apertura = timezone.localtime(caja_actual.fecha_apertura)
 
@@ -1200,7 +1194,10 @@ def inicio_movil(request):
     efectivo_en_gaveta = efectivo_total + fondo_inicial_efectivo
 
     pedidos_abiertos = PedidoPizzeria.objects.filter(estado='abierto')
-    total_sin_cobrar = pedidos_abiertos.aggregate(total=Sum('total'))['total'] or Decimal('0')
+    total_sin_cobrar = (
+        pedidos_abiertos.filter(pagado_adelantado_en__isnull=True).aggregate(total=Sum('total'))['total']
+        or Decimal('0')
+    )
     ordenes_abiertas = pedidos_abiertos.count()
     mesas_ocupadas = Mesa.objects.filter(activa=True, estado='ocupada').count()
 
@@ -1260,10 +1257,13 @@ def detalle_orden_pizzeria(request, pedido_id):
     mesero_nombre = pedido.mesero.get_full_name() or pedido.mesero.username
     estado_tono = {'abierto': 'neutro', 'cobrado': 'verde', 'anulado': 'neutro'}
     estado_pill_tono = estado_tono.get(pedido.estado, 'neutro')
+    pill = {'texto': pedido.get_estado_display(), 'tono': estado_pill_tono}
+    if pedido.pagado_por_adelantado:
+        pill = {'texto': 'Pagado por adelantado', 'tono': 'verde'}
     subheader = {
         'titulo': f'Pedido #{pedido.numero_pedido_completo}',
         'back': {'url': padre['url']},
-        'pill': {'texto': pedido.get_estado_display(), 'tono': estado_pill_tono},
+        'pill': pill,
         'sub_pre': f'{tipo_labels_ui[pedido.tipo]} · {mesero_nombre} · ',
         'sub_hi': _tiempo_relativo_corto(pedido.fecha_creacion),
         'sub_hi_tono': _sub_hi_tono_pedido(pedido),
@@ -1277,6 +1277,8 @@ def detalle_orden_pizzeria(request, pedido_id):
         'bloques': bloques,
         'total_items': total_items,
         'servidos': servidos,
+        'total_items_cocina': len(items_preparacion),
+        'faltan_servir': len(items_preparacion) - servidos,
         'progreso_pct': progreso_pct,
         'entrega': _tarjeta_entrega(pedido),
         'grupos_acciones': _grupos_acciones_pedido(pedido),
@@ -1291,10 +1293,35 @@ def detalle_orden_pizzeria(request, pedido_id):
     })
 
 
+def _respuesta_pagado_adelantado():
+    """Lo cobrado por adelantado ya está en la caja: cualquier cambio de precio
+    dejaría el pago descuadrado con la orden."""
+    return JsonResponse({
+        'status': 'error',
+        'message': 'Esta orden ya se pagó por adelantado: no se pueden agregar, cambiar ni quitar productos.',
+    }, status=400)
+
+
+def _estado_servicio(items_preparacion):
+    """(servidos, total) de los platillos de cocina de una orden."""
+    items = list(items_preparacion)
+    return sum(1 for i in items if i.estado == 'servido'), len(items)
+
+
+def _texto_servicio(servidos, total):
+    if not total:
+        return 'sin platillos'
+    if servidos == 0:
+        return 'nada servido'
+    if servidos == total:
+        return 'todo servido'
+    return f'{servidos} de {total} servidos'
+
+
 @login_required(login_url=LOGIN_URL)
 def cobrar_orden_pizzeria(request, pedido_id):
     pedido = get_object_or_404(PedidoPizzeria.objects.select_related('mesa', 'mesero'), pk=pedido_id)
-    if pedido.estado != 'abierto':
+    if pedido.estado != 'abierto' or pedido.pagado_por_adelantado:
         return redirect('pizzeria_detalle_orden', pedido_id=pedido.id)
     if not _hay_caja_abierta():
         return redirect('pizzeria_caja_abrir')
@@ -1303,6 +1330,9 @@ def cobrar_orden_pizzeria(request, pedido_id):
     total_items = sum(item['cantidad'] for item in items_cobro)
     total_con_iva = _total_con_iva(pedido.total)
     subtotal, iva = _desglose_iva(total_con_iva)
+    servidos, platillos_cocina = _estado_servicio(pedido.items_preparacion.all())
+    # Cobrar por adelantado solo tiene sentido si queda algo por servir.
+    permite_adelantado = platillos_cocina > 0 and servidos < platillos_cocina
 
     tipo_labels_ui = {
         'mesa': f'Mesa {pedido.mesa.nombre or pedido.mesa.numero}' if pedido.mesa else 'Mesa',
@@ -1315,15 +1345,19 @@ def cobrar_orden_pizzeria(request, pedido_id):
     if nombres:
         resumen_detalle += ' · ' + ', '.join(nombres[:3]) + ('…' if len(nombres) > 3 else '')
 
+    acciones = [
+        {'id': 'cbmBtnDividir', 'glifo': 'bi-people', 'label': 'Dividir cuenta', 'url': reverse('pizzeria_cobrar_dividir', args=[pedido.id])},
+    ]
+    if permite_adelantado:
+        acciones.append({'id': 'cbmBtnAdelantado', 'glifo': 'bi-clock-history', 'label': 'Cobro por adelantado'})
     subheader = {
         'titulo': 'Cobrar',
         'back': {'url': reverse('pizzeria_detalle_orden', args=[pedido.id])},
         'sub_id': 'cbmSubLinea',
-        'sub_pre': f'Pedido #{pedido.numero_pedido_completo} · {tipo_labels_ui[pedido.tipo]} · {total_items} platillo{plural_platillos}',
-        'acciones': [
-            {'id': 'cbmBtnDividir', 'glifo': 'bi-people', 'label': 'Dividir cuenta', 'url': reverse('pizzeria_cobrar_dividir', args=[pedido.id])},
-            {'id': 'cbmBtnAcciones', 'glifo': 'bi-three-dots', 'label': 'Más acciones'},
-        ],
+        'sub_pre': f'Pedido #{pedido.numero_pedido_completo} · {tipo_labels_ui[pedido.tipo]} · ',
+        'sub_hi': _texto_servicio(servidos, platillos_cocina),
+        'sub_hi_tono': 'neutro',
+        'acciones': acciones,
     }
 
     return render(request, 'pizzeria/cobrar_orden.html', {
@@ -1335,6 +1369,7 @@ def cobrar_orden_pizzeria(request, pedido_id):
         'iva_pct': int(IVA_TASA * 100),
         'total_con_iva': total_con_iva,
         'resumen_detalle': resumen_detalle,
+        'permite_adelantado': permite_adelantado,
         'entrega': _tarjeta_entrega(pedido),
         'subheader': subheader,
         'grupos_acciones': _grupos_acciones_cobro(pedido),
@@ -1443,7 +1478,7 @@ def _cobrar_dividir_contexto(request, pedido):
 @login_required(login_url=LOGIN_URL)
 def cobrar_dividir_pizzeria(request, pedido_id):
     pedido = get_object_or_404(PedidoPizzeria.objects.select_related('mesa', 'mesero'), pk=pedido_id)
-    if pedido.estado != 'abierto':
+    if pedido.estado != 'abierto' or pedido.pagado_por_adelantado:
         return redirect('pizzeria_detalle_orden', pedido_id=pedido.id)
     if not _hay_caja_abierta():
         return redirect('pizzeria_caja_abrir')
@@ -1554,7 +1589,7 @@ def cobrar_dividir_repartir_igual(request, pedido_id):
 @login_required(login_url=LOGIN_URL)
 def cobrar_persona_pizzeria(request, pedido_id, numero):
     pedido = get_object_or_404(PedidoPizzeria.objects.select_related('mesa', 'mesero'), pk=pedido_id)
-    if pedido.estado != 'abierto':
+    if pedido.estado != 'abierto' or pedido.pagado_por_adelantado:
         return redirect('pizzeria_detalle_orden', pedido_id=pedido.id)
     if not _hay_caja_abierta():
         return redirect('pizzeria_caja_abrir')
@@ -1755,6 +1790,8 @@ def editar_item_preparacion(request, item_id):
         observacion = request.POST.get('observacion', '').strip()
 
         pedido = item.pedido
+        if pedido.pagado_por_adelantado:
+            return _respuesta_pagado_adelantado()
         with transaction.atomic():
             linea.cantidad = cantidad
             linea.observacion = observacion
@@ -1779,6 +1816,8 @@ def duplicar_item_preparacion(request, item_id):
     try:
         item = get_object_or_404(ItemPreparacion, pk=item_id)
         pedido = item.pedido
+        if pedido.pagado_por_adelantado:
+            return _respuesta_pagado_adelantado()
         nuevas_lineas_ticket = []
 
         with transaction.atomic():
@@ -1853,7 +1892,7 @@ def duplicar_item_preparacion(request, item_id):
                         detalle_alitas = ', '.join(f"{sa.cantidad} {sa.sabor.nombre}" for sa in alitas_originales)
                         nuevas_lineas_ticket.append(f"   - {comp.cantidad}x Alitas: {detalle_alitas}")
                     elif comp.tipo == 'bebida' and bebida_originales:
-                        nuevas_lineas_ticket.append(f"   - {comp.cantidad}x Bebida: {', '.join(s.nombre for s in bebida_originales)}")
+                        nuevas_lineas_ticket.append(f"   - {comp.cantidad}x Bebida: {', '.join(sb.etiqueta for sb in bebida_originales)}")
                     elif comp.tipo == 'michelada' and michelada_originales:
                         nuevas_lineas_ticket.append(f"   - {comp.cantidad}x Michelada: {', '.join(s.nombre for s in michelada_originales)}")
                     elif comp.tipo == 'porcion_pizza':
@@ -1882,7 +1921,7 @@ def duplicar_item_preparacion(request, item_id):
                         descripcion=f"Alitas{detalle_alitas_item}",
                     )
                 for idx, sabor_b in enumerate(bebida_originales, start=1):
-                    etiqueta = f"Bebida {idx} - {sabor_b.nombre}" if len(bebida_originales) > 1 else f"Bebida: {sabor_b.nombre}"
+                    etiqueta = f"Bebida {idx} - {sabor_b.etiqueta}" if len(bebida_originales) > 1 else f"Bebida: {sabor_b.etiqueta}"
                     ItemPreparacion.objects.create(
                         pedido=pedido, combo=nuevo_combo, cantidad=1, grupo=grupo_combo, descripcion=etiqueta,
                     )
@@ -2072,6 +2111,8 @@ def quitar_item_preparacion(request, item_id):
             )
 
         pedido = item.pedido
+        if pedido.pagado_por_adelantado:
+            return _respuesta_pagado_adelantado()
         with transaction.atomic():
             linea.delete()
             pedido.total = _calcular_total_pedido(pedido)
@@ -2410,6 +2451,8 @@ def guardar_pedido_pizzeria(request):
         with transaction.atomic():
             if pedido_id:
                 pedido = get_object_or_404(PedidoPizzeria, pk=pedido_id)
+                if pedido.pagado_por_adelantado:
+                    return _respuesta_pagado_adelantado()
             else:
                 mesa = None
                 if tipo == 'mesa' and mesa_id:
@@ -2544,13 +2587,14 @@ def guardar_pedido_pizzeria(request):
                             )
                         PedidoComboSaborAlitas.objects.bulk_create(alitas_sabores_objs)
 
+                    # Se guardan las filas de la bebida y no solo el sabor: la
+                    # comanda y el desglose de cocina necesitan la temperatura.
                     bebida_sabores_objs = []
                     if bebida_requerida > 0:
-                        for sid in sabores_bebida_ids:
-                            bebida_sabores_objs.append(Sabor.objects.get(pk=sid, tipo='bebida'))
-                        PedidoComboSaborBebida.objects.bulk_create([
+                        sabores_bebida = [Sabor.objects.get(pk=sid, tipo='bebida') for sid in sabores_bebida_ids]
+                        bebida_sabores_objs = PedidoComboSaborBebida.objects.bulk_create([
                             PedidoComboSaborBebida(pedido_combo=pedido_combo, sabor=s, temperatura=temp)
-                            for s, temp in zip(bebida_sabores_objs, temperaturas_bebida)
+                            for s, temp in zip(sabores_bebida, temperaturas_bebida)
                         ])
 
                     michelada_sabores_objs = []
@@ -2578,7 +2622,7 @@ def guardar_pedido_pizzeria(request):
                             detalle_alitas = ', '.join(f"{sa.cantidad} {sa.sabor.nombre}" for sa in alitas_sabores_objs)
                             nuevos_items_ticket.append(f"   - {comp.cantidad}x Alitas: {detalle_alitas}")
                         elif comp.tipo == 'bebida' and bebida_sabores_objs:
-                            detalle_bebida = ', '.join(s.nombre for s in bebida_sabores_objs)
+                            detalle_bebida = ', '.join(sb.etiqueta for sb in bebida_sabores_objs)
                             nuevos_items_ticket.append(f"   - {comp.cantidad}x Bebida: {detalle_bebida}")
                         elif comp.tipo == 'michelada' and michelada_sabores_objs:
                             detalle_michelada = ', '.join(s.nombre for s in michelada_sabores_objs)
@@ -2624,7 +2668,7 @@ def guardar_pedido_pizzeria(request):
                         )
 
                     for idx, sabor_b in enumerate(bebida_sabores_objs, start=1):
-                        etiqueta = f"Bebida {idx} - {sabor_b.nombre}" if bebida_requerida > 1 else f"Bebida: {sabor_b.nombre}"
+                        etiqueta = f"Bebida {idx} - {sabor_b.etiqueta}" if bebida_requerida > 1 else f"Bebida: {sabor_b.etiqueta}"
                         ItemPreparacion.objects.create(
                             pedido=pedido, combo=pedido_combo,
                             descripcion=etiqueta, cantidad=cantidad,
@@ -2803,11 +2847,19 @@ def procesar_cobro_pedido(request, pedido_id):
         return JsonResponse({'status': 'error', 'message': 'El pedido ya fue cobrado'}, status=400)
     if pedido.estado == 'anulado':
         return JsonResponse({'status': 'error', 'message': 'El pedido está anulado'}, status=400)
+    if pedido.pagado_por_adelantado:
+        return JsonResponse({'status': 'error', 'message': 'El pedido ya se pagó por adelantado'}, status=400)
 
     try:
         data = json.loads(request.body)
     except (json.JSONDecodeError, TypeError):
         return JsonResponse({'status': 'error', 'message': 'Datos inválidos'}, status=400)
+
+    # Por adelantado: el dinero entra a la caja ya, pero la orden sigue abierta
+    # (mesa ocupada, cocina en curso) hasta cerrarla con todo servido. Si ya no
+    # queda nada por servir, es un cobro normal.
+    servidos, platillos_cocina = _estado_servicio(pedido.items_preparacion.all())
+    adelantado = bool(data.get('adelantado')) and not data.get('dividir') and servidos < platillos_cocina
 
     items_map = {}
     for p in pedido.pizzas.all():
@@ -2893,7 +2945,10 @@ def procesar_cobro_pedido(request, pedido_id):
                 pedido.tipo == 'delivery' and pedido.valor_moto and 'Transferencia' in metodos_usados
             )
             pedido.forma_pago = metodos_usados.pop() if (not data.get('dividir') and len(metodos_usados) == 1) else None
-            pedido.estado = 'cobrado'
+            if adelantado:
+                pedido.pagado_adelantado_en = timezone.now()
+            else:
+                pedido.estado = 'cobrado'
             pedido.save()
 
             if pagar_moto_de_caja:
@@ -2906,7 +2961,7 @@ def procesar_cobro_pedido(request, pedido_id):
                     saldo_posterior=esperado - pedido.valor_moto,
                 )
 
-            if pedido.mesa:
+            if pedido.mesa and not adelantado:
                 pedido.mesa.estado = 'libre'
                 pedido.mesa.save()
 
@@ -2920,13 +2975,44 @@ def procesar_cobro_pedido(request, pedido_id):
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
-    if pedido.mesa:
+    if pedido.mesa and not adelantado:
         _enviar_mensaje_websocket_pizzeria('mesa_actualizada', {
             'mesa_id': pedido.mesa.id, 'estado': 'libre', 'pedido_id': None,
         })
     _enviar_mensaje_websocket_pizzeria('pedido_pizzeria_actualizado', _serializar_pedido(pedido))
 
-    return JsonResponse({'status': 'ok', 'pedido': _serializar_pedido(pedido)})
+    return JsonResponse({'status': 'ok', 'adelantado': adelantado, 'pedido': _serializar_pedido(pedido)})
+
+
+@require_http_methods(["POST"])
+@login_required(login_url=LOGIN_URL)
+def cerrar_orden_adelantada(request, pedido_id):
+    """Cierra una orden pagada por adelantado cuando ya se sirvió todo: pasa a
+    cobrado (sale de la lista de órdenes) y libera la mesa."""
+    with transaction.atomic():
+        pedido = get_object_or_404(PedidoPizzeria.objects.select_for_update(), pk=pedido_id)
+        if not pedido.pagado_por_adelantado:
+            return JsonResponse({'status': 'error', 'message': 'Esta orden no está pagada por adelantado'}, status=400)
+        servidos, platillos_cocina = _estado_servicio(pedido.items_preparacion.all())
+        if servidos < platillos_cocina:
+            faltan = platillos_cocina - servidos
+            return JsonResponse({
+                'status': 'error',
+                'message': f"Falta servir {faltan} {_plural(faltan, 'platillo', 'platillos')} antes de cerrar la orden",
+            }, status=400)
+
+        pedido.estado = 'cobrado'
+        pedido.save()
+        if pedido.mesa:
+            pedido.mesa.estado = 'libre'
+            pedido.mesa.save()
+
+    if pedido.mesa:
+        _enviar_mensaje_websocket_pizzeria('mesa_actualizada', {
+            'mesa_id': pedido.mesa.id, 'estado': 'libre', 'pedido_id': None,
+        })
+    _enviar_mensaje_websocket_pizzeria('pedido_pizzeria_actualizado', _serializar_pedido(pedido))
+    return JsonResponse({'status': 'ok'})
 
 
 @csrf_exempt
@@ -2938,6 +3024,10 @@ def cancelar_pedido_pizzeria(request, pedido_id):
         return JsonResponse({'status': 'error', 'message': 'El pedido ya fue cobrado, no se puede cancelar'}, status=400)
     if pedido.estado == 'anulado':
         return JsonResponse({'status': 'error', 'message': 'El pedido ya está anulado'}, status=400)
+    if pedido.pagado_por_adelantado:
+        return JsonResponse(
+            {'status': 'error', 'message': 'El pedido ya se pagó por adelantado, no se puede cancelar'}, status=400,
+        )
 
     motivo = request.POST.get('motivo', '').strip()
 
@@ -3032,8 +3122,8 @@ def dashboard_caja_pizzeria(request):
             estado='cobrado', fecha_creacion__gte=caja_abierta.fecha_apertura
         ).order_by('-fecha_creacion')
         totales = {
-            row['metodo']: row['total'] for row in PagoPedido.objects.filter(
-                pedido__estado='cobrado', creado_en__gte=caja_abierta.fecha_apertura,
+            row['metodo']: row['total'] for row in PagoPedido.objects.contables().filter(
+                creado_en__gte=caja_abierta.fecha_apertura,
             ).values('metodo').annotate(total=Sum('monto'))
         }
         total_efectivo = totales.get('Efectivo', Decimal('0'))
@@ -3090,6 +3180,7 @@ def abrir_caja_pizzeria(request):
 @csrf_exempt
 @require_http_methods(["POST"])
 @login_required(login_url=LOGIN_URL)
+@solo_admin
 def cerrar_caja_pizzeria(request):
     try:
         caja_abierta = CajaPizzeria.objects.filter(estado='abierta').first()
