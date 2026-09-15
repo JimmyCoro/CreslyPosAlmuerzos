@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.db.models import Count
 
 from .models import (
     AsignacionItemCobro,
@@ -6,6 +7,7 @@ from .models import (
     CajaPizzeriaEfectivo,
     CajaPizzeriaTarjeta,
     CajaPizzeriaTransferencia,
+    CategoriaProducto,
     ComboComponente,
     ComboPizzeria,
     ComboTamano,
@@ -46,11 +48,34 @@ class TamanoPizzaAdmin(admin.ModelAdmin):
     list_editable = ('precio_base', 'recargo_premium_completo', 'recargo_premium_mitad', 'orden')
 
 
+class ProductoSimpleInline(admin.TabularInline):
+    model = ProductoSimple
+    fields = ('nombre', 'descripcion', 'precio', 'activo')
+    extra = 0
+
+
+@admin.register(CategoriaProducto)
+class CategoriaProductoAdmin(admin.ModelAdmin):
+    list_display = ('nombre', 'clave', 'orden', 'activa', 'total_productos')
+    list_editable = ('orden', 'activa')
+    prepopulated_fields = {'clave': ('nombre',)}
+    inlines = [ProductoSimpleInline]
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).annotate(n_productos=Count('productos'))
+
+    @admin.display(description='Productos', ordering='n_productos')
+    def total_productos(self, obj):
+        return obj.n_productos
+
+
 @admin.register(ProductoSimple)
 class ProductoSimpleAdmin(admin.ModelAdmin):
     list_display = ('nombre', 'categoria', 'precio', 'activo')
     list_filter = ('categoria', 'activo')
     list_editable = ('precio', 'activo')
+    list_select_related = ('categoria',)
+    search_fields = ('nombre',)
 
 
 class ComboTamanoInline(admin.TabularInline):

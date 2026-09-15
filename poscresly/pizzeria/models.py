@@ -99,17 +99,33 @@ class TamanoPizza(models.Model):
         return self.nombre
 
 
-class ProductoSimple(models.Model):
-    CATEGORIAS = [
-        ('bebida', 'Bebida'),
-        ('alitas', 'Alitas'),
-        ('hamburguesa', 'Hamburguesa'),
-        ('para_picar', 'Para picar'),
-        ('otro', 'Otro'),
-    ]
+class CategoriaProducto(models.Model):
+    # Claves con comportamiento propio en la toma de pedido: 'alitas' pide
+    # sabores según el número del nombre ("14 alitas") y 'bebida' pide sabor en
+    # las colas y micheladas. No cambiarlas o esos productos dejan de pedirlo.
+    CLAVE_ALITAS = 'alitas'
+    CLAVE_BEBIDA = 'bebida'
 
+    nombre = models.CharField(max_length=50, unique=True)
+    clave = models.SlugField(
+        max_length=50, unique=True,
+        help_text='Identificador interno. "alitas" y "bebida" activan la elección de sabores; no las cambies.',
+    )
+    orden = models.PositiveIntegerField(default=0, help_text='Posición en el menú (menor va primero).')
+    activa = models.BooleanField(default=True, help_text='Si se desactiva, sus productos no salen en el menú.')
+
+    class Meta:
+        verbose_name = 'Categoría de producto'
+        verbose_name_plural = 'Categorías de producto'
+        ordering = ['orden', 'nombre']
+
+    def __str__(self):
+        return self.nombre
+
+
+class ProductoSimple(models.Model):
     nombre = models.CharField(max_length=150)
-    categoria = models.CharField(max_length=20, choices=CATEGORIAS)
+    categoria = models.ForeignKey(CategoriaProducto, on_delete=models.PROTECT, related_name='productos')
     descripcion = models.CharField(max_length=255, blank=True)
     precio = models.DecimalField(max_digits=6, decimal_places=2)
     activo = models.BooleanField(default=True)
@@ -117,7 +133,7 @@ class ProductoSimple(models.Model):
     class Meta:
         verbose_name = 'Producto simple'
         verbose_name_plural = 'Productos simples'
-        ordering = ['categoria', 'nombre']
+        ordering = ['categoria__orden', 'categoria__nombre', 'nombre']
 
     def __str__(self):
         return self.nombre

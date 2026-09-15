@@ -4,6 +4,7 @@ from decimal import Decimal
 from django.core.management.base import BaseCommand, CommandError
 
 from pizzeria.models import (
+    CategoriaProducto,
     ComboComponente,
     ComboPizzeria,
     ComboTamano,
@@ -193,7 +194,7 @@ class Command(BaseCommand):
 
             ProductoSimple.objects.update_or_create(
                 nombre=fields['name'],
-                categoria=categoria,
+                categoria=CategoriaProducto.objects.get(clave=categoria),
                 defaults={
                     'descripcion': fields.get('description', ''),
                     'precio': Decimal(fields['price']),

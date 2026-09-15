@@ -25,6 +25,7 @@ from .models import (
     CajaPizzeriaEfectivo,
     CajaPizzeriaTarjeta,
     CajaPizzeriaTransferencia,
+    CategoriaProducto,
     ComboPizzeria,
     ComboTamano,
     GastoPizzeria,
@@ -58,13 +59,23 @@ def _alitas_cantidad_producto(nombre):
     return int(match.group(1)) if match else 0
 
 
+def _productos_del_menu():
+    """Productos activos de categorías activas, en el orden de categoría que se
+    fija en el admin."""
+    return (
+        ProductoSimple.objects.filter(activo=True, categoria__activa=True)
+        .select_related('categoria')
+        .order_by('categoria__orden', 'categoria__nombre', 'nombre')
+    )
+
+
 def _tipo_sabor_bebida_producto(producto):
     """Los productos de bebida tipo "Cola" (ej. Cola Mediana, Cola Grande) piden
     elegir el sabor (Coca-Cola, Fanta, etc) y las Micheladas piden sabor (Maracuyá,
     Limón). El resto de bebidas (agua, cuba libre, jugos) quedan igual, sin
     selección. Devuelve el `tipo` de Sabor que aplica ('bebida', 'michelada') o
     None si el producto no necesita selección de sabor."""
-    if producto.categoria != 'bebida':
+    if producto.categoria.clave != CategoriaProducto.CLAVE_BEBIDA:
         return None
     nombre = producto.nombre.lower()
     if 'cola' in nombre:
@@ -2145,7 +2156,7 @@ def nueva_orden(request):
     sabores_bebida = list(Sabor.objects.filter(tipo='bebida').order_by('nombre'))
     sabores_michelada = list(Sabor.objects.filter(tipo='michelada').order_by('nombre'))
     combos = ComboPizzeria.objects.filter(activo=True).select_related('pizza_tamano_fijo').prefetch_related('tamanos__tamano', 'componentes')
-    productos = ProductoSimple.objects.filter(activo=True).order_by('categoria', 'nombre')
+    productos = _productos_del_menu()
     mesas = list(Mesa.objects.filter(activa=True).order_by('numero'))
     libres_count = sum(1 for m in mesas if m.estado == 'libre')
 
@@ -2211,11 +2222,11 @@ def nueva_orden(request):
         'combos': [_serializar_combo_catalogo(c) for c in combos],
         'productos': [
             {
-                'id': p.id, 'nombre': p.nombre, 'categoria': p.categoria,
-                'categoria_display': p.get_categoria_display(),
+                'id': p.id, 'nombre': p.nombre, 'categoria': p.categoria.clave,
+                'categoria_display': p.categoria.nombre,
                 'descripcion': p.descripcion, 'precio': str(p.precio),
                 'es_porcion_individual': p.nombre.strip().lower() == 'porción individual',
-                'alitas_cantidad': _alitas_cantidad_producto(p.nombre) if p.categoria == 'alitas' else 0,
+                'alitas_cantidad': _alitas_cantidad_producto(p.nombre) if p.categoria.clave == CategoriaProducto.CLAVE_ALITAS else 0,
                 'tipo_sabor_bebida': _tipo_sabor_bebida_producto(p),
             }
             for p in productos
@@ -2328,7 +2339,7 @@ def tomar_pedido_pizzeria(request, mesa_id=None):
     sabores_bebida = list(Sabor.objects.filter(tipo='bebida').order_by('nombre'))
     sabores_michelada = list(Sabor.objects.filter(tipo='michelada').order_by('nombre'))
     combos = ComboPizzeria.objects.filter(activo=True).select_related('pizza_tamano_fijo').prefetch_related('tamanos__tamano', 'componentes')
-    productos = ProductoSimple.objects.filter(activo=True).order_by('categoria', 'nombre')
+    productos = _productos_del_menu()
 
     catalogo = {
         'tamanos': [
@@ -2349,9 +2360,9 @@ def tomar_pedido_pizzeria(request, mesa_id=None):
         'combos': [_serializar_combo_catalogo(c) for c in combos],
         'productos': [
             {
-                'id': p.id, 'nombre': p.nombre, 'categoria': p.get_categoria_display(),
+                'id': p.id, 'nombre': p.nombre, 'categoria': p.categoria.nombre,
                 'precio': str(p.precio),
-                'alitas_cantidad': _alitas_cantidad_producto(p.nombre) if p.categoria == 'alitas' else 0,
+                'alitas_cantidad': _alitas_cantidad_producto(p.nombre) if p.categoria.clave == CategoriaProducto.CLAVE_ALITAS else 0,
                 'tipo_sabor_bebida': _tipo_sabor_bebida_producto(p),
             }
             for p in productos
@@ -2687,7 +2698,7 @@ def guardar_pedido_pizzeria(request):
                     producto = ProductoSimple.objects.get(pk=item['producto_id'])
 
                     alitas_requeridas_prod = (
-                        _alitas_cantidad_producto(producto.nombre) if producto.categoria == 'alitas' else 0
+                        _alitas_cantidad_producto(producto.nombre) if producto.categoria.clave == CategoriaProducto.CLAVE_ALITAS else 0
                     )
                     alitas_sabores_data_prod = item.get('alitas_sabores') or []
                     if alitas_requeridas_prod > 0:

@@ -8,7 +8,7 @@ from django.utils import timezone
 
 from .models import (
     CajaPizzeria, CajaPizzeriaEfectivo, CajaPizzeriaTarjeta, CajaPizzeriaTransferencia, CambioMetodoPago,
-    ItemPreparacion, Mesa,
+    CategoriaProducto, ItemPreparacion, Mesa,
     PagoPedido, PedidoPizzeria, PedidoProductoSimple, ProductoSimple,
 )
 from .views import _total_con_iva
@@ -30,7 +30,9 @@ class CobroPorAdelantadoTests(TestCase):
         CajaPizzeriaTransferencia.objects.create(caja=self.caja)
 
         self.mesa = Mesa.objects.create(numero=1, estado='ocupada')
-        producto = ProductoSimple.objects.create(nombre='Agua', categoria='bebida', precio=Decimal('2.00'))
+        producto = ProductoSimple.objects.create(
+            nombre='Agua', categoria=CategoriaProducto.objects.get(clave='bebida'), precio=Decimal('2.00'),
+        )
         self.pedido = PedidoPizzeria.objects.create(tipo='mesa', mesa=self.mesa, mesero=self.user)
         linea = PedidoProductoSimple.objects.create(
             pedido=self.pedido, producto=producto, cantidad=2, precio_unitario=Decimal('2.00'),
@@ -119,7 +121,9 @@ class OrdenesDelTurnoTests(TestCase):
         CajaPizzeriaEfectivo.objects.create(caja=self.caja, monto_inicial=Decimal('20.00'))
         CajaPizzeriaTransferencia.objects.create(caja=self.caja)
         CajaPizzeriaTarjeta.objects.create(caja=self.caja)
-        self.producto = ProductoSimple.objects.create(nombre='Agua', categoria='bebida', precio=Decimal('5.00'))
+        self.producto = ProductoSimple.objects.create(
+            nombre='Agua', categoria=CategoriaProducto.objects.get(clave='bebida'), precio=Decimal('5.00'),
+        )
 
     def pedido_cobrado(self, pagos, recibido=None):
         """Crea una orden de $total y la cobra por la vista real, como en el POS."""
