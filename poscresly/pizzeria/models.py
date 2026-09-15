@@ -167,6 +167,11 @@ class ComboPizzeria(models.Model):
         'CategoriaProducto', on_delete=models.SET_NULL, null=True, blank=True, related_name='combos',
         help_text='Botón del menú donde aparece. Vacío = "Combos".',
     )
+    recargo_cajas = models.DecimalField(
+        max_digits=5, decimal_places=2, null=True, blank=True,
+        help_text='Si tiene valor, al tomar el pedido aparece la casilla "Recargo por cajas" y suma '
+                  'este monto por combo. Vacío = el combo no ofrece la casilla.',
+    )
 
     class Meta:
         verbose_name = 'Combo'
@@ -338,6 +343,9 @@ class PedidoCombo(models.Model):
     # Segunda pizza de los combos 2x1 (ComboPizzeria.pizzas == 2).
     pizza2_sabor_1 = models.ForeignKey(Sabor, on_delete=models.PROTECT, related_name='+', null=True, blank=True)
     pizza2_sabor_2 = models.ForeignKey(Sabor, on_delete=models.PROTECT, related_name='+', null=True, blank=True)
+    con_cajas = models.BooleanField(
+        default=False, help_text='Se cobró el recargo por cajas (ya incluido en el precio unitario).',
+    )
     cantidad = models.PositiveIntegerField(default=1)
     precio_unitario = models.DecimalField(max_digits=6, decimal_places=2)
     observacion = models.CharField(max_length=200, blank=True)

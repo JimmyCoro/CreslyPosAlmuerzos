@@ -102,6 +102,7 @@
       if (c.sabores_por_pizza && c.sabores_por_pizza.length) {
         nombre += ' - ' + c.sabores_por_pizza.join(' + ');
       }
+      if (c.con_cajas) nombre += ' | En cajas';
       if (c.sabores_porcion && c.sabores_porcion.length) {
         nombre += ' | Porciones: ' + c.sabores_porcion.join(', ');
       }

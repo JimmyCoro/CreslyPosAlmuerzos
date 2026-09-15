@@ -131,7 +131,14 @@ def _serializar_combo_catalogo(c):
         'precio_desde': str(min((ct.precio for ct in tamanos), default=(c.precio_fijo or 0))),
         'pizzas': c.pizzas,
         'categoria_display': c.categoria.nombre if c.categoria_id else None,
+        'recargo_cajas': str(c.recargo_cajas) if c.recargo_cajas else None,
     }
+
+
+def _quiere_cajas(valor, combo):
+    """Si el ítem pidió cajas y el combo las ofrece. `valor` llega como bool
+    desde el carrito o como texto desde request.POST."""
+    return bool(combo.recargo_cajas) and valor in (True, 'true', '1', 'on')
 
 
 def _combos_del_menu():
@@ -166,6 +173,9 @@ def _pizzas_combo_etiquetadas(pedido_combo):
     if len(sabores) == 1:
         return [('Pizza', sabores[0])]
     return [(f'Pizza {idx}', texto) for idx, texto in enumerate(sabores, start=1)]
+
+
+LINEA_COMANDA_CAJAS = '   - En cajas'
 
 
 # ===== AUTENTICACIÓN =====
@@ -452,6 +462,8 @@ def _describir_combo(c):
     sabores = c.sabores_por_pizza
     if sabores:
         linea += ' - ' + ' + '.join(sabores)
+    if c.con_cajas:
+        linea += ' | En cajas'
     porciones = c.sabores_porcion.all()
     if porciones:
         linea += ' | Porciones: ' + ', '.join(sp.sabor.nombre for sp in porciones)
@@ -1899,6 +1911,7 @@ def duplicar_item_preparacion(request, item_id):
                 nuevo_combo = PedidoCombo.objects.create(
                     pedido=pedido, combo=combo, tamano=tamano, sabor_1=original.sabor_1, sabor_2=original.sabor_2,
                     pizza2_sabor_1=original.pizza2_sabor_1, pizza2_sabor_2=original.pizza2_sabor_2,
+                    con_cajas=original.con_cajas,
                     cantidad=1, precio_unitario=original.precio_unitario, observacion=original.observacion,
                 )
                 alitas_originales = list(original.sabores_alitas.select_related('sabor').all())
@@ -1928,6 +1941,8 @@ def duplicar_item_preparacion(request, item_id):
                 nuevas_lineas_ticket.append(f"1x {nombre_combo_ticket}")
                 for etiqueta, texto in pizzas_etiquetadas:
                     nuevas_lineas_ticket.append(f"   - {etiqueta}: {texto}")
+                if original.con_cajas:
+                    nuevas_lineas_ticket.append(LINEA_COMANDA_CAJAS)
                 for idx, sabor_p in enumerate(porcion_originales, start=1):
                     nuevas_lineas_ticket.append(f"   - Porción {idx}: {sabor_p.nombre}")
 
@@ -2035,6 +2050,8 @@ def _lineas_comanda_combo(c):
     lineas = [f"{c.cantidad}x {nombre_combo_ticket}"]
     for etiqueta, texto in _pizzas_combo_etiquetadas(c):
         lineas.append(f"   - {etiqueta}: {texto}")
+    if c.con_cajas:
+        lineas.append(LINEA_COMANDA_CAJAS)
     porciones = list(c.sabores_porcion.all())
     for idx, sp in enumerate(porciones, start=1):
         lineas.append(f"   - Porción {idx}: {sp.sabor.nombre}")
@@ -2450,6 +2467,8 @@ def calcular_precio_pizza_ajax(request):
                 return JsonResponse({'status': 'error', 'message': 'Ese tamaño no es de este combo'}, status=400)
             pizzas = _pizzas_combo_desde_item(request.POST, combo)
             precio = calcular_precio_combo(precio_base, tamano, pizzas)
+            if _quiere_cajas(request.POST.get('con_cajas'), combo):
+                precio += combo.recargo_cajas
         else:
             precio = calcular_precio_pizza(tamano, sabor_1, sabor_2)
 
@@ -2579,6 +2598,9 @@ def guardar_pedido_pizzeria(request):
 
                     pizzas_sabores = _pizzas_combo_desde_item(item, combo) if tamano else []
                     precio_unitario = calcular_precio_combo(precio_base, tamano, pizzas_sabores)
+                    con_cajas = _quiere_cajas(item.get('con_cajas'), combo)
+                    if con_cajas:
+                        precio_unitario += combo.recargo_cajas
                     sabor_1, sabor_2 = pizzas_sabores[0] if pizzas_sabores else (None, None)
                     pizza2_sabor_1, pizza2_sabor_2 = pizzas_sabores[1] if len(pizzas_sabores) > 1 else (None, None)
 
@@ -2623,7 +2645,7 @@ def guardar_pedido_pizzeria(request):
 
                     pedido_combo = PedidoCombo.objects.create(
                         pedido=pedido, combo=combo, tamano=tamano, sabor_1=sabor_1, sabor_2=sabor_2,
-                        pizza2_sabor_1=pizza2_sabor_1, pizza2_sabor_2=pizza2_sabor_2,
+                        pizza2_sabor_1=pizza2_sabor_1, pizza2_sabor_2=pizza2_sabor_2, con_cajas=con_cajas,
                         cantidad=cantidad, precio_unitario=precio_unitario, observacion=observacion_item,
                     )
                     pizzas_etiquetadas = _pizzas_combo_etiquetadas(pedido_combo)
@@ -2666,6 +2688,8 @@ def guardar_pedido_pizzeria(request):
                     nuevos_items_ticket.append(f"{cantidad}x {nombre_combo_ticket}")
                     for etiqueta, texto in pizzas_etiquetadas:
                         nuevos_items_ticket.append(f"   - {etiqueta}: {texto}")
+                    if con_cajas:
+                        nuevos_items_ticket.append(LINEA_COMANDA_CAJAS)
                     for idx, sabor_p in enumerate(porcion_sabores_objs, start=1):
                         nuevos_items_ticket.append(f"   - Porción {idx}: {sabor_p.nombre}")
 
@@ -3135,7 +3159,7 @@ def obtener_pedido_pizzeria(request, pedido_id):
             'tamano': c.tamano.nombre if c.tamano else None,
             'sabor_1': c.sabor_1.nombre if c.sabor_1 else None,
             'sabor_2': c.sabor_2.nombre if c.sabor_2 else None, 'cantidad': c.cantidad,
-            'sabores_por_pizza': c.sabores_por_pizza,
+            'sabores_por_pizza': c.sabores_por_pizza, 'con_cajas': c.con_cajas,
             'precio_unitario': float(c.precio_unitario), 'observacion': c.observacion,
             'sabores_porcion': [sp.sabor.nombre for sp in c.sabores_porcion.all()],
             'sabores_bebida': [sb.etiqueta for sb in c.sabores_bebida.all()],

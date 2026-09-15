@@ -11,7 +11,7 @@ from .models import (
     CategoriaProducto, ComboPizzeria, ComboTamano, ItemPreparacion, Mesa,
     PagoPedido, PedidoCombo, PedidoPizzeria, PedidoProductoSimple, ProductoSimple, Sabor, TamanoPizza,
 )
-from .views import _total_con_iva
+from .views import _lineas_comanda_combo, _total_con_iva
 from .views_caja import _resumen_turno
 
 
@@ -269,3 +269,29 @@ class CombosMartesTests(TestCase):
         combo = next(c for c in catalogo['combos'] if c['id'] == self.dos_por_uno.id)
         self.assertEqual((combo['pizzas'], combo['categoria_display']), (2, 'Martes 2X1'))
         self.assertIn('Martes 2X1', catalogo['categorias'])
+
+    def test_2x1_con_cajas_suma_el_recargo_y_sale_en_la_comanda(self):
+        self.dos_por_uno.recargo_cajas = Decimal('1.00')
+        self.dos_por_uno.save()
+        respuesta = self.guardar({
+            'kind': 'combo', 'combo_id': self.dos_por_uno.id, 'cantidad': 1, 'con_cajas': True,
+            'sabor_1_id': self.normal.id, 'pizza2_sabor_1_id': self.normal.id,
+        })
+        self.assertEqual(respuesta.status_code, 200, respuesta.content)
+        linea = PedidoCombo.objects.get()
+        self.assertEqual((linea.precio_unitario, linea.con_cajas), (Decimal('19.00'), True))
+        self.assertIn('   - En cajas', _lineas_comanda_combo(linea))
+
+        en_vivo = self.client.post(reverse('pizzeria_calcular_precio'), {
+            'combo_id': self.dos_por_uno.id, 'tamano_id': self.familiar.id, 'con_cajas': 'true',
+            'sabor_1_id': self.premium.id, 'pizza2_sabor_1_id': self.normal.id,
+        })
+        self.assertEqual(en_vivo.json()['precio'], '20.50')
+
+    def test_cajas_se_ignoran_si_el_combo_no_las_ofrece(self):
+        self.guardar({
+            'kind': 'combo', 'combo_id': self.dos_por_uno.id, 'cantidad': 1, 'con_cajas': True,
+            'sabor_1_id': self.normal.id, 'pizza2_sabor_1_id': self.normal.id,
+        })
+        linea = PedidoCombo.objects.get()
+        self.assertEqual((linea.precio_unitario, linea.con_cajas), (Decimal('18.00'), False))

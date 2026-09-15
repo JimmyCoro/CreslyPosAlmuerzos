@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="{% static 'CSS/pizzeria-mapa.css' %}?v=17">
 <link rel="stylesheet" href="{% static 'CSS/pizzeria-pedido.css' %}">
 <link rel="stylesheet" href="{% static 'CSS/pizzeria-venta-rapida.css' %}?v=20">
-<link rel="stylesheet" href="{% static 'CSS/pizzeria-combo.css' %}?v=3">
+<link rel="stylesheet" href="{% static 'CSS/pizzeria-combo.css' %}?v=4">
 <link rel="stylesheet" href="{% static 'CSS/pizzeria-cart-bar.css' %}">
 {% endblock %}
 
@@ -224,6 +224,12 @@
   <div class="cmb-pasos" id="cmbPasos"></div>
 
   <div class="cmb-pie">
+    {# Solo en combos con recargo por cajas (los 2x1); el JS la muestra u oculta. #}
+    <label class="cmb-cajas" id="cmbCajas" hidden>
+      <input type="checkbox" class="cmb-cajas-check" id="cmbCajasCheck">
+      <span class="cmb-cajas-texto"><i class="fas fa-box"></i> Recargo por cajas</span>
+      <span class="cmb-cajas-monto" id="cmbCajasMonto"></span>
+    </label>
     <div class="cmb-pie-fila">
       <div class="cmb-stepper">
         <button type="button" class="cmb-stepper-btn" id="cmbCantMenos" aria-label="Quitar uno">
@@ -256,7 +262,7 @@
   };
 </script>
 <script src="{% static 'JS/pizzeria_cart_bar.js' %}"></script>
-<script src="{% static 'JS/pizzeria_combo.js' %}?v=5"></script>
+<script src="{% static 'JS/pizzeria_combo.js' %}?v=6"></script>
 <script src="{% static 'JS/pizzeria_venta_rapida.js' %}?v=17"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function () {

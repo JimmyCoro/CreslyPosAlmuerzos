@@ -56,6 +56,9 @@
     const elMotivo = document.getElementById('cmbMotivo');
     const btnMenos = document.getElementById('cmbCantMenos');
     const btnMas = document.getElementById('cmbCantMas');
+    const elCajas = document.getElementById('cmbCajas');
+    const elCajasCheck = document.getElementById('cmbCajasCheck');
+    const elCajasMonto = document.getElementById('cmbCajasMonto');
 
     let estado = null;
     let pasos = [];
@@ -374,14 +377,20 @@
       };
     }
 
+    // Recargo por cajas de los 2x1: solo si el combo lo ofrece y está marcado.
+    function recargoCajas() {
+      const c = estado.spec.combo;
+      return (estado.conCajas && c && c.recargo_cajas) ? parseFloat(c.recargo_cajas) : 0;
+    }
+
     function precioBase() {
       const spec = estado.spec;
       if (spec.kind === 'combo') {
         if (comboConTamanos()) {
           const t = spec.combo.tamanos.find(x => x.tamano_id === estado.tamanoId);
-          return t ? parseFloat(t.precio) : 0;
+          return t ? parseFloat(t.precio) + recargoCajas() : 0;
         }
-        return parseFloat(spec.combo.precio_fijo || 0);
+        return parseFloat(spec.combo.precio_fijo || 0) + recargoCajas();
       }
       if (spec.kind === 'pizza') return parseFloat(spec.tamano.precio_base || 0);
       return parseFloat(spec.producto.precio || 0);
@@ -407,7 +416,10 @@
       const body = new FormData();
       body.append('tamano_id', estado.tamanoId);
       Object.entries(camposSaboresPizza()).forEach(([clave, valor]) => body.append(clave, valor || ''));
-      if (spec.kind === 'combo') body.append('combo_id', spec.combo.id);
+      if (spec.kind === 'combo') {
+        body.append('combo_id', spec.combo.id);
+        body.append('con_cajas', estado.conCajas ? 'true' : 'false');
+      }
 
       fetch(deps.calcularPrecioUrl, {
         method: 'POST', body, headers: { 'X-CSRFToken': deps.csrfToken },
@@ -1153,6 +1165,7 @@
         nota: '',
         notaAbierta: false,
         tamanoId: null,
+        conCajas: false,
         // Una entrada por pizza completa; la segunda solo se usa en los 2x1.
         pizzas: [1, 2].map(() => ({ modo: 'unico', sabor1: null, sabor2: null, ranuraEditando: 1 })),
         porciones: [],
@@ -1186,6 +1199,12 @@
       });
       estado.pasoActivo = pasos.length ? pasos[0].id : null;
       elNombre.textContent = spec.nombre;
+
+      const recargoCajasCombo = spec.kind === 'combo' && spec.combo.recargo_cajas;
+      elCajas.hidden = !recargoCajasCombo;
+      elCajasCheck.checked = false;
+      if (recargoCajasCombo) elCajasMonto.textContent = '+' + dinero(recargoCajasCombo);
+
       actualizarPrecio();
       render();
       elPasos.scrollTop = 0;
@@ -1221,6 +1240,12 @@
       cerrar();
     });
 
+    elCajasCheck.addEventListener('change', function () {
+      estado.conCajas = elCajasCheck.checked;
+      actualizarPrecio();
+      pintarPie();
+    });
+
     overlay.addEventListener('click', cerrar);
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape' && hoja.classList.contains('cmb-hoja-abierta')) cerrar();
@@ -1249,6 +1274,8 @@
       const pizzas = pasos.filter(p => p.tipo === 'mitades');
       if (pizzas.length) label += ' - ' + pizzas.map(resumenPaso).join(' + ');
       if (partes.length) label += ' | ' + partes.join(' | ');
+      const conCajas = recargoCajas() > 0;
+      if (conCajas) label += ' | En cajas';
 
       return Object.assign({
         kind: 'combo',
@@ -1256,6 +1283,7 @@
         observacion: estado.nota,
         combo_id: c.id,
         tamano_id: estado.tamanoId,
+        con_cajas: conCajas,
       }, camposSaboresPizza(), {
         alitas_sabores: estado.alitas.map(a => ({ sabor_id: a.saborId, cantidad: a.cantidad })),
         bebidas: estado.bebidas.map(b => ({ sabor_id: b.saborId, temperatura: b.temperatura })),

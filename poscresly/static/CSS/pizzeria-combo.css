@@ -741,6 +741,52 @@
 
 .cmb-pie-fila { display: flex; gap: 9px; }
 
+/* Casilla de recargo por cajas (2x1): toda la fila es tocable. */
+.cmb-cajas {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 12px;
+  margin: 0;
+  border: 1px solid var(--cmb-border-input);
+  border-radius: 12px;
+  background: #fff;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* El display:flex de arriba le ganaría al [hidden] del navegador. */
+.cmb-cajas[hidden] { display: none; }
+
+.cmb-cajas:has(.cmb-cajas-check:checked) {
+  border-color: var(--cmb-amber-dark);
+  background: var(--cmb-amber-tint);
+}
+
+.cmb-cajas-check {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  flex: 0 0 auto;
+  accent-color: var(--cmb-amber-dark);
+}
+
+.cmb-cajas-texto {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--cmb-ink);
+}
+
+.cmb-cajas-texto i { color: var(--cmb-amber-dark); margin-right: 4px; }
+
+.cmb-cajas-monto {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--cmb-amber-dark);
+}
+
 .cmb-stepper { flex: 0 0 auto; display: flex; align-items: center; gap: 2px; }
 
 .cmb-stepper-btn {
