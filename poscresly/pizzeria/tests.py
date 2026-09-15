@@ -8,8 +8,8 @@ from django.utils import timezone
 
 from .models import (
     CajaPizzeria, CajaPizzeriaEfectivo, CajaPizzeriaTarjeta, CajaPizzeriaTransferencia, CambioMetodoPago,
-    CategoriaProducto, ItemPreparacion, Mesa,
-    PagoPedido, PedidoPizzeria, PedidoProductoSimple, ProductoSimple,
+    CategoriaProducto, ComboPizzeria, ComboTamano, ItemPreparacion, Mesa,
+    PagoPedido, PedidoCombo, PedidoPizzeria, PedidoProductoSimple, ProductoSimple, Sabor, TamanoPizza,
 )
 from .views import _total_con_iva
 from .views_caja import _resumen_turno
@@ -203,3 +203,69 @@ class OrdenesDelTurnoTests(TestCase):
         respuesta = self.client.get(reverse('pizzeria_caja'))
         self.assertContains(respuesta, 'Órdenes del turno')
         self.assertContains(respuesta, '1 pagada · $5.00')
+
+
+@override_settings(STORAGES={
+    'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+    'staticfiles': {'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage'},
+})
+class CombosMartesTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_superuser('admin', 'admin@example.com', 'x')
+        self.client.force_login(self.user)
+        self.familiar = TamanoPizza.objects.create(
+            nombre='Familiar', precio_base=Decimal('15.00'),
+            recargo_premium_completo=Decimal('1.50'), recargo_premium_mitad=Decimal('0.75'),
+        )
+        self.premium = Sabor.objects.create(nombre='Suprema', tipo='pizza', es_premium=True)
+        self.normal = Sabor.objects.create(nombre='Hawaiana', tipo='pizza')
+        self.categoria = CategoriaProducto.objects.create(nombre='Martes 2X1', clave='martes-2x1', orden=9)
+        self.dos_por_uno = ComboPizzeria.objects.create(
+            nombre='2 Pizzas Familiares', precio_fijo=Decimal('18.00'), pizza_tamano_fijo=self.familiar,
+            pizzas=2, categoria=self.categoria,
+        )
+
+    def guardar(self, item):
+        return self.client.post(reverse('pizzeria_guardar_pedido'), {
+            'tipo': 'llevar', 'nombre': 'Ana', 'imprimir': 'false', 'carrito': json.dumps([item]),
+        })
+
+    def test_2x1_cobra_el_recargo_de_cada_pizza(self):
+        # Pizza 1 completa premium (+1.50); pizza 2 mitad premium (+0.75).
+        respuesta = self.guardar({
+            'kind': 'combo', 'combo_id': self.dos_por_uno.id, 'cantidad': 1,
+            'sabor_1_id': self.premium.id,
+            'pizza2_sabor_1_id': self.normal.id, 'pizza2_sabor_2_id': self.premium.id,
+        })
+        self.assertEqual(respuesta.status_code, 200, respuesta.content)
+
+        linea = PedidoCombo.objects.get()
+        self.assertEqual(linea.precio_unitario, Decimal('20.25'))
+        self.assertEqual(linea.sabores_por_pizza, ['Suprema', '1/2 Hawaiana / 1/2 Suprema'])
+        self.assertEqual(
+            sorted(ItemPreparacion.objects.values_list('descripcion', flat=True)),
+            ['Pizza 1 Familiar - Suprema', 'Pizza 2 Familiar - 1/2 Hawaiana / 1/2 Suprema'],
+        )
+
+    def test_2x1_exige_los_sabores_de_la_segunda_pizza(self):
+        respuesta = self.guardar({
+            'kind': 'combo', 'combo_id': self.dos_por_uno.id, 'cantidad': 1, 'sabor_1_id': self.normal.id,
+        })
+        self.assertNotEqual(respuesta.status_code, 200)
+        self.assertFalse(PedidoCombo.objects.exists())
+
+    def test_precio_en_vivo_de_combo_con_tamanos(self):
+        combo = ComboPizzeria.objects.create(nombre='Combo Martes #1', categoria=self.categoria)
+        ComboTamano.objects.create(combo=combo, tamano=self.familiar, precio=Decimal('20.00'))
+        respuesta = self.client.post(reverse('pizzeria_calcular_precio'), {
+            'combo_id': combo.id, 'tamano_id': self.familiar.id,
+            'sabor_1_id': self.premium.id, 'sabor_2_id': self.normal.id,
+        })
+        self.assertEqual(respuesta.json()['precio'], '20.75')
+
+    def test_nueva_orden_manda_la_categoria_del_combo(self):
+        respuesta = self.client.get(reverse('pizzeria_nueva_orden'))
+        catalogo = json.loads(respuesta.context['catalogo_json'])
+        combo = next(c for c in catalogo['combos'] if c['id'] == self.dos_por_uno.id)
+        self.assertEqual((combo['pizzas'], combo['categoria_display']), (2, 'Martes 2X1'))
+        self.assertIn('Martes 2X1', catalogo['categorias'])

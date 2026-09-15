@@ -133,7 +133,16 @@
       }
       const tienePizza = (combo.tamanos && combo.tamanos.length) || combo.pizza_tamano_fijo_id;
       if (tienePizza) {
-        lista.push({ id: 'pizza', tipo: 'mitades', titulo: 'Sabor de la pizza', etiqueta: 'PIZZA', pista: 'Uno o mitad y mitad' });
+        // Un 2x1 trae dos pizzas: cada una es un paso con su sabor o mitades.
+        const n = combo.pizzas || 1;
+        for (let i = 0; i < n; i++) {
+          lista.push({
+            id: i === 0 ? 'pizza' : `pizza${i + 1}`, tipo: 'mitades', pizzaIdx: i,
+            titulo: n > 1 ? `Pizza ${i + 1}` : 'Sabor de la pizza',
+            etiqueta: n > 1 ? `PIZZA ${i + 1}` : 'PIZZA',
+            pista: 'Uno o mitad y mitad',
+          });
+        }
       }
       if (combo.porcion_pizza_cantidad) {
         const n = combo.porcion_pizza_cantidad;
@@ -183,11 +192,18 @@
     }
 
     // ===== ESTADO RESUELTO / RESUMEN POR PASO =====
+    // Sabores de la pizza que edita un paso "mitades" (la 1 o la 2 de un 2x1).
+    function pizzaDe(paso) {
+      return estado.pizzas[paso.pizzaIdx || 0];
+    }
+
+    function pizzaCompleta(p) {
+      return p.modo === 'unico' ? !!p.sabor1 : !!(p.sabor1 && p.sabor2);
+    }
+
     function pasoResuelto(paso) {
       if (paso.tipo === 'tamano') return !!estado.tamanoId;
-      if (paso.tipo === 'mitades') {
-        return estado.modo === 'unico' ? !!estado.sabor1 : !!(estado.sabor1 && estado.sabor2);
-      }
+      if (paso.tipo === 'mitades') return pizzaCompleta(pizzaDe(paso));
       if (paso.tipo === 'reparto') return asignadoReparto() === paso.total;
       if (paso.tipo === 'multi') {
         return estado[paso.id].filter(Boolean).length === unidadesDe(paso);
@@ -210,9 +226,10 @@
         return t ? `${t.tamano_nombre} · ${dinero(t.precio)}` : '';
       }
       if (paso.tipo === 'mitades') {
-        const n1 = nombreSabor(catalogo.sabores, estado.sabor1);
-        if (estado.modo === 'unico') return n1;
-        return `½ ${n1} · ½ ${nombreSabor(catalogo.sabores, estado.sabor2)}`;
+        const p = pizzaDe(paso);
+        const n1 = nombreSabor(catalogo.sabores, p.sabor1);
+        if (p.modo === 'unico') return n1;
+        return `½ ${n1} · ½ ${nombreSabor(catalogo.sabores, p.sabor2)}`;
       }
       // El número por delante ("Las 2 de Peperoni") dice cuántas unidades cubre
       // la elección sin tener que repetir el grupo una vez por unidad.
@@ -252,9 +269,10 @@
     function faltaEnPaso(paso) {
       if (paso.tipo === 'tamano') return estado.tamanoId ? '' : 'elige uno';
       if (paso.tipo === 'mitades') {
-        if (estado.modo === 'unico') return estado.sabor1 ? '' : 'elige el sabor';
-        if (!estado.sabor1) return 'falta la mitad 1';
-        if (!estado.sabor2) return 'falta la mitad 2';
+        const p = pizzaDe(paso);
+        if (p.modo === 'unico') return p.sabor1 ? '' : 'elige el sabor';
+        if (!p.sabor1) return 'falta la mitad 1';
+        if (!p.sabor2) return 'falta la mitad 2';
         return '';
       }
       if (paso.tipo === 'reparto') {
@@ -290,12 +308,12 @@
 
     // El recargo premium no vive en el sabor sino en el tamaño elegido, y
     // cambia según se cobre la pizza completa o media.
-    function recargoSabor(s) {
+    function recargoSabor(s, p) {
       if (!s.es_premium || !estado.tamanoId) return 0;
       const t = (catalogo.tamanos || []).find(x => x.id === estado.tamanoId);
       if (!t) return 0;
       return parseFloat(
-        estado.modo === 'mitades' ? t.recargo_premium_mitad : t.recargo_premium_completo,
+        p.modo === 'mitades' ? t.recargo_premium_mitad : t.recargo_premium_completo,
       ) || 0;
     }
 
@@ -318,8 +336,12 @@
               : `Quita ${-restan} alitas: el combo trae ${paso.total}`,
           };
         }
-        if (paso.tipo === 'mitades' && estado.modo === 'mitades' && estado.sabor1 && !estado.sabor2) {
-          return { ok: false, motivo: 'Elige la mitad 2 para continuar' };
+        if (paso.tipo === 'mitades') {
+          const p = pizzaDe(paso);
+          if (p.modo === 'mitades' && p.sabor1 && !p.sabor2) {
+            const cual = pasos.filter(x => x.tipo === 'mitades').length > 1 ? ` de la ${paso.titulo.toLowerCase()}` : '';
+            return { ok: false, motivo: `Elige la mitad 2${cual} para continuar` };
+          }
         }
         if (paso.tipo === 'bebida') {
           return { ok: false, motivo: `${paso.titulo}: ${faltaEnPaso(paso)}` };
@@ -341,6 +363,17 @@
       return !!(c && c.tamanos && c.tamanos.length);
     }
 
+    // Claves con que el servidor recibe los sabores de cada pizza.
+    function camposSaboresPizza() {
+      const [p1, p2] = estado.pizzas;
+      return {
+        sabor_1_id: p1.sabor1,
+        sabor_2_id: p1.modo === 'mitades' ? p1.sabor2 : null,
+        pizza2_sabor_1_id: p2.sabor1,
+        pizza2_sabor_2_id: p2.modo === 'mitades' ? p2.sabor2 : null,
+      };
+    }
+
     function precioBase() {
       const spec = estado.spec;
       if (spec.kind === 'combo') {
@@ -360,19 +393,20 @@
       estado.precioUnitario = precioBase();
       pintarPrecio();
 
-      // Solo pizza y combos con tamaño necesitan al servidor: ahí el recargo
+      // Solo lo que lleva pizza completa necesita al servidor: ahí el recargo
       // por sabor premium depende del tamaño y no se puede calcular aquí.
+      // Se pide cuando todas las pizzas (dos en un 2x1) tienen sus sabores.
       const spec = estado.spec;
-      const necesitaServidor = (spec.kind === 'pizza' || (spec.kind === 'combo' && comboConTamanos()))
-        && estado.tamanoId && estado.sabor1
-        && (estado.modo === 'unico' || estado.sabor2);
+      const pasosPizza = pasos.filter(p => p.tipo === 'mitades');
+      const necesitaServidor = (spec.kind === 'pizza' || spec.kind === 'combo')
+        && estado.tamanoId && pasosPizza.length
+        && pasosPizza.every(p => pizzaCompleta(pizzaDe(p)));
       if (!necesitaServidor) return;
 
       const token = ++peticionPrecio;
       const body = new FormData();
       body.append('tamano_id', estado.tamanoId);
-      body.append('sabor_1_id', estado.sabor1);
-      body.append('sabor_2_id', estado.modo === 'mitades' ? estado.sabor2 : '');
+      Object.entries(camposSaboresPizza()).forEach(([clave, valor]) => body.append(clave, valor || ''));
       if (spec.kind === 'combo') body.append('combo_id', spec.combo.id);
 
       fetch(deps.calcularPrecioUrl, {
@@ -678,19 +712,20 @@
         return wrap;
       }
 
+      const p = pizzaDe(paso);
       const modos = document.createElement('div');
       modos.className = 'cmb-modo';
       [['unico', 'Un solo sabor'], ['mitades', 'Mitad y mitad']].forEach(function (m) {
         const btn = document.createElement('button');
         btn.type = 'button';
-        btn.className = 'cmb-modo-btn' + (estado.modo === m[0] ? ' cmb-modo-btn-activo' : '');
+        btn.className = 'cmb-modo-btn' + (p.modo === m[0] ? ' cmb-modo-btn-activo' : '');
         btn.textContent = m[1];
         btn.addEventListener('click', function () {
-          if (estado.modo === m[0]) return;
-          estado.modo = m[0];
+          if (p.modo === m[0]) return;
+          p.modo = m[0];
           // Pasar a un solo sabor conserva la mitad 1 y descarta la 2.
-          if (estado.modo === 'unico') estado.sabor2 = null;
-          estado.ranuraEditando = estado.sabor1 ? 2 : 1;
+          if (p.modo === 'unico') p.sabor2 = null;
+          p.ranuraEditando = p.sabor1 ? 2 : 1;
           actualizarPrecio();
           render();
         });
@@ -698,17 +733,18 @@
       });
       wrap.appendChild(modos);
 
-      if (estado.modo === 'mitades') wrap.appendChild(vistaRanuras());
+      if (p.modo === 'mitades') wrap.appendChild(vistaRanuras(paso));
       wrap.appendChild(rejillaSaboresPizza(paso));
       return wrap;
     }
 
     function rejillaSaboresPizza(paso) {
+      const p = pizzaDe(paso);
       const grid = document.createElement('div');
       grid.className = 'cmb-grid';
       (catalogo.sabores || []).forEach(function (s) {
-        const sel = estado.sabor1 === s.id || (estado.modo === 'mitades' && estado.sabor2 === s.id);
-        const recargo = recargoSabor(s);
+        const sel = p.sabor1 === s.id || (p.modo === 'mitades' && p.sabor2 === s.id);
+        const recargo = recargoSabor(s, p);
         const btn = botonOpcion(
           s.nombre, sel,
           recargo > 0 ? `<span class="cmb-recargo">+${dinero(recargo)}</span>` : '',
@@ -719,21 +755,22 @@
       return grid;
     }
 
-    function vistaRanuras() {
+    function vistaRanuras(paso) {
+      const p = pizzaDe(paso);
       const fila = document.createElement('div');
       fila.className = 'cmb-ranuras';
       [1, 2].forEach(function (n) {
-        const saborId = n === 1 ? estado.sabor1 : estado.sabor2;
+        const saborId = n === 1 ? p.sabor1 : p.sabor2;
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'cmb-ranura'
           + (saborId ? ' cmb-ranura-llena' : ' cmb-ranura-pendiente')
-          + (estado.ranuraEditando === n ? ' cmb-ranura-editando' : '');
+          + (p.ranuraEditando === n ? ' cmb-ranura-editando' : '');
         btn.innerHTML = `
           <span class="cmb-ranura-label">MITAD ${n}</span>
           <span class="cmb-ranura-valor">${saborId ? escapeHtml(nombreSabor(catalogo.sabores, saborId)) : 'Elige abajo'}</span>`;
         btn.addEventListener('click', function () {
-          estado.ranuraEditando = n;
+          p.ranuraEditando = n;
           render();
         });
         fila.appendChild(btn);
@@ -743,14 +780,15 @@
 
     // El sabor que se toca cae en la ranura pendiente (o en la que se fijó).
     function elegirSaborPizza(paso, saborId) {
-      if (estado.modo === 'unico') {
-        estado.sabor1 = saborId;
-        estado.sabor2 = null;
+      const p = pizzaDe(paso);
+      if (p.modo === 'unico') {
+        p.sabor1 = saborId;
+        p.sabor2 = null;
       } else {
-        const destino = !estado.sabor1 ? 1 : (!estado.sabor2 ? 2 : estado.ranuraEditando);
-        if (destino === 1) estado.sabor1 = saborId;
-        else estado.sabor2 = saborId;
-        estado.ranuraEditando = destino === 1 ? 2 : 1;
+        const destino = !p.sabor1 ? 1 : (!p.sabor2 ? 2 : p.ranuraEditando);
+        if (destino === 1) p.sabor1 = saborId;
+        else p.sabor2 = saborId;
+        p.ranuraEditando = destino === 1 ? 2 : 1;
       }
       actualizarPrecio();
       avanzar(paso);
@@ -1115,10 +1153,8 @@
         nota: '',
         notaAbierta: false,
         tamanoId: null,
-        modo: 'unico',
-        sabor1: null,
-        sabor2: null,
-        ranuraEditando: 1,
+        // Una entrada por pizza completa; la segunda solo se usa en los 2x1.
+        pizzas: [1, 2].map(() => ({ modo: 'unico', sabor1: null, sabor2: null, ranuraEditando: 1 })),
         porciones: [],
         alitas: [],
         bebidas: [],
@@ -1131,6 +1167,11 @@
       };
       // Una pizza suelta ya trae su tamaño elegido desde la tarjeta que se tocó.
       if (spec.kind === 'pizza') estado.tamanoId = spec.tamano.id;
+      // Un combo de tamaño fijo (2x1, Cumpleañero) no pregunta el tamaño, pero
+      // lo necesita para mostrar y cobrar el recargo de los sabores premium.
+      if (spec.kind === 'combo' && !(spec.combo.tamanos || []).length && spec.combo.pizza_tamano_fijo_id) {
+        estado.tamanoId = spec.combo.pizza_tamano_fijo_id;
+      }
 
       pasos = construirPasos(spec);
       pasos.forEach(function (paso) {
@@ -1192,7 +1233,7 @@
       const c = spec.combo;
       const partes = [];
       pasos.forEach(function (paso) {
-        if (paso.id === 'tamano' || paso.id === 'pizza') return;
+        if (paso.tipo === 'tamano' || paso.tipo === 'mitades') return;
         const txt = resumenPaso(paso);
         // El resumen ya trae el número ("Las 2 de Peperoni"), así que la
         // etiqueta va sin él para no repetirlo en la línea del carrito.
@@ -1205,25 +1246,24 @@
         ? (c.tamanos.find(t => t.tamano_id === estado.tamanoId) || {}).tamano_nombre
         : null;
       if (tamano) label += ` (${tamano})`;
-      const pizza = pasos.find(p => p.id === 'pizza');
-      if (pizza) label += ' - ' + resumenPaso(pizza);
+      const pizzas = pasos.filter(p => p.tipo === 'mitades');
+      if (pizzas.length) label += ' - ' + pizzas.map(resumenPaso).join(' + ');
       if (partes.length) label += ' | ' + partes.join(' | ');
 
-      return {
+      return Object.assign({
         kind: 'combo',
         cantidad: estado.cantidad,
         observacion: estado.nota,
         combo_id: c.id,
         tamano_id: estado.tamanoId,
-        sabor_1_id: estado.sabor1,
-        sabor_2_id: estado.modo === 'mitades' ? estado.sabor2 : null,
+      }, camposSaboresPizza(), {
         alitas_sabores: estado.alitas.map(a => ({ sabor_id: a.saborId, cantidad: a.cantidad })),
         bebidas: estado.bebidas.map(b => ({ sabor_id: b.saborId, temperatura: b.temperatura })),
         sabores_michelada_ids: estado.michelada.filter(Boolean),
         sabores_porcion_ids: estado.porciones.filter(Boolean),
         _label: label,
         _precio_unitario: estado.precioUnitario,
-      };
+      });
     }
 
     // Pizza suelta, porción, alitas, bebida y michelada: cada una arma el ítem
@@ -1240,8 +1280,8 @@
         return Object.assign(base, {
           kind: 'pizza',
           tamano_id: estado.tamanoId,
-          sabor_1_id: estado.sabor1,
-          sabor_2_id: estado.modo === 'mitades' ? estado.sabor2 : null,
+          sabor_1_id: camposSaboresPizza().sabor_1_id,
+          sabor_2_id: camposSaboresPizza().sabor_2_id,
           _label: `Pizza ${spec.tamano.nombre} - ${sabores}`,
         });
       }

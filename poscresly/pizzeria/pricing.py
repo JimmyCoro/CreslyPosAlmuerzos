@@ -25,6 +25,8 @@ def calcular_precio_pizza(tamano, sabor_1, sabor_2=None):
     return tamano.precio_base + calcular_recargo_premium(tamano, sabor_1, sabor_2)
 
 
-def calcular_precio_combo(combo_tamano, sabor_1, sabor_2=None):
-    """Precio de un combo: precio fijo del tamaño de combo + recargo premium del tamaño de pizza."""
-    return combo_tamano.precio + calcular_recargo_premium(combo_tamano.tamano, sabor_1, sabor_2)
+def calcular_precio_combo(precio_base, tamano, pizzas):
+    """Precio de un combo: su precio (el del tamaño elegido o el fijo) + el recargo
+    premium de cada pizza completa. `pizzas` es una lista de (sabor_1, sabor_2);
+    en un 2x1 cada pizza paga su recargo por separado."""
+    return precio_base + sum(calcular_recargo_premium(tamano, s1, s2) for s1, s2 in pizzas)

@@ -18,14 +18,20 @@
   }
 
   // ===== CATEGORÍAS =====
+  // Un combo con categoría (ej. "Martes 2X1") sale en ese botón; los demás, en "Combos".
+  function combosSinCategoria() {
+    return catalogo.combos.filter(c => !c.categoria_display);
+  }
+
   function construirCategorias() {
-    const categorias = ['Todas', 'Pizzas', 'Combos'];
-    const vistas = new Set();
-    catalogo.productos.forEach(p => {
-      if (!p.es_porcion_individual && !vistas.has(p.categoria_display)) {
-        vistas.add(p.categoria_display);
-        categorias.push(p.categoria_display);
-      }
+    const categorias = ['Todas', 'Pizzas'];
+    if (combosSinCategoria().length) categorias.push('Combos');
+    // El orden viene del admin. Una categoría cuyo único producto es la
+    // porción individual no lleva botón: la porción ya sale en "Pizzas".
+    (catalogo.categorias || []).forEach(cat => {
+      const tieneItems = catalogo.combos.some(c => c.categoria_display === cat)
+        || catalogo.productos.some(p => p.categoria_display === cat && !p.es_porcion_individual);
+      if (tieneItems) categorias.push(cat);
     });
     return categorias;
   }
@@ -53,13 +59,17 @@
       const porcion = productoPorcionIndividual();
       if (porcion) items.push({ tipo: 'porcion', data: porcion });
     }
-    if (cat === 'Todas' || cat === 'Combos') {
+    if (cat === 'Todas') {
       catalogo.combos.forEach(c => items.push({ tipo: 'combo', data: c }));
+    } else if (cat === 'Combos') {
+      combosSinCategoria().forEach(c => items.push({ tipo: 'combo', data: c }));
     }
     if (cat === 'Todas') {
       catalogo.productos.filter(p => !p.es_porcion_individual)
         .forEach(p => items.push({ tipo: 'producto', data: p }));
     } else if (cat !== 'Pizzas' && cat !== 'Combos') {
+      catalogo.combos.filter(c => c.categoria_display === cat)
+        .forEach(c => items.push({ tipo: 'combo', data: c }));
       catalogo.productos.filter(p => p.categoria_display === cat && !p.es_porcion_individual)
         .forEach(p => items.push({ tipo: 'producto', data: p }));
     }
@@ -132,7 +142,7 @@
       card.className = 'vr-card';
       card.innerHTML = `
         <div class="vr-card-body">
-          <div class="vr-card-cat">Combo</div>
+          <div class="vr-card-cat">${c.categoria_display || 'Combo'}</div>
           <div class="vr-card-nombre">${c.nombre}</div>
           ${c.descripcion ? `<div class="vr-card-desc">${c.descripcion}</div>` : ''}
           <div class="vr-card-footer">

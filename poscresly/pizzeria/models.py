@@ -11,6 +11,11 @@ TEMPERATURAS_BEBIDA = [
 ]
 
 
+def texto_sabores_pizza(sabor_1, sabor_2=None):
+    """"Peperoni" o "1/2 Peperoni / 1/2 Hawaiana", como sale en comanda y resumen."""
+    return sabor_1.nombre if not sabor_2 else f"1/2 {sabor_1.nombre} / 1/2 {sabor_2.nombre}"
+
+
 class Mesa(models.Model):
     ESTADOS = [
         ('libre', 'Libre'),
@@ -152,6 +157,15 @@ class ComboPizzeria(models.Model):
         TamanoPizza, on_delete=models.PROTECT, null=True, blank=True, related_name='+',
         help_text='Tamaño predeterminado (no seleccionable) de la pizza completa de este combo, '
                    'ej. "Pizza Familiar" en un combo de precio fijo. Vacío si el combo no incluye pizza completa.',
+    )
+    pizzas = models.PositiveSmallIntegerField(
+        choices=[(1, '1 pizza'), (2, '2 pizzas')], default=1,
+        help_text='Pizzas completas que trae el combo (2 en los 2x1). Cada una lleva su sabor o '
+                  'mitad y mitad y paga su propio recargo premium. Solo cuenta si el combo tiene pizza.',
+    )
+    categoria = models.ForeignKey(
+        'CategoriaProducto', on_delete=models.SET_NULL, null=True, blank=True, related_name='combos',
+        help_text='Botón del menú donde aparece. Vacío = "Combos".',
     )
 
     class Meta:
@@ -321,6 +335,9 @@ class PedidoCombo(models.Model):
     tamano = models.ForeignKey(TamanoPizza, on_delete=models.PROTECT, null=True, blank=True)
     sabor_1 = models.ForeignKey(Sabor, on_delete=models.PROTECT, related_name='+', null=True, blank=True)
     sabor_2 = models.ForeignKey(Sabor, on_delete=models.PROTECT, related_name='+', null=True, blank=True)
+    # Segunda pizza de los combos 2x1 (ComboPizzeria.pizzas == 2).
+    pizza2_sabor_1 = models.ForeignKey(Sabor, on_delete=models.PROTECT, related_name='+', null=True, blank=True)
+    pizza2_sabor_2 = models.ForeignKey(Sabor, on_delete=models.PROTECT, related_name='+', null=True, blank=True)
     cantidad = models.PositiveIntegerField(default=1)
     precio_unitario = models.DecimalField(max_digits=6, decimal_places=2)
     observacion = models.CharField(max_length=200, blank=True)
@@ -328,6 +345,12 @@ class PedidoCombo(models.Model):
     class Meta:
         verbose_name = 'Combo de pedido'
         verbose_name_plural = 'Combos de pedido'
+
+    @property
+    def sabores_por_pizza(self):
+        """Texto de sabores de cada pizza completa del combo, en orden."""
+        pizzas = [(self.sabor_1, self.sabor_2), (self.pizza2_sabor_1, self.pizza2_sabor_2)]
+        return [texto_sabores_pizza(s1, s2) for s1, s2 in pizzas if s1]
 
 
 class PedidoComboSaborAlitas(models.Model):

@@ -90,8 +90,10 @@ class ComboComponenteInline(admin.TabularInline):
 
 @admin.register(ComboPizzeria)
 class ComboPizzeriaAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'activo')
+    list_display = ('nombre', 'categoria', 'pizzas', 'activo')
     list_editable = ('activo',)
+    list_filter = ('categoria', 'activo')
+    list_select_related = ('categoria',)
     inlines = [ComboTamanoInline, ComboComponenteInline]
 
 

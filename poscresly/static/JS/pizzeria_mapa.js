@@ -99,8 +99,8 @@
     });
     (pedido.combos || []).forEach(c => {
       let nombre = c.combo + (c.tamano ? ` (${c.tamano})` : '');
-      if (c.sabor_1) {
-        nombre += ' - ' + (c.sabor_2 ? `1/2 ${c.sabor_1} / 1/2 ${c.sabor_2}` : c.sabor_1);
+      if (c.sabores_por_pizza && c.sabores_por_pizza.length) {
+        nombre += ' - ' + c.sabores_por_pizza.join(' + ');
       }
       if (c.sabores_porcion && c.sabores_porcion.length) {
         nombre += ' | Porciones: ' + c.sabores_porcion.join(', ');
