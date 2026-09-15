@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; background:#eceef1; font-family:'Plus Jakarta Sans', Helvetica, Arial, sans-serif; -webkit-font-smoothing:antialiased; }
+  a { color:#c8102e; text-decoration:none; font-weight:800; }
+  a:hover { color:#a90d27; text-decoration:underline; }
+</style>
+</helmet>
+
+<div style="font-family:'Plus Jakarta Sans', Helvetica, Arial, sans-serif;color:#14181d;font-feature-settings:'tnum' 1;padding:40px;display:flex;flex-direction:column;gap:40px">
+
+<section style="display:flex;flex-direction:column;gap:22px">
+
+  <div style="display:flex;flex-direction:column;gap:6px;max-width:760px">
+    <span style="font-size:11px;font-weight:800;letter-spacing:.1em;color:#c8102e">TURNO 2 · DETALLE DE LA ORDEN</span>
+    <span style="font-size:26px;font-weight:800;letter-spacing:-.025em;line-height:1.15">La fila se despliega en su lugar</span>
+    <span style="font-size:13px;font-weight:500;color:#5b6673;line-height:1.6;text-wrap:pretty">Tocar la fila abre el detalle debajo, sin salir de la lista ni perder los subtotales. Toca cualquier fila del marco: funciona.</span>
+  </div>
+
+  <div style="display:flex;gap:26px;flex-wrap:wrap;align-items:flex-start">
+
+    <div id="2a" style="display:flex;flex-direction:column;gap:9px;width:390px">
+      <div style="display:flex;flex-direction:column;gap:2px;padding-left:2px">
+        <span style="font-size:10.5px;font-weight:800;letter-spacing:.09em;color:#c8102e">2A</span>
+        <span style="font-size:13.5px;font-weight:800;letter-spacing:-.01em">Acordeón en la fila · interactivo (390 px)</span>
+        <span style="font-size:12px;color:#8a929c;line-height:1.45">Una sola abierta a la vez. El ⋯ sigue siendo para actuar; la fila es para mirar.</span>
+      </div>
+
+      <div data-screen-label="2A Fila desplegable" style="width:390px;background:#f4f5f7;border:1px solid #d6dae0;border-radius:26px;overflow:hidden;box-shadow:0 18px 40px rgba(20,24,29,.10)">
+
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px 6px;font-size:12px;font-weight:700">
+          <span>2:58</span><span style="letter-spacing:.06em">▮▮▮ ⌁ ▰</span>
+        </div>
+
+        <div style="background:#fff;border-bottom:1px solid #e6e8ec">
+          <div style="height:52px;display:flex;align-items:center;gap:8px;padding:0 12px">
+            <div style="width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:0 0 auto"><span style="font-size:17px;color:#14181d">☰</span></div>
+            <div style="flex:1;min-width:0;display:flex;align-items:center;gap:9px">
+              <div style="width:30px;height:30px;border-radius:9px;background:#c8102e;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex:0 0 auto">C</div>
+              <div style="min-width:0;display:flex;flex-direction:column;gap:0">
+                <span style="font-size:13.5px;font-weight:800;letter-spacing:-.015em;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Cresly Pizzería</span>
+                <span style="font-size:10.5px;color:#8a929c;font-weight:600;line-height:1.2">Suc. Centro</span>
+              </div>
+            </div>
+            <div style="width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:0 0 auto"><span style="font-size:16px;color:#5b6673">☾</span></div>
+            <div style="display:flex;align-items:center;gap:7px;padding:4px 8px 4px 4px;border-radius:11px;flex:0 0 auto">
+              <div style="width:34px;height:34px;border-radius:50%;background:#14181d;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800">M</div>
+              <span style="font-size:8px;color:#8a929c">▼</span>
+            </div>
+          </div>
+
+          <div style="height:56px;display:flex;align-items:center;gap:8px;padding:0 12px">
+            <div style="width:38px;height:38px;border-radius:11px;border:1px solid #e6e8ec;background:#fff;display:flex;align-items:center;justify-content:center;flex:0 0 auto"><span style="font-size:15px;color:#5b6673">‹</span></div>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+              <span style="font-size:17px;font-weight:800;letter-spacing:-.02em;line-height:1.2">Órdenes del turno</span>
+              <span style="font-size:11px;font-weight:600;color:#8a929c;line-height:1.2">15 pagadas · <span style="font-weight:800;color:#4a545f">$572.65</span></span>
+            </div>
+            <div style="width:38px;height:38px;border-radius:11px;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;color:#5b6673;font-size:14px;flex:0 0 auto">⌕</div>
+          </div>
+        </div>
+
+        <div style="padding:12px 14px 20px;display:flex;flex-direction:column;gap:9px">
+
+          <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:2px 4px 0">
+            <div style="display:flex;align-items:baseline;gap:8px">
+              <span style="font-size:11px;font-weight:800;letter-spacing:.09em;color:#5b6673">EFECTIVO</span>
+              <span style="font-size:11px;font-weight:600;color:#a8afb8">8 órdenes</span>
+            </div>
+            <span style="font-size:15px;font-weight:800;letter-spacing:-.025em">$234.70</span>
+          </div>
+
+          <div style="background:#fff;border:1px solid #e6e8ec;border-radius:16px;overflow:hidden">
+            <sc-for list="{{ ordenes }}" as="o" hint-placeholder-count="4">
+              <div style="border-top:1px solid #eef0f3;background:{{ o.filaBg }}">
+                <div style="min-height:62px;display:flex;align-items:center;gap:8px;padding:0 6px 0 14px;cursor:pointer" onClick="{{ o.toggle }}" style-hover="background:#fafbfc">
+                  <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;padding:9px 0">
+                    <div style="display:flex;align-items:center;gap:7px">
+                      <span style="font-size:13px;font-weight:800;letter-spacing:-.01em;white-space:nowrap">{{ o.titulo }}</span>
+                      <sc-if value="{{ o.editada }}" hint-placeholder-val="{{ false }}">
+                        <span style="height:19px;padding:0 7px;border-radius:6px;background:#fff;border:1px solid #f2e0bd;color:#8a5800;display:flex;align-items:center;font-size:9.5px;font-weight:800;letter-spacing:.05em;flex:0 0 auto">EDITADA</span>
+                      </sc-if>
+                    </div>
+                    <span style="font-size:11.5px;font-weight:600;color:{{ o.subColor }}">{{ o.subLinea }}</span>
+                  </div>
+                  <span style="font-size:13.5px;font-weight:800;letter-spacing:-.02em;flex:0 0 auto">{{ o.total }}</span>
+                  <div style="width:26px;height:38px;display:flex;align-items:center;justify-content:center;color:#a8afb8;font-size:11px;flex:0 0 auto">{{ o.caret }}</div>
+                  <div style="width:30px;height:38px;display:flex;align-items:center;justify-content:center;color:#a8afb8;font-size:14px;flex:0 0 auto">⋯</div>
+                </div>
+
+                <sc-if value="{{ o.abierta }}" hint-placeholder-val="{{ false }}">
+                  <div style="padding:0 14px 14px;display:flex;flex-direction:column;gap:10px">
+
+                    <div style="background:#fafbfc;border:1px solid #eef0f3;border-radius:12px;padding:11px 12px;display:flex;flex-direction:column;gap:8px">
+                      <sc-for list="{{ o.items }}" as="it" hint-placeholder-count="3">
+                        <div style="display:flex;align-items:baseline;gap:9px">
+                          <span style="font-size:11.5px;font-weight:800;color:#8a929c;min-width:14px;flex:0 0 auto">{{ it.c }}×</span>
+                          <span style="flex:1;min-width:0;font-size:12.5px;font-weight:600;color:#14181d;line-height:1.35">{{ it.n }}</span>
+                          <span style="font-size:12.5px;font-weight:700;color:#4a545f;flex:0 0 auto">{{ it.p }}</span>
+                        </div>
+                      </sc-for>
+
+                      <div style="height:1px;background:#e6e8ec"></div>
+
+                      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
+                        <span style="font-size:11.5px;font-weight:600;color:#5b6673">Subtotal</span>
+                        <span style="font-size:12px;font-weight:700;color:#4a545f">{{ o.subtotal }}</span>
+                      </div>
+                      <sc-if value="{{ o.tieneDescuento }}" hint-placeholder-val="{{ false }}">
+                        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
+                          <span style="font-size:11.5px;font-weight:600;color:#8a5800">Descuento</span>
+                          <span style="font-size:12px;font-weight:800;color:#8a5800">{{ o.descuento }}</span>
+                        </div>
+                      </sc-if>
+                      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
+                        <span style="font-size:12.5px;font-weight:800">Total</span>
+                        <span style="font-size:14px;font-weight:800;letter-spacing:-.02em">{{ o.total }}</span>
+                      </div>
+                    </div>
+
+                    <div style="display:flex;gap:8px">
+                      <div style="flex:1;min-width:0;background:#fff;border:1px solid #e6e8ec;border-radius:12px;padding:9px 11px;display:flex;flex-direction:column;gap:2px">
+                        <span style="font-size:10px;font-weight:800;letter-spacing:.07em;color:#8a929c">RECIBIÓ</span>
+                        <span style="font-size:13px;font-weight:800;letter-spacing:-.015em">{{ o.recibido }}</span>
+                      </div>
+                      <div style="flex:1;min-width:0;background:#fff;border:1px solid #e6e8ec;border-radius:12px;padding:9px 11px;display:flex;flex-direction:column;gap:2px">
+                        <span style="font-size:10px;font-weight:800;letter-spacing:.07em;color:#8a929c">CAMBIO</span>
+                        <span style="font-size:13px;font-weight:800;letter-spacing:-.015em">{{ o.cambio }}</span>
+                      </div>
+                      <div style="flex:1;min-width:0;background:#fff;border:1px solid #e6e8ec;border-radius:12px;padding:9px 11px;display:flex;flex-direction:column;gap:2px">
+                        <span style="font-size:10px;font-weight:800;letter-spacing:.07em;color:#8a929c">MÉTODO</span>
+                        <span style="font-size:13px;font-weight:800;letter-spacing:-.015em">{{ o.metodo }}</span>
+                      </div>
+                    </div>
+
+                    <sc-if value="{{ o.editada }}" hint-placeholder-val="{{ false }}">
+                      <div style="background:#fff;border:1px solid #f2e0bd;border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:3px">
+                        <span style="font-size:11px;font-weight:800;color:#8a5800">Editada después de cobrar</span>
+                        <span style="font-size:11px;font-weight:600;color:#8a5800;line-height:1.5">1:04 pm · Marta R. cambió tarjeta → efectivo. Motivo: «el cliente canceló el pago con tarjeta».</span>
+                      </div>
+                    </sc-if>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+
+          <span style="font-size:11px;font-weight:600;color:#a8afb8;padding:0 4px">4 de 8 órdenes en efectivo</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="width:400px;display:flex;flex-direction:column;gap:14px">
+      <div style="background:#fff;border:1px solid #d6dae0;border-radius:16px;padding:16px 17px;display:flex;flex-direction:column;gap:12px">
+        <span style="font-size:11px;font-weight:800;letter-spacing:.09em;color:#8a929c">QUÉ CAMBIÓ Y POR QUÉ</span>
+
+        <div style="display:flex;flex-direction:column;gap:3px">
+          <span style="font-size:12.5px;font-weight:800;letter-spacing:-.01em">Desplegar, no navegar</span>
+          <span style="font-size:12px;color:#4a545f;line-height:1.5">Cuadrar es comparar. Si cada orden abre una pantalla nueva, el cajero pierde el subtotal del grupo y su lugar en la lista, y vuelve al inicio en cada regreso. El acordeón deja el detalle y el contexto en la misma vista.</span>
+        </div>
+        <div style="height:1px;background:#eef0f3"></div>
+
+        <div style="display:flex;flex-direction:column;gap:3px">
+          <span style="font-size:12.5px;font-weight:800;letter-spacing:-.01em">Una abierta a la vez</span>
+          <span style="font-size:12px;color:#4a545f;line-height:1.5">Abrir una cierra la anterior. Con varias abiertas la lista se vuelve un muro y los encabezados de grupo quedan a medio kilómetro.</span>
+        </div>
+        <div style="height:1px;background:#eef0f3"></div>
+
+        <div style="display:flex;flex-direction:column;gap:3px">
+          <span style="font-size:12.5px;font-weight:800;letter-spacing:-.01em">La fila mira, el ⋯ actúa</span>
+          <span style="font-size:12px;color:#4a545f;line-height:1.5">Tocar la fila nunca cambia datos: solo abre. Corregir el método sigue viviendo en la hoja del ⋯, que ahora pierde «Ver detalle» porque ya no hace falta. Dos destinos distintos en la misma fila, sin ambigüedad.</span>
+        </div>
+        <div style="height:1px;background:#eef0f3"></div>
+
+        <div style="display:flex;flex-direction:column;gap:3px">
+          <span style="font-size:12.5px;font-weight:800;letter-spacing:-.01em">Qué muestra el panel</span>
+          <span style="font-size:12px;color:#4a545f;line-height:1.5">Platillos con cantidad y precio, subtotal, descuento cuando lo hay, total, y la terna recibió / cambio / método. El efectivo recibido es lo que se compara contra el cajón: sin ese dato la pantalla no sirve para cuadrar.</span>
+        </div>
+        <div style="height:1px;background:#eef0f3"></div>
+
+        <div style="display:flex;flex-direction:column;gap:3px">
+          <span style="font-size:12.5px;font-weight:800;letter-spacing:-.01em">El historial viaja con el detalle</span>
+          <span style="font-size:12px;color:#4a545f;line-height:1.5">En una orden editada, el aviso ámbar con el motivo aparece dentro del panel. Antes había que abrir el ⋯ para leerlo; ahora está donde se está mirando.</span>
+        </div>
+      </div>
+
+      <div style="background:#fdf3e2;border:1px solid #f2e0bd;border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:4px">
+        <span style="font-size:12.5px;font-weight:800;letter-spacing:-.01em;color:#8a5800">Por definir</span>
+        <span style="font-size:11.5px;font-weight:600;color:#8a5800;line-height:1.5">Si el panel carga por AJAX al abrir o viene precargado en la vista. Con 15 órdenes por turno precargar es más simple y evita el salto; si la sucursal llega a 60, conviene diferirlo.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="display:flex;flex-direction:column;gap:22px">
+
+  <div style="display:flex;flex-direction:column;gap:6px;max-width:760px">
+    <span style="font-size:11px;font-weight:800;letter-spacing:.1em;color:#c8102e">CAJA · ÓRDENES DEL TURNO</span>
+    <span style="font-size:26px;font-weight:800;letter-spacing:-.025em;line-height:1.15">De qué se compone el $572.65</span>
+    <span style="font-size:13px;font-weight:500;color:#5b6673;line-height:1.6;text-wrap:pretty">Pantalla de drill-down desde Caja, al lado de Movimientos. Solo las órdenes pagadas del turno abierto, agrupadas por método de pago con subtotal por grupo. Lista y suma: no propone el cuadre, lo hace legible. Datos de ejemplo.</span>
+  </div>
+
+  <div style="display:flex;gap:26px;flex-wrap:wrap;align-items:flex-start">
+
+    <!-- ===================== 1A ===================== -->
+    <div id="1a" style="display:flex;flex-direction:column;gap:9px;width:390px">
+      <div style="display:flex;flex-direction:column;gap:2px;padding-left:2px">
+        <span style="font-size:10.5px;font-weight:800;letter-spacing:.09em;color:#c8102e">1A</span>
+        <span style="font-size:13.5px;font-weight:800;letter-spacing:-.01em">Órdenes del turno · efectivo (390 × 844)</span>
+        <span style="font-size:12px;color:#8a929c;line-height:1.45">El grupo más pesado abre la lista. Al pie, el enlace a los retiros del cajón.</span>
+      </div>
+
+      <div data-screen-label="1A Órdenes del turno" style="position:relative;width:390px;height:844px;background:#f4f5f7;border:1px solid #d6dae0;border-radius:26px;overflow:hidden;box-shadow:0 18px 40px rgba(20,24,29,.10)">
+
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px 6px;font-size:12px;font-weight:700">
+          <span>2:58</span><span style="letter-spacing:.06em">▮▮▮ ⌁ ▰</span>
+        </div>
+
+        <div style="background:#fff;border-bottom:1px solid #e6e8ec">
+          <div style="height:52px;display:flex;align-items:center;gap:8px;padding:0 12px">
+            <div style="width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:0 0 auto"><span style="font-size:17px;color:#14181d">☰</span></div>
+            <div style="flex:1;min-width:0;display:flex;align-items:center;gap:9px">
+              <div style="width:30px;height:30px;border-radius:9px;background:#c8102e;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex:0 0 auto">C</div>
+              <div style="min-width:0;display:flex;flex-direction:column;gap:0">
+                <span style="font-size:13.5px;font-weight:800;letter-spacing:-.015em;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Cresly Pizzería</span>
+                <span style="font-size:10.5px;color:#8a929c;font-weight:600;line-height:1.2">Suc. Centro</span>
+              </div>
+            </div>
+            <div style="width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:0 0 auto"><span style="font-size:16px;color:#5b6673">☾</span></div>
+            <div style="display:flex;align-items:center;gap:7px;padding:4px 8px 4px 4px;border-radius:11px;flex:0 0 auto">
+              <div style="width:34px;height:34px;border-radius:50%;background:#14181d;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800">M</div>
+              <span style="font-size:8px;color:#8a929c">▼</span>
+            </div>
+          </div>
+
+          <div style="height:56px;display:flex;align-items:center;gap:8px;padding:0 12px">
+            <div style="width:38px;height:38px;border-radius:11px;border:1px solid #e6e8ec;background:#fff;display:flex;align-items:center;justify-content:center;flex:0 0 auto"><span style="font-size:15px;color:#5b6673">‹</span></div>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+              <span style="font-size:17px;font-weight:800;letter-spacing:-.02em;line-height:1.2">Órdenes del turno</span>
+              <span style="font-size:11px;font-weight:600;color:#8a929c;line-height:1.2">15 pagadas · <span style="font-weight:800;color:#4a545f">$572.65</span></span>
+            </div>
+            <div style="width:38px;height:38px;border-radius:11px;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;color:#5b6673;font-size:14px;flex:0 0 auto">⌕</div>
+          </div>
+
+          <div style="padding:0 14px 12px;display:flex;gap:7px;overflow:hidden">
+            <div style="height:34px;padding:0 13px;border-radius:999px;background:#14181d;color:#fff;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:800;flex:0 0 auto">Todas <span style="font-weight:700;opacity:.6">15</span></div>
+            <div style="height:34px;padding:0 13px;border-radius:999px;background:#fdf3e2;border:1px solid #f2e0bd;color:#8a5800;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;flex:0 0 auto">Editadas <span style="font-weight:800">1</span></div>
+            <div style="height:34px;padding:0 13px;border-radius:999px;background:#fff;border:1px solid #dfe2e7;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;flex:0 0 auto">Mixtas <span style="font-weight:800;color:#8a929c">1</span></div>
+          </div>
+        </div>
+
+        <div style="padding:12px 14px 20px;display:flex;flex-direction:column;gap:9px">
+
+          <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:2px 4px 0">
+            <div style="display:flex;align-items:baseline;gap:8px">
+              <span style="font-size:11px;font-weight:800;letter-spacing:.09em;color:#5b6673">EFECTIVO</span>
+              <span style="font-size:11px;font-weight:600;color:#a8afb8">8 órdenes</span>
+            </div>
+            <span style="font-size:15px;font-weight:800;letter-spacing:-.025em">$234.70</span>
+          </div>
+
+          <div style="background:#fff;border:1px solid #e6e8ec;border-radius:16px;overflow:hidden">
+
+            <div style="height:62px;display:flex;align-items:center;gap:8px;padding:0 6px 0 14px">
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                <span style="font-size:13px;font-weight:800;letter-spacing:-.01em">Mesa 4 · #108</span>
+                <span style="font-size:11.5px;font-weight:600;color:#8a929c">10:52 am · Marta R.</span>
+              </div>
+              <span style="font-size:13.5px;font-weight:800;letter-spacing:-.02em;flex:0 0 auto">$24.50</span>
+              <div style="width:34px;height:38px;display:flex;align-items:center;justify-content:center;color:#a8afb8;font-size:14px;flex:0 0 auto">⋯</div>
+            </div>
+            <div style="height:1px;background:#eef0f3;margin-left:14px"></div>
+
+            <div style="height:62px;display:flex;align-items:center;gap:8px;padding:0 6px 0 14px">
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                <span style="font-size:13px;font-weight:800;letter-spacing:-.01em">Llevar · #110</span>
+                <span style="font-size:11.5px;font-weight:600;color:#8a929c">11:18 am · Marta R.</span>
+              </div>
+              <span style="font-size:13.5px;font-weight:800;letter-spacing:-.02em;flex:0 0 auto">$16.00</span>
+              <div style="width:34px;height:38px;display:flex;align-items:center;justify-content:center;color:#a8afb8;font-size:14px;flex:0 0 auto">⋯</div>
+            </div>
+            <div style="height:1px;background:#eef0f3;margin-left:14px"></div>
+
+            <div style="height:62px;display:flex;align-items:center;gap:8px;padding:0 6px 0 14px">
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                <span style="font-size:13px;font-weight:800;letter-spacing:-.01em">Mesa 2 · #112</span>
+                <span style="font-size:11.5px;font-weight:600;color:#8a929c">11:47 am · Marta R.</span>
+              </div>
+              <span style="font-size:13.5px;font-weight:800;letter-spacing:-.02em;flex:0 0 auto">$38.75</span>
+              <div style="width:34px;height:38px;display:flex;align-items:center;justify-content:center;color:#a8afb8;font-size:14px;flex:0 0 auto">⋯</div>
+            </div>
+            <div style="height:1px;background:#eef0f3;margin-left:14px"></div>
+
+            <div style="height:62px;display:flex;align-items:center;gap:8px;padding:0 6px 0 14px">
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                <span style="font-size:13px;font-weight:800;letter-spacing:-.01em">Delivery · #114</span>
+                <span style="font-size:11.5px;font-weight:600;color:#8a929c">12:05 pm · Luis M.</span>
+              </div>
+              <span style="font-size:13.5px;font-weight:800;letter-spacing:-.02em;flex:0 0 auto">$22.40</span>
+              <div style="width:34px;height:38px;display:flex;align-items:center;justify-content:center;color:#a8afb8;font-size:14px;flex:0 0 auto">⋯</div>
+            </div>
+            <div style="height:1px;background:#eef0f3;margin-left:14px"></div>
+
+            <div style="min-height:62px;display:flex;align-items:center;gap:8px;padding:9px 6px 9px 14px;background:#fdf3e2;border-left:3px solid #d99000">
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                <div style="display:flex;align-items:center;gap:7px">
+                  <span style="font-size:13px;font-weight:800;letter-spacing:-.01em;white-space:nowrap">Mesa 7 · #117</span>
+                  <span style="height:19px;padding:0 7px;border-radius:6px;background:#fff;border:1px solid #f2e0bd;color:#8a5800;display:flex;align-items:center;font-size:9.5px;font-weight:800;letter-spacing:.05em;flex:0 0 auto">EDITADA</span>
+                </div>
+                <span style="font-size:11.5px;font-weight:600;color:#8a5800">12:38 pm · Marta R. · se cambió el método 1:04 pm</span>
+              </div>
+              <span style="font-size:13.5px;font-weight:800;letter-spacing:-.02em;flex:0 0 auto">$51.30</span>
+              <div style="width:34px;height:38px;display:flex;align-items:center;justify-content:center;color:#8a5800;font-size:14px;flex:0 0 auto">⋯</div>
+            </div>
+            <div style="height:1px;background:#eef0f3;margin-left:14px"></div>
+
+            <div style="height:62px;display:flex;align-items:center;gap:8px;padding:0 6px 0 14px">
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                <span style="font-size:13px;font-weight:800;letter-spacing:-.01em">Llevar · #120</span>
+                <span style="font-size:11.5px;font-weight:600;color:#8a929c">1:22 pm · Marta R.</span>
+              </div>
+              <span style="font-size:13.5px;font-weight:800;letter-spacing:-.02em;flex:0 0 auto">$18.90</span>
+              <div style="width:34px;height:38px;display:flex;align-items:center;justify-content:center;color:#a8afb8;font-size:14px;flex:0 0 auto">⋯</div>
+            </div>
+            <div style="height:1px;background:#eef0f3;margin-left:14px"></div>
+
+            <div style="height:62px;display:flex;align-items:center;gap:8px;padding:0 6px 0 14px">
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                <span style="font-size:13px;font-weight:800;letter-spacing:-.01em">Mesa 1 · #123</span>
+                <span style="font-size:11.5px;font-weight:600;color:#8a929c">2:04 pm · Marta R.</span>
+              </div>
+              <span style="font-size:13.5px;font-weight:800;letter-spacing:-.02em;flex:0 0 auto">$29.65</span>
+              <div style="width:34px;height:38px;display:flex;align-items:center;justify-content:center;color:#a8afb8;font-size:14px;flex:0 0 auto">⋯</div>
+            </div>
+            <div style="height:1px;background:#eef0f3;margin-left:14px"></div>
+
+            <div style="height:62px;display:flex;align-items:center;gap:8px;padding:0 6px 0 14px">
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                <span style="font-size:13px;font-weight:800;letter-spacing:-.01em">Mesa 5 · #126</span>
+                <span style="font-size:11.5px;font-weight:600;color:#8a929c">2:41 pm · Marta R.</span>
+              </div>
+              <span style="font-size:13.5px;font-weight:800;letter-spacing:-.02em;flex:0 0 auto">$33.20</span>
+              <div style="width:34px;height:38px;display:flex;align-items:center;justify-content:center;color:#a8afb8;font-size:14px;flex:0 0 auto">⋯</div>
+            </div>
+          </div>
+
+          <div style="background:#fafbfc;border:1px solid #eef0f3;border-radius:14px;padding:11px 13px;display:flex;flex-direction:column;gap:5px">
+            <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
+              <span style="font-size:11.5px;font-weight:600;color:#5b6673">+ parte en efectivo de la orden mixta</span>
+              <span style="font-size:12px;font-weight:800;color:#4a545f">$20.00</span>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+              <span style="font-size:11.5px;font-weight:600;color:#5b6673">Retiros al cajón del turno</span>
+              <span style="font-size:11.5px;font-weight:800;color:#c8102e">ver Movimientos ›</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== 1B ===================== -->
+    <div id="1b" style="display:flex;flex-direction:column;gap:9px;width:390px">
+      <div style="display:flex;flex-direction:column;gap:2px;padding-left:2px">
+        <span style="font-size:10.5px;font-weight:800;letter-spacing:.09em;color:#c8102e">1B</span>
+        <span style="font-size:13.5px;font-weight:800;letter-spacing:-.01em">Cola de la lista · mixto y total (390 × 844)</span>
+        <span style="font-size:12px;color:#8a929c;line-height:1.45">La orden mixta no se reparte entre grupos: tiene el suyo, con el desglose escrito.</span>
+      </div>
+
+      <div data-screen-label="1B Mixto y total" style="position:relative;width:390px;height:844px;background:#f4f5f7;border:1px solid #d6dae0;border-radius:26px;overflow:hidden;box-shadow:0 18px 40px rgba(20,24,29,.10)">
+
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px 6px;font-size:12px;font-weight:700">
+          <span>2:58</span><span style="letter-spacing:.06em">▮▮▮ ⌁ ▰</span>
+        </div>
+
+        <div style="background:#fff;border-bottom:1px solid #e6e8ec">
+          <div style="height:52px;display:flex;align-items:center;gap:8px;padding:0 12px">
+            <div style="width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:0 0 auto"><span style="font-size:17px;color:#14181d">☰</span></div>
+            <div style="flex:1;min-width:0;display:flex;align-items:center;gap:9px">
+              <div style="width:30px;height:30px;border-radius:9px;background:#c8102e;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex:0 0 auto">C</div>
+              <div style="min-width:0;display:flex;flex-direction:column;gap:0">
+                <span style="font-size:13.5px;font-weight:800;letter-spacing:-.015em;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Cresly Pizzería</span>
+                <span style="font-size:10.5px;color:#8a929c;font-weight:600;line-height:1.2">Suc. Centro</span>
+              </div>
+            </div>
+            <div style="width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:0 0 auto"><span style="font-size:16px;color:#5b6673">☾</span></div>
+            <div style="display:flex;align-items:center;gap:7px;padding:4px 8px 4px 4px;border-radius:11px;flex:0 0 auto">
+              <div style="width:34px;height:34px;border-radius:50%;background:#14181d;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800">M</div>
+              <span style="font-size:8px;color:#8a929c">▼</span>
+            </div>
+          </div>
+
+          <div style="height:56px;display:flex;align-items:center;gap:8px;padding:0 12px">
+            <div style="width:38px;height:38px;border-radius:11px;border:1px solid #e6e8ec;background:#fff;display:flex;align-items:center;justify-content:center;flex:0 0 auto"><span style="font-size:15px;color:#5b6673">‹</span></div>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+              <span style="font-size:17px;font-weight:800;letter-spacing:-.02em;line-height:1.2">Órdenes del turno</span>
+              <span style="font-size:11px;font-weight:600;color:#8a929c;line-height:1.2">15 pagadas · <span style="font-weight:800;color:#4a545f">$572.65</span></span>
+            </div>
+            <div style="width:38px;height:38px;border-radius:11px;border:1px solid #dfe2e7;display:flex;align-items:center;justify-content:center;color:#5b6673;font-size:14px;flex:0 0 auto">⌕</div>
+          </div>
+        </div>
+
+        <div style="padding:12px 14px 20px;display:flex;flex-direction:column;gap:9px">
+
+          <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:2px 4px 0">
+            <div style="display:flex;align-items:baseline;gap:8px">
+              <span style="font-size:11px;font-weight:800;letter-spacing:.09em;color:#5b6673">TARJETA</span>
+              <span style="font-size:11px;font-weight:600;color:#a8afb8">5 órdenes</span>
+            </div>
+            <span style="font-size:15px;font-weight:800;letter-spacing:-.025em">$275.50</span>
+          </div>
+
+          <div style="background:#fff;border:1px solid #e6e8ec;border-radius:16px;overflow:hidden">
+            <div style="height:62px;display:flex;align-items:center;gap:8px;padding:0 6px 0 14px">
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                <span style="font-size:13px;font-weight:800;letter-spacing:-.01em">Mesa 6 · #121</span>
+                <span style="font-size:11.5px;font-weight:600;color:#8a929c">1:35 pm · Marta R. · ···4417</span>
+              </div>
+              <span style="font-size:13.5px;font-weight:800;letter-spacing:-.02em;flex:0 0 auto">$88.40</span>
+              <div style="width:34px;height:38px;display:flex;align-items:center;justify-content:center;color:#a8afb8;font-size:14px;flex:0 0 auto">⋯</div>
+            </div>
+            <div style="height:1px;background:#eef0f3;margin-left:14px"></div>
+            <div style="height:62px;display:flex;align-items:center;gap:8px;padding:0 6px 0 14px">
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                <span style="font-size:13px;font-weight:800;letter-spacing:-.01em">Mesa 2 · #124</span>
+                <span style="font-size:11.5px;font-weight:600;color:#8a929c">2:12 pm · Marta R. · ···0982</span>
+              </div>
+              <span style="font-size:13.5px;font-weight:800;letter-spacing:-.02em;flex:0 0 auto">$41.25</span>
+              <div style="width:34px;height:38px;display:flex;align-items:center;justify-content:center;color:#a8afb8;font-size:14px;flex:0 0 auto">⋯</div>
+            </div>
+          </div>
+
+          <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:6px 4px 0">
+            <div style="display:flex;align-items:baseline;gap:8px">
+              <span style="font-size:11px;font-weight:800;letter-spacing:.09em;color:#5b6673">TRANSFERENCIA</span>
+              <span style="font-size:11px;font-weight:600;color:#a8afb8">1 orden</span>
+            </div>
+            <span style="font-size:15px;font-weight:800;letter-spacing:-.025em">$28.60</span>
+          </div>
+
+          <div style="background:#fff;border:1px solid #e6e8ec;border-radius:16px;overflow:hidden">
+            <div style="height:62px;display:flex;align-items:center;gap:8px;padding:0 6px 0 14px">
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                <span style="font-size:13px;font-weight:800;letter-spacing:-.01em">Delivery · #118</span>
+                <span style="font-size:11.5px;font-weight:600;color:#8a929c">12:48 pm · Luis M. · ref. 8842</span>
+              </div>
+              <span style="font-size:13.5px;font-weight:800;letter-spacing:-.02em;flex:0 0 auto">$28.60</span>
+              <div style="width:34px;height:38px;display:flex;align-items:center;justify-content:center;color:#a8afb8;font-size:14px;flex:0 0 auto">⋯</div>
+            </div>
+          </div>
+
+          <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:6px 4px 0">
+            <div style="display:flex;align-items:baseline;gap:8px">
+              <span style="font-size:11px;font-weight:800;letter-spacing:.09em;color:#5b6673">MIXTO</span>
+              <span style="font-size:11px;font-weight:600;color:#a8afb8">1 orden</span>
+            </div>
+            <span style="font-size:15px;font-weight:800;letter-spacing:-.025em">$33.85</span>
+          </div>
+
+          <div style="background:#fff;border:1px solid #e6e8ec;border-radius:16px;overflow:hidden">
+            <div style="padding:11px 6px 12px 14px;display:flex;align-items:flex-start;gap:8px">
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:7px">
+                <div style="display:flex;flex-direction:column;gap:2px">
+                  <span style="font-size:13px;font-weight:800;letter-spacing:-.01em">Mesa 9 · #122</span>
+                  <span style="font-size:11.5px;font-weight:600;color:#8a929c">1:48 pm · Marta R.</span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:4px;padding:8px 10px;background:#fafbfc;border:1px solid #eef0f3;border-radius:11px">
+                  <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
+                    <span style="font-size:11.5px;font-weight:600;color:#5b6673">Efectivo</span>
+                    <span style="font-size:12px;font-weight:800;color:#14181d">$20.00</span>
+                  </div>
+                  <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
+                    <span style="font-size:11.5px;font-weight:600;color:#5b6673">Tarjeta ···4417</span>
+                    <span style="font-size:12px;font-weight:800;color:#14181d">$13.85</span>
+                  </div>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex:0 0 auto">
+                <span style="font-size:13.5px;font-weight:800;letter-spacing:-.02em">$33.85</span>
+                <div style="width:34px;height:38px;display:flex;align-items:center;justify-content:center;color:#a8afb8;font-size:14px">⋯</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="background:#fff;border:1px solid #d6dae0;border-radius:16px;padding:13px 15px;display:flex;flex-direction:column;gap:8px;margin-top:6px">
+            <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
+              <span style="font-size:12.5px;font-weight:600;color:#4a545f">Efectivo</span>
+              <span style="font-size:13px;font-weight:700;color:#4a545f">$234.70</span>
+            </div>
+            <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
+              <span style="font-size:12.5px;font-weight:600;color:#4a545f">Tarjeta</span>
+              <span style="font-size:13px;font-weight:700;color:#4a545f">$275.50</span>
+            </div>
+            <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
+              <span style="font-size:12.5px;font-weight:600;color:#4a545f">Transferencia</span>
+              <span style="font-size:13px;font-weight:700;color:#4a545f">$28.60</span>
+            </div>
+            <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
+              <span style="font-size:12.5px;font-weight:600;color:#4a545f">Mixto</span>
+              <span style="font-size:13px;font-weight:700;color:#4a545f">$33.85</span>
+            </div>
+            <div style="height:1px;background:#dfe2e7"></div>
+            <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
+              <span style="font-size:12.5px;font-weight:800">Vendido en el turno</span>
+              <span style="font-size:17px;font-weight:800;letter-spacing:-.025em">$572.65</span>
+            </div>
+            <span style="font-size:11px;font-weight:600;color:#8a929c;line-height:1.45">La misma cifra que encabeza Caja. Si no coincide, el turno tiene una orden sin método asignado.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== 1C ===================== -->
+    <div id="1c" style="display:flex;flex-direction:column;gap:9px;width:390px">
+      <div style="display:flex;flex-direction:column;gap:2px;padding-left:2px">
+        <span style="font-size:10.5px;font-weight:800;letter-spacing:.09em;color:#c8102e">1C</span>
+        <span style="font-size:13.5px;font-weight:800;letter-spacing:-.01em">Hoja de acciones de la fila (390 × 844)</span>
+        <span style="font-size:12px;color:#8a929c;line-height:1.45">Dos acciones, no más. El monto no se toca desde aquí.</span>
+      </div>
+
+      <div data-screen-label="1C Hoja de acciones" style="position:relative;width:390px;height:844px;background:#f4f5f7;border:1px solid #d6dae0;border-radius:26px;overflow:hidden;box-shadow:0 18px 40px rgba(20,24,29,.10)">
+
+        <div style="filter:blur(1.5px);opacity:.55">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px 6px;font-size:12px;font-weight:700">
+            <span>2:58</span><span style="letter-spacing:.06em">▮▮▮ ⌁ ▰</span>
+          </div>
+          <div style="background:#fff;border-bottom:1px solid #e6e8ec;height:108px"></div>
+          <div style="padding:14px;display:flex;flex-direction:column;gap:10px">
+            <div style="height:20px;width:160px;background:#e9ebef;border-radius:6px"></div>
+            <div style="height:62px;background:#fff;border:1px solid #e6e8ec;border-radius:14px"></div>
+            <div style="height:62px;background:#fff;border:1px solid #e6e8ec;border-radius:14px"></div>
+            <div style="height:62px;background:#fff;border:1px solid #e6e8ec;border-radius:14px"></div>
+          </div>
+        </div>
+
+        <div style="position:absolute;inset:0;background:rgba(20,24,29,.42)"></div>
+
+        <div style="position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:22px 22px 0 0;padding:14px 16px 20px;display:flex;flex-direction:column;gap:13px">
+          <div style="width:38px;height:4px;border-radius:999px;background:#dfe2e7;align-self:center"></div>
+
+          <div style="display:flex;flex-direction:column;gap:2px;padding:0 2px">
+            <span style="font-size:15px;font-weight:800;letter-spacing:-.015em">Mesa 7 · #117</span>
+            <span style="font-size:11.5px;font-weight:600;color:#8a929c">Pagada 12:38 pm · <span style="font-weight:800;color:#4a545f">$51.30</span> · efectivo</span>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:7px">
+            <span style="font-size:10.5px;font-weight:800;letter-spacing:.08em;color:#8a929c">LA ORDEN</span>
+            <div style="display:flex;flex-direction:column;gap:1px">
+              <div style="height:46px;display:flex;align-items:center;gap:12px;padding:0 4px">
+                <span style="width:22px;text-align:center;color:#5b6673;font-size:14px;flex:0 0 auto">▤</span>
+                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+                  <span style="font-size:13px;font-weight:700;letter-spacing:-.01em">Ver detalle</span>
+                  <span style="font-size:11px;font-weight:600;color:#8a929c">6 platillos · abre la orden completa</span>
+                </div>
+                <span style="color:#c3c8ce;font-size:14px;flex:0 0 auto">›</span>
+              </div>
+              <div style="height:1px;background:#eef0f3;margin-left:38px"></div>
+              <div style="height:46px;display:flex;align-items:center;gap:12px;padding:0 4px">
+                <span style="width:22px;text-align:center;color:#5b6673;font-size:14px;flex:0 0 auto">⇄</span>
+                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+                  <span style="font-size:13px;font-weight:700;letter-spacing:-.01em">Corregir método de pago</span>
+                  <span style="font-size:11px;font-weight:600;color:#8a929c">Ahora: <span style="font-weight:800;color:#4a545f">efectivo</span></span>
+                </div>
+                <span style="color:#c3c8ce;font-size:14px;flex:0 0 auto">›</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="height:1px;background:#eef0f3"></div>
+
+          <div style="display:flex;flex-direction:column;gap:7px">
+            <span style="font-size:10.5px;font-weight:800;letter-spacing:.08em;color:#8a929c">HISTORIAL</span>
+            <div style="background:#fdf3e2;border:1px solid #f2e0bd;border-radius:13px;padding:11px 13px;display:flex;flex-direction:column;gap:3px">
+              <span style="font-size:11.5px;font-weight:800;color:#8a5800">Editada después de cobrar</span>
+              <span style="font-size:11px;font-weight:600;color:#8a5800;line-height:1.5">1:04 pm · Marta R. cambió tarjeta → efectivo. Motivo: «el cliente canceló el pago con tarjeta».</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== 1D ===================== -->
+    <div id="1d" style="display:flex;flex-direction:column;gap:9px;width:390px">
+      <div style="display:flex;flex-direction:column;gap:2px;padding-left:2px">
+        <span style="font-size:10.5px;font-weight:800;letter-spacing:.09em;color:#c8102e">1D</span>
+        <span style="font-size:13.5px;font-weight:800;letter-spacing:-.01em">Corregir método de pago (390 × 844)</span>
+        <span style="font-size:12px;color:#8a929c;line-height:1.45">Sin motivo el botón queda bloqueado, y dice por qué.</span>
+      </div>
+
+      <div data-screen-label="1D Corregir método" style="position:relative;width:390px;height:844px;background:#f4f5f7;border:1px solid #d6dae0;border-radius:26px;overflow:hidden;box-shadow:0 18px 40px rgba(20,24,29,.10)">
+
+        <div style="filter:blur(1.5px);opacity:.55">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px 6px;font-size:12px;font-weight:700">
+            <span>2:58</span><span style="letter-spacing:.06em">▮▮▮ ⌁ ▰</span>
+          </div>
+          <div style="background:#fff;border-bottom:1px solid #e6e8ec;height:108px"></div>
+          <div style="padding:14px;display:flex;flex-direction:column;gap:10px">
+            <div style="height:20px;width:160px;background:#e9ebef;border-radius:6px"></div>
+            <div style="height:62px;background:#fff;border:1px solid #e6e8ec;border-radius:14px"></div>
+            <div style="height:62px;background:#fff;border:1px solid #e6e8ec;border-radius:14px"></div>
+          </div>
+        </div>
+
+        <div style="position:absolute;inset:0;background:rgba(20,24,29,.42)"></div>
+
+        <div style="position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:22px 22px 0 0;padding:14px 16px 20px;display:flex;flex-direction:column;gap:13px">
+          <div style="width:38px;height:4px;border-radius:999px;background:#dfe2e7;align-self:center"></div>
+
+          <div style="display:flex;flex-direction:column;gap:2px;padding:0 2px">
+            <span style="font-size:15px;font-weight:800;letter-spacing:-.015em">Corregir método de pago</span>
+            <span style="font-size:11.5px;font-weight:600;color:#8a929c">Mesa 7 · #117 · <span style="font-weight:800;color:#4a545f">$51.30</span>. El monto no cambia.</span>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:7px">
+            <span style="font-size:10.5px;font-weight:800;letter-spacing:.08em;color:#8a929c">SE COBRÓ CON</span>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div style="height:50px;border-radius:13px;border:1.5px solid #dfe2e7;background:#fff;display:flex;align-items:center;gap:11px;padding:0 13px">
+                <span style="width:18px;height:18px;border-radius:999px;border:1.5px solid #c3c8ce;flex:0 0 auto"></span>
+                <span style="flex:1;font-size:13.5px;font-weight:700;letter-spacing:-.01em">Efectivo</span>
+                <span style="font-size:10.5px;font-weight:800;letter-spacing:.06em;color:#a8afb8">ACTUAL</span>
+              </div>
+              <div style="height:50px;border-radius:13px;border:1.5px solid #c8102e;background:#fdecef;display:flex;align-items:center;gap:11px;padding:0 13px">
+                <span style="width:18px;height:18px;border-radius:999px;border:5px solid #c8102e;background:#fff;flex:0 0 auto"></span>
+                <span style="flex:1;font-size:13.5px;font-weight:800;letter-spacing:-.01em;color:#14181d">Tarjeta</span>
+              </div>
+              <div style="height:50px;border-radius:13px;border:1.5px solid #dfe2e7;background:#fff;display:flex;align-items:center;gap:11px;padding:0 13px">
+                <span style="width:18px;height:18px;border-radius:999px;border:1.5px solid #c3c8ce;flex:0 0 auto"></span>
+                <span style="flex:1;font-size:13.5px;font-weight:700;letter-spacing:-.01em">Transferencia</span>
+              </div>
+              <div style="height:50px;border-radius:13px;border:1.5px solid #dfe2e7;background:#fff;display:flex;align-items:center;gap:11px;padding:0 13px">
+                <span style="width:18px;height:18px;border-radius:999px;border:1.5px solid #c3c8ce;flex:0 0 auto"></span>
+                <span style="flex:1;font-size:13.5px;font-weight:700;letter-spacing:-.01em">Mixto</span>
+                <span style="font-size:11px;font-weight:600;color:#8a929c">reparte el monto</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <span style="font-size:10.5px;font-weight:800;letter-spacing:.08em;color:#8a929c">MOTIVO</span>
+            <div style="min-height:62px;border-radius:12px;border:1px solid #dfe2e7;padding:11px 13px;font-size:12.5px;font-weight:600;color:#a8afb8;line-height:1.45">Por qué se registró mal. Queda en el corte.</div>
+          </div>
+
+          <div style="background:#e9f1fb;border-radius:13px;padding:11px 13px;display:flex;flex-direction:column;gap:3px">
+            <span style="font-size:11.5px;font-weight:800;color:#1d5a9e">Qué se mueve</span>
+            <span style="font-size:11px;font-weight:600;color:#1d5a9e;line-height:1.5">Efectivo baja a $183.40 y tarjeta sube a $326.80. El total del turno sigue en $572.65.</span>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div style="height:52px;border-radius:14px;background:#e9ebef;color:#a8afb8;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;letter-spacing:-.01em">Guardar corrección</div>
+            <span style="font-size:11px;font-weight:700;color:#c8102e;text-align:center;line-height:1.4">Falta escribir el motivo</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== 1E ===================== -->
+    <div id="1e" style="display:flex;flex-direction:column;gap:9px;width:390px">
+      <div style="display:flex;flex-direction:column;gap:2px;padding-left:2px">
+        <span style="font-size:10.5px;font-weight:800;letter-spacing:.09em;color:#c8102e">1E</span>
+        <span style="font-size:13.5px;font-weight:800;letter-spacing:-.01em">La entrada, en Caja</span>
+        <span style="font-size:12px;color:#8a929c;line-height:1.45">Fila nueva sobre Movimientos. Recorte del bloque, no pantalla completa.</span>
+      </div>
+
+      <div style="width:390px;background:#f4f5f7;border:1px solid #d6dae0;border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:9px">
+        <div style="background:#fff;border:1px solid #e6e8ec;border-radius:16px;overflow:hidden">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 15px;background:#fafbfc">
+            <div style="display:flex;flex-direction:column;gap:1px">
+              <span style="font-size:13px;font-weight:800;letter-spacing:-.01em">Órdenes del turno</span>
+              <span style="font-size:11px;font-weight:600;color:#8a929c">15 pagadas · <span style="font-weight:800;color:#4a545f">$572.65</span> · 1 editada</span>
+            </div>
+            <span style="color:#c3c8ce;font-size:15px">›</span>
+          </div>
+          <div style="height:1px;background:#eef0f3"></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 15px">
+            <div style="display:flex;flex-direction:column;gap:1px">
+              <span style="font-size:13px;font-weight:800;letter-spacing:-.01em">Movimientos</span>
+              <span style="font-size:11px;font-weight:600;color:#8a929c">9 registros · último 2:52 pm</span>
+            </div>
+            <span style="color:#c3c8ce;font-size:15px">›</span>
+          </div>
+          <div style="height:1px;background:#eef0f3"></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 15px">
+            <div style="display:flex;flex-direction:column;gap:1px">
+              <span style="font-size:13px;font-weight:800;letter-spacing:-.01em">Cortes anteriores</span>
+              <span style="font-size:11px;font-weight:600;color:#8a929c">Ayer cerró con <span style="font-weight:800;color:#1c7a4a">$0.00</span> de diferencia</span>
+            </div>
+            <span style="color:#c3c8ce;font-size:15px">›</span>
+          </div>
+        </div>
+        <span style="font-size:11.5px;font-weight:600;color:#5b6673;line-height:1.5;padding:0 2px">Órdenes del turno va primero: es la venta. Movimientos es el cajón. Cortes anteriores es el pasado.</span>
+      </div>
+    </div>
+
+    <!-- ===================== NOTAS ===================== -->
+    <div style="width:400px;display:flex;flex-direction:column;gap:14px">
+
+      <div style="background:#fff;border:1px solid #d6dae0;border-radius:16px;padding:16px 17px;display:flex;flex-direction:column;gap:12px">
+        <span style="font-size:11px;font-weight:800;letter-spacing:.09em;color:#8a929c">QUÉ CAMBIÓ Y POR QUÉ</span>
+
+        <div style="display:flex;flex-direction:column;gap:3px">
+          <span style="font-size:12.5px;font-weight:800;letter-spacing:-.01em">Agrupar por método, no por hora</span>
+          <span style="font-size:12px;color:#4a545f;line-height:1.5">Si la caja no cuadra, la pregunta es «¿cuánto efectivo debería haber?», no «¿qué pasó a las 12?». El subtotal por grupo es el número que se compara contra el conteo; la hora queda como dato de la fila.</span>
+        </div>
+        <div style="height:1px;background:#eef0f3"></div>
+
+        <div style="display:flex;flex-direction:column;gap:3px">
+          <span style="font-size:12.5px;font-weight:800;letter-spacing:-.01em">El mixto tiene grupo propio</span>
+          <span style="font-size:12px;color:#4a545f;line-height:1.5">Repartir $20 al grupo efectivo y $13.85 al de tarjeta haría cuadrar los subtotales, pero escondería la orden donde suele estar el error. Va aparte, con el desglose escrito en la fila, y el efectivo lleva al pie la línea <em>+ parte en efectivo de la orden mixta $20.00</em>. Así el cajero suma a mano y le da.</span>
+        </div>
+        <div style="height:1px;background:#eef0f3"></div>
+
+        <div style="display:flex;flex-direction:column;gap:3px">
+          <span style="font-size:12.5px;font-weight:800;letter-spacing:-.01em">Editada después de cobrar se ve sin buscarla</span>
+          <span style="font-size:12px;color:#4a545f;line-height:1.5">Fila en ámbar con borde izquierdo de 3 px, chip EDITADA y la hora del cambio en la sub-línea. Es la causa más común de descuadre y el chip <em>Editadas 1</em> del subheader la aísla de un toque. Verde no aplica: no es un estado bueno ni malo, es algo que hay que mirar.</span>
+        </div>
+        <div style="height:1px;background:#eef0f3"></div>
+
+        <div style="display:flex;flex-direction:column;gap:3px">
+          <span style="font-size:12.5px;font-weight:800;letter-spacing:-.01em">Los retiros no se listan aquí, se enlazan</span>
+          <span style="font-size:12px;color:#4a545f;line-height:1.5">Un retiro no es una venta. Mezclarlos rompería el subtotal. Al pie del grupo efectivo queda el puente a Movimientos, que es donde ya viven.</span>
+        </div>
+        <div style="height:1px;background:#eef0f3"></div>
+
+        <div style="display:flex;flex-direction:column;gap:3px">
+          <span style="font-size:12.5px;font-weight:800;letter-spacing:-.01em">Corregir el método no reabre la orden</span>
+          <span style="font-size:12px;color:#4a545f;line-height:1.5">Cambia la clasificación del dinero, no el monto ni los platillos. Por eso no va bajo ZONA DE RIESGO: es una corrección de captura. Pero exige motivo, y ese motivo aparece en el corte y en el historial de <a href="#1c">1C</a>.</span>
+        </div>
+        <div style="height:1px;background:#eef0f3"></div>
+
+        <div style="display:flex;flex-direction:column;gap:3px">
+          <span style="font-size:12.5px;font-weight:800;letter-spacing:-.01em">La hoja dice lo que va a mover antes de mover</span>
+          <span style="font-size:12px;color:#4a545f;line-height:1.5">El bloque azul de <a href="#1d">1D</a> muestra los dos subtotales ya recalculados y recuerda que el total del turno no cambia. El botón queda deshabilitado con su línea roja debajo hasta que haya motivo, igual que el resto del sistema.</span>
+        </div>
+      </div>
+
+      <div style="background:#fff;border:1px solid #d6dae0;border-radius:16px;padding:16px 17px;display:flex;flex-direction:column;gap:8px">
+        <span style="font-size:11px;font-weight:800;letter-spacing:.09em;color:#8a929c">POR QUÉ AQUÍ Y NO EN ÓRDENES</span>
+        <span style="font-size:12px;color:#4a545f;line-height:1.55">El filtro «Cerradas» de Órdenes resuelve otra pregunta: <em>¿la mesa 6 ya pagó?</em> — una consulta suelta, ordenada por hora, sin totales. Esta pantalla resuelve <em>¿por qué no cuadra?</em>, y para eso necesita subtotales y agrupación contable. Son dos vistas del mismo dato con jerarquías opuestas; forzarlas en una sola deja a las dos a medias.</span>
+      </div>
+
+      <div style="background:#fff;border:1px solid #d6dae0;border-radius:16px;padding:16px 17px;display:flex;flex-direction:column;gap:8px">
+        <span style="font-size:11px;font-weight:800;letter-spacing:.09em;color:#8a929c">DATOS QUE NECESITA LA VISTA</span>
+        <span style="font-size:12px;color:#4a545f;line-height:1.55">Por orden: <code style="font-size:11px">numero</code>, <code style="font-size:11px">origen</code> (mesa / llevar / delivery), <code style="font-size:11px">pagada_en</code>, <code style="font-size:11px">cobrada_por</code>, <code style="font-size:11px">total</code>, <code style="font-size:11px">metodo</code>, <code style="font-size:11px">pagos[]</code> para el mixto, <code style="font-size:11px">referencia</code> (4 dígitos o folio), <code style="font-size:11px">editada_post_cobro</code> y <code style="font-size:11px">ultimo_cambio</code> (hora, usuario, de → a, motivo). Agregados: <code style="font-size:11px">subtotal_por_metodo</code>, <code style="font-size:11px">efectivo_en_mixtas</code> y <code style="font-size:11px">total_turno</code>, calculados en la vista y no en el template.</span>
+      </div>
+
+      <div style="background:#fdf3e2;border:1px solid #f2e0bd;border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:4px">
+        <span style="font-size:12.5px;font-weight:800;letter-spacing:-.01em;color:#8a5800">Por definir</span>
+        <span style="font-size:11.5px;font-weight:600;color:#8a5800;line-height:1.5">Si corregir el método es libre para el cajero o pide permiso de encargado. Y si al elegir «Mixto» en <a href="#1d" style="color:#8a5800">1D</a> se abre el repartidor de montos del cobro mixto o se bloquea la opción: hoy quedó como fila seleccionable sin flujo detrás.</span>
+      </div>
+
+      <div style="background:#fff;border:1px solid #d6dae0;border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:4px">
+        <span style="font-size:12.5px;font-weight:800;letter-spacing:-.01em">Fuera de alcance</span>
+        <span style="font-size:11.5px;font-weight:600;color:#5b6673;line-height:1.5">Anuladas y reabiertas: dijiste solo pagadas. Cuando exista la pantalla de cierre de turno conviene sumarlas como cuarto grupo, porque una anulada tardía también descuadra.</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { abierta: '117' };
+
+  renderVals() {
+    const data = [
+      { id:'108', titulo:'Mesa 4 · #108', hora:'10:52 am', cobrador:'Marta R.', total:'$24.50', metodo:'Efectivo', editada:false,
+        items:[ {c:'1',n:'Pizza Grande Hawaiana',p:'$19.50'}, {c:'2',n:'Refresco 600 ml',p:'$5.00'} ],
+        subtotal:'$24.50', descuento:null, recibido:'$30.00', cambio:'$5.50' },
+      { id:'110', titulo:'Llevar · #110', hora:'11:18 am', cobrador:'Marta R.', total:'$16.00', metodo:'Efectivo', editada:false,
+        items:[ {c:'1',n:'Pizza Mediana Hawaiana',p:'$14.00'}, {c:'1',n:'Refresco 600 ml',p:'$2.50'} ],
+        subtotal:'$16.50', descuento:'−$0.50', recibido:'$20.00', cambio:'$4.00' },
+      { id:'112', titulo:'Mesa 2 · #112', hora:'11:47 am', cobrador:'Marta R.', total:'$38.75', metodo:'Efectivo', editada:false,
+        items:[ {c:'1',n:'Pizza Familiar Suprema',p:'$26.50'}, {c:'1',n:'Alitas BBQ 6 pz',p:'$9.80'}, {c:'1',n:'Agua mineral',p:'$2.45'} ],
+        subtotal:'$38.75', descuento:null, recibido:'$40.00', cambio:'$1.25' },
+      { id:'117', titulo:'Mesa 7 · #117', hora:'12:38 pm', cobrador:'Marta R.', total:'$51.30', metodo:'Efectivo', editada:true,
+        items:[ {c:'1',n:'Pizza Grande Pepperoni',p:'$18.50'}, {c:'1',n:'Pizza Mediana Hawaiana',p:'$14.00'}, {c:'1',n:'Alitas BBQ 6 pz',p:'$9.80'}, {c:'1',n:'Pan de ajo',p:'$4.00'}, {c:'3',n:'Refresco 600 ml',p:'$7.50'} ],
+        subtotal:'$53.80', descuento:'−$2.50', recibido:'$60.00', cambio:'$8.70' }
+    ];
+
+    const ordenes = data.map(o => {
+      const abierta = this.state.abierta === o.id;
+      return Object.assign({}, o, {
+        abierta,
+        caret: abierta ? '▴' : '▾',
+        subLinea: o.editada ? o.hora + ' · ' + o.cobrador + ' · se cambió el método 1:04 pm' : o.hora + ' · ' + o.cobrador,
+        subColor: o.editada ? '#8a5800' : '#8a929c',
+        filaBg: o.editada ? '#fdf3e2' : (abierta ? '#fafbfc' : '#fff'),
+        tieneDescuento: !!o.descuento,
+        toggle: () => this.setState(s => ({ abierta: s.abierta === o.id ? null : o.id }))
+      });
+    });
+
+    return { ordenes };
+  }
+}
+</script>
+</body>
+</html>

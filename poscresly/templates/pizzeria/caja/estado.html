@@ -43,6 +43,15 @@
     {% endif %}
 
     <section class="cj-lista">
+      {% comment %}Va primero: es la venta. Movimientos es el cajón y Cortes, el pasado.{% endcomment %}
+      <a href="{% url 'pizzeria_caja_ordenes_turno' %}" class="cj-fila">
+        <span class="cj-fila-texto">
+          <span class="cj-fila-titulo">Órdenes del turno</span>
+          <span class="cj-fila-sub">{{ ordenes_turno_sub }}</span>
+        </span>
+        <i class="bi bi-chevron-right cj-fila-chev" aria-hidden="true"></i>
+      </a>
+
       <button type="button" class="cj-fila" data-bs-toggle="collapse" data-bs-target="#cjCobro" aria-expanded="false" aria-controls="cjCobro">
         <span class="cj-fila-texto">
           <span class="cj-fila-titulo">Cómo se cobró</span>

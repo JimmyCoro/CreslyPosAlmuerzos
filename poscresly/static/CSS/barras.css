@@ -292,6 +292,8 @@ a.pzsh-chip { min-height: 34px; text-decoration: none; }
 a.pzsh-chip:hover { color: #14181d; }
 a.pzsh-chip.pzsh-chip-active:hover { color: #fff; }
 .pzsh-chip-count { opacity: .55; }
+/* Chip con tono propio cuando no está activo (p. ej. "Editadas" en ámbar). */
+a.pzsh-chip.pzsh-chip-tono-ambar:not(.pzsh-chip-active) { background: #fdf3e2; border-color: #f2e0bd; color: #8a5800; }
 
 .pzsh-chip-estado { font-weight: 800; }
 .pzsh-chip-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }

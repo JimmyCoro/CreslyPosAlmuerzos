@@ -1,0 +1,204 @@
+{% extends 'movil/base_movil.html' %}
+{% load static %}
+
+{% block title %}Órdenes del turno · Caja · Cresly POS{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'CSS/pizzeria-caja.css' %}?v=2">
+<link rel="stylesheet" href="{% static 'CSS/pizzeria-caja-ordenes.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="im-shell cj">
+
+  {% include 'components/pizzeria_header.html' %}
+  {% include 'components/pizzeria_alerta.html' %}
+  {% include 'components/pizzeria_subheader.html' %}
+
+  {% comment %}
+    Una sola orden abierta a la vez: data-bs-parent en la lista entera cierra la
+    anterior (handoff §4). Tocar la fila solo mira; corregir vive en el ⋯.
+  {% endcomment %}
+  <main class="cj-content ot-content" id="otLista">
+    {% for grupo in grupos %}
+    <section class="ot-grupo" aria-labelledby="otGrupo-{{ grupo.clave }}">
+      <h2 class="ot-grupo-cab" id="otGrupo-{{ grupo.clave }}">
+        <span class="ot-grupo-etiqueta">{{ grupo.etiqueta }}</span>
+        <span class="ot-grupo-conteo">{{ grupo.conteo }}</span>
+        <span class="ot-grupo-subtotal">${{ grupo.subtotal|floatformat:2 }}</span>
+      </h2>
+
+      <div class="ot-tarjeta">
+        {% for fila in grupo.filas %}
+        <div class="ot-orden{% if fila.editada %} ot-orden-editada{% endif %}">
+          <div class="ot-fila">
+            <button type="button" class="ot-fila-toggle" data-bs-toggle="collapse" data-bs-target="#otDetalle{{ fila.id }}"
+                    aria-expanded="false" aria-controls="otDetalle{{ fila.id }}">
+              <span class="ot-fila-texto">
+                <span class="ot-fila-titulo">{{ fila.titulo }}{% if fila.editada %}<span class="ot-chip-editada">EDITADA</span>{% endif %}</span>
+                <span class="ot-fila-sub">{{ fila.sub }}</span>
+              </span>
+              <span class="ot-fila-monto">${{ fila.total|floatformat:2 }}</span>
+              <i class="bi bi-chevron-down ot-caret" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="ot-mas" aria-label="Acciones de {{ fila.titulo }}"
+                    data-ot-orden="{{ fila.id }}" data-titulo="{{ fila.titulo }}" data-sub="{{ fila.hoja_sub }}"
+                    data-metodo="{{ fila.metodo }}" data-centavos="{{ fila.centavos }}"
+                    data-aviso="{{ fila.aviso|default:'' }}">
+              <i class="bi bi-three-dots" aria-hidden="true"></i>
+            </button>
+          </div>
+
+          {% if fila.desglose %}
+          <dl class="ot-desglose">
+            {% for parte in fila.desglose %}
+            <div class="ot-desglose-fila"><dt>{{ parte.metodo }}</dt><dd>${{ parte.monto|floatformat:2 }}</dd></div>
+            {% endfor %}
+          </dl>
+          {% endif %}
+
+          <div class="collapse" id="otDetalle{{ fila.id }}" data-bs-parent="#otLista">
+            <div class="ot-panel">
+              <ul class="ot-platillos">
+                {% for item in fila.items %}
+                <li class="ot-platillo">
+                  <span class="ot-platillo-cant">{{ item.cantidad }}×</span>
+                  <span class="ot-platillo-nombre">{{ item.nombre }}</span>
+                  <span class="ot-platillo-precio">{{ item.precio }}</span>
+                </li>
+                {% empty %}
+                <li class="ot-platillo ot-platillo-vacio">Sin platillos registrados</li>
+                {% endfor %}
+                <li class="ot-platillo ot-platillo-total">
+                  <span>Total</span>
+                  <span>${{ fila.total|floatformat:2 }}</span>
+                </li>
+              </ul>
+
+              <div class="ot-terna">
+                <div class="ot-terna-caja"><span class="ot-terna-label">RECIBIÓ</span><span class="ot-terna-valor">{{ fila.recibido }}</span></div>
+                <div class="ot-terna-caja"><span class="ot-terna-label">CAMBIO</span><span class="ot-terna-valor">{{ fila.cambio }}</span></div>
+                <div class="ot-terna-caja"><span class="ot-terna-label">MÉTODO</span><span class="ot-terna-valor">{{ fila.metodo }}</span></div>
+              </div>
+
+              {% if fila.aviso %}
+              <div class="ot-aviso">
+                <span class="ot-aviso-titulo">Editada después de cobrar</span>
+                <p class="ot-aviso-texto">{{ fila.aviso }}</p>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      {% if grupo.clave == 'efectivo' %}
+      <div class="ot-pie">
+        {% if efectivo_en_mixtas %}
+        <div class="ot-pie-fila"><span>+ parte en efectivo de órdenes mixtas</span><strong>${{ efectivo_en_mixtas|floatformat:2 }}</strong></div>
+        {% endif %}
+        <div class="ot-pie-fila"><span>Retiros al cajón del turno</span><a href="{% url 'pizzeria_caja_movimientos' %}" class="ot-pie-enlace">ver Movimientos ›</a></div>
+      </div>
+      {% endif %}
+    </section>
+    {% empty %}
+    <p class="cj-vacio">{% if filtro == 'todas' %}Todavía no hay órdenes pagadas en este turno.{% else %}No hay órdenes {{ filtro }} en este turno.{% endif %}</p>
+    {% endfor %}
+
+    {% if grupos %}
+    <section class="ot-totales" aria-label="Totales del turno">
+      {% for fila in totales %}
+      <div class="ot-totales-fila"><span>{{ fila.etiqueta }}</span><span>${{ fila.monto|floatformat:2 }}</span></div>
+      {% endfor %}
+      <div class="ot-totales-final"><span>{% if filtro == 'todas' %}Vendido en el turno{% else %}Total de lo filtrado{% endif %}</span><span>${{ total_turno|floatformat:2 }}</span></div>
+      <p class="ot-totales-nota">{% if filtro == 'todas' %}Coincide con lo vendido en Caja. Los retiros y el fondo inicial están en Movimientos.{% else %}Solo suma las órdenes del filtro activo.{% endif %}</p>
+    </section>
+    {% endif %}
+  </main>
+
+  {% include 'components/pizzeria_bottom_nav.html' %}
+
+</div>
+
+{% comment %}Hoja ⋯: una sola acción, sin ZONA DE RIESGO (corregir no destruye nada).{% endcomment %}
+<div class="offcanvas offcanvas-bottom cj-hoja" tabindex="-1" id="otHojaAcciones" aria-labelledby="otAccTitulo">
+  <div class="cj-hoja-asa" aria-hidden="true"></div>
+  <div class="offcanvas-body cj-hoja-body cj-acc-body">
+    <div class="cj-acc-cab">
+      <span class="cj-acc-cab-texto">
+        <h2 class="cj-hoja-titulo" id="otAccTitulo"></h2>
+        <span class="cj-acc-cab-sub" id="otAccSub"></span>
+      </span>
+    </div>
+
+    <div class="cj-acc-grupo">
+      <span class="cj-acc-grupo-titulo">LA ORDEN</span>
+      <button type="button" class="cj-acc-fila" id="otAccCorregir">
+        <i class="bi bi-arrow-left-right cj-acc-glifo" aria-hidden="true"></i>
+        <span class="cj-acc-fila-texto">
+          <span class="cj-acc-fila-label">Corregir método de pago</span>
+          <span class="cj-acc-fila-sub" id="otAccMetodo"></span>
+        </span>
+        <i class="bi bi-chevron-right cj-acc-chev" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <div class="cj-acc-grupo" id="otAccHistorial" hidden>
+      <span class="cj-acc-grupo-titulo">HISTORIAL</span>
+      <div class="ot-aviso">
+        <span class="ot-aviso-titulo"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i> Editada después de cobrar</span>
+        <p class="ot-aviso-texto" id="otAccHistorialTexto"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="offcanvas offcanvas-bottom cj-hoja" tabindex="-1" id="otHojaCorregir" aria-labelledby="otCorTitulo">
+  <div class="cj-hoja-asa" aria-hidden="true"></div>
+  <div class="offcanvas-body cj-hoja-body">
+    <h2 class="cj-hoja-titulo" id="otCorTitulo">Corregir método de pago</h2>
+    <p class="cj-hoja-sub" id="otCorSub"></p>
+
+    <span class="cj-campo-label" id="otCorMetodoLabel">SE COBRÓ CON</span>
+    <div class="ot-radios" role="radiogroup" aria-labelledby="otCorMetodoLabel">
+      {% for metodo in metodos_corregibles %}
+      <button type="button" class="ot-radio" role="radio" aria-checked="false" data-metodo="{{ metodo }}">
+        <span class="ot-radio-punto" aria-hidden="true"></span>
+        <span class="ot-radio-nombre">{{ metodo }}</span>
+        <span class="ot-radio-actual">ACTUAL</span>
+      </button>
+      {% endfor %}
+      <button type="button" class="ot-radio" role="radio" aria-checked="false" aria-disabled="true" disabled data-metodo="Mixto">
+        <span class="ot-radio-punto" aria-hidden="true"></span>
+        <span class="ot-radio-nombre">Mixto</span>
+        <span class="ot-radio-actual ot-radio-nota">no disponible aquí</span>
+      </button>
+    </div>
+
+    <label class="cj-campo-label" for="otCorMotivo">MOTIVO</label>
+    <textarea id="otCorMotivo" class="cj-input cj-textarea ot-motivo" maxlength="200"
+              placeholder="Por qué se registró mal. Queda en el historial de la orden."></textarea>
+
+    <div class="ot-previa" id="otCorPrevia" aria-live="polite" hidden></div>
+
+    <button type="button" class="cj-btn-primario" id="otBtnCorregir" disabled>Guardar corrección</button>
+    <p class="cj-linea-falta" id="otCorFalta" aria-live="polite"></p>
+  </div>
+</div>
+
+<div class="cj-aviso" id="cjAviso" role="status" aria-live="polite"></div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  window.CJ = {
+    turnoId: {{ caja.id }},
+    urls: { corregir: "{% url 'pizzeria_caja_corregir_metodo' 0 %}" },
+  };
+  window.OT_SUBTOTALES = {{ subtotales_centavos|safe }};
+</script>
+<script src="{% static 'JS/pizzeria_caja.js' %}?v=2"></script>
+<script src="{% static 'JS/pizzeria_caja_ordenes.js' %}"></script>
+{% endblock %}

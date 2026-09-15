@@ -249,6 +249,10 @@
 
     return {
       puedeConfirmar: actualizarConfirmar,
+      // Lo que entregó el cliente en efectivo (para el cambio en Órdenes del turno).
+      obtenerRecibido() {
+        return !mixto && metodo === 'Efectivo' ? (parseFloat(montoRecibido) || null) : null;
+      },
       obtenerPagos() {
         if (mixto) return lineasMixto.filter((l) => parseFloat(l.monto) > 0).map((l) => ({ metodo: l.metodo, monto: parseFloat(l.monto) }));
         const monto = metodo === 'Efectivo' ? (parseFloat(montoRecibido) || 0) : cfg.objetivo;
@@ -339,7 +343,10 @@
       fetch(config.urlProcesar, {
         method: 'POST',
         headers: { 'X-CSRFToken': window.CSRF_TOKEN, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ dividir: false, adelantado: adelantado, pagos: widgetPedido.obtenerPagos() }),
+        body: JSON.stringify({
+          dividir: false, adelantado: adelantado,
+          pagos: widgetPedido.obtenerPagos(), recibido: widgetPedido.obtenerRecibido(),
+        }),
       })
         .then((r) => r.json())
         .then((data) => {

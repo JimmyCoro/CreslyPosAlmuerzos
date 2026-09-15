@@ -1,4 +1,4 @@
-const CACHE_NAME = "cresly-pos-v33";
+const CACHE_NAME = "cresly-pos-v34";
 const CORE_ASSETS = [
   "/static/manifest.json",
   "/static/offline.html",

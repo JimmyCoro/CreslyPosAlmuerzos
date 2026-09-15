@@ -2945,6 +2945,17 @@ def procesar_cobro_pedido(request, pedido_id):
                 pedido.tipo == 'delivery' and pedido.valor_moto and 'Transferencia' in metodos_usados
             )
             pedido.forma_pago = metodos_usados.pop() if (not data.get('dividir') and len(metodos_usados) == 1) else None
+            pedido.cobrado_por = request.user
+            # El efectivo entregado solo tiene sentido en un cobro simple en efectivo;
+            # lo que venga menor al total se ignora (sería un dato mal capturado).
+            pedido.recibido = None
+            if pedido.forma_pago == 'Efectivo' and data.get('recibido') not in (None, ''):
+                try:
+                    recibido = Decimal(str(data.get('recibido'))).quantize(Decimal('0.01'))
+                except Exception:
+                    recibido = None
+                if recibido is not None and recibido.is_finite() and recibido >= _total_con_iva(pedido.total):
+                    pedido.recibido = recibido
             if adelantado:
                 pedido.pagado_adelantado_en = timezone.now()
             else:

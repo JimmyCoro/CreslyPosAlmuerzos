@@ -21,6 +21,7 @@ from .models import (
     CajaPizzeriaEfectivo,
     CajaPizzeriaTarjeta,
     CajaPizzeriaTransferencia,
+    CambioMetodoPago,
     MovimientoCajaPizzeria,
     PagoPedido,
     PedidoPizzeria,
@@ -325,6 +326,7 @@ def estado_caja(request):
         'supera_umbral': turno['esperado_en_caja'] > UMBRAL_RETIRO,
         'umbral_retiro': UMBRAL_RETIRO,
         'movimientos_sub': f"{n_registros} registro{'s' if n_registros != 1 else ''} · último {_hora(ultimo_en)}",
+        'ordenes_turno_sub': _resumen_ordenes_turno(caja),
         'corte_fila': corte_fila,
         'denominaciones': _denominaciones(),
         'categorias': MovimientoCajaPizzeria.CATEGORIAS,
@@ -766,3 +768,274 @@ def anular_movimiento(request, movimiento_id):
         mov.save(update_fields=['anulado', 'anulado_motivo', 'anulado_por', 'anulado_en'])
 
     return JsonResponse({'status': 'ok', 'message': f'{NOMBRE_TIPO[mov.tipo].capitalize()} de {_dinero(mov.monto)} anulado'})
+
+
+# ===== Órdenes del turno (pizzeria/handoff_ordenes_turno) =====
+# Auditoría de caja: las órdenes pagadas del turno agrupadas por método, con
+# subtotal por grupo, para encontrar de dónde sale un descuadre. Todo se suma
+# aquí; la plantilla solo itera.
+
+GRUPOS_METODO = [
+    ('Efectivo', 'EFECTIVO'), ('Tarjeta', 'TARJETA'), ('Transferencia', 'TRANSFERENCIA'), ('Mixto', 'MIXTO'),
+]
+METODOS_CORREGIBLES = ['Efectivo', 'Tarjeta', 'Transferencia']
+FILTROS_ORDENES_TURNO = [('todas', 'Todas'), ('editadas', 'Editadas'), ('mixtas', 'Mixtas')]
+
+
+def _plural(n, singular, plural):
+    return singular if n == 1 else plural
+
+
+def _pagos_del_turno(caja):
+    pagos = PagoPedido.objects.contables().filter(creado_en__gte=caja.fecha_apertura)
+    if caja.fecha_cierre:
+        pagos = pagos.filter(creado_en__lte=caja.fecha_cierre)
+    return pagos
+
+
+def _metodo_de(pagos):
+    """Una orden pagada con un solo método va a ese grupo; con varios, a Mixto."""
+    metodos = {p.metodo for p in pagos}
+    return metodos.pop() if len(metodos) == 1 else 'Mixto'
+
+
+def _titulo_orden_turno(pedido):
+    if pedido.tipo == 'mesa':
+        origen = f'Mesa {pedido.mesa.nombre or pedido.mesa.numero}' if pedido.mesa else 'Mesa'
+    elif pedido.tipo == 'delivery':
+        origen = 'Delivery'
+    else:
+        origen = 'Llevar'
+    return f'{origen} · #{pedido.numero_pedido_completo}'
+
+
+def _fila_orden_turno(pedido, pagos):
+    # Import diferido: views importa este módulo.
+    from .views import _construir_items_cobro
+
+    total = sum((p.monto for p in pagos), Decimal('0.00'))
+    metodo = _metodo_de(pagos)
+    pagada_en = max(p.creado_en for p in pagos)
+    cambio = next(iter(pedido.cambios_metodo.all()), None)
+    cobrador = _nombre_corto(pedido.cobrado_por)
+
+    sub = [_hora(pagada_en)] + ([cobrador] if cobrador else [])
+    if pedido.pagado_por_adelantado:
+        sub.append('por adelantado, en curso')
+    if cambio:
+        sub.append(f'se cambió el método {_hora(cambio.creado_en)}')
+
+    por_metodo = {}
+    for p in pagos:
+        por_metodo[p.metodo] = por_metodo.get(p.metodo, Decimal('0.00')) + p.monto
+
+    recibido = cambio_efectivo = '—'
+    if metodo == 'Efectivo' and pedido.recibido:
+        recibido = _dinero(pedido.recibido)
+        cambio_efectivo = _dinero(max(Decimal('0.00'), pedido.recibido - total))
+
+    fila = {
+        'id': pedido.id,
+        'titulo': _titulo_orden_turno(pedido),
+        'sub': ' · '.join(sub),
+        'pagada_en': pagada_en,
+        'total': total,
+        'metodo': metodo,
+        'editada': cambio is not None,
+        'items': [
+            {
+                'cantidad': item['cantidad'],
+                'nombre': item['descripcion'],
+                'precio': _dinero(Decimal(str(item['precio_unitario'])) * item['cantidad']),
+            }
+            for item in _construir_items_cobro(pedido)
+        ],
+        'recibido': recibido,
+        'cambio': cambio_efectivo,
+        'desglose': (
+            [{'metodo': m, 'monto': por_metodo[m]} for m in METODOS_CORREGIBLES if m in por_metodo]
+            if metodo == 'Mixto' else []
+        ),
+        'efectivo_en_mixta': por_metodo.get('Efectivo', Decimal('0.00')) if metodo == 'Mixto' else Decimal('0.00'),
+        'hoja_sub': f'Pagada {_hora(pagada_en)} · {_dinero(total)} · {metodo.lower()}',
+        'centavos': int(total * 100),
+    }
+    if cambio:
+        autor = _nombre_corto(cambio.autor) or 'Alguien'
+        fila['aviso'] = (
+            f'{_hora(cambio.creado_en)} · {autor} cambió {cambio.de.lower()} → {cambio.a.lower()}. '
+            f'Motivo: «{cambio.motivo}».'
+        )
+    return fila
+
+
+def _ordenes_turno(caja):
+    """Filas de las órdenes con pagos en el turno, de la más antigua a la más reciente."""
+    pagos_por_pedido = {}
+    for pago in _pagos_del_turno(caja).order_by('creado_en'):
+        pagos_por_pedido.setdefault(pago.pedido_id, []).append(pago)
+    pedidos = (
+        PedidoPizzeria.objects.filter(pk__in=list(pagos_por_pedido))
+        .select_related('mesa', 'cobrado_por')
+        .prefetch_related('cambios_metodo__autor')
+    )
+    filas = [_fila_orden_turno(p, pagos_por_pedido[p.id]) for p in pedidos]
+    filas.sort(key=lambda f: f['pagada_en'])
+    return filas
+
+
+def _resumen_ordenes_turno(caja):
+    """Sub-línea de la fila de entrada en Caja: pagadas, total y editadas."""
+    filas = _ordenes_turno(caja)
+    total = sum((f['total'] for f in filas), Decimal('0.00'))
+    editadas = sum(1 for f in filas if f['editada'])
+    texto = f"{len(filas)} {_plural(len(filas), 'pagada', 'pagadas')} · {_dinero(total)}"
+    if editadas:
+        texto += f" · {editadas} {_plural(editadas, 'editada', 'editadas')}"
+    return texto
+
+
+@login_required(login_url=LOGIN_URL)
+def ordenes_turno(request):
+    caja = _caja_abierta()
+    if caja is None:
+        return redirect('pizzeria_caja_abrir')
+
+    filtro = request.GET.get('filtro', 'todas')
+    if filtro not in dict(FILTROS_ORDENES_TURNO):
+        filtro = 'todas'
+
+    todas = _ordenes_turno(caja)
+    conteos = {
+        'todas': len(todas),
+        'editadas': sum(1 for f in todas if f['editada']),
+        'mixtas': sum(1 for f in todas if f['metodo'] == 'Mixto'),
+    }
+    if filtro == 'editadas':
+        filas = [f for f in todas if f['editada']]
+    elif filtro == 'mixtas':
+        filas = [f for f in todas if f['metodo'] == 'Mixto']
+    else:
+        filas = todas
+
+    # Los subtotales se recalculan sobre lo filtrado (handoff §5).
+    subtotales = {}
+    grupos = []
+    for clave, etiqueta in GRUPOS_METODO:
+        del_grupo = [f for f in filas if f['metodo'] == clave]
+        subtotales[clave] = sum((f['total'] for f in del_grupo), Decimal('0.00'))
+        if del_grupo:
+            n = len(del_grupo)
+            grupos.append({
+                'clave': clave.lower(), 'etiqueta': etiqueta, 'filas': del_grupo,
+                'subtotal': subtotales[clave], 'conteo': f"{n} {_plural(n, 'orden', 'órdenes')}",
+            })
+
+    base = reverse('pizzeria_caja_ordenes_turno')
+    chips = [
+        {
+            'label': etiqueta, 'active': clave == filtro, 'count': conteos[clave],
+            'url': base if clave == 'todas' else f'{base}?filtro={clave}',
+            'tono': 'ambar' if clave == 'editadas' else '',
+        }
+        for clave, etiqueta in FILTROS_ORDENES_TURNO
+        # Un chip que filtra a cero no aporta nada; el activo siempre se ve.
+        if clave == 'todas' or conteos[clave] or clave == filtro
+    ]
+
+    subheader = _subheader(
+        'Órdenes del turno',
+        sub_pre=f"{conteos['todas']} {_plural(conteos['todas'], 'pagada', 'pagadas')} · ",
+        sub_hi=_dinero(sum((f['total'] for f in todas), Decimal('0.00'))),
+        back=reverse('pizzeria_caja'),
+        chips=chips if len(chips) > 1 else None,
+    )
+
+    return render(request, 'pizzeria/caja/ordenes_turno.html', {
+        'caja': caja,
+        'grupos': grupos,
+        'filtro': filtro,
+        'efectivo_en_mixtas': sum((f['efectivo_en_mixta'] for f in filas), Decimal('0.00')),
+        'totales': [
+            {'etiqueta': etiqueta.capitalize(), 'monto': subtotales[clave]} for clave, etiqueta in GRUPOS_METODO
+        ],
+        'total_turno': sum(subtotales.values(), Decimal('0.00')),
+        'subtotales_centavos': json.dumps({clave: int(monto * 100) for clave, monto in subtotales.items()}),
+        'metodos_corregibles': METODOS_CORREGIBLES,
+        'subheader': subheader,
+    })
+
+
+def campos_faltantes_correccion(metodo_actual, metodo_nuevo, motivo):
+    """Una sola fuente para el botón bloqueado, la línea roja y el POST."""
+    faltan = []
+    if not (motivo or '').strip():
+        faltan.append('Falta escribir el motivo')
+    if not metodo_nuevo or metodo_nuevo == metodo_actual:
+        faltan.append('Elige un método distinto al actual')
+    return faltan
+
+
+@login_required(login_url=LOGIN_URL)
+@require_http_methods(['POST'])
+def corregir_metodo_pago(request, pedido_id):
+    """Cambia cómo se clasificó el dinero de una orden cobrada en el turno abierto.
+    No toca el monto ni los platillos: mueve el importe entre métodos en la caja
+    y deja el cambio registrado con su motivo."""
+    from .views import _caja_tarjeta
+
+    data = _leer_json(request)
+    if data is None:
+        return _error('Datos inválidos')
+    nuevo = data.get('metodo')
+    motivo = (data.get('motivo') or '').strip()[:200]
+    if nuevo not in METODOS_CORREGIBLES:
+        return _error('Elige efectivo, tarjeta o transferencia')
+
+    with transaction.atomic():
+        caja = _caja_para_movimiento(data.get('turno_id'))
+        if caja is None:
+            return _error('Este turno ya está cerrado. Recarga la pantalla.', status=409)
+        pedido = PedidoPizzeria.objects.select_for_update().filter(pk=pedido_id).first()
+        if pedido is None:
+            return _error('Orden no encontrada', status=404)
+        pagos = list(_pagos_del_turno(caja).select_for_update().filter(pedido=pedido))
+        if not pagos:
+            return _error('Esta orden no se cobró en el turno abierto', status=404)
+
+        actual = _metodo_de(pagos)
+        faltan = campos_faltantes_correccion(actual, nuevo, motivo)
+        if faltan:
+            return _error(faltan[0])
+
+        # El pago de la moto de un delivery se descuenta del cajón solo si se
+        # cobró por transferencia: cambiarlo aquí dejaría ese gasto descuadrado.
+        toca_transferencia = 'Transferencia' in ({p.metodo for p in pagos} | {nuevo})
+        if pedido.tipo == 'delivery' and pedido.valor_moto and toca_transferencia:
+            return _error('El pago de la moto de este delivery depende de la transferencia; corrígelo desde Movimientos')
+
+        cajones = {
+            'Efectivo': caja.caja_efectivo,
+            'Transferencia': caja.caja_transferencia,
+            'Tarjeta': _caja_tarjeta(caja),
+        }
+        for pago in pagos:
+            if pago.metodo == nuevo:
+                continue
+            cajones[pago.metodo].total_ventas -= pago.monto
+            cajones[nuevo].total_ventas += pago.monto
+            pago.metodo = nuevo
+            pago.save(update_fields=['metodo'])
+        for cajon in cajones.values():
+            cajon.save(update_fields=['total_ventas'])
+
+        pedido.forma_pago = nuevo
+        if nuevo != 'Efectivo':
+            pedido.recibido = None
+        pedido.save(update_fields=['forma_pago', 'recibido'])
+        CambioMetodoPago.objects.create(pedido=pedido, de=actual, a=nuevo, motivo=motivo, autor=request.user)
+
+    return JsonResponse({
+        'status': 'ok',
+        'message': f'{_titulo_orden_turno(pedido)}: {actual.lower()} → {nuevo.lower()}',
+    })

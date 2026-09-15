@@ -7,7 +7,8 @@ from django.urls import reverse
 from django.utils import timezone
 
 from .models import (
-    CajaPizzeria, CajaPizzeriaEfectivo, CajaPizzeriaTransferencia, ItemPreparacion, Mesa,
+    CajaPizzeria, CajaPizzeriaEfectivo, CajaPizzeriaTarjeta, CajaPizzeriaTransferencia, CambioMetodoPago,
+    ItemPreparacion, Mesa,
     PagoPedido, PedidoPizzeria, PedidoProductoSimple, ProductoSimple,
 )
 from .views import _total_con_iva
@@ -104,3 +105,97 @@ class CobroPorAdelantadoTests(TestCase):
         self.pedido.refresh_from_db()
         self.assertEqual(self.pedido.estado, 'cobrado')
         self.assertIsNone(self.pedido.pagado_adelantado_en)
+
+
+@override_settings(STORAGES={
+    'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+    'staticfiles': {'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage'},
+})
+class OrdenesDelTurnoTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_superuser('admin', 'admin@example.com', 'x')
+        self.client.force_login(self.user)
+        self.caja = CajaPizzeria.objects.create(fecha=timezone.localdate(), abierta_por=self.user)
+        CajaPizzeriaEfectivo.objects.create(caja=self.caja, monto_inicial=Decimal('20.00'))
+        CajaPizzeriaTransferencia.objects.create(caja=self.caja)
+        CajaPizzeriaTarjeta.objects.create(caja=self.caja)
+        self.producto = ProductoSimple.objects.create(nombre='Agua', categoria='bebida', precio=Decimal('5.00'))
+
+    def pedido_cobrado(self, pagos, recibido=None):
+        """Crea una orden de $total y la cobra por la vista real, como en el POS."""
+        total = sum(Decimal(str(m)) for _, m in pagos)
+        pedido = PedidoPizzeria.objects.create(tipo='llevar', mesero=self.user, total=total)
+        PedidoProductoSimple.objects.create(
+            pedido=pedido, producto=self.producto, cantidad=1, precio_unitario=total,
+        )
+        respuesta = self.client.post(
+            reverse('pizzeria_procesar_cobro', args=[pedido.id]),
+            data=json.dumps({'dividir': False, 'recibido': recibido,
+                             'pagos': [{'metodo': m, 'monto': float(v)} for m, v in pagos]}),
+            content_type='application/json',
+        )
+        self.assertEqual(respuesta.status_code, 200, respuesta.content)
+        pedido.refresh_from_db()
+        return pedido
+
+    def corregir(self, pedido, metodo, motivo='Se marcó mal', turno_id=None):
+        return self.client.post(
+            reverse('pizzeria_caja_corregir_metodo', args=[pedido.id]),
+            data=json.dumps({'turno_id': turno_id or self.caja.id, 'metodo': metodo, 'motivo': motivo}),
+            content_type='application/json',
+        )
+
+    def test_agrupa_por_metodo_y_el_total_coincide_con_caja(self):
+        efectivo = self.pedido_cobrado([('Efectivo', '10.00')], recibido=20)
+        self.pedido_cobrado([('Tarjeta', '7.50')])
+        self.pedido_cobrado([('Efectivo', '4.00'), ('Tarjeta', '6.00')])
+
+        self.assertEqual(efectivo.cobrado_por, self.user)
+        self.assertEqual(efectivo.recibido, Decimal('20.00'))
+
+        respuesta = self.client.get(reverse('pizzeria_caja_ordenes_turno'))
+        self.assertEqual(respuesta.status_code, 200)
+        grupos = {g['clave']: g['subtotal'] for g in respuesta.context['grupos']}
+        self.assertEqual(grupos, {'efectivo': Decimal('10.00'), 'tarjeta': Decimal('7.50'), 'mixto': Decimal('10.00')})
+        self.assertEqual(respuesta.context['efectivo_en_mixtas'], Decimal('4.00'))
+        self.assertEqual(respuesta.context['total_turno'], _resumen_turno(self.caja)['total_vendido'])
+        self.assertContains(respuesta, '$10.00')  # cambio de lo recibido: 20 - 10
+
+    def test_corregir_mueve_el_dinero_entre_metodos_y_deja_historial(self):
+        pedido = self.pedido_cobrado([('Tarjeta', '8.00')])
+        antes = _resumen_turno(self.caja)
+
+        respuesta = self.corregir(pedido, 'Efectivo', motivo='El cliente pagó en efectivo')
+        self.assertEqual(respuesta.status_code, 200, respuesta.content)
+
+        despues = _resumen_turno(self.caja)
+        self.assertEqual(despues['ventas_efectivo'], antes['ventas_efectivo'] + Decimal('8.00'))
+        self.assertEqual(despues['ventas_tarjeta'], antes['ventas_tarjeta'] - Decimal('8.00'))
+        self.assertEqual(despues['total_vendido'], antes['total_vendido'])
+        self.caja.caja_tarjeta.refresh_from_db()
+        self.assertEqual(self.caja.caja_tarjeta.total_ventas, Decimal('0.00'))
+
+        cambio = CambioMetodoPago.objects.get(pedido=pedido)
+        self.assertEqual((cambio.de, cambio.a, cambio.autor), ('Tarjeta', 'Efectivo', self.user))
+        lista = self.client.get(reverse('pizzeria_caja_ordenes_turno') + '?filtro=editadas')
+        self.assertEqual(len(lista.context['grupos']), 1)
+        self.assertContains(lista, 'EDITADA')
+
+    def test_corregir_exige_motivo_y_metodo_distinto(self):
+        pedido = self.pedido_cobrado([('Efectivo', '5.00')])
+        self.assertEqual(self.corregir(pedido, 'Tarjeta', motivo='  ').json()['message'], 'Falta escribir el motivo')
+        self.assertEqual(self.corregir(pedido, 'Efectivo').json()['message'], 'Elige un método distinto al actual')
+        self.assertEqual(self.corregir(pedido, 'Mixto').status_code, 400)
+        self.assertFalse(CambioMetodoPago.objects.exists())
+
+    def test_no_corrige_con_el_turno_cerrado(self):
+        pedido = self.pedido_cobrado([('Efectivo', '5.00')])
+        self.caja.estado = 'cerrada'
+        self.caja.save()
+        self.assertEqual(self.corregir(pedido, 'Tarjeta').status_code, 409)
+
+    def test_caja_muestra_la_fila_de_entrada(self):
+        self.pedido_cobrado([('Efectivo', '5.00')])
+        respuesta = self.client.get(reverse('pizzeria_caja'))
+        self.assertContains(respuesta, 'Órdenes del turno')
+        self.assertContains(respuesta, '1 pagada · $5.00')

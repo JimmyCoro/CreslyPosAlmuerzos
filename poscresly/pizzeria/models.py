@@ -220,6 +220,14 @@ class PedidoPizzeria(models.Model):
                   'en curso) hasta que se cierra con todo servido; entonces pasa a cobrado.',
     )
     forma_pago = models.CharField(max_length=15, choices=FORMA_PAGO, blank=True, null=True)
+    cobrado_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name='+',
+        help_text='Quién registró el cobro. Vacío en órdenes cobradas antes de guardarse este dato.',
+    )
+    recibido = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True, blank=True,
+        help_text='Efectivo que entregó el cliente (cobro simple en efectivo); de ahí sale el cambio.',
+    )
     fecha_creacion = models.DateTimeField(default=timezone.now)
     numero_dia = models.PositiveIntegerField(default=1)
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
@@ -444,6 +452,26 @@ class AsignacionItemCobro(models.Model):
     def __str__(self):
         linea = self.pizza or self.combo or self.producto_simple
         return f"{self.persona} - {self.cantidad}x {linea}"
+
+
+class CambioMetodoPago(models.Model):
+    """Corrección del método de pago de una orden ya cobrada (Caja → Órdenes del
+    turno). Cambia cómo se clasificó el dinero, nunca el monto; el motivo es
+    obligatorio y queda como historial de la orden."""
+    pedido = models.ForeignKey(PedidoPizzeria, on_delete=models.CASCADE, related_name='cambios_metodo')
+    de = models.CharField(max_length=15, help_text='Efectivo, Tarjeta, Transferencia o Mixto')
+    a = models.CharField(max_length=15)
+    motivo = models.CharField(max_length=200)
+    autor = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name='+')
+    creado_en = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Cambio de método de pago'
+        verbose_name_plural = 'Cambios de método de pago'
+        ordering = ['-creado_en']
+
+    def __str__(self):
+        return f"{self.pedido} · {self.de} → {self.a}"
 
 
 class PagoPedidoQuerySet(models.QuerySet):
