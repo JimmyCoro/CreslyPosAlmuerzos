@@ -829,7 +829,9 @@ def _fila_orden_turno(pedido, pagos):
     for p in pagos:
         por_metodo[p.metodo] = por_metodo.get(p.metodo, Decimal('0.00')) + p.monto
 
-    recibido = cambio_efectivo = '—'
+    # Recibió/cambio solo existen en efectivo: en tarjeta y transferencia se
+    # cobra el valor justo, y el método ya lo dice el grupo de la lista.
+    recibido = cambio_efectivo = None
     if metodo == 'Efectivo' and pedido.recibido:
         recibido = _dinero(pedido.recibido)
         cambio_efectivo = _dinero(max(Decimal('0.00'), pedido.recibido - total))

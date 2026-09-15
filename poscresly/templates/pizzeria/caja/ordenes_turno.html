@@ -75,11 +75,13 @@
                 </li>
               </ul>
 
+              {% if fila.recibido %}
+              {% comment %}Solo en efectivo: es lo que se compara contra el cajón.{% endcomment %}
               <div class="ot-terna">
                 <div class="ot-terna-caja"><span class="ot-terna-label">RECIBIÓ</span><span class="ot-terna-valor">{{ fila.recibido }}</span></div>
                 <div class="ot-terna-caja"><span class="ot-terna-label">CAMBIO</span><span class="ot-terna-valor">{{ fila.cambio }}</span></div>
-                <div class="ot-terna-caja"><span class="ot-terna-label">MÉTODO</span><span class="ot-terna-valor">{{ fila.metodo }}</span></div>
               </div>
+              {% endif %}
 
               {% if fila.aviso %}
               <div class="ot-aviso">
